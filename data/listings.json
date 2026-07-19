@@ -1,0 +1,1388 @@
+[
+  {
+    "id": "bi-01",
+    "titel": "Stuck-Altbau am Kollwitzplatz",
+    "segment": "berlin-innenstadt",
+    "adresse": "Prenzlauer Berg, Knaackstraße",
+    "flaeche": 72,
+    "zimmer": 3,
+    "etage": "3. OG, Altbau ohne Aufzug",
+    "baujahr": 1908,
+    "stil": "altbau",
+    "objektart": "wohnung", "eigentumsform": "weg", "grundstueck": 0, "aussenflaeche": 0,
+    "familienScore": 2, "barrierearm": false, "kartenposition": { "x": 32, "y": 30 },
+    "zustand": 3,
+    "energieklasse": "E",
+    "hausgeld": 310,
+    "lageScore": 8,
+    "preisAufschlag": 1.12,
+    "provisionsfrei": false,
+    "mietstatus": {
+      "vermietet": true,
+      "kaltmiete": 780,
+      "mieterSeit": 2011,
+      "hinweis": "langjährige Mieterin, zuverlässig"
+    },
+    "maklerText": "Repräsentativer Stuck-Altbau in einer der begehrtesten Lagen Berlins — hier kauft man nicht nur eine Wohnung, sondern eine Adresse. Flügeltüren, Dielen, dreieinhalb Meter Deckenhöhe. Ein Objekt für Anleger mit Anspruch, langjährig und zuverlässig vermietet.",
+    "besichtigung": [
+      "Stuck und Flügeltüren tatsächlich schön erhalten, Dielen im Flur deutlich verzogen",
+      "Bad aus den 90ern, funktional, aber kein Argument beim Weitervermieten",
+      "Im Treppenhaus: muffiger Geruch Richtung Keller"
+    ],
+    "dokumente": [
+      "WEG-Protokoll 2025: Dachsanierung ist beschlossen, Umlage noch nicht erhoben",
+      "Bestandsmiete 780 € liegt gut 25 % unter Vergleichsmiete — Erhöhung nur gekappt möglich"
+    ],
+    "maengel": [
+      { "name": "Feuchtigkeit in der Kellerwand (aufsteigend)", "kosten": 8500, "p": 0.7 }
+    ],
+    "sonderumlage": {
+      "anlass": "Beschlossene Dachsanierung",
+      "betrag": 9200,
+      "p": 0.8
+    }
+  },
+  {
+    "id": "bi-02",
+    "titel": "2 Zimmer mit Potenzial in Kreuzberg",
+    "segment": "berlin-innenstadt",
+    "adresse": "Kreuzberg, Reichenberger Straße",
+    "flaeche": 54,
+    "zimmer": 2,
+    "etage": "1. OG, Hinterhaus",
+    "baujahr": 1899,
+    "stil": "altbau",
+    "objektart": "wohnung", "eigentumsform": "weg", "grundstueck": 0, "aussenflaeche": 0,
+    "familienScore": 1, "barrierearm": false, "kartenposition": { "x": 46, "y": 58 },
+    "zustand": 2,
+    "energieklasse": "F",
+    "hausgeld": 240,
+    "lageScore": 7,
+    "preisAufschlag": 1.02,
+    "provisionsfrei": false,
+    "mietstatus": { "vermietet": false },
+    "maklerText": "Für Handwerker und Visionäre: unrenovierte Altbauwohnung im lebendigen Reichenberger Kiez. Wer hier klug investiert, hebt einen echten Schatz. Bezugsfrei — starten Sie sofort!",
+    "besichtigung": [
+      "Unrenoviert ist freundlich formuliert: Böden, Bad und Küche sind komplett fällig",
+      "Grundriss gut, Licht im Hinterhaus okay, ruhig zum Hof"
+    ],
+    "dokumente": [
+      "Wirtschaftsplan unauffällig, Rücklage der WEG solide"
+    ],
+    "maengel": [
+      { "name": "Elektrik auf Stand der 60er, Neuverkabelung nötig", "kosten": 7200, "p": 0.65 }
+    ]
+  },
+  {
+    "id": "bi-03",
+    "titel": "Neubau-Apartment in Mitte, vermietet",
+    "segment": "berlin-innenstadt",
+    "adresse": "Mitte, Chausseestraße",
+    "flaeche": 61,
+    "zimmer": 2,
+    "etage": "5. OG mit Aufzug",
+    "baujahr": 2019,
+    "stil": "neubau",
+    "objektart": "wohnung", "eigentumsform": "weg", "grundstueck": 0, "aussenflaeche": 6,
+    "familienScore": 1, "barrierearm": true, "kartenposition": { "x": 58, "y": 34 },
+    "zustand": 5,
+    "energieklasse": "A",
+    "hausgeld": 290,
+    "lageScore": 8,
+    "preisAufschlag": 1.15,
+    "provisionsfrei": true,
+    "mietstatus": {
+      "vermietet": true,
+      "kaltmiete": 1180,
+      "mieterSeit": 2023,
+      "hinweis": "Angestellter im Konzern, unauffällig"
+    },
+    "maklerText": "Sorgloses Investment: energieeffizienter Neubau, hochwertige Ausstattung, solvente Mieterschaft, Aufzug, Tiefgarage im Haus. Provisionsfrei direkt vom Eigentümer. Hier ist Ihr Kapital geparkt wie im Safe.",
+    "besichtigung": [
+      "Zustand wie beworben: praktisch neuwertig, nichts zu tun"
+    ],
+    "dokumente": [
+      "Alles sauber — dafür zahlt man hier auch: Rendite unter 3 % ist eingepreist"
+    ],
+    "maengel": []
+  },
+  {
+    "id": "bi-04",
+    "titel": "Klassiker in Charlottenburg",
+    "segment": "berlin-innenstadt",
+    "adresse": "Charlottenburg, Sophie-Charlotten-Straße",
+    "flaeche": 68,
+    "zimmer": 3,
+    "etage": "2. OG mit Aufzug",
+    "baujahr": 1958,
+    "stil": "zeile60",
+    "objektart": "wohnung", "eigentumsform": "weg", "grundstueck": 0, "aussenflaeche": 0,
+    "familienScore": 2, "barrierearm": false, "kartenposition": { "x": 23, "y": 60 },
+    "zustand": 3,
+    "energieklasse": "D",
+    "hausgeld": 330,
+    "lageScore": 7,
+    "preisAufschlag": 1.0,
+    "provisionsfrei": false,
+    "mietstatus": {
+      "vermietet": true,
+      "kaltmiete": 850,
+      "mieterSeit": 2017,
+      "hinweis": "Ehepaar, Rentner"
+    },
+    "maklerText": "Gepflegte 50er-Jahre-Wohnanlage in gewachsener Westberliner Lage. Solide vermietet, solide verwaltet, solide Substanz — ein Investment ohne Überraschungen für den langfristig denkenden Anleger.",
+    "besichtigung": [
+      "Substanz wirkt ordentlich, Fenster ca. 15 Jahre alt",
+      "Aufzug fährt, klingt aber nach seinem Baujahr"
+    ],
+    "dokumente": [
+      "Rücklage der WEG auffällig niedrig für das Alter der Anlage",
+      "Protokoll: Aufzugsmodernisierung 'zurückgestellt' — zum dritten Mal"
+    ],
+    "maengel": [],
+    "sonderumlage": {
+      "anlass": "Aufzugsmodernisierung nicht mehr aufschiebbar",
+      "betrag": 6800,
+      "p": 0.55
+    }
+  },
+  {
+    "id": "bi-05",
+    "titel": "Dachgeschoss-Traum mit Terrasse, Friedrichshain",
+    "segment": "berlin-innenstadt",
+    "adresse": "Friedrichshain, Bänschstraße",
+    "flaeche": 88,
+    "zimmer": 3,
+    "etage": "DG, 4. OG ohne Aufzug",
+    "baujahr": 1905,
+    "stil": "altbau",
+    "objektart": "wohnung", "eigentumsform": "weg", "grundstueck": 0, "aussenflaeche": 18,
+    "familienScore": 2, "barrierearm": false, "kartenposition": { "x": 68, "y": 54 },
+    "zustand": 4,
+    "energieklasse": "G",
+    "hausgeld": 380,
+    "lageScore": 8,
+    "preisAufschlag": 1.18,
+    "provisionsfrei": false,
+    "mietstatus": { "vermietet": false },
+    "maklerText": "Einmalig: ausgebautes Dachgeschoss mit Süd-Terrasse und Blick über die Dächer von Friedrichshain. Hochwertig ausgebaut, sofort bezugsfrei. Objekte dieser Kategorie kommen so gut wie nie an den Markt — Entscheidungsfreude wird belohnt.",
+    "besichtigung": [
+      "Die Terrasse ist wirklich spektakulär, der Ausbau wirkt hochwertig",
+      "Im Sommer heizt sich das DG spürbar auf; Klimaanlage gibt es nicht",
+      "Wasserrand an einer Schräge, frisch überstrichen"
+    ],
+    "dokumente": [
+      "Energieausweis Klasse G — die Heizkosten werden Mieter abschrecken oder Sie bei der Sanierung treffen"
+    ],
+    "maengel": [
+      { "name": "Dachanschluss an der Terrasse undicht", "kosten": 14000, "p": 0.55 }
+    ]
+  },
+  {
+    "id": "br-01",
+    "titel": "Vermietete 3 Zimmer in Spandau",
+    "segment": "berlin-rand",
+    "adresse": "Spandau, Päwesiner Weg",
+    "flaeche": 75,
+    "zimmer": 3,
+    "etage": "2. OG",
+    "baujahr": 1994,
+    "stil": "klinker90",
+    "objektart": "wohnung", "eigentumsform": "weg", "grundstueck": 0, "aussenflaeche": 5,
+    "familienScore": 2, "barrierearm": false, "kartenposition": { "x": 18, "y": 43 },
+    "zustand": 3,
+    "energieklasse": "D",
+    "hausgeld": 320,
+    "lageScore": 5,
+    "preisAufschlag": 1.0,
+    "provisionsfrei": true,
+    "mietstatus": {
+      "vermietet": true,
+      "kaltmiete": 890,
+      "mieterSeit": 2019,
+      "hinweis": "Familie, beide berufstätig, pünktliche Zahler"
+    },
+    "maklerText": "Unaufgeregtes Anlageobjekt in gepflegter 90er-Jahre-Wohnanlage: vernünftiger Schnitt, funktionierende WEG, zuverlässige Mieter. Kein Glamour — dafür Zahlen, die stimmen. Provisionsfrei.",
+    "besichtigung": [
+      "Alles genau so unspektakulär wie beschrieben — im besten Sinn"
+    ],
+    "dokumente": [
+      "WEG-Unterlagen vorbildlich, Rücklage gut gefüllt, keine Beschlüsse offen"
+    ],
+    "maengel": [
+      { "name": "Silikonfugen im Bad am Ende ihrer Lebensdauer", "kosten": 900, "p": 0.5 }
+    ]
+  },
+  {
+    "id": "br-02",
+    "titel": "Familienwohnung am Wasser, Köpenick",
+    "segment": "berlin-rand",
+    "adresse": "Köpenick, Wendenschloßstraße",
+    "flaeche": 82,
+    "zimmer": 4,
+    "etage": "1. OG mit Balkon",
+    "baujahr": 2016,
+    "stil": "neubau",
+    "objektart": "wohnung", "eigentumsform": "weg", "grundstueck": 0, "aussenflaeche": 10,
+    "familienScore": 4, "barrierearm": true, "kartenposition": { "x": 77, "y": 67 },
+    "zustand": 4,
+    "energieklasse": "B",
+    "hausgeld": 340,
+    "lageScore": 6,
+    "preisAufschlag": 1.08,
+    "provisionsfrei": false,
+    "mietstatus": {
+      "vermietet": true,
+      "kaltmiete": 1020,
+      "mieterSeit": 2021,
+      "hinweis": "Familie mit zwei Kindern"
+    },
+    "maklerText": "Moderne Familienwohnung in grüner Wasserlage mit hervorragender Perspektive: Der Ausbau der Tramtrasse ist in Planung und wird die Anbindung deutlich verbessern. Junge, solvente Mieterschaft, Neubauqualität von 2016.",
+    "besichtigung": [
+      "Guter Zustand, Familie hält die Wohnung ordentlich",
+      "Zur Tram sind es heute ehrlich gesagt 18 Minuten Fußweg"
+    ],
+    "dokumente": [
+      "Tram-Ausbau: im Nahverkehrsplan enthalten, Baubeginn nicht terminiert"
+    ],
+    "maengel": []
+  },
+  {
+    "id": "br-03",
+    "titel": "Günstige 3 Zimmer in Marzahn",
+    "segment": "berlin-rand",
+    "adresse": "Marzahn, Allee der Kosmonauten",
+    "flaeche": 64,
+    "zimmer": 3,
+    "etage": "7. OG mit Aufzug",
+    "baujahr": 1984,
+    "stil": "zeile60",
+    "objektart": "wohnung", "eigentumsform": "weg", "grundstueck": 0, "aussenflaeche": 4,
+    "familienScore": 2, "barrierearm": false, "kartenposition": { "x": 82, "y": 30 },
+    "zustand": 2,
+    "energieklasse": "F",
+    "hausgeld": 280,
+    "lageScore": 3,
+    "preisAufschlag": 0.92,
+    "provisionsfrei": true,
+    "mietstatus": { "vermietet": false },
+    "maklerText": "Einstiegspreis deutlich unter Berliner Durchschnitt! Sanierungsbedürftige Wohnung mit Weitblick im wachsenden Bezirk Marzahn-Hellersdorf. Für Rechner: Hier stimmt das Verhältnis von Preis zu Quadratmetern. Provisionsfrei.",
+    "besichtigung": [
+      "Wohnung ist durchgewohnt: Böden, Bad, Küche fällig",
+      "Aufzug und Treppenhaus der Anlage gepflegt, Blick tatsächlich weit"
+    ],
+    "dokumente": [
+      "Protokoll: Diskussion über Strangsanierung (Wasserleitungen) seit zwei Jahren, kein Beschluss"
+    ],
+    "maengel": [
+      { "name": "Steigleitungen marode — Strangsanierung trifft auch Ihre Einheit", "kosten": 6500, "p": 0.6 }
+    ]
+  },
+  {
+    "id": "br-04",
+    "titel": "60er-Jahre-Zeile in Reinickendorf",
+    "segment": "berlin-rand",
+    "adresse": "Reinickendorf, Ollenhauerstraße",
+    "flaeche": 70,
+    "zimmer": 3,
+    "etage": "3. OG",
+    "baujahr": 1962,
+    "stil": "zeile60",
+    "objektart": "wohnung", "eigentumsform": "weg", "grundstueck": 0, "aussenflaeche": 5,
+    "familienScore": 2, "barrierearm": false, "kartenposition": { "x": 40, "y": 22 },
+    "zustand": 3,
+    "energieklasse": "E",
+    "hausgeld": 360,
+    "lageScore": 4,
+    "preisAufschlag": 1.04,
+    "provisionsfrei": false,
+    "mietstatus": {
+      "vermietet": true,
+      "kaltmiete": 820,
+      "mieterSeit": 2015
+    },
+    "maklerText": "Bewährte Westberliner Wohnlage, seit Jahren stabil vermietet. Die Anlage wird kontinuierlich instand gehalten, die Wohnung selbst präsentiert sich altersgerecht gepflegt.",
+    "besichtigung": [
+      "Altersgerecht gepflegt heißt: original 60er mit Pflege — technisch okay, optisch müde"
+    ],
+    "dokumente": [
+      "Hausgeld ist für Alter und Ausstattung der Anlage spürbar hoch",
+      "Mietkonto: zwei verspätete Zahlungen in den letzten zwölf Monaten"
+    ],
+    "maengel": [
+      { "name": "Nachtspeicherheizung vor dem Aus, Umrüstung absehbar", "kosten": 5400, "p": 0.5 }
+    ]
+  },
+  {
+    "id": "le-01",
+    "titel": "Gründerzeit in Plagwitz, vermietet",
+    "segment": "leipzig",
+    "adresse": "Plagwitz, Karl-Heine-Straße",
+    "flaeche": 78,
+    "zimmer": 3,
+    "etage": "2. OG",
+    "baujahr": 1902,
+    "stil": "altbau",
+    "objektart": "wohnung", "eigentumsform": "weg", "grundstueck": 0, "aussenflaeche": 4,
+    "familienScore": 2, "barrierearm": false, "kartenposition": { "x": 28, "y": 50 },
+    "zustand": 3,
+    "energieklasse": "D",
+    "hausgeld": 290,
+    "lageScore": 7,
+    "preisAufschlag": 0.95,
+    "provisionsfrei": false,
+    "mietstatus": {
+      "vermietet": true,
+      "kaltmiete": 640,
+      "mieterSeit": 2018,
+      "hinweis": "Grafikerin, freiberuflich, bisher immer pünktlich"
+    },
+    "maklerText": "Sanierter Gründerzeit-Altbau im gefragten Leipziger Westen, direkt am kreativen Puls der Karl-Heine-Straße. Ordentliche Rendite bei intakter Substanz — hier verbinden sich Cash-Flow und Lage.",
+    "besichtigung": [
+      "Sanierung von 2009 hält sich gut, Bad in Ordnung",
+      "Einige Fenster zur Straße schließen schwer"
+    ],
+    "dokumente": [
+      "WEG solide aufgestellt, Rücklage im grünen Bereich"
+    ],
+    "maengel": [
+      { "name": "Kastenfenster zur Straße: Aufarbeitung fällig", "kosten": 3800, "p": 0.55 }
+    ]
+  },
+  {
+    "id": "le-02",
+    "titel": "Altbau-Wohnung in Connewitz, bezugsfrei",
+    "segment": "leipzig",
+    "adresse": "Connewitz, Wolfgang-Heinze-Straße",
+    "flaeche": 60,
+    "zimmer": 2,
+    "etage": "EG, Hochparterre",
+    "baujahr": 1910,
+    "stil": "altbau",
+    "objektart": "wohnung", "eigentumsform": "weg", "grundstueck": 0, "aussenflaeche": 0,
+    "familienScore": 1, "barrierearm": false, "kartenposition": { "x": 57, "y": 72 },
+    "zustand": 3,
+    "energieklasse": "E",
+    "hausgeld": 230,
+    "lageScore": 6,
+    "preisAufschlag": 1.05,
+    "provisionsfrei": false,
+    "mietstatus": { "vermietet": false },
+    "maklerText": "Kultiges Connewitz: lebendiger Szenekiez mit treuer Mieterschaft und chronisch knappem Wohnraum. Bezugsfreie Hochparterre-Wohnung mit gutem Grundriss — vermieten Sie an ein Publikum, das bleiben will.",
+    "besichtigung": [
+      "Grundriss und Raumhöhe gut, Bad okay",
+      "Hochparterre zur Straße: hörbar belebt, auch nachts",
+      "Leichter Modergeruch im Abstellraum zur Hofseite"
+    ],
+    "dokumente": [
+      "Unauffällig; Hof-Fassade laut Wirtschaftsplan 'mittelfristig' vorgesehen"
+    ],
+    "maengel": [
+      { "name": "Feuchtigkeit in der hofseitigen Außenwand", "kosten": 6200, "p": 0.65 }
+    ]
+  },
+  {
+    "id": "le-03",
+    "titel": "Renditepaket in Grünau",
+    "segment": "leipzig",
+    "adresse": "Grünau, Ratzelstraße",
+    "flaeche": 58,
+    "zimmer": 3,
+    "etage": "5. OG mit Aufzug",
+    "baujahr": 1981,
+    "stil": "zeile60",
+    "objektart": "wohnung", "eigentumsform": "weg", "grundstueck": 0, "aussenflaeche": 5,
+    "familienScore": 2, "barrierearm": true, "kartenposition": { "x": 18, "y": 26 },
+    "zustand": 2,
+    "energieklasse": "F",
+    "hausgeld": 250,
+    "lageScore": 2,
+    "preisAufschlag": 0.88,
+    "provisionsfrei": true,
+    "mietstatus": {
+      "vermietet": true,
+      "kaltmiete": 380,
+      "mieterSeit": 2014,
+      "hinweis": "Rentnerin, ruhig, zahlt pünktlich"
+    },
+    "maklerText": "Für Renditejäger: konkurrenzlos günstiger Einstieg, langjährig vermietet, Aufzug im Haus. Auf dem Papier schlägt dieses Objekt jede Eigentumswohnung in Berlin — rechnen Sie selbst! Provisionsfrei.",
+    "besichtigung": [
+      "Wohnung und Anlage sichtbar in die Jahre gekommen, viel Leerstand im Umfeld",
+      "Heizkörper und Fenster Originalbestand"
+    ],
+    "dokumente": [
+      "Protokoll: Fassadensanierung in Diskussion, Finanzierung der WEG ungeklärt",
+      "Mehrere Einheiten im Haus stehen leer oder gehören Großeigentümern"
+    ],
+    "maengel": [
+      { "name": "Heizungsstrang altersschwach, Havarierisiko", "kosten": 4800, "p": 0.7 }
+    ],
+    "sonderumlage": {
+      "anlass": "Fassadensanierung der Anlage",
+      "betrag": 5600,
+      "p": 0.6
+    }
+  },
+  {
+    "id": "le-04",
+    "titel": "Solide 3 Zimmer im Zentrum-Süd",
+    "segment": "leipzig",
+    "adresse": "Zentrum-Süd, Arthur-Hoffmann-Straße",
+    "flaeche": 66,
+    "zimmer": 3,
+    "etage": "3. OG",
+    "baujahr": 1996,
+    "stil": "klinker90",
+    "objektart": "wohnung", "eigentumsform": "weg", "grundstueck": 0, "aussenflaeche": 6,
+    "familienScore": 2, "barrierearm": false, "kartenposition": { "x": 62, "y": 39 },
+    "zustand": 3,
+    "energieklasse": "C",
+    "hausgeld": 270,
+    "lageScore": 6,
+    "preisAufschlag": 1.0,
+    "provisionsfrei": true,
+    "mietstatus": {
+      "vermietet": true,
+      "kaltmiete": 590,
+      "mieterSeit": 2020,
+      "hinweis": "Doktorandin mit Lehrauftrag"
+    },
+    "maklerText": "Zentrumsnahe 90er-Jahre-Wohnung mit vernünftiger Energiebilanz und stabiler Vermietung. Kein Sanierungsstau, keine Geschichten — ein Objekt, das einfach funktioniert. Provisionsfrei.",
+    "besichtigung": [
+      "Entspricht der Beschreibung; unaufgeregter, guter Zustand"
+    ],
+    "dokumente": [
+      "WEG-Unterlagen ohne Auffälligkeiten"
+    ],
+    "maengel": []
+  },
+  {
+    "id": "le-05",
+    "titel": "Neubau in Leutzsch, Erstvermietung 2021",
+    "segment": "leipzig",
+    "adresse": "Leutzsch, Georg-Schwarz-Straße",
+    "flaeche": 71,
+    "zimmer": 3,
+    "etage": "2. OG mit Balkon und Aufzug",
+    "baujahr": 2021,
+    "stil": "neubau",
+    "objektart": "wohnung", "eigentumsform": "weg", "grundstueck": 0, "aussenflaeche": 8,
+    "familienScore": 3, "barrierearm": true, "kartenposition": { "x": 35, "y": 18 },
+    "zustand": 5,
+    "energieklasse": "A",
+    "hausgeld": 300,
+    "lageScore": 5,
+    "preisAufschlag": 1.12,
+    "provisionsfrei": false,
+    "mietstatus": {
+      "vermietet": true,
+      "kaltmiete": 830,
+      "mieterSeit": 2021,
+      "hinweis": "Paar, beide im Krankenhaus beschäftigt"
+    },
+    "maklerText": "Neubau-Erstbezug von 2021 im aufstrebenden Leipziger Westen: Effizienzklasse A, Balkon, Aufzug, Tiefgarage. Die Zukunftssicherheit haben Sie hier schwarz auf weiß — inklusive energetischer Sorglosigkeit für Jahrzehnte.",
+    "besichtigung": [
+      "Neuwertig, nichts zu beanstanden"
+    ],
+    "dokumente": [
+      "Sauber — der Preis pro Quadratmeter liegt allerdings deutlich über Leipziger Bestand"
+    ],
+    "maengel": []
+  },
+  {
+    "id": "br-05",
+    "titel": "Reihenhaus mit kleinem Garten in Falkensee",
+    "segment": "berlin-rand",
+    "adresse": "Falkensee, Gartenstadt",
+    "flaeche": 112,
+    "zimmer": 5,
+    "etage": "2 Geschosse, nicht unterkellert",
+    "baujahr": 1998,
+    "stil": "haus",
+    "objektart": "haus", "eigentumsform": "alleineigentum", "grundstueck": 220, "aussenflaeche": 86,
+    "familienScore": 4, "barrierearm": false, "kartenposition": { "x": 12, "y": 65 },
+    "zustand": 4,
+    "energieklasse": "C",
+    "hausgeld": 0,
+    "laufendeKosten": { "grundsteuer": 48, "versicherung": 52, "grundstueckspflege": 70 },
+    "lageScore": 6,
+    "preisAufschlag": 1.04,
+    "provisionsfrei": false,
+    "mietstatus": { "vermietet": false, "kaltmiete": null, "mieterSeit": null, "hinweis": "bezugsfrei" },
+    "maklerText": "Kompaktes Reihenhaus für Familien: fünf Zimmer, Garten und S-Bahn in Reichweite. Überschaubares Grundstück, solide Hülle, klare laufende Kosten statt WEG-Hausgeld.",
+    "besichtigung": [
+      "Garten klein, aber gut nutzbar; Wohnbereich öffnet sich zur Terrasse",
+      "Haustechnik gepflegt, Dachraum bietet Stauraum"
+    ],
+    "dokumente": [
+      "Alleineigentum an Gebäude und Grundstück; keine WEG",
+      "Grundsteuer, Gebäudeversicherung und Grundstückspflege separat ausgewiesen"
+    ],
+    "maengel": [
+      { "name": "Abdichtung an der Terrassentür", "kosten": 6800, "p": 0.35 }
+    ]
+  },
+  {
+    "id": "le-06",
+    "titel": "Doppelhaushälfte am Leipziger Auwald",
+    "segment": "leipzig",
+    "adresse": "Markkleeberg, Auenring",
+    "flaeche": 130,
+    "zimmer": 5,
+    "etage": "2 Geschosse plus Keller",
+    "baujahr": 1986,
+    "stil": "haus",
+    "objektart": "haus", "eigentumsform": "alleineigentum", "grundstueck": 420, "aussenflaeche": 250,
+    "familienScore": 5, "barrierearm": false, "kartenposition": { "x": 74, "y": 78 },
+    "zustand": 3,
+    "energieklasse": "E",
+    "hausgeld": 0,
+    "laufendeKosten": { "grundsteuer": 42, "versicherung": 58, "grundstueckspflege": 95 },
+    "lageScore": 7,
+    "preisAufschlag": 1.02,
+    "provisionsfrei": true,
+    "mietstatus": { "vermietet": false, "kaltmiete": null, "mieterSeit": null, "hinweis": "bezugsfrei" },
+    "maklerText": "Viel Platz und eigener Garten nahe dem Auwald. Der Kaufpreis wirkt familienfreundlich, dafür verlangen Energieklasse und Grundstück dauerhaft höhere Rücklagen und mehr Eigenleistung.",
+    "besichtigung": [
+      "Großer Garten, ruhige Straße, funktionaler Familiengrundriss",
+      "Fenster und Heizung sind nicht mehr auf heutigem Stand"
+    ],
+    "dokumente": [
+      "Grundbuch ohne WEG-Bindung",
+      "Energieausweis weist Modernisierungsbedarf bei Heizung und Fenstern aus"
+    ],
+    "maengel": [
+      { "name": "Feuchte Kelleraußenwand", "kosten": 14500, "p": 0.45 },
+      { "name": "Überalterte Heizungsregelung", "kosten": 9200, "p": 0.55 }
+    ]
+  },
+  {
+    "id": "me-01",
+    "titel": "Familienwohnung mit Loggia in Meißen-Cölln",
+    "segment": "meissen-umland",
+    "adresse": "Meißen-Cölln, Dresdner Straße",
+    "flaeche": 98,
+    "zimmer": 4,
+    "etage": "2. OG mit Aufzug und Loggia",
+    "baujahr": 2012,
+    "stil": "neubau",
+    "objektart": "wohnung", "eigentumsform": "weg", "grundstueck": 0, "aussenflaeche": 11,
+    "familienScore": 4, "barrierearm": true, "kartenposition": { "x": 48, "y": 68 },
+    "zustand": 4,
+    "energieklasse": "B",
+    "hausgeld": 360,
+    "lageScore": 6,
+    "preisAufschlag": 1.04,
+    "provisionsfrei": false,
+    "mietstatus": { "vermietet": false, "kaltmiete": null, "mieterSeit": null, "hinweis": "bezugsfrei" },
+    "maklerText": "Barrierearme Vierzimmerwohnung mit geschützter Loggia, kurzen Wegen zu Schulen und Straßenbahn. Familienkomfort ohne Gartenarbeit, dafür mit WEG und Hausgeld.",
+    "besichtigung": [
+      "Breiter Flur, Aufzug und stufenloser Zugang funktionieren im Alltag",
+      "Loggia ist windgeschützt und vom Wohnraum aus zugänglich"
+    ],
+    "dokumente": [
+      "WEG-Rücklage solide, mittelfristig Fassadenwartung vorgesehen",
+      "Meißner Mietspiegel als Ausgangspunkt für eine spätere Vermietung dokumentiert"
+    ],
+    "maengel": [
+      { "name": "Undichte Anschlussfuge der Loggia", "kosten": 5200, "p": 0.25 }
+    ],
+    "sonderumlage": { "anlass": "Fassadenwartung", "betrag": 6800, "p": 0.25 }
+  },
+  {
+    "id": "me-02",
+    "titel": "Reihenendhaus am Weinberg in Weinböhla",
+    "segment": "meissen-umland",
+    "adresse": "Weinböhla, Forststraße",
+    "flaeche": 118,
+    "zimmer": 5,
+    "etage": "2 Geschosse plus Dachboden",
+    "baujahr": 2004,
+    "stil": "haus",
+    "objektart": "haus", "eigentumsform": "alleineigentum", "grundstueck": 280, "aussenflaeche": 145,
+    "familienScore": 5, "barrierearm": false, "kartenposition": { "x": 25, "y": 54 },
+    "zustand": 3,
+    "energieklasse": "C",
+    "hausgeld": 0,
+    "laufendeKosten": { "grundsteuer": 45, "versicherung": 61, "grundstueckspflege": 78 },
+    "lageScore": 6,
+    "preisAufschlag": 1.03,
+    "provisionsfrei": false,
+    "mietstatus": { "vermietet": false, "kaltmiete": null, "mieterSeit": null, "hinweis": "bezugsfrei" },
+    "maklerText": "Familienhaus zwischen Meißen und Dresden: fünf Zimmer, geschützter Garten und klare Alleineigentumsstruktur. Hanglage und Pendelwege verlangen eine genauere Prüfung.",
+    "besichtigung": [
+      "Guter Familiengrundriss mit vier möglichen Schlafzimmern",
+      "Sockel und Entwässerung an der Hangseite brauchen sichtbar Pflege"
+    ],
+    "dokumente": [
+      "Keine WEG; Versicherungs- und Grundsteuerbescheide vollständig",
+      "Entwässerungsnachweis und Wartungsprotokolle für die Hangseite liegen nur teilweise vor"
+    ],
+    "maengel": [
+      { "name": "Feuchtesockel an der Hangseite", "kosten": 11800, "p": 0.45 }
+    ]
+  },
+  {
+    "id": "me-03",
+    "titel": "70er-Jahre-Haus mit großem Garten im Käbschütztal",
+    "segment": "meissen-umland",
+    "adresse": "Käbschütztal, OT Krögis",
+    "flaeche": 145,
+    "zimmer": 6,
+    "etage": "2 Geschosse plus Keller",
+    "baujahr": 1974,
+    "stil": "haus",
+    "objektart": "haus", "eigentumsform": "alleineigentum", "grundstueck": 540, "aussenflaeche": 355,
+    "familienScore": 5, "barrierearm": false, "kartenposition": { "x": 68, "y": 25 },
+    "zustand": 2,
+    "energieklasse": "F",
+    "hausgeld": 0,
+    "laufendeKosten": { "grundsteuer": 55, "versicherung": 79, "grundstueckspflege": 125 },
+    "lageScore": 4,
+    "preisAufschlag": 0.98,
+    "provisionsfrei": true,
+    "mietstatus": { "vermietet": false, "kaltmiete": null, "mieterSeit": null, "hinweis": "bezugsfrei" },
+    "maklerText": "Großes Grundstück, sechs Zimmer und viel Entwicklungsspielraum im Meißner Umland. Der Einstiegspreis täuscht nicht über energetischen Rückstand, Pendelwege und hohen Zeitbedarf hinweg.",
+    "besichtigung": [
+      "Viel Platz, eingewachsener Garten, brauchbare Raumaufteilung",
+      "Keller riecht feucht; Dach und Fenster wirken altersgerecht verbraucht"
+    ],
+    "dokumente": [
+      "Alleineigentum, keine Gemeinschaftsbeschlüsse oder Sonderumlagen",
+      "Sanierungsfahrplan empfiehlt Dach, Fenster und Heizsystem"
+    ],
+    "maengel": [
+      { "name": "Feuchtigkeit im Keller", "kosten": 18500, "p": 0.65 },
+      { "name": "Überfällige Dach- und Dämmarbeiten", "kosten": 13200, "p": 0.40 }
+    ]
+  },
+  {
+    "id": "bi-06",
+    "titel": "Souterrain im Neuköllner Hinterhof",
+    "segment": "berlin-innenstadt",
+    "adresse": "Neukölln, Schillerpromenade",
+    "flaeche": 39,
+    "zimmer": 1.5,
+    "etage": "Souterrain, Fenster zum Hof",
+    "baujahr": 1912,
+    "stil": "altbau",
+    "objektart": "wohnung", "eigentumsform": "weg", "grundstueck": 0, "aussenflaeche": 0,
+    "familienScore": 0, "barrierearm": false, "kartenposition": { "x": 54, "y": 82 },
+    "zustand": 1,
+    "energieklasse": "H",
+    "hausgeld": 190,
+    "lageScore": 7,
+    "preisAufschlag": 0.82,
+    "provisionsfrei": true,
+    "ausstattung": "unmoebliert",
+    "mietstatus": { "vermietet": false, "kaltmiete": null, "mieterSeit": null, "hinweis": "leer und unmöbliert" },
+    "maklerText": "Kompakter Einstieg in einen gefragten Kiez: Die leer stehende Einheit bietet einen eigenen Zugang und einen überraschend funktionalen Schnitt. Der deutliche Preisabstand zu klassischen Wohnungen schafft Raum für eine individuelle Aufwertung. Provisionsfrei.",
+    "besichtigung": [
+      "Die Fenster liegen knapp über Hofniveau; Tageslicht und Privatsphäre sind begrenzt",
+      "Putz blättert an zwei Außenwänden, der Boden ist vollständig zu erneuern",
+      "Die Einheit ist wirklich leer und unmöbliert"
+    ],
+    "dokumente": [
+      "Im Aufteilungsplan ist ein Teil des Schlafbereichs noch als Keller-Nebenraum bezeichnet",
+      "Die WEG-Rücklage ist niedrig; ein aktueller Brandschutznachweis für den zweiten Rettungsweg fehlt"
+    ],
+    "maengel": [
+      { "name": "Abdichtung der erdberührten Außenwand", "kosten": 16800, "p": 0.78 },
+      { "name": "Brandschutz und Rettungsfenster nacharbeiten", "kosten": 7400, "p": 0.55 }
+    ]
+  },
+  {
+    "id": "bi-07",
+    "titel": "Neubau-Gartenwohnung an der Spree",
+    "segment": "berlin-innenstadt",
+    "adresse": "Moabit, Neues Ufer",
+    "flaeche": 86,
+    "zimmer": 4,
+    "etage": "EG mit Terrasse und Aufzug",
+    "baujahr": 2023,
+    "stil": "neubau",
+    "objektart": "wohnung", "eigentumsform": "weg", "grundstueck": 0, "aussenflaeche": 34,
+    "familienScore": 4, "barrierearm": true, "kartenposition": { "x": 42, "y": 18 },
+    "zustand": 5,
+    "energieklasse": "A",
+    "hausgeld": 410,
+    "lageScore": 8,
+    "preisAufschlag": 1.17,
+    "provisionsfrei": false,
+    "ausstattung": "unmoebliert",
+    "mietstatus": { "vermietet": false, "kaltmiete": null, "mieterSeit": null, "hinweis": "Erstbezug, unmöbliert" },
+    "maklerText": "Barrierearmer Erstbezug mit vier Zimmern, geschützter Terrasse und privatem Gartenanteil. Moderne Haustechnik und ein familiengerechter Schnitt reduzieren den unmittelbaren Arbeitsbedarf auf ein Minimum.",
+    "besichtigung": [
+      "Heller, gut nutzbarer Grundriss; Terrasse und Garten liegen ruhig zum Hof",
+      "Die Wohnung wird ohne Küche und ohne Möblierung übergeben"
+    ],
+    "dokumente": [
+      "Gewährleistung läuft noch, die erste Jahresabrechnung der jungen WEG liegt aber noch nicht vor",
+      "Das Hausgeld enthält einen hohen Ansatz für Aufzug und gemeinschaftliche Außenanlagen"
+    ],
+    "maengel": [
+      { "name": "Terrassenentwässerung mit zu geringem Gefälle", "kosten": 4800, "p": 0.24 }
+    ]
+  },
+  {
+    "id": "bi-08",
+    "titel": "Unrenovierte Erdgeschosswohnung in Wedding",
+    "segment": "berlin-innenstadt",
+    "adresse": "Wedding, Antonstraße",
+    "flaeche": 48,
+    "zimmer": 2,
+    "etage": "EG im Seitenflügel",
+    "baujahr": 1905,
+    "stil": "altbau",
+    "objektart": "wohnung", "eigentumsform": "weg", "grundstueck": 0, "aussenflaeche": 0,
+    "familienScore": 1, "barrierearm": false, "kartenposition": { "x": 26, "y": 66 },
+    "zustand": 2,
+    "energieklasse": "F",
+    "hausgeld": 245,
+    "lageScore": 6,
+    "preisAufschlag": 0.91,
+    "provisionsfrei": false,
+    "ausstattung": "unmoebliert",
+    "mietstatus": { "vermietet": false, "kaltmiete": null, "mieterSeit": null, "hinweis": "Nachlasswohnung, geräumt" },
+    "maklerText": "Geräumte Zweizimmerwohnung mit Altbauhöhe und überschaubarer Fläche. Eine konsequente Renovierung kann den einfachen Bestand wieder gut nutzbar machen; der Innenhof hält den Straßenlärm auf Abstand.",
+    "besichtigung": [
+      "Bad, Elektrik und sämtliche Oberflächen stammen aus den 70er-Jahren",
+      "Das Schlafzimmer ist hofseitig dunkel, aber trocken",
+      "Keine Küche, keine Möbel, keine verwertbaren Einbauten"
+    ],
+    "dokumente": [
+      "Strangsanierung ist beschlossen, der Anteil der Einheit steht fest",
+      "Fenster bleiben laut Teilungserklärung Gemeinschaftseigentum"
+    ],
+    "maengel": [
+      { "name": "Alte Aluminiumleitungen in der Wohnung", "kosten": 6900, "p": 0.72 }
+    ],
+    "sonderumlage": { "anlass": "Strangsanierung im Seitenflügel", "betrag": 11200, "p": 0.9 }
+  },
+  {
+    "id": "bi-09",
+    "titel": "Ruhige 90er-Wohnung am Gleisdreieck",
+    "segment": "berlin-innenstadt",
+    "adresse": "Kreuzberg, Möckernstraße",
+    "flaeche": 63,
+    "zimmer": 2,
+    "etage": "3. OG mit Aufzug und Loggia",
+    "baujahr": 1998,
+    "stil": "klinker90",
+    "objektart": "wohnung", "eigentumsform": "weg", "grundstueck": 0, "aussenflaeche": 7,
+    "familienScore": 1, "barrierearm": true, "kartenposition": { "x": 73, "y": 58 },
+    "zustand": 4,
+    "energieklasse": "C",
+    "hausgeld": 335,
+    "lageScore": 8,
+    "preisAufschlag": 1.09,
+    "provisionsfrei": false,
+    "ausstattung": "bewohnt",
+    "mietstatus": { "vermietet": true, "kaltmiete": 970, "mieterSeit": 2024, "hinweis": "Berufspendler, bislang pünktlich" },
+    "maklerText": "Solider Nachwendebau in zentraler, dennoch hoforientierter Lage. Aufzug, Loggia und ein neuer Mietvertrag bieten einen gut kalkulierbaren Bestand ohne akuten Modernisierungsdruck.",
+    "besichtigung": [
+      "Wohnung und Gemeinschaftsflächen sind gepflegt",
+      "Bei geöffnetem Fenster ist der nahe Bahnverkehr deutlich hörbar"
+    ],
+    "dokumente": [
+      "Rücklage ordentlich, Aufzugwartung zuletzt allerdings mehrfach teurer als geplant",
+      "Der Mietvertrag enthält eine wirksame Indexmietvereinbarung"
+    ],
+    "maengel": [
+      { "name": "Steuerung des Gemeinschaftsaufzugs erneuern", "kosten": 3600, "p": 0.38 }
+    ]
+  },
+  {
+    "id": "br-06",
+    "titel": "Freistehendes Siedlungshaus in Biesdorf",
+    "segment": "berlin-rand",
+    "adresse": "Biesdorf, Siedlungsweg",
+    "flaeche": 104,
+    "zimmer": 4,
+    "etage": "2 Geschosse plus Teilkeller",
+    "baujahr": 1938,
+    "stil": "haus",
+    "objektart": "haus", "eigentumsform": "alleineigentum", "grundstueck": 510, "aussenflaeche": 330,
+    "familienScore": 4, "barrierearm": false, "kartenposition": { "x": 88, "y": 49 },
+    "zustand": 1,
+    "energieklasse": "H",
+    "hausgeld": 0,
+    "laufendeKosten": { "grundsteuer": 64, "versicherung": 92, "grundstueckspflege": 118 },
+    "lageScore": 5,
+    "preisAufschlag": 0.86,
+    "provisionsfrei": true,
+    "ausstattung": "unmoebliert",
+    "mietstatus": { "vermietet": false, "kaltmiete": null, "mieterSeit": null, "hinweis": "leer und unmöbliert" },
+    "maklerText": "Freistehendes Haus auf ungewöhnlich großem Berliner Grundstück. Die einfache Hülle bietet Gestaltungsspielraum; Preis und Provisionsfreiheit berücksichtigen den erkennbaren Modernisierungsbedarf.",
+    "besichtigung": [
+      "Dach, Fenster, Elektrik und Heizung sind weitgehend Altbestand",
+      "Der Teilkeller ist feucht, das Erdgeschoss riecht jedoch neutral",
+      "Garten stark verwildert, Haus vollständig geräumt"
+    ],
+    "dokumente": [
+      "Anbau aus den 60er-Jahren ist im Bauarchiv nur skizzenhaft dokumentiert",
+      "Energieberatung empfiehlt eine Sanierung in mehreren Gewerken"
+    ],
+    "maengel": [
+      { "name": "Dachstuhl mit lokalem Schädlingsbefall", "kosten": 23800, "p": 0.58 },
+      { "name": "Feuchte Kellerabdichtung", "kosten": 17100, "p": 0.68 }
+    ]
+  },
+  {
+    "id": "br-07",
+    "titel": "Neues Reihenhaus in Karow",
+    "segment": "berlin-rand",
+    "adresse": "Karow, Am Feldrain",
+    "flaeche": 121,
+    "zimmer": 5,
+    "etage": "3 Geschosse, nicht unterkellert",
+    "baujahr": 2022,
+    "stil": "haus",
+    "objektart": "haus", "eigentumsform": "alleineigentum", "grundstueck": 185, "aussenflaeche": 92,
+    "familienScore": 4, "barrierearm": false, "kartenposition": { "x": 58, "y": 14 },
+    "zustand": 5,
+    "energieklasse": "A",
+    "hausgeld": 0,
+    "laufendeKosten": { "grundsteuer": 52, "versicherung": 66, "grundstueckspflege": 58 },
+    "lageScore": 5,
+    "preisAufschlag": 1.14,
+    "provisionsfrei": false,
+    "ausstattung": "unmoebliert",
+    "mietstatus": { "vermietet": false, "kaltmiete": null, "mieterSeit": null, "hinweis": "Erstbezug nach Musterhaus, unmöbliert" },
+    "maklerText": "Energieeffizientes Reihenhaus mit fünf Zimmern und kleinem, pflegeleichtem Garten. Junge Technik und planbare Nebenkosten treffen auf einen kompakten Grundriss und einen entsprechend ambitionierten Preis.",
+    "besichtigung": [
+      "Saubere Ausführung, kleine Räume im zweiten Obergeschoss",
+      "Garten und Terrasse sind schmal, aber gut nach Westen ausgerichtet"
+    ],
+    "dokumente": [
+      "Zufahrt und Spielweg gehören einer privaten Eigentümergemeinschaft mit laufender Umlage",
+      "Gewährleistungsabnahme nennt noch kleinere Putz- und Fugenarbeiten"
+    ],
+    "maengel": [
+      { "name": "Wärmebrücke am Dachterrassenanschluss", "kosten": 6400, "p": 0.22 }
+    ]
+  },
+  {
+    "id": "br-08",
+    "titel": "Doppelhaushälfte aus den 70ern in Lichtenrade",
+    "segment": "berlin-rand",
+    "adresse": "Lichtenrade, Abendrotweg",
+    "flaeche": 136,
+    "zimmer": 5,
+    "etage": "2 Geschosse plus Keller",
+    "baujahr": 1978,
+    "stil": "haus",
+    "objektart": "haus", "eigentumsform": "alleineigentum", "grundstueck": 390, "aussenflaeche": 235,
+    "familienScore": 5, "barrierearm": false, "kartenposition": { "x": 47, "y": 87 },
+    "zustand": 2,
+    "energieklasse": "F",
+    "hausgeld": 0,
+    "laufendeKosten": { "grundsteuer": 70, "versicherung": 88, "grundstueckspflege": 104 },
+    "lageScore": 6,
+    "preisAufschlag": 0.96,
+    "provisionsfrei": false,
+    "ausstattung": "unmoebliert",
+    "mietstatus": { "vermietet": false, "kaltmiete": null, "mieterSeit": null, "hinweis": "geräumter Familienbesitz" },
+    "maklerText": "Großzügige Doppelhaushälfte in eingewachsener Lage mit klassischem Familiengrundriss. Die Oberflächen sind deutlich aus der Zeit gefallen; dafür sind Haus und Garten sofort zugänglich und vollständig geräumt.",
+    "besichtigung": [
+      "Bad, Küche und Teppichböden sind verbraucht",
+      "Gemeinsame Zufahrt mit der Nachbarhälfte ist sehr schmal",
+      "Keller wirkt trocken, Heizung ist jedoch über 30 Jahre alt"
+    ],
+    "dokumente": [
+      "Geh- und Fahrrecht zugunsten beider Haushälften ist im Grundbuch eingetragen",
+      "Ein alter Öltank wurde stillgelegt, ein Entsorgungsnachweis fehlt"
+    ],
+    "maengel": [
+      { "name": "Stillgelegten Öltank ausbauen und Boden prüfen", "kosten": 13200, "p": 0.55 },
+      { "name": "Abwasserleitung unter der gemeinsamen Zufahrt", "kosten": 9800, "p": 0.42 }
+    ]
+  },
+  {
+    "id": "br-09",
+    "titel": "Vermietetes Architektenhaus in Hermsdorf",
+    "segment": "berlin-rand",
+    "adresse": "Hermsdorf, Waldseestraße",
+    "flaeche": 148,
+    "zimmer": 6,
+    "etage": "2 Geschosse ohne Keller",
+    "baujahr": 2009,
+    "stil": "haus",
+    "objektart": "haus", "eigentumsform": "alleineigentum", "grundstueck": 460, "aussenflaeche": 265,
+    "familienScore": 5, "barrierearm": false, "kartenposition": { "x": 29, "y": 10 },
+    "zustand": 4,
+    "energieklasse": "B",
+    "hausgeld": 0,
+    "laufendeKosten": { "grundsteuer": 78, "versicherung": 83, "grundstueckspflege": 112 },
+    "lageScore": 8,
+    "preisAufschlag": 1.08,
+    "provisionsfrei": false,
+    "ausstattung": "bewohnt",
+    "mietstatus": { "vermietet": true, "kaltmiete": 1980, "mieterSeit": 2017, "hinweis": "Familie mit drei Kindern, langfristiger Vertrag" },
+    "maklerText": "Individuelles, energieeffizientes Familienhaus in grüner Nordlage, seit Jahren zuverlässig vermietet. Großzügige Räume und gute Substanz machen das Objekt zu einem seltenen Bestandshaus mit kalkulierbaren Einnahmen.",
+    "besichtigung": [
+      "Haus und Garten werden sichtbar gut gepflegt",
+      "Die individuelle Dachform schafft schöne Räume, erschwert aber spätere Dacharbeiten"
+    ],
+    "dokumente": [
+      "Miete liegt unter dem heutigen Neuvermietungsniveau",
+      "Langjähriger Mietvertrag und Familienhaushalt schließen einen schnellen Eigennutz praktisch aus"
+    ],
+    "maengel": [
+      { "name": "Steuerung der Wärmepumpe und Pufferspeicher", "kosten": 11800, "p": 0.30 }
+    ]
+  },
+  {
+    "id": "br-10",
+    "titel": "Sanierungs-Reihenhaus in Staaken",
+    "segment": "berlin-rand",
+    "adresse": "Staaken, Heidebergplan",
+    "flaeche": 96,
+    "zimmer": 4,
+    "etage": "2 Geschosse mit Flachdach",
+    "baujahr": 1967,
+    "stil": "haus",
+    "objektart": "haus", "eigentumsform": "alleineigentum", "grundstueck": 210, "aussenflaeche": 118,
+    "familienScore": 3, "barrierearm": false, "kartenposition": { "x": 8, "y": 80 },
+    "zustand": 1,
+    "energieklasse": "H",
+    "hausgeld": 0,
+    "laufendeKosten": { "grundsteuer": 49, "versicherung": 86, "grundstueckspflege": 64 },
+    "lageScore": 4,
+    "preisAufschlag": 0.84,
+    "provisionsfrei": true,
+    "ausstattung": "unmoebliert",
+    "mietstatus": { "vermietet": false, "kaltmiete": null, "mieterSeit": null, "hinweis": "vollständig leer" },
+    "maklerText": "Kleines Haus statt Eigentumswohnung: vier Zimmer, eigener Garten und ein klarer Sanierungsfall. Wer mehrere Gewerke bündeln kann, erhält eine seltene Berliner Eigentumsform zum vergleichsweise niedrigen Einstieg.",
+    "besichtigung": [
+      "Flachdach zeigt alte Feuchtespuren, aktuell ohne sichtbaren Wassereintritt",
+      "Alle Oberflächen, Fenster und Haustechnik sind fällig",
+      "Kompakter Garten, Haus leer und ohne Einbauten"
+    ],
+    "dokumente": [
+      "Dachaufbau enthält laut Baubeschreibung asbesthaltige Platten",
+      "Reihenhausanlage teilt sich private Wasser- und Abwasserleitungen"
+    ],
+    "maengel": [
+      { "name": "Asbesthaltigen Flachdachaufbau sanieren", "kosten": 28600, "p": 0.82 },
+      { "name": "Gemeinsame Abwasserleitung unter dem Garten", "kosten": 10400, "p": 0.46 }
+    ]
+  },
+  {
+    "id": "br-11",
+    "titel": "Gepflegte Doppelhaushälfte in Mahlsdorf",
+    "segment": "berlin-rand",
+    "adresse": "Mahlsdorf, Hultschiner Damm",
+    "flaeche": 126,
+    "zimmer": 5,
+    "etage": "2 Geschosse plus Dachboden",
+    "baujahr": 1996,
+    "stil": "haus",
+    "objektart": "haus", "eigentumsform": "alleineigentum", "grundstueck": 340, "aussenflaeche": 198,
+    "familienScore": 4, "barrierearm": false, "kartenposition": { "x": 91, "y": 71 },
+    "zustand": 4,
+    "energieklasse": "C",
+    "hausgeld": 0,
+    "laufendeKosten": { "grundsteuer": 61, "versicherung": 71, "grundstueckspflege": 89 },
+    "lageScore": 5,
+    "preisAufschlag": 1.01,
+    "provisionsfrei": true,
+    "ausstattung": "teilmoebliert",
+    "mietstatus": { "vermietet": false, "kaltmiete": null, "mieterSeit": null, "hinweis": "bezugsfrei, Küche bleibt" },
+    "maklerText": "Gepflegte Doppelhaushälfte mit brauchbarer Energiebilanz, eingewachsenem Garten und funktionalem Familiengrundriss. Die Straßenbahnanbindung ist nah; dieselbe Nähe sollte bei der Besichtigung gehört werden.",
+    "besichtigung": [
+      "Hülle und Haustechnik ordentlich gepflegt, Küche einfach aber nutzbar",
+      "Straßenbahn und Berufsverkehr sind im Vorgarten deutlich, im Haus gedämpft hörbar"
+    ],
+    "dokumente": [
+      "Schallschutzfenster straßenseitig wurden 2018 erneuert",
+      "Grenzgarage wird baulich mit der Nachbarhälfte geteilt"
+    ],
+    "maengel": [
+      { "name": "Undichte Fuge an der gemeinsamen Grenzgarage", "kosten": 7200, "p": 0.36 }
+    ]
+  },
+  {
+    "id": "le-07",
+    "titel": "Freistehendes Handwerkerhaus in Wahren",
+    "segment": "leipzig",
+    "adresse": "Wahren, Am alten Wasserturm",
+    "flaeche": 110,
+    "zimmer": 5,
+    "etage": "2 Geschosse plus Keller",
+    "baujahr": 1936,
+    "stil": "haus",
+    "objektart": "haus", "eigentumsform": "alleineigentum", "grundstueck": 590, "aussenflaeche": 405,
+    "familienScore": 4, "barrierearm": false, "kartenposition": { "x": 22, "y": 11 },
+    "zustand": 1,
+    "energieklasse": "H",
+    "hausgeld": 0,
+    "laufendeKosten": { "grundsteuer": 44, "versicherung": 91, "grundstueckspflege": 126 },
+    "lageScore": 5,
+    "preisAufschlag": 0.83,
+    "provisionsfrei": true,
+    "ausstattung": "unmoebliert",
+    "mietstatus": { "vermietet": false, "kaltmiete": null, "mieterSeit": null, "hinweis": "leer und entkernt" },
+    "maklerText": "Freistehendes Haus mit großem Grundstück und ehrlichem Sanierungsbedarf. Die bereits geräumten Räume erleichtern die Bestandsaufnahme; Substanz und Garten bieten langfristig mehrere Nutzungsoptionen.",
+    "besichtigung": [
+      "Innen teilweise entkernt, Elektrik offen sichtbar und nicht nutzbar",
+      "Dachdeckung fleckig, Keller an einer Ecke feucht",
+      "Grundstück groß, aber stark zugewachsen"
+    ],
+    "dokumente": [
+      "Ehemaliger Heizöltank im Garten ist registriert, Prüfprotokoll abgelaufen",
+      "Anbau besitzt Bestandsschutz, aber keine aktuellen Flächenunterlagen"
+    ],
+    "maengel": [
+      { "name": "Undichter Erdtank mit Bodenaustausch", "kosten": 26400, "p": 0.48 },
+      { "name": "Dachdeckung und Sparren lokal erneuern", "kosten": 21900, "p": 0.62 }
+    ]
+  },
+  {
+    "id": "le-08",
+    "titel": "Feuchte Erdgeschosswohnung in Mockau",
+    "segment": "leipzig",
+    "adresse": "Mockau, Friedrichshafner Straße",
+    "flaeche": 46,
+    "zimmer": 2,
+    "etage": "EG über unbeheiztem Keller",
+    "baujahr": 1968,
+    "stil": "zeile60",
+    "objektart": "wohnung", "eigentumsform": "weg", "grundstueck": 0, "aussenflaeche": 3,
+    "familienScore": 1, "barrierearm": false, "kartenposition": { "x": 69, "y": 14 },
+    "zustand": 1,
+    "energieklasse": "F",
+    "hausgeld": 225,
+    "lageScore": 3,
+    "preisAufschlag": 0.79,
+    "provisionsfrei": true,
+    "ausstattung": "unmoebliert",
+    "mietstatus": { "vermietet": false, "kaltmiete": null, "mieterSeit": null, "hinweis": "geräumt, nicht sofort vermietbar" },
+    "maklerText": "Sehr niedriger Einstiegspreis für zwei kompakte Zimmer mit kleiner Loggia. Die Einheit ist geräumt und verlangt eine technische Renovierung; dafür bestehen keine Mietbindung und keine Maklerkosten.",
+    "besichtigung": [
+      "Kalter Boden, deutlicher Feuchterand an der Außenwand",
+      "Bad und Küche vollständig ausgebaut, Wohnung unmöbliert",
+      "Loggia zeigt Rost an der Brüstung"
+    ],
+    "dokumente": [
+      "WEG-Rücklage reicht nicht für die diskutierte Kellerdeckendämmung",
+      "Zwei frühere Wasserschäden sind in den Protokollen erwähnt"
+    ],
+    "maengel": [
+      { "name": "Außenwand und Kellerdecke gegen Feuchte sanieren", "kosten": 12400, "p": 0.76 }
+    ],
+    "sonderumlage": { "anlass": "Betonsanierung der Loggien", "betrag": 5900, "p": 0.65 }
+  },
+  {
+    "id": "le-09",
+    "titel": "Kompakter Neubau in Gohlis",
+    "segment": "leipzig",
+    "adresse": "Gohlis-Mitte, Coppistraße",
+    "flaeche": 55,
+    "zimmer": 2,
+    "etage": "4. OG mit Aufzug und Balkon",
+    "baujahr": 2018,
+    "stil": "neubau",
+    "objektart": "wohnung", "eigentumsform": "weg", "grundstueck": 0, "aussenflaeche": 6,
+    "familienScore": 1, "barrierearm": true, "kartenposition": { "x": 49, "y": 9 },
+    "zustand": 4,
+    "energieklasse": "B",
+    "hausgeld": 275,
+    "lageScore": 7,
+    "preisAufschlag": 1.11,
+    "provisionsfrei": false,
+    "ausstattung": "bewohnt",
+    "mietstatus": { "vermietet": true, "kaltmiete": 690, "mieterSeit": 2022, "hinweis": "Berufseinsteigerin, unbefristeter Mietvertrag" },
+    "maklerText": "Junger, barrierearmer Bestand in gefragter Gohliser Lage. Die kompakte Fläche, ein gepflegter Balkon und die zuverlässige Vermietung begrenzen den laufenden Aufwand.",
+    "besichtigung": [
+      "Wohnung gepflegt, Grundriss effizient und ohne Abstellkammer",
+      "Balkon liegt gut, die Straße ist zu Stoßzeiten hörbar"
+    ],
+    "dokumente": [
+      "WEG streitet mit dem Bauträger noch über Risse im Treppenhaus",
+      "Rücklage für das junge Gebäude erst im Aufbau"
+    ],
+    "maengel": [
+      { "name": "Anteilige Fassadenfugen-Nacharbeit nach Gewährleistungsende", "kosten": 4100, "p": 0.32 }
+    ]
+  },
+  {
+    "id": "le-10",
+    "titel": "Reihenendhaus in Holzhausen",
+    "segment": "leipzig",
+    "adresse": "Holzhausen, Feldblumenweg",
+    "flaeche": 116,
+    "zimmer": 5,
+    "etage": "2 Geschosse plus Dachboden",
+    "baujahr": 2006,
+    "stil": "haus",
+    "objektart": "haus", "eigentumsform": "alleineigentum", "grundstueck": 275, "aussenflaeche": 155,
+    "familienScore": 4, "barrierearm": false, "kartenposition": { "x": 85, "y": 57 },
+    "zustand": 3,
+    "energieklasse": "C",
+    "hausgeld": 0,
+    "laufendeKosten": { "grundsteuer": 39, "versicherung": 62, "grundstueckspflege": 76 },
+    "lageScore": 5,
+    "preisAufschlag": 0.99,
+    "provisionsfrei": false,
+    "ausstattung": "teilmoebliert",
+    "mietstatus": { "vermietet": false, "kaltmiete": null, "mieterSeit": null, "hinweis": "bezugsfrei, Einbauküche vorhanden" },
+    "maklerText": "Überschaubares Reihenendhaus mit fünf Zimmern, kleinem Garten und brauchbarer Haustechnik. Ein pragmatischer Familienbestand ohne Neubaupreis, aber mit den typischen Pflegepunkten nach knapp zwanzig Jahren.",
+    "besichtigung": [
+      "Räume gut nutzbar, Oberflächen sichtbar bewohnt aber intakt",
+      "Nach Starkregen steht Wasser lange an der hinteren Terrasse"
+    ],
+    "dokumente": [
+      "Entwässerungsplan sieht eine gemeinschaftliche Versickerungsmulde vor",
+      "Holzfenster wurden regelmäßig gestrichen, nächster Anstrich steht an"
+    ],
+    "maengel": [
+      { "name": "Terrasse und Grundstücksentwässerung neu aufbauen", "kosten": 9400, "p": 0.52 }
+    ]
+  },
+  {
+    "id": "me-04",
+    "titel": "Geräumte Erdgeschosswohnung im Triebischtal",
+    "segment": "meissen-umland",
+    "adresse": "Meißen-Triebischtal, Talstraße",
+    "flaeche": 52,
+    "zimmer": 2,
+    "etage": "EG über Keller",
+    "baujahr": 1964,
+    "stil": "zeile60",
+    "objektart": "wohnung", "eigentumsform": "weg", "grundstueck": 0, "aussenflaeche": 4,
+    "familienScore": 1, "barrierearm": false, "kartenposition": { "x": 57, "y": 82 },
+    "zustand": 1,
+    "energieklasse": "G",
+    "hausgeld": 215,
+    "lageScore": 3,
+    "preisAufschlag": 0.76,
+    "provisionsfrei": true,
+    "ausstattung": "unmoebliert",
+    "mietstatus": { "vermietet": false, "kaltmiete": null, "mieterSeit": null, "hinweis": "leer, Küche und Böden entfernt" },
+    "maklerText": "Zwei geräumte Zimmer zum niedrigen Einstiegspreis, vollständig geräumt und ohne Mietbindung. Die Hochwasservorsorge der Anlage wurde nachgebessert; der Innenausbau bleibt Aufgabe des Käufers.",
+    "besichtigung": [
+      "Kellergeruch zieht in den Flur, Sockelputz ist fleckig",
+      "Wohnung leer bis auf Sanitärkeramik; Böden und Küche fehlen",
+      "Kleine Terrasse liegt nah am gemeinschaftlichen Weg"
+    ],
+    "dokumente": [
+      "Rücklage gering, Hebeanlage im Keller soll erneuert werden",
+      "Elementarschadenversicherung enthält einen hohen Selbstbehalt"
+    ],
+    "maengel": [
+      { "name": "Horizontalsperre und Sockelputz erneuern", "kosten": 10900, "p": 0.73 }
+    ],
+    "sonderumlage": { "anlass": "Neue Hebeanlage und Kellerabdichtung", "betrag": 7400, "p": 0.72 }
+  },
+  {
+    "id": "me-05",
+    "titel": "Kleines Einfamilienhaus in Lommatzsch",
+    "segment": "meissen-umland",
+    "adresse": "Lommatzsch, Gartenstraße",
+    "flaeche": 98,
+    "zimmer": 4,
+    "etage": "1,5 Geschosse plus Keller",
+    "baujahr": 1957,
+    "stil": "haus",
+    "objektart": "haus", "eigentumsform": "alleineigentum", "grundstueck": 620, "aussenflaeche": 438,
+    "familienScore": 4, "barrierearm": false, "kartenposition": { "x": 12, "y": 28 },
+    "zustand": 2,
+    "energieklasse": "H",
+    "hausgeld": 0,
+    "laufendeKosten": { "grundsteuer": 38, "versicherung": 84, "grundstueckspflege": 137 },
+    "lageScore": 3,
+    "preisAufschlag": 0.90,
+    "provisionsfrei": true,
+    "ausstattung": "unmoebliert",
+    "mietstatus": { "vermietet": false, "kaltmiete": null, "mieterSeit": null, "hinweis": "Nachlass, geräumt" },
+    "maklerText": "Freistehendes, kompaktes Haus mit großem Nutzgarten und einfacher Raumstruktur. Der Bestand ist leer und ehrlich gealtert; Kaufpreis und Provisionsfreiheit lassen Modernisierungsspielraum.",
+    "besichtigung": [
+      "Heizung, Fenster und Bad sind technisch überholt",
+      "Wintergarten wirkt nachträglich angesetzt, Anschlussfuge gerissen",
+      "Haus unmöbliert, Garten mit mehreren alten Schuppen"
+    ],
+    "dokumente": [
+      "Für den Wintergarten findet sich keine abschließende Bauabnahme",
+      "Prüfbericht des alten Heizöltanks fehlt"
+    ],
+    "maengel": [
+      { "name": "Heizöltank prüfen, reinigen und gegebenenfalls ersetzen", "kosten": 14600, "p": 0.58 },
+      { "name": "Wintergartenanschluss und Fundament nacharbeiten", "kosten": 12100, "p": 0.47 }
+    ]
+  },
+  {
+    "id": "me-06",
+    "titel": "Alter Dreiseithof bei Nossen",
+    "segment": "meissen-umland",
+    "adresse": "Nossen, OT Deutschenbora",
+    "flaeche": 178,
+    "zimmer": 7,
+    "etage": "2 Geschosse plus Nebengebäude",
+    "baujahr": 1904,
+    "stil": "haus",
+    "objektart": "haus", "eigentumsform": "alleineigentum", "grundstueck": 1280, "aussenflaeche": 970,
+    "familienScore": 3, "barrierearm": false, "kartenposition": { "x": 82, "y": 13 },
+    "zustand": 1,
+    "energieklasse": "H",
+    "hausgeld": 0,
+    "laufendeKosten": { "grundsteuer": 72, "versicherung": 146, "grundstueckspflege": 240 },
+    "lageScore": 2,
+    "preisAufschlag": 0.80,
+    "provisionsfrei": false,
+    "ausstattung": "teilmoebliert",
+    "mietstatus": { "vermietet": false, "kaltmiete": null, "mieterSeit": null, "hinweis": "leer, einzelne alte Einbauten verbleiben" },
+    "maklerText": "Historischer Hof mit sehr viel Fläche, Nebengebäuden und Entwicklungsspielraum. Das Anwesen eignet sich nur für Käufer, die laufende Arbeit, ländliche Wege und einen mehrjährigen Sanierungshorizont bewusst einplanen.",
+    "besichtigung": [
+      "Wohnhaus trocken genug, aber Dach und Fachwerk zeigen mehrere Schadstellen",
+      "Scheunendach trägt alte Faserzementplatten",
+      "Große Flächen sind nur über den Innenhof erreichbar"
+    ],
+    "dokumente": [
+      "Abwasser läuft über eine genehmigte, aber alte Kleinkläranlage",
+      "Nebengebäude sind im Kataster erfasst; Nutzungsänderungen wären neu zu beantragen"
+    ],
+    "maengel": [
+      { "name": "Faserzementdach der Scheune fachgerecht entsorgen", "kosten": 32400, "p": 0.83 },
+      { "name": "Fachwerkschwellen am Wohnhaus ersetzen", "kosten": 27800, "p": 0.61 },
+      { "name": "Kleinkläranlage technisch nachrüsten", "kosten": 13900, "p": 0.46 }
+    ]
+  },
+  {
+    "id": "me-07",
+    "titel": "Vermietete Altstadtwohnung unter dem Burgberg",
+    "segment": "meissen-umland",
+    "adresse": "Meißen-Altstadt, Gerbergasse",
+    "flaeche": 64,
+    "zimmer": 2,
+    "etage": "2. OG ohne Aufzug",
+    "baujahr": 1895,
+    "stil": "altbau",
+    "objektart": "wohnung", "eigentumsform": "weg", "grundstueck": 0, "aussenflaeche": 0,
+    "familienScore": 1, "barrierearm": false, "kartenposition": { "x": 44, "y": 44 },
+    "zustand": 3,
+    "energieklasse": "G",
+    "hausgeld": 285,
+    "lageScore": 7,
+    "preisAufschlag": 1.02,
+    "provisionsfrei": false,
+    "ausstattung": "bewohnt",
+    "mietstatus": { "vermietet": true, "kaltmiete": 410, "mieterSeit": 2010, "hinweis": "langjähriger Mieter, niedrige Bestandsmiete" },
+    "maklerText": "Charaktervolle Altstadtwohnung in kleiner Gemeinschaft, zuverlässig und langfristig vermietet. Historische Substanz und zentrale Lage tragen den Reiz; laufende Kosten und energetische Grenzen bleiben sichtbar.",
+    "besichtigung": [
+      "Holzdielen und Türen gepflegt, Bad einfach aber funktionsfähig",
+      "Außenwände im Winter laut Mieter spürbar kalt"
+    ],
+    "dokumente": [
+      "Denkmalrechtliche Abstimmung erschwert Fassaden- und Fenstersanierung",
+      "Dachreparatur wird vorbereitet, Kostenangebot liegt nur vorläufig vor"
+    ],
+    "maengel": [
+      { "name": "Anteilige Reparatur historischer Kastenfenster", "kosten": 7600, "p": 0.58 }
+    ],
+    "sonderumlage": { "anlass": "Reparatur des historischen Dachstuhls", "betrag": 8900, "p": 0.52 }
+  },
+  {
+    "id": "me-08",
+    "titel": "Barrierearme Gartenwohnung in Radebeul",
+    "segment": "meissen-umland",
+    "adresse": "Radebeul-Ost, Gartenweg",
+    "flaeche": 91,
+    "zimmer": 4,
+    "etage": "EG mit Terrasse und Aufzug",
+    "baujahr": 2020,
+    "stil": "neubau",
+    "objektart": "wohnung", "eigentumsform": "weg", "grundstueck": 0, "aussenflaeche": 38,
+    "familienScore": 5, "barrierearm": true, "kartenposition": { "x": 18, "y": 73 },
+    "zustand": 5,
+    "energieklasse": "A",
+    "hausgeld": 345,
+    "lageScore": 8,
+    "preisAufschlag": 1.16,
+    "provisionsfrei": false,
+    "ausstattung": "unmoebliert",
+    "mietstatus": { "vermietet": false, "kaltmiete": null, "mieterSeit": null, "hinweis": "bezugsfrei, ohne Küche" },
+    "maklerText": "Neuwertige Vierzimmerwohnung mit stufenlosem Zugang, Terrasse und eigenem Gartenanteil zwischen Meißen und Dresden. Hoher Alltagskomfort trifft auf ein Preisniveau oberhalb des übrigen Umlands.",
+    "besichtigung": [
+      "Breite Türen, bodengleiche Dusche und gut nutzbare Familienzimmer",
+      "Terrasse liegt ruhig, Gartenanteil ist rechtlich Sondernutzungsfläche",
+      "Übergabe unmöbliert und ohne Einbauküche"
+    ],
+    "dokumente": [
+      "Junge WEG mit noch kleiner Rücklage",
+      "Gartenpflege und Aufzug treiben das Hausgeld trotz guter Energieklasse"
+    ],
+    "maengel": [
+      { "name": "Entwässerungsrinne vor der bodentiefen Terrassentür", "kosten": 4500, "p": 0.26 }
+    ]
+  },
+  {
+    "id": "me-09",
+    "titel": "Vermietetes Einfamilienhaus in Coswig",
+    "segment": "meissen-umland",
+    "adresse": "Coswig, Spitzgrundstraße",
+    "flaeche": 132,
+    "zimmer": 5,
+    "etage": "2 Geschosse ohne Keller",
+    "baujahr": 1992,
+    "stil": "haus",
+    "objektart": "haus", "eigentumsform": "alleineigentum", "grundstueck": 470, "aussenflaeche": 292,
+    "familienScore": 5, "barrierearm": false, "kartenposition": { "x": 31, "y": 35 },
+    "zustand": 3,
+    "energieklasse": "D",
+    "hausgeld": 0,
+    "laufendeKosten": { "grundsteuer": 49, "versicherung": 73, "grundstueckspflege": 108 },
+    "lageScore": 6,
+    "preisAufschlag": 0.97,
+    "provisionsfrei": true,
+    "ausstattung": "bewohnt",
+    "mietstatus": { "vermietet": true, "kaltmiete": 980, "mieterSeit": 2013, "hinweis": "Familie, langfristig verwurzelt" },
+    "maklerText": "Freistehendes Familienhaus in ruhiger Coswiger Lage, seit vielen Jahren zuverlässig vermietet. Grundstück und Gebäudestruktur sind solide; die Bestandsmiete und absehbare Haustechnik begrenzen den kurzfristigen Spielraum.",
+    "besichtigung": [
+      "Haus gepflegt, Küche und Bäder sichtbar aus den 90ern",
+      "Garten wird intensiv genutzt und ordentlich gehalten"
+    ],
+    "dokumente": [
+      "Gasheizung nähert sich dem Ende der üblichen Nutzungsdauer",
+      "Bestandsmiete liegt deutlich unter einer Neuvermietung; Eigennutzung wäre kein schneller Weg"
+    ],
+    "maengel": [
+      { "name": "Heizungsanlage samt Warmwasserspeicher ersetzen", "kosten": 18600, "p": 0.61 }
+    ]
+  },
+  {
+    "id": "me-10",
+    "titel": "Billiges Mikroapartment nahe der Hochschule",
+    "segment": "meissen-umland",
+    "adresse": "Meißen-Cölln, Fabrikstraße",
+    "flaeche": 34,
+    "zimmer": 1,
+    "etage": "EG zum Innenhof",
+    "baujahr": 1996,
+    "stil": "klinker90",
+    "objektart": "wohnung", "eigentumsform": "weg", "grundstueck": 0, "aussenflaeche": 0,
+    "familienScore": 0, "barrierearm": false, "kartenposition": { "x": 63, "y": 59 },
+    "zustand": 2,
+    "energieklasse": "E",
+    "hausgeld": 205,
+    "lageScore": 4,
+    "preisAufschlag": 0.81,
+    "provisionsfrei": true,
+    "ausstattung": "unmoebliert",
+    "mietstatus": { "vermietet": false, "kaltmiete": null, "mieterSeit": null, "hinweis": "leer, ehemalige Pendlerunterkunft" },
+    "maklerText": "Sehr kleine, leer stehende Einheit mit kurzem Weg zur Hochschule und niedrigem Gesamtkaufpreis. Der einfache Innenhofschnitt spricht eine schmale Zielgruppe an, begrenzt dafür aber den absoluten Renovierungsumfang.",
+    "besichtigung": [
+      "Nur ein großes Fenster zum engen Innenhof, wenig Tageslicht",
+      "Duschbad innenliegend, Küchenanschlüsse im Wohnraum",
+      "Vollständig unmöbliert und sichtbar abgewohnt"
+    ],
+    "dokumente": [
+      "Acht Quadratmeter sind in der Teilungserklärung als beheizter Nebenraum ausgewiesen",
+      "Im Erdgeschoss grenzt eine kleine Werkstatt an; Betriebszeiten sind nicht verbindlich geregelt"
+    ],
+    "maengel": [
+      { "name": "Schallschutz zur benachbarten Werkstatt", "kosten": 6800, "p": 0.58 },
+      { "name": "Badentlüftung bis zum Dach nachrüsten", "kosten": 5200, "p": 0.49 }
+    ]
+  }
+]

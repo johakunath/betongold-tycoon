@@ -1,0 +1,3359 @@
+/* style.css — Betongold Tycoon. Warmes, helles Thema; Desktop zuerst,
+   Tablet spielbar. Chartfarben validiert (dataviz-Sechs-Checks). */
+
+@font-face {
+  font-family: "Alegreya Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../assets/fonts/alegreya-sans-400-latin.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Alegreya Sans";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("../assets/fonts/alegreya-sans-500-latin.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Alegreya Sans";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../assets/fonts/alegreya-sans-700-latin.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Alegreya Sans";
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url("../assets/fonts/alegreya-sans-800-latin.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Cormorant Garamond";
+  font-style: normal;
+  font-weight: 600 700;
+  font-display: swap;
+  src: url("../assets/fonts/cormorant-garamond-600-700-latin.woff2") format("woff2");
+}
+
+:root {
+  --flaeche: #f3efe7;        /* Seitenhintergrund, warmer Sand */
+  --karte: rgba(253, 251, 247, 0.96); /* Kartenfläche = Chart-Surface */
+  --karte-stark: #fffefa;
+  --karte-weich: #f8f4ec;
+  --tinte: #1c1b18;
+  --tinte-2: #52514e;
+  --gedimmt: #898781;
+  --hairline: rgba(28, 27, 24, 0.10);
+  --grid: #e6e3da;
+  --kopf: #22303a;           /* Topbar, dunkles Petrol */
+  --petrol: var(--kopf);     /* semantischer Aktions-/Kartenfarbtoken */
+  --kopf-tinte: #f3efe7;
+  --akzent: #eda100;
+  --akzent-dunkel: #b97800;
+  --positiv: #006300;
+  --negativ: #b23a3a;
+  --warnung: #9a5b0a;
+  --fokus: #1769c2;
+  --serie-netto: #2a78d6;    /* Nettovermögen */
+  --serie-etf: #eda100;      /* ETF-Benchmark (Relief: Direktlabels) */
+  --radius: 14px;
+  --radius-klein: 8px;
+  --radius-gross: 20px;
+  --abstand-1: 4px;
+  --abstand-2: 8px;
+  --abstand-3: 12px;
+  --abstand-4: 16px;
+  --abstand-5: 24px;
+  --abstand-6: 32px;
+  --schatten: 0 1px 3px rgba(28, 27, 24, 0.07), 0 6px 18px rgba(28, 27, 24, 0.05);
+  --schatten-hover: 0 4px 12px rgba(28, 27, 24, 0.09), 0 14px 32px rgba(28, 27, 24, 0.08);
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+html, body {
+  margin: 0;
+  min-width: 0;
+  background:
+    radial-gradient(circle at 15% 0%, rgba(237, 161, 0, 0.07), transparent 28rem),
+    var(--flaeche);
+  color: var(--tinte);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 15px;
+  line-height: 1.45;
+}
+body { overflow-x: clip; }
+
+.icon-sprite {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+.ui-icon, .hud-icon, .section-icon, .title-icon {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.ui-icon { width: 16px; height: 16px; flex: 0 0 16px; }
+.hud-icon { width: 20px; height: 20px; flex: 0 0 20px; color: var(--akzent); opacity: 0.92; }
+.section-icon { width: 19px; height: 19px; flex: 0 0 19px; color: var(--akzent-dunkel); }
+.title-icon { width: 31px; height: 31px; flex: 0 0 31px; color: var(--akzent-dunkel); }
+
+/* Eine leise, code-native Stadtbühne statt einer blanken Dashboard-Fläche. */
+.game-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 82% 17%, rgba(255, 205, 89, 0.2) 0 5.5rem, transparent 5.7rem),
+    radial-gradient(ellipse at 18% 12%, rgba(255,255,255,0.72), transparent 19rem),
+    linear-gradient(180deg, #e9f0ef 0, #f4efe5 58%, #e7ddc9 100%);
+}
+.game-backdrop::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.18;
+  background:
+    linear-gradient(180deg, rgba(243,239,231,0.05), rgba(243,239,231,0.72) 77%, var(--flaeche)),
+    url('../assets/ui/city-backdrop.webp') center top / cover no-repeat;
+  filter: saturate(0.9);
+}
+.game-backdrop::after {
+  content: '';
+  position: absolute;
+  right: -2%;
+  bottom: 0;
+  left: -2%;
+  height: 165px;
+  background: rgba(49, 70, 68, 0.09);
+  clip-path: polygon(0 100%,0 58%,4% 58%,4% 42%,8% 42%,8% 64%,12% 64%,12% 28%,16% 28%,16% 50%,20% 50%,20% 18%,25% 18%,25% 57%,29% 57%,29% 37%,34% 37%,34% 67%,39% 67%,39% 34%,43% 34%,43% 48%,48% 48%,48% 23%,53% 23%,53% 61%,58% 61%,58% 42%,63% 42%,63% 14%,68% 14%,68% 53%,73% 53%,73% 31%,78% 31%,78% 64%,83% 64%,83% 24%,88% 24%,88% 46%,93% 46%,93% 35%,97% 35%,97% 58%,100% 58%,100% 100%);
+}
+
+h1, h2, h3, .brand {
+  font-family: "Segoe UI Variable Display", "Aptos Display", system-ui, sans-serif;
+}
+a { color: #195f9f; text-underline-offset: 2px; }
+
+button {
+  font: inherit;
+  color: inherit;
+  background: var(--karte);
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: transform 0.12s ease, border-color 0.12s ease,
+    background-color 0.12s ease, box-shadow 0.12s ease;
+}
+button:hover { border-color: rgba(28, 27, 24, 0.28); box-shadow: 0 3px 9px rgba(28, 27, 24, 0.08); }
+button:active:not(:disabled) { transform: translateY(1px); }
+button:disabled { cursor: not-allowed; opacity: 0.58; }
+button.primaer {
+  background: linear-gradient(145deg, #2c404d, var(--kopf));
+  color: var(--kopf-tinte);
+  border-color: var(--kopf);
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(34, 48, 58, 0.18);
+}
+button.primaer:hover { background: linear-gradient(145deg, #365262, #263944); }
+button.gefahr { color: var(--negativ); }
+
+@keyframes screen-in {
+  from { opacity: 0; transform: translateY(7px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes dialog-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes value-pop {
+  0% { transform: translateY(2px); color: var(--akzent-dunkel); }
+  45% { transform: translateY(-1px) scale(1.035); }
+  100% { transform: none; }
+}
+
+main:not([hidden]) { animation: screen-in 0.22s ease both; }
+.wert.wert-update { animation: value-pop 0.45s ease; }
+
+.muted { color: var(--gedimmt); }
+.hinweis { color: var(--gedimmt); font-size: 13px; margin: 10px 2px 0; }
+
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+.skip-link {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 100;
+  transform: translateY(-160%);
+  background: var(--karte);
+  color: var(--tinte);
+  border: 2px solid var(--serie-netto);
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+.skip-link:focus { transform: translateY(0); }
+
+:where(button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid var(--fokus);
+  outline-offset: 3px;
+}
+
+/* Der Trigger ist ein echter Button; die Optik bleibt das kleine ?-Rondell. */
+.info-tooltip {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 17px;
+  height: 17px;
+  min-width: 0;
+  min-height: 0;
+  margin-left: 3px;
+  padding: 0;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  background: none;
+  box-shadow: none;
+  color: var(--tinte-2);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 750;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: 0;
+  cursor: help;
+  vertical-align: 1px;
+}
+.info-tooltip:hover:not(:disabled) { border-color: currentColor; background: none; box-shadow: none; transform: none; }
+.info-tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  width: min(260px, 70vw);
+  transform: translate(-50%, 4px);
+  padding: 8px 10px;
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  background: var(--kopf);
+  color: var(--kopf-tinte);
+  box-shadow: var(--schatten);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.35;
+  text-align: left;
+  text-transform: none;
+  letter-spacing: 0;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: 30;
+}
+.info-tooltip:hover::after,
+.info-tooltip:focus-visible::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0);
+}
+
+/* --- Topbar ---------------------------------------------------------------- */
+
+.topbar {
+  display: grid;
+  grid-template-columns: auto 145px minmax(390px, 1fr) auto;
+  align-items: center;
+  gap: 8px 18px;
+  padding: 10px 22px;
+  background: var(--kopf);
+  color: var(--kopf-tinte);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  max-width: 100vw;
+  border-bottom: 2px solid rgba(237, 161, 0, 0.38);
+  box-shadow: 0 5px 20px rgba(20, 28, 34, 0.16);
+}
+.topbar > * { min-width: 0; }
+
+.brand { display: inline-flex; align-items: center; gap: 9px; font-size: 19px; font-weight: 750; letter-spacing: 0.2px; white-space: nowrap; }
+.brand::before {
+  content: '';
+  width: 22px;
+  height: 22px;
+  flex: 0 0 22px;
+  border-radius: 5px 5px 3px 3px;
+  background:
+    linear-gradient(90deg, transparent 28%, var(--kopf) 28% 38%, transparent 38% 62%, var(--kopf) 62% 72%, transparent 72%),
+    linear-gradient(0deg, var(--akzent) 0 72%, #f4c65a 72%);
+  box-shadow: inset 0 -3px 0 rgba(34,48,58,0.18), 0 2px 7px rgba(0,0,0,0.2);
+}
+.brand span { color: var(--akzent); }
+
+.hud { min-width: 150px; }
+#hud-datum { font-weight: 650; }
+.hud .sub, .topbar .sub { font-size: 12px; opacity: 0.75; }
+
+.ressourcenleiste {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(112px, 1fr));
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 11px;
+  background: rgba(6, 17, 22, 0.24);
+  box-shadow: inset 0 1px 5px rgba(0,0,0,0.15);
+}
+.ressourcenleiste > :is(div, button) {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 6px 11px;
+  border: 0;
+  border-right: 1px solid rgba(255,255,255,0.1);
+  border-radius: 0;
+  background: transparent;
+  color: var(--kopf-tinte);
+  text-align: left;
+}
+.ressourcenleiste > :last-child { border-right: 0; }
+.ressourcenleiste small { display: block; opacity: 0.67; font-size: 9.5px; letter-spacing: 0.055em; text-transform: uppercase; }
+.ressourcenleiste b { display: block; overflow: hidden; font-size: 13.5px; font-variant-numeric: tabular-nums; text-overflow: ellipsis; white-space: nowrap; }
+.resource-copy { min-width: 0; }
+.ressourcenleiste button:hover { background: rgba(255,255,255,0.09); box-shadow: none; }
+.ressourcenleiste button:disabled { cursor: default; opacity: 1; }
+.ressourcenleiste button .resource-action { position: absolute; right: 6px; top: 4px; color: var(--akzent); font-size: 8px; opacity: 0; }
+.ressourcenleiste button:not(:disabled):hover .resource-action,
+.ressourcenleiste button:not(:disabled):focus-visible .resource-action { opacity: 1; }
+.resource-cashflow {
+  background: rgba(255,255,255,0.035) !important;
+  box-shadow: inset 3px 0 0 rgba(255,255,255,0.12);
+}
+.resource-cashflow.positiv b, .resource-cashflow.positiv .hud-icon { color: #76d39e; }
+.resource-cashflow.negativ b, .resource-cashflow.negativ .hud-icon { color: #ff9187; }
+
+.speed-group {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  color: var(--kopf-tinte);
+}
+.speed-lauf, .speed-schritte {
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.11);
+  border-radius: 9px;
+  background: rgba(6,17,22,0.22);
+  box-shadow: inset 0 1px 4px rgba(0,0,0,0.12);
+}
+.speed-group button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 34px;
+  background: transparent;
+  border: none;
+  border-right: 1px solid rgba(255,255,255,0.09);
+  color: var(--kopf-tinte);
+  padding: 5px 8px;
+  border-radius: 0;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.speed-group button:last-child { border-right: 0; }
+.speed-icon { width: 15px; height: 15px; flex: 0 0 15px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.speed-schritte button { padding-inline: 10px; color: rgba(243,239,231,0.88); }
+.speed-group button:hover { background: rgba(255, 255, 255, 0.12); }
+.speed-group button.aktiv { background: var(--akzent); color: #22303a; font-weight: 700; box-shadow: inset 0 0 0 1px rgba(34,48,58,.12); }
+.speed-group .trenner { width: 1px; height: 22px; flex: 0 0 1px; background: rgba(255, 255, 255, 0.2); margin: 0 1px; }
+
+.screens-nav { grid-column: 1 / 3; }
+.menue { grid-column: 3 / 5; display: flex; justify-content: flex-end; gap: 8px; }
+.menue, .screens-nav, .speed-group { white-space: nowrap; }
+.menue button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.09);
+  border-color: transparent;
+  color: var(--kopf-tinte);
+}
+.menue button:hover { background: rgba(255, 255, 255, 0.18); }
+
+/* --- Dashboard-Raster -------------------------------------------------------- */
+
+.screen-heading {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+  min-width: 0;
+  padding: 2px 2px 0;
+}
+.screen-heading--dashboard,
+.screen-heading--market {
+  position: relative;
+  min-height: 184px;
+  overflow: hidden;
+  align-items: flex-start;
+  justify-content: center;
+  flex-direction: column;
+  gap: 5px;
+  padding: 24px 28px;
+  border: 1px solid rgba(34,48,58,0.14);
+  border-radius: var(--radius-gross);
+  box-shadow: var(--schatten);
+  background-color: #e7ece8;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+.screen-heading--dashboard {
+  background-image:
+    linear-gradient(90deg, rgba(252,249,242,0.98) 0 29%, rgba(252,249,242,0.76) 43%, rgba(252,249,242,0.08) 72%),
+    url('../assets/ui/dashboard-banner.webp');
+  background-position: center;
+}
+.screen-heading--market {
+  background-image:
+    linear-gradient(90deg, rgba(252,249,242,0.98) 0 27%, rgba(252,249,242,0.80) 44%, rgba(252,249,242,0.16) 76%),
+    url('../assets/ui/city-backdrop.webp');
+  background-position: center 61%;
+}
+.screen-heading--dashboard::after,
+.screen-heading--market::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  height: 5px;
+  background: linear-gradient(90deg, var(--akzent), rgba(237,161,0,0.12) 55%, transparent);
+}
+.screen-heading--dashboard > *, .screen-heading--market > * { position: relative; z-index: 1; }
+.screen-heading--dashboard h1, .screen-heading--market h1 { display: flex; align-items: center; gap: 9px; }
+.screen-heading--dashboard p, .screen-heading--market p {
+  max-width: 440px;
+  margin-top: 7px;
+  color: #3e433f;
+  text-align: left;
+  text-wrap: balance;
+}
+.screen-heading h1 {
+  margin: 1px 0 0;
+  font-size: clamp(24px, 2.1vw, 32px);
+  font-weight: 760;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+}
+.screen-heading p {
+  max-width: 520px;
+  margin: 0 0 2px;
+  color: var(--tinte-2);
+  text-align: right;
+}
+
+.dashboard {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 20px 22px 40px;
+  display: grid;
+  grid-template-columns: minmax(0, 2.2fr) minmax(300px, 1fr);
+  gap: 16px;
+}
+
+.kacheln {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.kpi-gruppe {
+  min-width: 0;
+  padding: 9px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--karte) 76%, transparent);
+  box-shadow: 0 2px 10px rgba(27, 36, 41, 0.045);
+}
+.kpi-gruppe > h2 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 3px 7px;
+  color: var(--tinte-2);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.kpi-gruppe > h2 .section-icon { width: 15px; height: 15px; flex-basis: 15px; }
+.kpi-paar { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+
+.kachel {
+  --metric-color: var(--gedimmt);
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 103% -5%, color-mix(in srgb, var(--metric-color) 12%, transparent) 0 46px, transparent 48px),
+    var(--karte);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  box-shadow: 0 2px 9px rgba(26, 35, 40, 0.07);
+  padding: 11px 11px 9px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.kachel:hover { transform: translateY(-2px); box-shadow: var(--schatten-hover); }
+.kachel::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: var(--metric-color);
+}
+#tile-cash { --metric-color: #4f7763; }
+#tile-cashflow { --metric-color: #277a53; }
+#tile-vermoegen { --metric-color: var(--serie-netto); }
+#tile-etf { --metric-color: var(--serie-etf); }
+#tile-zeit { --metric-color: #7a668f; }
+#tile-familie { --metric-color: #bd6b38; }
+.kachel .label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--gedimmt);
+  margin-bottom: 4px;
+}
+.metric-icon {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  color: var(--metric-color);
+}
+.kachel .wert { font-size: 20px; font-weight: 750; font-variant-numeric: tabular-nums; }
+.kachel .wert.positiv { color: var(--positiv); }
+.kachel .wert.negativ { color: var(--negativ); }
+.kachel .sub { font-size: 12px; color: var(--tinte-2); margin-top: 2px; }
+
+.balken {
+  height: 5px;
+  border-radius: 3px;
+  background: var(--grid);
+  margin-top: 8px;
+  overflow: hidden;
+}
+.balken > div { height: 100%; background: var(--akzent); border-radius: 3px; width: 0; }
+
+/* --- Karten ------------------------------------------------------------------ */
+
+.karte {
+  background: linear-gradient(155deg, var(--karte-stark), var(--karte));
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  box-shadow: var(--schatten);
+  padding: 16px 18px;
+}
+
+.karten-kopf {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.karten-kopf h2 { display: inline-flex; align-items: center; gap: 7px; font-size: 15.5px; margin: 0; }
+
+.legende { display: flex; gap: 16px; font-size: 12.5px; color: var(--tinte-2); }
+.legende span { display: inline-flex; align-items: center; gap: 6px; }
+.punkt { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.punkt-netto { background: var(--serie-netto); }
+.punkt-etf { background: var(--serie-etf); }
+
+/* --- Chart --------------------------------------------------------------------- */
+
+.chart-wrap { position: relative; }
+#chart { width: 100%; height: auto; display: block; }
+
+#chart .grid { stroke: var(--grid); stroke-width: 1; }
+#chart .achse {
+  fill: var(--gedimmt);
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+}
+#chart .linie { fill: none; stroke-width: 2; stroke-linejoin: round; }
+#chart .fadenkreuz { stroke: var(--gedimmt); stroke-width: 1; stroke-dasharray: 3 3; }
+#chart .ring { stroke: var(--karte); stroke-width: 2; }
+#chart .endlabel-name { fill: var(--tinte-2); font-size: 14px; font-weight: 600; }
+#chart .endlabel-wert { fill: var(--tinte); font-size: 15px; font-weight: 750; }
+
+.chart-zusatz { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 8px; }
+.mini-chart { min-width: 0; padding: 11px 12px; border: 1px solid var(--grid); border-radius: 10px; background: rgba(248,246,240,0.68); }
+.mini-chart header { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; margin-bottom: 8px; }
+.mini-chart h3 { margin: 0; font-size: 12.5px; }
+.mini-chart header b { font-size: 12px; font-variant-numeric: tabular-nums; }
+.mix-balken { display: flex; height: 11px; overflow: hidden; border-radius: 99px; background: var(--grid); }
+.mix-balken i { display: block; height: 100%; min-width: 0; }
+.mix-cash { background: #4f7763; }
+.mix-etf { background: var(--serie-etf); }
+.mix-immo { background: var(--serie-netto); }
+.mix-ruecklage { background: #7a668f; }
+.mini-legende { display: flex; gap: 7px 12px; flex-wrap: wrap; margin-top: 7px; color: var(--tinte-2); font-size: 10.5px; }
+.mini-legende span { display: inline-flex; align-items: center; gap: 4px; }
+.mini-legende i { width: 7px; height: 7px; border-radius: 50%; }
+.risiko-zeilen { display: grid; gap: 7px; }
+.risiko-zeile { display: grid; grid-template-columns: minmax(80px, 1fr) minmax(70px, 1.4fr) auto; align-items: center; gap: 7px; font-size: 10.5px; }
+.risiko-zeile > span { color: var(--tinte-2); }
+.risiko-zeile > b { font-variant-numeric: tabular-nums; }
+.risiko-track { height: 7px; overflow: hidden; border-radius: 99px; background: var(--grid); }
+.risiko-track i { display: block; height: 100%; border-radius: inherit; background: var(--serie-netto); }
+.risiko-track .puffer { background: #4f7763; }
+
+.tooltip {
+  position: absolute;
+  pointer-events: none;
+  background: var(--karte);
+  border: 1px solid var(--hairline);
+  border-radius: 9px;
+  box-shadow: var(--schatten);
+  padding: 8px 11px;
+  font-size: 12.5px;
+  white-space: nowrap;
+  z-index: 5;
+}
+.tip-titel { font-weight: 650; margin-bottom: 3px; }
+.tip-zeile { display: flex; align-items: center; gap: 6px; }
+.tip-zeile b { margin-left: auto; padding-left: 12px; font-variant-numeric: tabular-nums; }
+
+/* --- Haushaltsrechnung ------------------------------------------------------------ */
+
+.haushalt { width: 100%; border-collapse: collapse; }
+.haushalt td { padding: 5px 2px; border-bottom: 1px solid var(--grid); }
+.haushalt tr:last-child td { border-bottom: none; }
+.haushalt .op { width: 18px; color: var(--gedimmt); }
+.haushalt .betrag {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.haushalt .betrag.minus { color: var(--tinte-2); }
+.haushalt .summe td { font-weight: 700; border-top: 2px solid var(--hairline); }
+
+/* --- Dialoge ------------------------------------------------------------------------ */
+
+dialog {
+  border: none;
+  border-radius: var(--radius);
+  box-shadow: 0 12px 48px rgba(20, 20, 18, 0.28);
+  padding: 20px 22px;
+  width: min(480px, 92vw);
+  color: var(--tinte);
+  background: var(--karte);
+  max-height: min(92vh, 900px);
+  overflow-y: auto;
+}
+dialog[open] { animation: dialog-in 0.22s ease both; }
+dialog::backdrop { background: rgba(24, 28, 32, 0.45); }
+
+dialog header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+dialog h2 { margin: 0; font-size: 18px; }
+dialog h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gedimmt); margin: 16px 0 8px; }
+dialog h3 small { text-transform: none; letter-spacing: 0; font-weight: 400; }
+dialog [data-schliessen] { border: none; background: transparent; font-size: 15px; color: var(--gedimmt); }
+dialog input[type="text"] {
+  width: 100%;
+  font: inherit;
+  padding: 8px 10px;
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  background: #fff;
+}
+dialog footer { margin-top: 18px; display: flex; justify-content: flex-end; gap: 8px; }
+
+.preset-optionen { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.diff-optionen { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.diff-option, .preset-option {
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  cursor: pointer;
+}
+.diff-option:has(input:checked), .preset-option:has(input:checked) {
+  border-color: var(--akzent-dunkel);
+  background: linear-gradient(145deg, rgba(237,161,0,0.13), rgba(255,255,255,0.2));
+  box-shadow: inset 0 0 0 1px rgba(237,161,0,0.15);
+}
+.diff-option small, .preset-option small { display: block; color: var(--tinte-2); }
+.diff-option small + small, .preset-option small + small { margin-top: 4px; font-size: 11px; line-height: 1.35; }
+.start-vorschau {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  gap: 8px 14px;
+  align-items: center;
+  margin-top: 12px;
+  padding: 9px 11px;
+  border-radius: 9px;
+  background: var(--kopf);
+  color: var(--kopf-tinte);
+  font-size: 12px;
+}
+.start-vorschau ul { display: contents; margin: 0; padding: 0; list-style: none; }
+.start-vorschau li { color: #ffd269; font-weight: 700; font-variant-numeric: tabular-nums; }
+.start-vorschau .start-besonderheit { grid-column: 2 / -1; color: #f5e4b7; }
+.start-anpassen { margin: 12px 0; padding: 10px 12px; border: 1px solid var(--hairline); border-radius: var(--radius-klein); }
+.start-anpassen summary { cursor: pointer; font-weight: 750; }
+.start-anpassen > p { color: var(--gedimmt); font-size: 12px; }
+.start-einstellungen { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.start-einstellungen fieldset { min-width: 0; border: 1px solid var(--hairline); border-radius: 8px; padding: 10px; }
+.start-einstellungen legend { padding: 0 4px; font-weight: 700; }
+.start-einstellungen label { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px; margin: 6px 0; font-size: 12px; }
+.start-einstellungen label > span { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+.start-einstellungen input { width: 112px; }
+.hilfe-dialog > p { margin-bottom: 12px; }
+.hilfe-dialog kbd {
+  padding: 1px 5px;
+  border: 1px solid var(--hairline);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  background: var(--flaeche);
+  font: 11px/1.4 ui-monospace, monospace;
+}
+.hilfe-raster { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.hilfe-abschnitt { border: 1px solid var(--hairline); border-radius: 9px; padding: 10px 12px; }
+.hilfe-abschnitt h3 { margin: 0; color: var(--tinte); font-size: 13px; letter-spacing: 0; text-transform: none; }
+.hilfe-abschnitt p { margin: 6px 0 1px; color: var(--tinte-2); line-height: 1.48; }
+.tutorial-anleitung { margin-bottom: 12px; padding: 13px; border: 1px solid color-mix(in srgb, var(--akzent) 38%, var(--hairline)); border-radius: 11px; background: rgba(237,161,0,0.055); }
+.tutorial-kopf { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.tutorial-kopf h3 { margin: 2px 0 0; color: var(--tinte); font-size: 15px; letter-spacing: 0; text-transform: none; }
+.tutorial-ablauf { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px 22px; margin: 13px 0 0; padding: 0; list-style: none; counter-reset: tutorial; }
+.tutorial-ablauf li { position: relative; min-width: 0; padding-left: 31px; counter-increment: tutorial; }
+.tutorial-ablauf li::before { content: counter(tutorial); position: absolute; left: 0; top: 0; display: grid; place-items: center; width: 23px; height: 23px; border-radius: 50%; background: var(--kopf); color: var(--akzent); font-size: 11px; font-weight: 800; }
+.tutorial-ablauf b, .tutorial-ablauf span { display: block; }
+.tutorial-ablauf b { font-size: 12.5px; }
+.tutorial-ablauf span { margin-top: 2px; color: var(--tinte-2); font-size: 11.5px; line-height: 1.38; }
+
+.tutorial-tour { position: fixed; right: 22px; bottom: 22px; z-index: 120; width: min(360px, calc(100vw - 28px)); padding: 16px; border: 1px solid rgba(237,161,0,0.48); border-radius: 14px; background: var(--karte); box-shadow: 0 16px 55px rgba(17,27,33,0.3); }
+.tutorial-tour header, .tutorial-tour footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.tutorial-tour header button { border: 0; background: transparent; color: var(--gedimmt); }
+.tutorial-tour h2 { margin: 8px 0 4px; font-size: 18px; }
+.tutorial-tour p { margin: 0 0 14px; color: var(--tinte-2); line-height: 1.48; }
+.tutorial-tour footer { justify-content: flex-end; }
+.tutorial-fokus { position: relative; z-index: 110; outline: 4px solid var(--akzent) !important; outline-offset: 4px; border-radius: 8px; box-shadow: 0 0 0 9999px rgba(19,29,35,0.36) !important; }
+
+.slot-liste { display: flex; flex-direction: column; gap: 8px; max-height: 260px; overflow-y: auto; }
+.slot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+  padding: 8px 12px;
+}
+.slot small { display: block; color: var(--gedimmt); font-size: 12px; }
+.slot-aktionen { display: flex; gap: 6px; }
+
+.speichern-zeile { display: flex; gap: 8px; margin-top: 12px; }
+.speichern-zeile input { flex: 1; }
+.dialog-fuss { display: flex; gap: 8px; margin-top: 14px; }
+
+.ende-tabelle { width: 100%; border-collapse: collapse; margin: 10px 0; }
+.ende-tabelle td { padding: 6px 2px; border-bottom: 1px solid var(--grid); }
+.ende-tabelle td:last-child { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+.ende-tabelle .summe td { font-weight: 700; border-top: 2px solid var(--hairline); }
+
+/* --- Toast --------------------------------------------------------------------------- */
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 26px;
+  transform: translate(-50%, 12px);
+  background: var(--kopf);
+  color: var(--kopf-tinte);
+  border-radius: 10px;
+  padding: 9px 16px;
+  font-size: 14px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 50;
+}
+.toast.sichtbar { opacity: 1; transform: translate(-50%, 0); }
+.toast.wichtig {
+  max-width: min(720px, calc(100vw - 28px));
+  border: 2px solid var(--akzent);
+  box-shadow: 0 10px 34px rgba(20,28,34,0.28);
+  font-weight: 650;
+  text-align: center;
+}
+
+/* --- Globale Hinweise, Cashflow-Detail und kompaktes Spielmenü ------------ */
+
+.menue { position: relative; }
+.menue > button { position: relative; }
+.menue-zaehler {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 4px;
+  border-radius: 99px;
+  background: var(--akzent);
+  color: #17272e;
+  font: 800 9px/15px system-ui;
+  text-align: center;
+}
+.menue-popover {
+  position: absolute;
+  z-index: 70;
+  top: calc(100% + 8px);
+  right: 0;
+  display: grid;
+  width: min(330px, calc(100vw - 24px));
+  padding: 7px;
+  border: 1px solid rgba(29,51,61,.18);
+  border-radius: 12px;
+  background: #fbf8f1;
+  box-shadow: 0 18px 55px rgba(15,25,29,.28);
+  color: var(--tinte);
+  white-space: normal;
+}
+.menue-popover[hidden] { display: none; }
+.menue-popover button {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  justify-content: stretch;
+  gap: 10px;
+  min-height: 52px;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--tinte);
+  text-align: left;
+}
+.menue-popover button:hover { background: var(--karte-weich); }
+.menue-popover button span { display: grid; }
+.menue-popover button b { font-size: 13px; }
+.menue-popover button small { color: var(--gedimmt); font-size: 11px; }
+
+.cashflow-popover,
+.meldungen-panel {
+  position: fixed;
+  z-index: 65;
+  top: 112px;
+  right: 18px;
+  width: min(390px, calc(100vw - 28px));
+  max-height: min(650px, calc(100vh - 132px));
+  overflow: auto;
+  border: 1px solid rgba(29,51,61,.18);
+  border-radius: 13px;
+  background: #fbf8f1;
+  box-shadow: 0 20px 60px rgba(15,25,29,.3);
+  color: var(--tinte);
+}
+.cashflow-popover[hidden], .meldungen-panel[hidden] { display: none; }
+.cashflow-popover { padding: 13px 15px; }
+.cashflow-popover h2 { margin: 0 0 4px; font-size: 16px; }
+.cashflow-popover > p { margin: 0 0 9px; color: var(--gedimmt); font-size: 11px; }
+.cashflow-details { width: 100%; border-collapse: collapse; font-size: 12px; }
+.cashflow-details td { padding: 5px 0; border-bottom: 1px solid var(--grid); }
+.cashflow-details td:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+.cashflow-details .summe td { padding-top: 8px; border-top: 2px solid var(--hairline); font-weight: 800; }
+.cashflow-details .gruppe td { padding-top: 9px; color: var(--gedimmt); font-size: 9px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+
+.meldungen-panel { padding: 0; }
+.meldungen-panel > header {
+  position: sticky;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 15px 11px;
+  border-bottom: 1px solid var(--hairline);
+  background: #fbf8f1;
+}
+.meldungen-panel h2 { margin: 1px 0 0; font-size: 17px; }
+.meldungen-panel header button { border: 0; background: transparent; color: var(--gedimmt); }
+.meldungen-panel ol { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
+.meldungen-panel li { display: grid; gap: 3px; padding: 11px 15px; border-bottom: 1px solid var(--grid); }
+.meldungen-panel li small { color: var(--gedimmt); font-size: 10px; }
+.meldungen-panel .leer { color: var(--gedimmt); }
+
+.toast {
+  left: auto;
+  right: 18px;
+  bottom: 22px;
+  width: min(420px, calc(100vw - 28px));
+  transform: translate(14px, 0);
+  padding: 12px 15px;
+  line-height: 1.42;
+  transition-duration: .45s;
+}
+.toast.sichtbar { transform: translate(0, 0); }
+.toast.ratgeber { border-left: 4px solid var(--akzent); }
+
+.save-erklaerung { margin: 12px 0; padding: 11px 12px; border: 1px solid var(--hairline); border-radius: 9px; background: var(--karte-weich); }
+.save-erklaerung ul { margin: 7px 0; padding-left: 18px; }
+.save-erklaerung li + li { margin-top: 4px; }
+.save-erklaerung p { margin: 7px 0 0; color: var(--gedimmt); font-size: 11px; }
+.fakten .info-tooltip { margin-left: 4px; transform: translateY(-1px); }
+.cashflow-erklaerung {
+  margin-top: 12px;
+  padding: 12px 13px;
+  border: 1px solid rgba(188, 96, 75, .28);
+  border-radius: 10px;
+  background: rgba(188, 96, 75, .08);
+  color: var(--text);
+  font-size: 12px;
+}
+.cashflow-erklaerung p { margin: 5px 0 7px; line-height: 1.45; }
+.cashflow-erklaerung ul { margin: 0; padding-left: 18px; color: var(--gedimmt); }
+.cashflow-erklaerung li + li { margin-top: 3px; }
+.eigenbedarf-status { margin-top: 13px; padding: 11px; border: 1px solid var(--hairline); border-radius: 10px; background: var(--karte-weich); }
+.eigenbedarf-status p { margin: 4px 0 9px; color: var(--gedimmt); font-size: 11px; line-height: 1.4; }
+.eigenbedarf-status > div { display: flex; flex-wrap: wrap; gap: 6px; }
+.eigenbedarf-status.konflikt { border-color: rgba(188,96,75,.45); background: rgba(188,96,75,.09); }
+
+.preset-option {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+}
+.preset-option > input { position: absolute; margin: 10px; z-index: 1; }
+.preset-option .preset-bild { display: block; width: 100%; aspect-ratio: 16/7; object-fit: cover; }
+.preset-option > span { display: block; min-width: 0; padding: 10px 11px 11px; }
+
+.hilfe-abschnitt ul { margin: 7px 0 1px; padding-left: 18px; color: var(--tinte-2); line-height: 1.42; }
+.hilfe-abschnitt li + li { margin-top: 4px; }
+
+/* --- Screens-Navigation (Topbar) ---------------------------------------------- */
+
+.screens-nav { display: flex; gap: 4px; }
+.screens-nav button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  color: var(--kopf-tinte);
+  opacity: 0.75;
+  padding: 6px 12px;
+  border-radius: 8px;
+}
+.screens-nav button:hover { background: rgba(255, 255, 255, 0.1); opacity: 1; }
+.screens-nav button.aktiv {
+  background: rgba(255, 255, 255, 0.14);
+  opacity: 1;
+  font-weight: 650;
+}
+.zaehler {
+  background: var(--akzent);
+  color: #22303a;
+  border-radius: 9px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 6px;
+  vertical-align: 2px;
+}
+.zaehler:empty { display: none; }
+
+.seiten-spalte { display: flex; flex-direction: column; gap: 16px; }
+
+.portfolio-board { grid-column: 1 / -1; padding: 18px; }
+.portfolio-board .karten-kopf { align-items: end; margin-bottom: 14px; }
+.portfolio-board .karten-kopf h2 { margin-top: 2px; font-size: 19px; }
+.portfolio-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 360px));
+  justify-content: start;
+  gap: 14px;
+}
+.portfolio-empty {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 16px;
+  min-height: 100px;
+  padding: 14px 18px;
+  border: 1px dashed rgba(34, 48, 58, 0.25);
+  border-radius: 12px;
+  background: var(--karte-weich);
+}
+.portfolio-empty p { margin: 3px 0 0; color: var(--tinte-2); }
+.empty-illustration {
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
+  background: var(--kopf);
+  color: var(--akzent);
+}
+.empty-icon { width: 34px; height: 34px; fill: none; stroke: currentColor; stroke-width: 1.45; stroke-linecap: round; stroke-linejoin: round; }
+#link-marktplatz { display: inline-flex; align-items: center; justify-content: center; gap: 7px; }
+.owned-card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--hairline);
+  border-radius: 13px;
+  background: var(--karte-stark);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(28, 27, 24, 0.06);
+  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+}
+.owned-card:hover { transform: translateY(-3px); border-color: rgba(34, 48, 58, 0.25); box-shadow: var(--schatten-hover); }
+.owned-visual { position: relative; overflow: hidden; }
+.owned-visual .expose-bild { aspect-ratio: 16 / 8; }
+.owned-visual .badge { position: absolute; left: 10px; bottom: 9px; z-index: 2; box-shadow: 0 2px 7px rgba(28, 27, 24, 0.12); }
+.owned-visual img { transition: transform 0.35s ease; }
+.owned-card:hover .owned-visual img { transform: scale(1.035); }
+.owned-body { padding: 12px 13px 13px; }
+.owned-body h3 { min-height: 2.5em; margin: 0 0 8px; font-size: 15px; line-height: 1.25; }
+.owned-primary { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.owned-primary span { color: var(--gedimmt); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; }
+.owned-primary b { font-size: 15px; font-variant-numeric: tabular-nums; }
+.ownership-meter { height: 7px; margin: 9px 0 7px; overflow: hidden; border-radius: 99px; background: #d8dce0; }
+.ownership-meter i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #277a53, #5e9b78); }
+.owned-split { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.owned-split span:last-child { text-align: right; }
+.owned-split small, .owned-split b { display: block; }
+.owned-split small { color: var(--gedimmt); font-size: 10.5px; }
+.owned-split b { font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.owned-open { display: flex; justify-content: space-between; margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--grid); color: var(--tinte-2); font-size: 12px; }
+.owned-open b { color: var(--akzent-dunkel); }
+
+.steuer-karte { padding-block: 13px; }
+.steuer-karte .karten-kopf { margin-bottom: 5px; }
+.steuer-regel { margin: 0 0 8px; color: var(--tinte-2); font-size: 11.5px; line-height: 1.4; }
+.steuer-regel b { color: var(--tinte); font-weight: 650; }
+.steuer-karte .slider-zeile { display: grid; grid-template-columns: auto minmax(100px, 1fr); align-items: center; gap: 10px; margin-bottom: 7px; font-size: 11.5px; }
+.steuer-karte .slider-zeile input[type="range"] { margin-top: 0; }
+.steuer-vorschau { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 1px 10px; }
+.steuer-vorschau span { color: var(--tinte-2); font-size: 13px; }
+.steuer-vorschau b { font-size: 16px; }
+.steuer-vorschau small { grid-column: 1 / -1; color: var(--gedimmt); }
+.steuer-karte #steuer-letzter { margin: 5px 0 0; font-size: 10.5px; }
+
+.cashflow-viz { display: flex; flex-direction: column; gap: 5px; margin: 5px 0 14px; }
+.flow-zeile {
+  display: grid;
+  grid-template-columns: minmax(100px, 1fr) minmax(70px, 1.1fr) auto;
+  gap: 8px;
+  align-items: center;
+  font-size: 11.5px;
+}
+.flow-zeile > span { overflow: hidden; color: var(--tinte-2); text-overflow: ellipsis; white-space: nowrap; }
+.flow-zeile > b { min-width: 62px; text-align: right; font-variant-numeric: tabular-nums; }
+.flow-track { height: 6px; overflow: hidden; border-radius: 99px; background: var(--grid); }
+.flow-track i { display: block; height: 100%; border-radius: inherit; }
+.flow-track .rein { background: #4c8b68; }
+.flow-track .raus { background: #c16a5f; }
+.flow-summe { display: flex; justify-content: space-between; margin-top: 3px; padding-top: 7px; border-top: 1px solid var(--hairline); font-size: 12.5px; }
+.flow-summe.positiv b { color: var(--positiv); }
+.flow-summe.negativ b { color: var(--negativ); }
+
+.plus-text { color: var(--positiv); }
+.minus-text { color: var(--negativ); }
+
+/* --- Marktplatz ------------------------------------------------------------------ */
+
+.marktplatz, .expose {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 20px 22px 40px;
+}
+.marktplatz > .screen-heading { margin-bottom: 16px; }
+
+.filter-zeile {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  padding: 10px;
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  background: rgba(253, 251, 247, 0.82);
+  box-shadow: 0 1px 3px rgba(28, 27, 24, 0.05);
+}
+.filter-zeile select {
+  font: inherit;
+  padding: 7px 10px;
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  background: var(--karte);
+}
+.filter-check { display: flex; align-items: center; gap: 6px; color: var(--tinte-2); }
+.filter-zeile button { margin-left: auto; }
+
+.markt-liste {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 16px;
+}
+.leer-hinweis { grid-column: 1 / -1; padding: 30px 0; text-align: center; }
+
+.markt-karte {
+  background: var(--karte);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  box-shadow: var(--schatten);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.markt-karte:hover { transform: translateY(-3px); box-shadow: var(--schatten-hover); }
+.markt-karte .expose-bild img { transition: transform 0.38s ease, filter 0.2s ease; }
+.markt-karte:hover .expose-bild img { transform: scale(1.025); filter: saturate(1.03); }
+.markt-karte:focus-visible { outline: 3px solid #1769c2; outline-offset: 3px; }
+.markt-karte.reserviert { outline: 2px solid var(--serie-netto); }
+
+.markt-gallery { display: grid; grid-template-columns: 1.65fr 1fr; gap: 2px; background: var(--kopf); }
+.markt-gallery .expose-bild { min-height: 190px; aspect-ratio: auto; }
+.markt-gallery .expose-bild:last-child::after {
+  content: 'INNEN';
+  position: absolute;
+  left: 7px;
+  bottom: 7px;
+  z-index: 2;
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: rgba(28,27,24,0.7);
+  color: white;
+  font-size: 8px;
+  letter-spacing: 0.08em;
+}
+
+.expose-bild { position: relative; aspect-ratio: 4 / 3; background: #dce8ef; }
+.expose-bild svg, .expose-bild img {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block;
+}
+.expose-bild img { z-index: 1; }
+.bild-zoom { overflow: hidden; cursor: zoom-in; }
+.bild-zoom:focus-visible { outline: 3px solid var(--fokus); outline-offset: -4px; }
+.zoom-hinweis {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 27px;
+  height: 27px;
+  border: 1px solid rgba(255,255,255,0.45);
+  border-radius: 50%;
+  background: rgba(28,27,24,0.68);
+  color: white;
+  font-size: 20px;
+  opacity: 0.75;
+}
+.bild-zoom:hover .zoom-hinweis, .bild-zoom:focus-visible .zoom-hinweis { opacity: 1; transform: scale(1.06); }
+
+.karte-inhalt { padding: 12px 14px 14px; }
+.karte-kopfzeile { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.karte-kopfzeile h3 { margin: 0; font-size: 15px; }
+.fav {
+  border: none; background: transparent; font-size: 18px; padding: 0 2px;
+  color: var(--hairline); -webkit-text-stroke: 1px var(--gedimmt);
+}
+.fav.aktiv { color: var(--akzent); -webkit-text-stroke: 0; }
+.karte-ort, .karte-fakten { display: flex; align-items: center; gap: 6px; }
+.karte-ort .ui-icon, .karte-fakten .ui-icon { width: 14px; height: 14px; flex-basis: 14px; color: var(--akzent-dunkel); }
+.karte-ort { font-size: 12.5px; margin: 2px 0 8px; }
+.karte-preis { font-size: 18px; font-weight: 700; }
+.karte-preis small { font-weight: 400; color: var(--gedimmt); margin-left: 6px; }
+.karte-fakten { font-size: 13px; color: var(--tinte-2); margin: 4px 0 8px; }
+
+.karte-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.badge {
+  font-size: 11.5px;
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  padding: 2px 9px;
+  color: var(--tinte-2);
+  background: var(--flaeche);
+}
+.badge.gruen { background: #e4efdd; border-color: #c4d9b6; color: #2c5218; }
+.badge.orange { background: #f9e9d2; border-color: #ecd2a8; color: #7a4d10; }
+.badge.neu { background: var(--akzent); border-color: var(--akzent); color: #22303a; font-weight: 700; }
+.badge.blau { background: #dbe8f8; border-color: #b6cfef; color: #1c4d8f; }
+
+.vergleich-check { font-size: 12.5px; color: var(--gedimmt); display: flex; gap: 6px; align-items: center; }
+
+/* --- Exposé-Detail ------------------------------------------------------------------ */
+
+.expose-kopf { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+.expose-kopf h1, .expose-kopf h2 { margin: 0; font-size: 20px; }
+
+.expose-oben { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(320px, 1fr); gap: 16px; }
+.expose-bild.gross { aspect-ratio: 4 / 3; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--hairline); }
+.expose-gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-self: start; }
+.expose-gallery .expose-bild.gross { aspect-ratio: 4 / 3; }
+.mietrecht-hinweis { margin: 13px 0 0; padding: 8px 10px; border-radius: 8px; background: #f4ead9; color: #634921; font-size: 12px; }
+
+.bildzoom-dialog { width: min(1100px, 96vw); max-height: 96vh; overflow: hidden; }
+.bildzoom-buehne {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: min(72vh, 720px);
+  overflow: auto;
+  border-radius: 12px;
+  background: #17232a;
+}
+.bildzoom-inhalt { position: relative; width: min(900px, 88vw); aspect-ratio: 4 / 3; transform-origin: center; transition: transform 0.16s ease; }
+.bildzoom-inhalt :is(svg, img) { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+.bildzoom-inhalt img { z-index: 1; }
+.bildzoom-steuerung { align-items: center; justify-content: center; margin-top: 10px; }
+.bildzoom-steuerung button { min-width: 48px; }
+.bildzoom-steuerung #bildzoom-reset { min-width: 82px; }
+
+.expose-preisbox { padding: 16px 18px; }
+.preis-gross { font-size: 26px; font-weight: 750; }
+.fakten { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13.5px; }
+.fakten td { padding: 4px 2px; border-bottom: 1px solid var(--grid); vertical-align: top; }
+.fakten td:first-child { color: var(--gedimmt); width: 42%; }
+
+.expose-aktionen { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
+.gebot-zeile { display: flex; gap: 8px; margin-top: 8px; }
+.gebot-zeile input {
+  flex: 1; font: inherit; padding: 8px 10px;
+  border: 1px solid var(--hairline); border-radius: 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.maklertext {
+  margin: 16px 0;
+  padding: 14px 18px;
+  background: var(--karte);
+  border-left: 4px solid var(--akzent);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  font-style: italic;
+  color: var(--tinte-2);
+}
+.maklertext footer { font-style: normal; font-size: 12.5px; color: var(--gedimmt); margin-top: 6px; }
+
+.expose-unten { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(320px, 1fr); gap: 16px; }
+.dd-karte h3, .notizen-karte h3 { margin: 0 0 10px; font-size: 15px; }
+.dd-buttons { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.dd-buttons button { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; }
+.dd-buttons button small { color: var(--gedimmt); font-size: 11px; }
+.dd-liste { margin: 0; padding: 0; list-style: none; }
+.dd-liste li { padding: 6px 0; border-bottom: 1px solid var(--grid); font-size: 13.5px; }
+.dd-liste li:last-child { border-bottom: none; }
+.dd-quelle {
+  display: inline-block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em;
+  color: var(--gedimmt); margin-right: 8px; min-width: 86px;
+}
+.notizen-karte textarea {
+  width: 100%; font: inherit; padding: 8px 10px;
+  border: 1px solid var(--hairline); border-radius: 8px; resize: vertical; background: #fff;
+}
+
+/* --- Finanzierungsdialog ---------------------------------------------------------------- */
+
+#dlg-finanzierung { width: min(560px, 94vw); }
+.fin-ek-panel {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.7fr) minmax(250px, 1.3fr);
+  gap: 12px;
+  align-items: stretch;
+  margin: 8px 0 12px;
+}
+.fin-ek-quote {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 76px;
+  padding: 10px 14px;
+  border: 1px solid rgba(237,161,0,0.28);
+  border-radius: 12px;
+  background: linear-gradient(145deg, rgba(237,161,0,0.16), rgba(255,255,255,0.5));
+}
+.fin-ek-quote small { color: var(--tinte-2); font-size: 10px; text-transform: uppercase; letter-spacing: 0.07em; }
+.fin-ek-quote strong { color: var(--kopf); font-size: 25px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.fin-ek-quote span { color: var(--gedimmt); font-size: 10.5px; }
+.fin-ek-schnellwahl { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.fin-ek-schnellwahl button { min-width: 0; padding: 8px 5px; font-weight: 720; font-variant-numeric: tabular-nums; }
+.fin-ek-schnellwahl button.aktiv {
+  border-color: var(--akzent-dunkel);
+  background: var(--akzent);
+  color: var(--kopf);
+  box-shadow: inset 0 -2px 0 rgba(34,48,58,0.13);
+}
+.fin-slider label { display: block; font-size: 13px; color: var(--tinte-2); margin: 10px 0 2px; }
+.fin-slider input[type="range"] { width: 100%; accent-color: var(--kopf); }
+.fin-slider-werte { display: flex; justify-content: space-between; font-size: 13.5px; margin: 4px 0 8px; flex-wrap: wrap; gap: 6px; }
+.fin-ltv-viz { margin: 8px 0 12px; padding: 9px 11px; border-radius: 10px; background: var(--karte-weich); }
+.fin-ltv-viz > div:first-child { display: flex; justify-content: space-between; gap: 8px; font-size: 12.5px; }
+.fin-ltv-viz small { display: block; margin-top: 4px; color: var(--gedimmt); font-size: 11px; }
+.ltv-track { height: 8px; margin-top: 6px; overflow: hidden; border-radius: 99px; background: var(--grid); }
+.ltv-track i { display: block; height: 100%; border-radius: inherit; }
+.ltv-track .stabil { background: #4c8b68; }
+.ltv-track .angespannt { background: var(--akzent); }
+.ltv-track .riskant { background: #c16a5f; }
+.fin-bindung { font-size: 13.5px; color: var(--tinte-2); display: flex; gap: 14px; align-items: center; }
+.fin-bindung label { display: inline-flex; gap: 5px; align-items: center; margin: 0; }
+.fin-nutzung {
+  display: flex; gap: 14px; align-items: center; flex-wrap: wrap;
+  padding: 9px 11px; margin: 10px 0; border-radius: 9px; background: var(--flaeche);
+  font-size: 13.5px; color: var(--tinte-2);
+}
+.fin-nutzung label { display: inline-flex; gap: 5px; align-items: center; margin: 0; cursor: pointer; }
+.fin-nutzung label.gesperrt { color: var(--gedimmt); cursor: not-allowed; }
+.fin-nutzung label.gesperrt .info-tooltip { cursor: help; }
+#fin-nutzung-hinweis.gesperrt {
+  margin-top: -3px; padding: 8px 10px; border-left: 3px solid var(--negativ);
+  border-radius: 0 7px 7px 0; background: color-mix(in srgb, var(--negativ) 7%, white);
+  color: var(--tinte-2);
+}
+.fin-tabelle { margin-top: 12px; }
+
+.verdikt { border-radius: 10px; padding: 10px 14px; margin-top: 12px; font-size: 13.5px; }
+.verdikt.ok { background: #e4efdd; border: 1px solid #c4d9b6; color: #2c5218; }
+.verdikt.abgelehnt { background: #f7e1de; border: 1px solid #e7bcb6; color: #7c2d22; }
+.verdikt ul { margin: 6px 0 0; padding-left: 18px; }
+
+/* --- Vergleich, Portfolio, Log ------------------------------------------------------------ */
+
+dialog.breit { width: min(860px, 96vw); }
+#dlg-bewerber { width: min(1060px, calc(96vw - 44px)); }
+.vergleich-wrap { overflow-x: auto; }
+.vergleich-tabelle { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+.vergleich-tabelle th { text-align: left; padding: 6px 10px; font-size: 13px; }
+.vergleich-tabelle td { padding: 6px 10px; border-top: 1px solid var(--grid); }
+.vergleich-tabelle td:first-child { color: var(--gedimmt); white-space: nowrap; }
+
+.portfolio-objekt { padding: 8px 0; border-bottom: 1px solid var(--grid); }
+.portfolio-objekt:last-child { border-bottom: none; }
+.po-titel small { display: block; color: var(--gedimmt); font-size: 12px; }
+.po-zahlen { display: flex; gap: 14px; font-size: 13px; margin-top: 3px; font-variant-numeric: tabular-nums; }
+
+.log-eintrag { padding: 6px 0; border-bottom: 1px solid var(--grid); font-size: 13px; }
+.log-eintrag:last-child { border-bottom: none; }
+.log-eintrag small { display: block; color: var(--gedimmt); font-size: 11.5px; }
+
+/* --- Portfolio klickbar ------------------------------------------------------------------ */
+
+.portfolio-objekt.klickbar { cursor: pointer; border-radius: 8px; padding: 8px; margin: 0 -8px; }
+.portfolio-objekt.klickbar:hover { background: var(--flaeche); }
+.eigenheim-zeile { border-left: 3px solid var(--serie-netto); padding-left: 10px !important; }
+
+/* --- Objekt-Detail (Screen 7) ------------------------------------------------------------ */
+
+.objekt-oben { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(300px, 1fr); gap: 16px; margin-bottom: 16px; }
+.objekt-visual { position: relative; min-width: 0; }
+.objekt-visual .expose-bild { height: 100%; min-height: 390px; }
+.objekt-visual-overlay {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 13px;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  pointer-events: none;
+}
+.objekt-visual-overlay span {
+  padding: 5px 10px;
+  border: 1px solid rgba(255,255,255,0.38);
+  border-radius: 999px;
+  background: rgba(34,48,58,0.88);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  font-size: 11.5px;
+  font-weight: 650;
+  backdrop-filter: blur(5px);
+}
+.objekt-status { padding: 14px 16px; }
+.objekt-wert { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 14px 0 8px; }
+.objekt-wert span { min-width: 0; }
+.objekt-wert small, .objekt-wert b { display: block; }
+.objekt-wert small { color: var(--gedimmt); font-size: 11px; }
+.objekt-wert b { overflow: hidden; font-size: clamp(18px, 2vw, 24px); text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
+.ownership-meter.gross { height: 10px; margin-bottom: 4px; }
+.objekt-wert-legende { display: flex; justify-content: space-between; color: var(--gedimmt); font-size: 11px; }
+.objekt-spalten { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.objekt-spalten h3 { margin: 0 0 10px; font-size: 15px; }
+
+.objekt-flow { display: flex; flex-direction: column; gap: 6px; margin: 10px 0 15px; }
+.objekt-flow-zeile { display: grid; grid-template-columns: minmax(92px, 1fr) minmax(70px, 1fr) auto; gap: 8px; align-items: center; font-size: 11.5px; }
+.objekt-flow-zeile > span { overflow: hidden; color: var(--tinte-2); text-overflow: ellipsis; white-space: nowrap; }
+.objekt-flow-zeile > div { height: 7px; overflow: hidden; border-radius: 99px; background: var(--grid); }
+.objekt-flow-zeile i { display: block; height: 100%; border-radius: inherit; }
+.objekt-flow-zeile .rein { background: #4c8b68; }
+.objekt-flow-zeile .raus { background: #c16a5f; }
+.objekt-flow-zeile b { min-width: 58px; text-align: right; font-variant-numeric: tabular-nums; }
+
+.mieter-profil { display: flex; gap: 11px; align-items: center; margin-bottom: 10px; }
+.mieter-avatar { display: grid; place-items: center; width: 58px; height: 58px; flex: 0 0 58px; overflow: hidden; border: 3px solid var(--karte); border-radius: 50%; background: var(--flaeche); box-shadow: 0 0 0 1px var(--hairline), 0 4px 10px rgba(28,27,24,0.1); }
+.mieter-avatar > * { grid-area: 1 / 1; }
+.mieter-avatar .ui-icon { width: 25px; height: 25px; color: var(--akzent); }
+.mieter-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.mieter-kopf { display: flex; flex-direction: column; min-width: 0; }
+.mieter-kopf span { font-size: 12px; color: var(--gedimmt); }
+.stimmung-gut { color: var(--positiv); }
+.stimmung-ok { color: var(--tinte-2); }
+.stimmung-schlecht { color: var(--negativ); }
+
+.slider-zeile { display: block; font-size: 13.5px; color: var(--tinte-2); margin-bottom: 12px; }
+.slider-zeile input[type="range"] { width: 100%; accent-color: var(--kopf); margin-top: 4px; }
+.check-zeile { display: flex; gap: 8px; align-items: flex-start; font-size: 13.5px; color: var(--tinte-2); margin-bottom: 8px; }
+.karten-trenner { border: 0; border-top: 1px solid var(--grid); margin: 14px 0 10px; }
+
+.reserve-status { margin-bottom: 13px; padding: 10px 11px; border-radius: 10px; background: var(--karte-weich); }
+.reserve-status > div:first-child { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.reserve-status span { color: var(--tinte-2); font-size: 12px; }
+.reserve-status b { font-size: 15px; font-variant-numeric: tabular-nums; }
+.reserve-status small { display: block; margin-top: 4px; color: var(--gedimmt); font-size: 10.5px; }
+.reserve-track { height: 7px; margin-top: 6px; overflow: hidden; border-radius: 99px; background: var(--grid); }
+.reserve-track i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--akzent-dunkel), var(--akzent)); }
+
+/* --- Bewerbermappe (Screen 6) ------------------------------------------------------------ */
+
+.niveau-optionen { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+.niveau-option {
+  border: 1px solid var(--hairline); border-radius: 10px; padding: 10px;
+  display: flex; gap: 8px; cursor: pointer;
+}
+.niveau-option:has(input:checked) { border-color: var(--kopf); background: rgba(34, 48, 58, 0.06); }
+.niveau-option small { display: block; color: var(--tinte-2); margin-top: 2px; }
+.modell-optionen { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 9px; }
+.modell-option { display: grid; grid-template-columns: auto 1fr; gap: 8px; align-items: start; padding: 11px; border: 1px solid var(--hairline); border-radius: 10px; cursor: pointer; }
+.modell-option:has(input:checked) { border-color: var(--amber); background: rgba(237,161,0,.08); box-shadow: inset 0 0 0 1px rgba(237,161,0,.15); }
+.modell-option b, .modell-option small { display: block; }
+.modell-option small { margin-top: 3px; color: var(--gedimmt); font-size: 10px; line-height: 1.35; }
+.dialog-zwischentitel { margin: 13px 0 7px; font-size: 13px; }
+.mietmodell-recht { margin: 0; padding: 9px 11px; border-left: 3px solid var(--amber); background: var(--karte-weich); color: var(--gedimmt); font-size: 11px; line-height: 1.4; }
+
+.bewerber-suche-kopf { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 12px; }
+.bewerber-suche-kopf p { margin: 3px 0 0; }
+.bewerber-liste { display: grid; grid-template-columns: repeat(auto-fit, minmax(310px, 1fr)); gap: 14px; margin: 12px 0 16px; }
+.bewerber-karte {
+  display: flex; flex-direction: column; gap: 12px;
+  border: 1px solid rgba(34,48,58,0.18); border-radius: 14px; padding: 14px;
+  background: linear-gradient(145deg, var(--karte-stark), rgba(244,239,228,0.72));
+  box-shadow: 0 5px 16px rgba(34,48,58,0.07);
+}
+.bewerber-karte > button { width: 100%; margin-top: auto; }
+.bewerber-kopf { display: flex; justify-content: flex-start; gap: 11px; align-items: center; padding-bottom: 10px; border-bottom: 1px solid var(--hairline); }
+.bewerber-avatar {
+  width: 58px; height: 58px; flex-shrink: 0; border: 3px solid var(--karte); border-radius: 50%;
+  background: var(--flaeche); display: flex; align-items: center; justify-content: center;
+  font-size: 26px; overflow: hidden; box-shadow: 0 0 0 1px var(--hairline);
+}
+.bewerber-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.bewerber-name { display: flex; flex-direction: column; min-width: 0; }
+.bewerber-name b { font-size: 16px; }
+.bewerber-name span { color: var(--gedimmt); font-size: 12px; }
+.bewerber-fakten { display: grid; grid-template-columns: 1fr 1fr; gap: 9px 12px; margin: 0; }
+.bewerber-fakten div { min-width: 0; }
+.bewerber-fakten dt { color: var(--gedimmt); font-size: 10.5px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+.bewerber-fakten dd { margin: 2px 0 0; color: var(--tinte-2); font-size: 12.5px; line-height: 1.35; }
+.bewerber-hinweise { display: flex; flex-wrap: wrap; gap: 6px; }
+.hinweis-chip { padding: 4px 7px; border: 1px solid var(--hairline); border-radius: 999px; background: rgba(255,255,255,0.58); color: var(--tinte-2); font-size: 11px; }
+.bewerber-note { min-height: 42px; margin: 0; padding: 9px 10px; border-left: 3px solid rgba(237,161,0,0.55); background: rgba(255,255,255,0.5); color: var(--gedimmt); font-size: 12.5px; font-style: italic; }
+.leerstand-kosten { display: grid; grid-template-columns: minmax(170px,0.8fr) minmax(260px,1.4fr); gap: 10px 20px; align-items: center; margin: 14px 0; padding: 14px 16px; border: 1px solid rgba(185,120,0,0.28); border-radius: 13px; background: rgba(237,161,0,0.08); }
+.leerstand-kosten > div { display: flex; flex-direction: column; }
+.leerstand-kosten dl { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0; }
+.leerstand-kosten dl div { padding-left: 10px; border-left: 2px solid rgba(185,120,0,0.34); }
+.leerstand-kosten dt { color: var(--gedimmt); font-size: 11px; }
+.leerstand-kosten dd { margin: 2px 0 0; font-weight: 750; font-variant-numeric: tabular-nums; }
+.leerstand-kosten p { grid-column: 1 / -1; margin: 0; color: var(--tinte-2); font-size: 12px; }
+.quote-gut { color: var(--positiv); font-weight: 600; }
+.quote-ok { color: #7a4d10; font-weight: 600; }
+.quote-schlecht { color: var(--negativ); font-weight: 600; }
+
+/* --- Renovierungsplaner (Screen 5) ------------------------------------------------------- */
+
+.reno-liste { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-top: 12px; }
+.reno-karte { border: 1px solid var(--hairline); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+.reno-karte.gesperrt { opacity: 0.6; }
+.reno-kopf { display: flex; justify-content: space-between; align-items: baseline; }
+.reno-preis { font-weight: 700; }
+.reno-fakten { display: flex; flex-direction: column; gap: 2px; font-size: 12.5px; color: var(--tinte-2); }
+.reno-karte button { margin-top: auto; }
+
+/* --- Event-Modal (Screen 8) -------------------------------------------------------------- */
+
+#dlg-event { width: min(520px, 94vw); }
+#dlg-event::before {
+  content: '';
+  display: block;
+  height: 5px;
+  margin: -20px -22px 16px;
+  border-radius: var(--radius) var(--radius) 0 0;
+  background: var(--event-farbe, var(--akzent));
+}
+#dlg-event[data-kategorie="objekt"] { --event-farbe: #2a78d6; }
+#dlg-event[data-kategorie="mieter"] { --event-farbe: #7a668f; }
+#dlg-event[data-kategorie="haushalt"] { --event-farbe: #b97800; }
+#dlg-event[data-kategorie="kind"] { --event-farbe: #bd6b38; }
+.event-kat {
+  display: inline-block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--gedimmt); background: var(--flaeche); border-radius: 999px; padding: 2px 10px; margin-bottom: 4px;
+}
+.event-kat span { display: inline-grid; place-items: center; width: 18px; height: 18px; margin-right: 3px; border-radius: 50%; background: var(--event-farbe, var(--akzent)); color: #fff; font-size: 11px; }
+.event-text { color: var(--tinte-2); line-height: 1.5; }
+.event-optionen { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+.event-option {
+  text-align: left; padding: 12px 14px; border-radius: 10px;
+  border: 1px solid var(--hairline); background: var(--karte); font-size: 14px;
+}
+.event-option::after { content: '→'; float: right; color: var(--akzent-dunkel); font-weight: 750; }
+.event-option:hover { transform: translateX(3px); border-color: var(--event-farbe, var(--kopf)); background: rgba(34, 48, 58, 0.05); }
+.event-folge-text {
+  margin-top: 14px; padding: 12px 14px; border-radius: 10px;
+  background: var(--flaeche); color: var(--tinte); font-size: 13.5px;
+}
+#dlg-event.event-aufgeloest .event-folge-text { border-left: 4px solid var(--event-farbe, var(--akzent)); background: var(--karte-weich); }
+
+/* --- Endauswertung (Screen 9) ----------------------------------------------------------- */
+
+.endgame {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 24px 22px 54px;
+  display: grid;
+  gap: 16px;
+}
+.endgame-hero {
+  display: flex; justify-content: space-between; align-items: end; gap: 24px;
+  padding: 26px 28px; border-radius: 18px; color: var(--kopf-tinte);
+  background: linear-gradient(125deg, #22303a, #2d5261 68%, #b67f19 140%);
+  box-shadow: var(--schatten);
+}
+.eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gedimmt); font-weight: 700; }
+.endgame-hero .eyebrow { color: #d6d9d8; }
+.endgame-hero h1 { margin: 4px 0 2px; font-size: clamp(25px, 3vw, 40px); line-height: 1.1; }
+.endgame-hero p { margin: 6px 0 0; color: #d6d9d8; }
+.endgame-hauptwert { text-align: right; flex-shrink: 0; }
+.endgame-hauptwert span, .endgame-hauptwert small { display: block; color: #d6d9d8; }
+.endgame-hauptwert b { display: block; font-size: clamp(25px, 3vw, 38px); color: #fff; }
+
+.score-raster { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+.score-karte {
+  display: flex; align-items: center; gap: 11px; min-width: 0;
+  background: var(--karte); border: 1px solid var(--hairline); border-radius: var(--radius);
+  box-shadow: var(--schatten); padding: 13px;
+}
+.score-ring {
+  --p: calc(var(--score) * 1%);
+  width: 52px; height: 52px; border-radius: 50%; flex: 0 0 52px;
+  display: grid; place-items: center; position: relative;
+  background: conic-gradient(var(--serie-netto) var(--p), var(--grid) 0);
+}
+.score-ring::after { content: ''; position: absolute; inset: 6px; border-radius: 50%; background: var(--karte); }
+.score-ring b { position: relative; z-index: 1; font-size: 14px; }
+.score-karte h3 { margin: 0; font-size: 14px; }
+.score-karte p { margin: 2px 0 0; color: var(--gedimmt); font-size: 11.5px; line-height: 1.3; }
+
+.endgame-details { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.endgame-details div { padding-right: 14px; border-right: 1px solid var(--grid); }
+.endgame-details div:last-child { border-right: 0; }
+.endgame-details span, .endgame-details b { display: block; }
+.endgame-details span { color: var(--gedimmt); font-size: 12px; }
+.endgame-details b { font-size: 18px; margin-top: 2px; }
+
+.endgame-chart-karte h2 { margin: 2px 0 0; font-size: 17px; }
+#endgame-chart { width: 100%; height: auto; display: block; }
+#endgame-chart .grid { stroke: var(--grid); stroke-width: 1; }
+#endgame-chart .achse { fill: var(--gedimmt); font-size: 11px; }
+.end-linie { fill: none; stroke-width: 2.2; stroke-linejoin: round; }
+.end-spieler { stroke: #2a78d6; stroke-width: 3; }
+.end-etf { stroke: #eda100; }
+.end-eigenheim { stroke: #277a53; }
+.end-invest { stroke: #8b5cf6; }
+.endgame-vergleich { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 8px; }
+.vergleich-endwert { display: grid; grid-template-columns: auto 1fr; gap: 1px 7px; align-items: center; padding: 8px 10px; background: var(--flaeche); border-radius: 9px; }
+.vergleich-endwert i { width: 10px; height: 10px; border-radius: 50%; grid-row: 1 / 3; }
+.vergleich-endwert span { font-size: 12px; color: var(--tinte-2); }
+.vergleich-endwert b { font-size: 14px; }
+.serie-spieler { background: #2a78d6; }.serie-etf { background: #eda100; }
+.serie-eigenheim { background: #277a53; }.serie-invest { background: #8b5cf6; }
+.endgame-timeline { max-height: 360px; overflow-y: auto; padding-right: 6px; }
+.timeline-eintrag { display: grid; grid-template-columns: 135px 1fr; gap: 14px; padding: 8px 0; border-bottom: 1px solid var(--grid); font-size: 13px; }
+.timeline-eintrag time { color: var(--gedimmt); }
+.endgame-aktionen { display: flex; justify-content: flex-end; gap: 8px; }
+
+/* --- Admin-Panel (Phase 5) ----------------------------------------------------------- */
+
+#dlg-admin { width: min(1040px, 96vw); max-height: 92vh; }
+#dlg-admin form { display: flex; flex-direction: column; max-height: calc(92vh - 40px); }
+#dlg-admin .admin-einleitung { margin: 2px 0 14px; }
+.admin-gruppen {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  overflow-y: auto;
+  padding: 2px 5px 4px 2px;
+}
+.admin-gruppe {
+  min-width: 0;
+  margin: 0;
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  padding: 10px 12px 12px;
+}
+.admin-gruppe legend { padding: 0 5px; font-weight: 750; }
+.admin-gruppe > p { margin: 0 0 10px; color: var(--gedimmt); font-size: 12px; }
+.admin-felder { display: flex; flex-direction: column; gap: 8px; }
+.admin-feld {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2px 8px;
+  align-items: center;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--grid);
+  font-size: 13px;
+}
+.admin-feld:last-child { border-bottom: 0; padding-bottom: 0; }
+.admin-feld > span:first-child { font-weight: 600; }
+.admin-feld small {
+  grid-column: 1 / -1;
+  color: var(--gedimmt);
+  font-size: 11px;
+  line-height: 1.3;
+}
+.admin-eingabe {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+  color: var(--gedimmt);
+  font-size: 11px;
+  white-space: nowrap;
+}
+.admin-eingabe input {
+  width: 86px;
+  padding: 5px 7px;
+  border: 1px solid var(--hairline);
+  border-radius: 7px;
+  font: inherit;
+  color: var(--tinte);
+  background: #fff;
+  font-variant-numeric: tabular-nums;
+}
+.admin-status {
+  min-height: 22px;
+  margin-top: 10px;
+  color: var(--tinte-2);
+  font-size: 12.5px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+  main:not([hidden]), dialog[open], .wert.wert-update { animation: none !important; }
+  .owned-card:hover, .markt-karte:hover, .event-option:hover { transform: none; }
+}
+
+@media (min-width: 1440px) {
+  .dashboard, .marktplatz, .expose, .endgame { max-width: 1420px; }
+  .dashboard { grid-template-columns: minmax(0, 2.45fr) minmax(330px, 0.9fr); }
+}
+
+/* --- Tablet ------------------------------------------------------------------------------ */
+
+@media (max-width: 1320px) {
+  .topbar { grid-template-columns: auto 135px minmax(350px, 1fr) auto; gap: 8px 12px; }
+  .kacheln { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .menue button { min-width: 34px; justify-content: center; padding-inline: 8px; }
+  .menue button span { display: none; }
+}
+
+@media (max-width: 1080px) {
+  .kacheln { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .dashboard { grid-template-columns: 1fr; }
+  .topbar { grid-template-columns: auto 1fr auto; gap: 8px 12px; }
+  .brand { grid-column: 1; grid-row: 1; }
+  .hud { grid-column: 2; grid-row: 1; }
+  .speed-group { grid-column: 3; grid-row: 1; }
+  .ressourcenleiste { grid-column: 1 / -1; grid-row: 2; }
+  .screens-nav { grid-column: 1; grid-row: 3; }
+  .menue { grid-column: 2 / -1; grid-row: 3; }
+  .menue { margin-left: 0; }
+  .expose-oben, .expose-unten { grid-template-columns: 1fr; }
+  .objekt-oben { grid-template-columns: 1fr; }
+  .niveau-optionen, .modell-optionen { grid-template-columns: 1fr; }
+  .score-raster { grid-template-columns: repeat(2, 1fr); }
+  .endgame-details, .endgame-vergleich { grid-template-columns: repeat(2, 1fr); }
+  .endgame-hero { align-items: flex-start; flex-direction: column; }
+  .endgame-hauptwert { text-align: left; }
+  .admin-gruppen { grid-template-columns: 1fr; }
+  .objekt-visual .expose-bild { min-height: 0; }
+}
+
+@media (max-width: 700px) {
+  .topbar { grid-template-columns: 1fr 1fr; padding: 9px 12px; }
+  .brand { grid-column: 1; grid-row: 1; width: auto; }
+  .hud { grid-column: 2; grid-row: 1; text-align: right; }
+  .ressourcenleiste { grid-column: 1 / -1; grid-row: 2; }
+  .screens-nav { grid-column: 1 / -1; grid-row: 3; }
+  .speed-group { grid-column: 1 / -1; grid-row: 4; max-width: 100%; overflow-x: auto; }
+  .menue { grid-column: 1 / -1; grid-row: 5; width: 100%; overflow-x: auto; justify-content: flex-start; }
+  .dashboard, .marktplatz, .expose, .endgame { padding-left: 12px; padding-right: 12px; }
+  .screen-heading { align-items: flex-start; flex-direction: column; gap: 4px; }
+  .screen-heading--dashboard, .screen-heading--market {
+    min-height: 166px;
+    padding: 20px;
+    background-position: 62% center;
+  }
+  .screen-heading--dashboard p, .screen-heading--market p { max-width: min(88%, 420px); }
+  .screen-heading p { text-align: left; }
+  .kacheln { grid-template-columns: 1fr; }
+  .filter-zeile { align-items: stretch; }
+  .filter-zeile label, .filter-zeile select { width: 100%; }
+  .filter-zeile button { margin-left: 0; }
+  .diff-optionen, .preset-optionen, .hilfe-raster, .tutorial-ablauf, .score-raster, .endgame-details, .endgame-vergleich { grid-template-columns: 1fr; }
+  .start-vorschau { grid-template-columns: 1fr; gap: 3px; }
+  .start-vorschau .start-besonderheit { grid-column: 1; }
+  .start-einstellungen { grid-template-columns: 1fr; }
+  .gebot-zeile, .speichern-zeile { flex-direction: column; }
+  .timeline-eintrag { grid-template-columns: 1fr; gap: 2px; }
+  .admin-feld { grid-template-columns: 1fr; }
+  .admin-feld small { grid-column: 1; }
+  .admin-eingabe { justify-content: flex-start; }
+  .portfolio-empty { grid-template-columns: auto 1fr; }
+  .portfolio-empty button { grid-column: 1 / -1; width: 100%; }
+  .flow-zeile, .objekt-flow-zeile { grid-template-columns: minmax(90px, 1fr) minmax(54px, 0.8fr) auto; gap: 6px; }
+  .bewerber-liste { grid-template-columns: 1fr; }
+  .bewerber-suche-kopf { align-items: flex-start; }
+  .leerstand-kosten { grid-template-columns: 1fr; }
+  .leerstand-kosten p { grid-column: auto; }
+  dialog { padding: 17px; }
+  #dlg-event::before { margin: -17px -17px 14px; }
+  .chart-zusatz { grid-template-columns: 1fr; }
+  .tutorial-kopf { align-items: flex-start; flex-direction: column; }
+  .tutorial-kopf button { width: 100%; }
+  .tutorial-tour { right: 14px; bottom: 14px; }
+}
+
+@media (max-width: 480px) {
+  html, body { font-size: 14px; }
+  .topbar { gap: 7px; }
+  .hud { min-width: 0; }
+  .ressourcenleiste { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .ressourcenleiste > :is(div, button) { border-bottom: 0; }
+  .screens-nav { width: 100%; gap: 2px; overflow-x: auto; scrollbar-width: thin; }
+  .screens-nav button { flex: 1; min-width: max-content; min-height: 30px; gap: 4px; padding: 5px 4px; font-size: 12px; }
+  .speed-group, .menue { scrollbar-width: thin; }
+  .menue button { padding-inline: 10px; }
+  .kacheln { gap: 8px; }
+  .kpi-paar { gap: 6px; }
+  .fin-ek-panel { grid-template-columns: 1fr; }
+  .kachel { padding: 13px 10px 10px; }
+  .kachel .label { font-size: 10px; }
+  .kachel .wert { font-size: 17px; }
+  .portfolio-board, .karte { padding: 13px; }
+  .portfolio-grid { grid-template-columns: 1fr; }
+  .portfolio-empty { grid-template-columns: 1fr; text-align: center; }
+  .empty-illustration { margin: 0 auto; }
+  .legende { flex-direction: column; gap: 3px; }
+  .owned-body h3 { min-height: 0; }
+  .objekt-wert { grid-template-columns: 1fr; }
+  .objekt-visual-overlay { align-items: flex-start; flex-direction: column; }
+  .diff-optionen { grid-template-columns: 1fr; }
+  .filter-zeile select { min-width: 0; }
+  .flow-track, .objekt-flow-zeile > div { display: none; }
+  .flow-zeile, .objekt-flow-zeile { grid-template-columns: 1fr auto; }
+}
+
+/* --- Funktionale Anker: Quartalsbericht, Stadtkarte, Hauskosten ------------------------ */
+
+.karten-kopf-aktionen { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.quartalsbericht { grid-column: 1; }
+.quartalsbericht > #quartalsbericht-inhalt {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  gap: 14px;
+}
+.quartals-kpis { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 0; }
+.quartals-kpis > div { padding: 10px; border: 1px solid var(--hairline); border-radius: 10px; background: var(--sand-hell, #faf7f0); }
+.quartals-kpis dt { font-size: 11px; }
+.quartals-kpis dd { display: block; margin: 2px 0 0; font-weight: 700; font-variant-numeric: tabular-nums; }
+.quartals-rueckblick ul { margin: 8px 0 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.quartals-rueckblick li { display: grid; grid-template-columns: auto 1fr; gap: 8px; align-items: start; }
+.quartals-naechster { padding: 14px; border-radius: 12px; background: color-mix(in srgb, var(--petrol) 8%, white); }
+.quartals-naechster h3 { margin: 3px 0; }
+.log-eintrag { display: grid; gap: 2px; border-left: 3px solid var(--hairline); padding-left: 9px; }
+.log-eintrag.log-risiko { border-left-style: double; }
+.log-eintrag.log-entscheidung { border-left-color: var(--petrol); }
+
+.spielkarte { max-width: 1280px; margin: 0 auto; padding: 28px 24px 64px; }
+.karten-filter { display: flex; flex-wrap: wrap; gap: 7px; margin: 14px 0; }
+.karten-filter button {
+  transition: transform .12s ease, border-color .12s ease, box-shadow .12s ease;
+}
+.karten-filter button.aktiv { color: white; background: var(--petrol); border-color: var(--petrol); }
+.karten-staedte { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: -5px 0 14px; }
+.karten-staedte button { display: grid; gap: 2px; text-align: left; padding: 10px 13px; background: rgba(255,253,248,.82); }
+.karten-staedte button small { color: var(--gedimmt); font-size: 10px; }
+.karten-staedte button.aktiv { color: white; border-color: var(--petrol); background: var(--petrol); box-shadow: 0 5px 15px rgba(29,51,61,.18); }
+.karten-staedte button.aktiv small { color: rgba(255,255,255,.72); }
+.karten-layout { display: grid; grid-template-columns: minmax(0, 2.2fr) minmax(260px, .8fr); gap: 16px; align-items: start; }
+.stadtkarte, .karten-legende { border: 1px solid var(--hairline); border-radius: 16px; background: var(--karte, #fff); box-shadow: var(--shadow-klein); }
+.stadtkarte { min-width: 0; overflow: hidden; padding: 8px; }
+.stadtkarte svg { display: block; width: 100%; height: auto; min-height: 330px; }
+.karten-legende { padding: 16px; }
+.karten-legende h2 { margin-top: 0; }
+.karten-ebene rect { fill: #f3eee2; stroke: #cfc2aa; stroke-width: 1.5; }
+.karten-ebene > path:not(.karten-wasser) { fill: none; stroke: #d5c8b2; stroke-width: 8; stroke-linecap: round; opacity: .7; }
+.karten-ebene.ebene-meissen-umland rect { fill: #edf2e9; }
+.karten-wasser { fill: none; stroke: #7eafb8; stroke-width: 5; opacity: .75; }
+.ebene-titel { fill: var(--tinte); font: 700 17px system-ui, sans-serif; }
+.ebene-sub { fill: var(--gedimmt); font: 11px system-ui, sans-serif; }
+.karten-marker { cursor: pointer; outline: none; }
+.karten-marker > :first-child { fill: #fff; stroke: var(--petrol); stroke-width: 3; vector-effect: non-scaling-stroke; }
+.karten-marker.status-bestand > :first-child { fill: var(--petrol); }
+.karten-marker.status-eigenheim > :first-child { fill: var(--amber, #d9a441); stroke: #6f5020; }
+.karten-marker.status-reserviert > :first-child { fill: #fff4d5; stroke: #b07119; }
+.karten-marker.status-pausiert, .karten-marker.status-kommend { opacity: .52; }
+.karten-marker.favorit { filter: drop-shadow(0 0 4px #d9a441); }
+.karten-marker.is-focus > :first-child, .karten-marker:focus-visible > :first-child { stroke-width: 6; }
+.marker-strich { fill: none !important; stroke: var(--tinte) !important; stroke-width: 2 !important; }
+.status-legende { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 12px; font-size: 12px; }
+.status-legende span { display: flex; align-items: center; gap: 6px; }
+.marker-symbol { width: 13px; height: 13px; display: inline-block; flex: 0 0 auto; border: 2px solid var(--petrol); border-radius: 50%; background: #fff; }
+.marker-symbol.bestand { border-radius: 2px; background: var(--petrol); }
+.marker-symbol.eigenheim { transform: rotate(45deg); border-radius: 1px; background: var(--amber, #d9a441); }
+.marker-symbol.pausiert, .marker-symbol.kommend { opacity: .45; border-style: dashed; }
+.marker-symbol.reserviert { transform: rotate(45deg); border-radius: 1px; }
+.karten-liste { max-height: 430px; overflow: auto; display: grid; gap: 5px; margin-bottom: 12px; }
+.karten-listenpunkt { width: 100%; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 9px; align-items: center; text-align: left; background: transparent; }
+.karten-listenpunkt b, .karten-listenpunkt small { display: block; }
+.karten-listenpunkt small { color: var(--gedimmt); }
+.karten-listenpunkt.is-focus, .karten-listenpunkt:focus-visible { background: color-mix(in srgb, var(--petrol) 9%, white); }
+.stadt-grund { fill: #eee8db; }
+.stadt-leipzig .stadt-grund { fill: #eeeade; }
+.stadt-meissen .stadt-grund { fill: #edf0e7; }
+.stadt-park { fill: #cdddc1; opacity: .82; }
+.stadt-wasser { fill: none; stroke: #78aeba; stroke-width: 27; opacity: .88; }
+.stadt-wasser.breit { stroke-width: 42; }
+.stadt-wasser.schmal { stroke-width: 11; }
+.stadt-strassen path { fill: none; stroke: #fffdf6; stroke-width: 15; stroke-linecap: round; filter: drop-shadow(0 1px 0 rgba(92,76,50,.25)); }
+.stadt-strassen path:nth-child(3n) { stroke-width: 9; }
+.stadt-strassen path:nth-child(2n) { stroke-width: 11; }
+.stadt-orte text { fill: #665e50; font: 600 12px system-ui, sans-serif; paint-order: stroke; stroke: rgba(255,253,248,.9); stroke-width: 4px; stroke-linejoin: round; }
+.stadt-titel text:first-child { fill: var(--tinte); font: 800 21px system-ui, sans-serif; }
+.stadt-titel text:last-child { fill: var(--gedimmt); font: 11px system-ui, sans-serif; }
+
+.fin-etf-panel { display: grid; grid-template-columns: minmax(170px, 1fr) 130px auto; gap: 9px; align-items: end; padding: 10px; border: 1px solid var(--hairline); border-radius: 10px; }
+.fin-etf-panel b, .fin-etf-panel small { display: block; }
+.fin-etf-panel small { color: var(--gedimmt); margin-top: 2px; }
+.fin-etf-panel input { width: 100%; }
+.fin-monatsvergleich { margin-top: 10px; display: grid; gap: 5px; padding-top: 9px; border-top: 1px solid currentColor; }
+.fin-monatsvergleich > b { margin-bottom: 2px; }
+.fin-monatsvergleich > small { margin-top: 4px; color: currentColor; opacity: .78; line-height: 1.35; }
+.fin-cashflow-zeile, .fin-cashflow-summe { display: flex; justify-content: space-between; gap: 14px; align-items: baseline; }
+.fin-cashflow-zeile > span { display: inline-flex; gap: 7px; align-items: baseline; }
+.fin-cashflow-zeile i { width: 10px; color: currentColor; font-style: normal; text-align: center; opacity: .7; }
+.fin-cashflow-zeile b, .fin-cashflow-summe b { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.fin-cashflow-summe { margin-top: 3px; padding-top: 6px; border-top: 1px solid currentColor; }
+.fin-cashflow-summe.haupt { font-size: 15px; }
+.fin-monatsvergleich .positiv { color: var(--positiv); }
+.fin-monatsvergleich .negativ { color: var(--negativ); }
+.fin-monatsvergleich .neutral { color: currentColor; }
+.badge.familie { border-style: double; }
+.endgame-einordnung { grid-column: 1 / -1; margin: 4px 0 0; padding-top: 12px; border-top: 1px solid var(--hairline); }
+
+/* --- Finanzen: Tagesgeldkonto, Depot und Buchungen -------------------------- */
+
+.finanzen {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 28px 24px 64px;
+  display: grid;
+  gap: 16px;
+}
+.screen-heading--finanzen {
+  padding: 22px 24px;
+  align-items: center;
+  color: var(--kopf-tinte);
+  border-radius: var(--radius);
+  background:
+    radial-gradient(circle at 82% 35%, rgba(237,161,0,.22), transparent 18rem),
+    linear-gradient(135deg, #2a404b, var(--kopf));
+  box-shadow: var(--schatten);
+}
+.screen-heading--finanzen .eyebrow { color: #ffd269; }
+.screen-heading--finanzen .title-icon { color: var(--akzent); }
+.screen-heading--finanzen h1 { display: flex; align-items: center; gap: 9px; }
+.screen-heading--finanzen p { color: rgba(243,239,231,.76); }
+
+.finanz-ueberblick { padding: 20px 22px; }
+.finanz-ueberblick > .karten-kopf > b {
+  font-size: clamp(24px, 3vw, 34px);
+  font-variant-numeric: tabular-nums;
+}
+.finanz-kurzwerte {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.finanz-kurzwerte > div { padding: 11px 14px; border-right: 1px solid var(--hairline); }
+.finanz-kurzwerte > div:last-child { border-right: 0; }
+.finanz-kurzwerte dt, .finanz-kurzwerte dd { display: block; }
+.finanz-kurzwerte dt { color: var(--tinte-2); font-size: 11.5px; }
+.finanz-kurzwerte dd { margin: 2px 0 0; font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.finanz-kurzwerte .positiv, .konto-karte > strong.positiv { color: var(--positiv); }
+.finanz-kurzwerte .negativ, .konto-karte > strong.negativ { color: var(--negativ); }
+.finanz-mix { margin-top: 14px; }
+.finanz-mix-balken { display: flex; height: 14px; overflow: hidden; border-radius: 99px; background: var(--grid); }
+.finanz-mix-balken i { display: block; height: 100%; transition: width .2s ease; }
+#fin-mix-cash { background: #4f7763; }
+#fin-mix-etf { background: var(--serie-etf); }
+.finanz-mix p { margin: 6px 0 0; color: var(--tinte-2); font-size: 12px; }
+
+.finanz-konten, .transfer-raster, .finanz-unten { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.konto-karte { position: relative; overflow: hidden; padding: 20px 22px; }
+.konto-karte::after { content: ''; position: absolute; width: 130px; height: 130px; right: -55px; top: -62px; border-radius: 50%; background: rgba(237,161,0,.09); }
+.konto-karte > header { display: flex; align-items: center; gap: 11px; }
+.konto-karte h2 { margin: 0; font-size: 18px; }
+.konto-symbol { display: grid; place-items: center; width: 42px; height: 42px; flex: 0 0 42px; border-radius: 12px; background: var(--kopf); }
+.konto-symbol .section-icon { color: var(--akzent); }
+.konto-karte > strong { display: block; margin: 18px 0 14px; font-size: clamp(28px, 4vw, 40px); line-height: 1; font-variant-numeric: tabular-nums; }
+.konto-karte dl { margin: 0; }
+.konto-karte dl > div { display: flex; justify-content: space-between; gap: 16px; padding: 7px 0; border-top: 1px solid var(--hairline); }
+.konto-karte dt { color: var(--tinte-2); }
+.konto-karte dd { margin: 0; font-weight: 650; text-align: right; font-variant-numeric: tabular-nums; }
+
+.finanz-aktionen { padding: 20px 22px 22px; }
+.transfer-raster { margin-top: 13px; }
+.transfer-karte { display: grid; align-content: start; gap: 8px; padding: 16px; border: 1px solid var(--hairline); border-radius: 12px; background: var(--karte-weich); }
+.transfer-karte h3 { display: flex; align-items: center; gap: 7px; margin: 0; font-size: 16px; }
+.transfer-karte > p { min-height: 2.9em; margin: 0; color: var(--tinte-2); font-size: 13px; }
+.transfer-karte > label { margin-top: 3px; font-weight: 650; font-size: 12px; }
+.geld-eingabe { display: grid; grid-template-columns: 1fr auto; align-items: center; overflow: hidden; border: 1px solid var(--hairline); border-radius: 9px; background: var(--karte-stark); }
+.geld-eingabe:focus-within { outline: 3px solid color-mix(in srgb, var(--fokus) 24%, transparent); border-color: var(--fokus); }
+.geld-eingabe input { min-width: 0; width: 100%; padding: 9px 11px; border: 0; outline: 0; background: transparent; font: inherit; font-variant-numeric: tabular-nums; }
+.geld-eingabe span { padding: 0 11px; color: var(--tinte-2); }
+.transfer-schnellwahl { display: flex; gap: 6px; }
+.transfer-schnellwahl button { flex: 1; padding-block: 5px; }
+.transfer-karte .transfer-vorschau { min-height: 2.9em; padding: 8px 9px; border-radius: 8px; background: rgba(42,120,214,.07); color: var(--tinte-2); font-size: 12px; }
+.transfer-karte > button[type="submit"] { margin-top: 2px; }
+
+.sparplan-karte, .bewegungen-karte { min-width: 0; padding: 20px 22px; }
+.sparplan-karte form { display: grid; gap: 10px; }
+.sparplan-karte form > label { color: var(--tinte-2); font-size: 13px; }
+.sparplan-karte output { color: var(--tinte); font-weight: 700; }
+.sparplan-karte input[type="range"] { width: 100%; accent-color: var(--kopf); }
+.sparplan-aufteilung { display: flex; justify-content: space-between; gap: 12px; color: var(--tinte-2); font-size: 12px; }
+.sparplan-karte form > button { justify-self: start; }
+.finanz-bewegungen { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
+.finanz-bewegungen li { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 10px; padding: 8px 0; border-top: 1px solid var(--hairline); font-size: 12.5px; }
+.finanz-bewegungen li > span:first-child { color: var(--gedimmt); font-variant-numeric: tabular-nums; }
+.finanz-bewegungen .bewegung-leer { display: block; color: var(--gedimmt); }
+
+@media (min-width: 1440px) {
+  .spielkarte, .finanzen { max-width: 1420px; }
+}
+
+@media (max-width: 1080px) {
+  .karten-layout { grid-template-columns: 1fr; }
+  .karten-liste { max-height: 280px; }
+}
+
+@media (max-width: 700px) {
+  .spielkarte, .finanzen { padding: 18px 12px 48px; }
+  .screen-heading--finanzen { padding: 18px; }
+  .finanz-kurzwerte, .finanz-konten, .transfer-raster, .finanz-unten { grid-template-columns: 1fr; }
+  .finanz-kurzwerte > div { border-right: 0; border-bottom: 1px solid var(--hairline); }
+  .finanz-kurzwerte > div:last-child { border-bottom: 0; }
+  .transfer-karte > p { min-height: 0; }
+  .quartalsbericht > #quartalsbericht-inhalt { grid-template-columns: 1fr; }
+  .quartals-kpis { grid-template-columns: 1fr; }
+  .quartals-rueckblick, .quartals-naechster { grid-column: 1; }
+  .stadtkarte { overflow-x: auto; }
+  .stadtkarte svg { width: 760px; max-width: none; }
+  .fin-etf-panel { grid-template-columns: 1fr; align-items: stretch; }
+}
+
+@media (max-width: 480px) {
+  .karten-filter button { flex: 1 1 calc(50% - 7px); }
+  .finanz-ueberblick, .finanz-aktionen, .konto-karte, .sparplan-karte, .bewegungen-karte { padding: 14px; }
+  .sparplan-aufteilung { flex-direction: column; gap: 2px; }
+}
+
+/* --- Verbindlicher warmer Designpass · finalisiert mit UI v31 -------------
+   Strategie-Brettspiel-Flächen und konsistente Tiefenstaffelung bilden den
+   gemeinsamen UI-Style-Lock. */
+
+:root {
+  --flaeche: #eee9df;
+  --karte: rgba(255, 253, 248, 0.97);
+  --karte-stark: #fffdf8;
+  --karte-weich: #f6f1e7;
+  --tinte: #20201d;
+  --tinte-2: #565650;
+  --gedimmt: #77766f;
+  --hairline: rgba(31, 42, 42, 0.13);
+  --grid: #e1ddd3;
+  --kopf: #1d333d;
+  --akzent: #e6a019;
+  --akzent-dunkel: #9d6500;
+  --positiv: #176b43;
+  --negativ: #a73535;
+  --serie-netto: #276da8;
+  --schatten: 0 1px 2px rgba(29, 38, 38, 0.08), 0 10px 30px rgba(45, 39, 27, 0.07);
+  --schatten-hover: 0 4px 10px rgba(29, 38, 38, 0.1), 0 18px 38px rgba(45, 39, 27, 0.11);
+}
+
+html, body {
+  background:
+    radial-gradient(circle at 8% -4%, rgba(230, 160, 25, 0.11), transparent 30rem),
+    linear-gradient(180deg, rgba(239, 244, 241, 0.65), transparent 28rem),
+    var(--flaeche);
+  font-feature-settings: "tnum" 1, "kern" 1;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.22;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.06'/%3E%3C/svg%3E");
+}
+h1, h2, h3, .brand { text-wrap: balance; }
+h1, h2, h3 { color: #202421; }
+p { text-wrap: pretty; }
+
+button {
+  min-height: 36px;
+  border-color: rgba(29, 51, 61, 0.16);
+  background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,244,235,0.97));
+  font-weight: 580;
+}
+button:hover:not(:disabled) { border-color: rgba(29,51,61,.34); background: #fffdf8; }
+button.primaer {
+  background: linear-gradient(145deg, #315462, var(--kopf));
+  border-color: #152d37;
+  box-shadow: 0 5px 14px rgba(18, 43, 53, 0.23), inset 0 1px rgba(255,255,255,0.08);
+}
+button.primaer:hover:not(:disabled) { background: linear-gradient(145deg, #3b6472, #203d48); }
+
+.topbar {
+  padding: 11px clamp(16px, 2vw, 28px) 10px;
+  gap: 9px clamp(10px, 1.35vw, 20px);
+  background: linear-gradient(90deg, rgba(255,255,255,.025), transparent 28%), linear-gradient(180deg, #213b46, var(--kopf));
+  border-bottom-color: rgba(230,160,25,.68);
+  box-shadow: 0 7px 28px rgba(16,28,33,.22);
+}
+.brand { font-size: 20px; letter-spacing: -.01em; }
+.brand::before { width: 24px; height: 24px; flex-basis: 24px; }
+#hud-datum { font-size: 14px; letter-spacing: .01em; }
+.ressourcenleiste { border-color: rgba(255,255,255,.15); border-radius: 12px; background: rgba(6,18,23,.31); }
+.ressourcenleiste > :is(div, button) { min-height: 50px; padding: 7px 12px; }
+.ressourcenleiste small { opacity: .72; }
+.ressourcenleiste b { font-size: 14px; }
+.resource-cashflow { box-shadow: inset 3px 0 0 rgba(230,160,25,.45); }
+.speed-lauf, .speed-schritte { border-color: rgba(255,255,255,.15); }
+.speed-group button { min-height: 38px; padding-inline: 9px; }
+.speed-group button.aktiv { background: linear-gradient(180deg, #f0b436, var(--akzent)); box-shadow: inset 0 1px rgba(255,255,255,.42); }
+
+.screens-nav { display: flex; gap: 5px; }
+.screens-nav button { position: relative; display: inline-flex; align-items: center; gap: 6px; color: rgba(243,239,231,.78); border-color: transparent; background: transparent; }
+.screens-nav button:hover { color: #fff; background: rgba(255,255,255,.08); }
+.screens-nav button.aktiv { color: #fff; background: rgba(255,255,255,.13); box-shadow: inset 0 -2px var(--akzent); }
+.menue button { min-width: 38px; min-height: 36px; }
+
+.dashboard, .marktplatz, .expose, .endgame, .finanzen, .spielkarte { gap: 18px; }
+.screen-heading--dashboard, .screen-heading--market, .screen-heading--finanzen, .screen-heading--map {
+  isolation: isolate;
+  border: 1px solid rgba(29,51,61,.18);
+  box-shadow: 0 2px 4px rgba(29,51,61,.08), 0 18px 42px rgba(58,45,24,.1);
+}
+.screen-heading--dashboard, .screen-heading--market { min-height: 198px; padding: 28px 32px; }
+.screen-heading--dashboard::before, .screen-heading--market::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(115deg, rgba(255,255,255,.17), transparent 46%, rgba(230,160,25,.07));
+}
+.screen-heading--dashboard h1, .screen-heading--market h1, .screen-heading--finanzen h1, .screen-heading--map h1 { font-size: clamp(28px, 2.5vw, 38px); }
+.screen-heading--map {
+  padding: 24px 28px;
+  color: var(--kopf-tinte);
+  border-radius: var(--radius-gross);
+  background: radial-gradient(circle at 88% 18%, rgba(230,160,25,.25), transparent 16rem), linear-gradient(135deg, #315563, var(--kopf));
+}
+.screen-heading--map h1 { display: flex; align-items: center; gap: 9px; color: #fff; }
+.screen-heading--map p { color: rgba(255,255,255,.72); }
+.screen-heading--map .eyebrow { color: #ffd880; }
+
+.karte, .kpi-gruppe, .stadtkarte, .karten-legende, .markt-karte, .owned-card, .score-karte {
+  border-color: rgba(29,51,61,.13);
+  background: linear-gradient(145deg, rgba(255,255,255,.62), transparent 38%), var(--karte);
+  box-shadow: var(--schatten);
+}
+.karte, .kpi-gruppe { border-radius: 16px; }
+.karte { padding: 18px; }
+.karten-kopf { padding-bottom: 10px; border-bottom: 1px solid rgba(29,51,61,.09); }
+.karten-kopf h2 { font-size: 17px; letter-spacing: -.012em; }
+.eyebrow { color: #7a6845; font-size: 10.5px; letter-spacing: .13em; }
+.kacheln { gap: 12px; }
+.kpi-gruppe { padding: 11px; }
+.kpi-gruppe > h2 { margin: 0 2px 8px; color: #4f554e; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; }
+.kachel { min-height: 93px; border-color: rgba(29,51,61,.1); background: rgba(255,255,255,.58); }
+.kachel::after { opacity: .65; }
+.kachel .label { color: #65655e; }
+.kachel .wert { letter-spacing: -.025em; }
+.portfolio-board { border-top: 3px solid rgba(39,109,168,.48); }
+.chart-karte { border-top: 3px solid rgba(230,160,25,.62); }
+.quartalsbericht { border-top: 3px solid rgba(23,107,67,.52); }
+.haushalt-karte { border-top: 3px solid rgba(29,51,61,.42); }
+.steuer-karte { border-top: 3px solid rgba(157,101,0,.42); }
+
+.markt-karte, .owned-card { overflow: hidden; transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
+.markt-karte:hover, .owned-card:hover { border-color: rgba(29,51,61,.28); box-shadow: var(--schatten-hover); transform: translateY(-2px); }
+.markt-karte .expose-bild, .owned-card .expose-bild { background: #d9ded9; }
+.badge, .tag, .hinweis-chip { border-color: rgba(29,51,61,.13); background: rgba(255,253,248,.82); }
+.filter-zeile, .karten-filter { padding: 10px; border: 1px solid rgba(29,51,61,.12); border-radius: 14px; background: rgba(255,253,248,.82); box-shadow: 0 4px 16px rgba(45,39,27,.05); }
+.filter-zeile select, input, select, textarea { border-color: rgba(29,51,61,.18); background-color: #fffdf8; }
+
+dialog { border: 1px solid rgba(29,51,61,.18); background: linear-gradient(145deg, rgba(255,255,255,.75), transparent 32%), #fbf8f1; box-shadow: 0 28px 80px rgba(15,25,29,.28), 0 3px 8px rgba(15,25,29,.12); }
+dialog::backdrop { background: rgba(18,31,36,.58); backdrop-filter: blur(3px); }
+dialog > header, dialog form > header { padding-bottom: 12px; border-bottom: 1px solid var(--hairline); }
+dialog footer { padding-top: 12px; border-top: 1px solid var(--hairline); }
+.konto-karte { border-top: 3px solid rgba(230,160,25,.58); }
+.transfer-karte { background: linear-gradient(145deg, rgba(255,255,255,.7), var(--karte-weich)); }
+.finanz-mix-balken, .balken { box-shadow: inset 0 1px 2px rgba(29,51,61,.12); }
+.toast { border: 1px solid rgba(255,255,255,.16); box-shadow: 0 16px 44px rgba(15,25,29,.3); }
+
+@media (max-width: 700px) {
+  .topbar { position: relative; }
+  .screen-heading--dashboard, .screen-heading--market { min-height: 174px; padding: 22px; }
+  .screen-heading--map { padding: 20px; }
+  .karte { padding: 15px; }
+}
+@media (max-width: 480px) {
+  .brand { font-size: 17px; }
+  .brand::before { width: 21px; height: 21px; flex-basis: 21px; }
+  .ressourcenleiste > :is(div, button) { min-height: 48px; padding: 6px 9px; }
+  .ressourcenleiste b { font-size: 13px; }
+  .speed-group { display: grid; grid-template-columns: minmax(0, 1fr) auto; overflow: visible; }
+  .speed-group .trenner { display: none; }
+  .speed-group button { min-width: 34px; min-height: 36px; padding-inline: 5px; }
+  .speed-lauf { grid-column: 1; min-width: 0; }
+  .speed-schritte { grid-column: 2; }
+  .speed-lauf button { flex: 1 1 0; }
+  .speed-lauf button span { display: none; }
+  .speed-schritte button { min-width: 44px; padding-inline: 5px; font-size: 0; }
+  #btn-step-monat::after { content: '+1 M'; font-size: 10.5px; }
+  #btn-step-jahr::after { content: '+1 J'; font-size: 10.5px; }
+  .chart-karte { min-width: 0; overflow: hidden; }
+  .chart-karte .karten-kopf { display: grid; gap: 8px; }
+  .chart-karte .karten-kopf h2 { display: block; min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
+  .chart-karte .karten-kopf .section-icon { vertical-align: -3px; }
+  .screen-heading--dashboard h1, .screen-heading--market h1, .screen-heading--finanzen h1, .screen-heading--map h1 { font-size: 27px; }
+}
+
+/* Funktionaler Zwischen-Breakpoint: Die vollständige Zeitsteuerung darf bei
+   1081–1320 px nicht rechts aus der Spielleiste laufen. Kein Design-Rework. */
+@media (max-width: 1320px) and (min-width: 701px) {
+  .topbar { grid-template-columns: auto 140px minmax(0, 1fr); gap: 8px 12px; }
+  .brand { grid-column: 1; grid-row: 1; }
+  .hud { grid-column: 2; grid-row: 1; }
+  .speed-group { grid-column: 3; grid-row: 1; justify-content: flex-end; overflow-x: auto; }
+  .ressourcenleiste { grid-column: 1 / -1; grid-row: 2; }
+  .screens-nav { grid-column: 1 / 3; grid-row: 3; overflow-x: auto; }
+  .menue { grid-column: 3; grid-row: 3; }
+}
+
+/* --- Kontenkarten ----------------------------------------------------------- */
+
+#fin-konto-cash { border-top-color: rgba(23,107,67,0.55); }
+#fin-konto-immo { border-top-color: rgba(55,112,145,0.65); }
+#fin-konto-etf { border-top-color: rgba(230,160,25,0.65); }
+
+@media (max-width: 1080px) {
+  .finanz-konten { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 700px) {
+  .finanz-konten { grid-template-columns: 1fr; }
+}
+
+/* Enger Desktop: laufende Finanzwerte vor Zeitsteuerung priorisieren. Die vollständigen
+   Bezeichnungen bleiben als aria-label/title erhalten. */
+@media (min-width: 1201px) and (max-width: 1500px) {
+  .topbar {
+    grid-template-columns: max-content 124px minmax(420px, 1fr) max-content;
+    column-gap: 10px;
+    padding-inline: 16px;
+  }
+  .brand { font-size: 18px; }
+  .brand::before { width: 22px; height: 22px; flex-basis: 22px; }
+  .hud { min-width: 0; }
+  .ressourcenleiste { grid-template-columns: repeat(3, minmax(128px, 1fr)); }
+  .ressourcenleiste > :is(div, button) { gap: 6px; padding-inline: 8px; }
+  .ressourcenleiste .hud-icon { width: 18px; height: 18px; flex-basis: 18px; }
+  .speed-group { gap: 4px; }
+  .speed-group .trenner { display: none; }
+  .speed-group button { min-width: 32px; min-height: 32px; padding: 4px 6px; }
+  .speed-lauf button span { display: none; }
+  .speed-icon { width: 14px; height: 14px; flex-basis: 14px; }
+  .speed-schritte button { min-width: 39px; padding-inline: 6px; font-size: 0; }
+  #btn-step-monat::after { content: '+1 M'; font-size: 10.5px; }
+  #btn-step-jahr::after { content: '+1 J'; font-size: 10.5px; }
+}
+
+@media (min-width: 1081px) and (max-width: 1200px) {
+  .topbar { grid-template-columns: max-content 1fr max-content; gap: 8px 12px; }
+  .brand { grid-column: 1; grid-row: 1; }
+  .hud { grid-column: 2; grid-row: 1; min-width: 0; }
+  .speed-group { grid-column: 3; grid-row: 1; }
+  .ressourcenleiste { grid-column: 1 / -1; grid-row: 2; }
+  .screens-nav { grid-column: 1; grid-row: 3; }
+  .menue { grid-column: 2 / -1; grid-row: 3; }
+}
+
+/* --- Konsolidiertes UI-Redesign · UI v35 ---------------------------------
+   Dunkle Stadtbühne, gläserne Spielpanels und goldene Interaktionshierarchie.
+   Bestehende DOM-/Engine-Verträge bleiben erhalten; dieser Block ist der
+   visuelle Style-Lock des Handoffs. */
+
+:root {
+  --flaeche: #141b22;
+  --karte: rgba(30, 38, 48, 0.94);
+  --karte-stark: rgba(35, 44, 55, 0.97);
+  --karte-weich: rgba(255, 255, 255, 0.035);
+  --tinte: #efe7d5;
+  --tinte-2: #c8bd9f;
+  --gedimmt: #a89c7f;
+  --hairline: rgba(238, 205, 133, 0.24);
+  --grid: rgba(238, 205, 133, 0.1);
+  --kopf: #101820;
+  --petrol: #17242d;
+  --kopf-tinte: #efe7d5;
+  --akzent: #e6c264;
+  --akzent-dunkel: #c69a3f;
+  --positiv: #9ed19e;
+  --negativ: #e0a084;
+  --warnung: #e6c264;
+  --fokus: #7ea8d8;
+  --serie-netto: #e6c264;
+  --serie-etf: #7ea8d8;
+  --radius: 16px;
+  --radius-klein: 9px;
+  --radius-gross: 20px;
+  --schatten: 0 12px 34px rgba(0, 0, 0, 0.44);
+  --schatten-hover: 0 16px 42px rgba(0, 0, 0, 0.56);
+}
+
+html, body {
+  width: 100%;
+  min-height: 100%;
+  background: #141b22;
+  color: var(--tinte);
+  font-family: "Alegreya Sans", "Segoe UI", system-ui, sans-serif;
+  font-feature-settings: "tnum" 1, "kern" 1;
+}
+
+body {
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+body::before {
+  opacity: .1;
+  mix-blend-mode: soft-light;
+}
+
+.game-backdrop {
+  inset: -4%;
+  z-index: 0;
+  background:
+    linear-gradient(180deg, rgba(12, 21, 29, .05), rgba(7, 12, 17, .18)),
+    var(--app-stadtbild, url("../assets/ui/city-berlin-innenstadt-v1.webp")) center / cover no-repeat;
+  filter: saturate(.82) brightness(.86) blur(2px);
+  transform: scale(1.05);
+}
+
+.game-backdrop::before {
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(12, 21, 29, .18), rgba(9, 15, 21, .3)),
+    radial-gradient(circle at 50% 35%, transparent 35%, rgba(5, 9, 13, .24));
+}
+
+.game-backdrop::after { display: none; }
+
+h1, h2, h3, h4, .brand, .preis-gross, .karte-preis, .konto-karte > strong,
+.endgame-hero strong, #gebot-live {
+  color: #f4dd9b;
+  font-family: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  font-weight: 700;
+  letter-spacing: -.015em;
+}
+
+p, small, dt, .muted, .hinweis { color: var(--tinte-2); }
+a { color: #a9c9ee; }
+::selection { color: #17130a; background: #e6c264; }
+
+button, input, select, textarea, output { font: inherit; }
+button {
+  min-height: 38px;
+  border: 1px solid rgba(238, 205, 133, .24);
+  border-radius: 9px;
+  color: var(--tinte);
+  background: linear-gradient(180deg, rgba(41, 51, 63, .9), rgba(25, 33, 42, .92));
+  box-shadow: none;
+  font-weight: 700;
+  transition: transform 120ms ease, border-color 120ms ease, background 120ms ease, box-shadow 120ms ease;
+}
+button:hover:not(:disabled) {
+  border-color: rgba(238, 205, 133, .54);
+  color: #fff8e6;
+  background: linear-gradient(180deg, rgba(53, 64, 76, .96), rgba(30, 39, 49, .96));
+  transform: translateY(-1px);
+}
+button:active:not(:disabled) { transform: translateY(1px); }
+button.primaer {
+  color: #241d10;
+  border-color: #eecd85;
+  background: linear-gradient(180deg, #eecd85, #c69a3f);
+  box-shadow: 0 3px 0 #8a6a24, 0 9px 20px rgba(0, 0, 0, .28);
+}
+button.primaer:hover:not(:disabled) {
+  color: #171108;
+  background: linear-gradient(180deg, #f6dda0, #d5aa4d);
+  box-shadow: 0 3px 0 #8a6a24, 0 12px 26px rgba(0, 0, 0, .34);
+}
+button.gefahr { color: #e7ad96; border-color: rgba(224, 160, 132, .45); }
+button:disabled { opacity: .42; }
+
+input, select, textarea {
+  color: var(--tinte);
+  border: 1px solid rgba(238, 205, 133, .24);
+  border-radius: 9px;
+  background: rgba(8, 13, 18, .56);
+}
+select option { color: #efe7d5; background: #1d2630; }
+input[type="range"] { accent-color: #d9b464; }
+
+:focus-visible {
+  outline: 3px solid var(--fokus) !important;
+  outline-offset: 3px !important;
+}
+
+.eyebrow, .label, .resource-copy small, .konto-karte dt, .karte-preis small {
+  color: var(--gedimmt);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+
+.badge {
+  color: var(--tinte-2);
+  border-color: rgba(238, 205, 133, .22);
+  background: rgba(255, 255, 255, .045);
+}
+.badge.gruen, .positiv, .plus-text { color: #9ed19e !important; }
+.badge.orange, .badge.warnung { color: #f0ca75; }
+.badge.blau { color: #a9c9ee; }
+.badge.blau { border-color:rgba(126,168,216,.32); background:rgba(126,168,216,.1); }
+.negativ, .minus-text { color: #e0a084 !important; }
+
+/* Persistente Shell -------------------------------------------------------- */
+
+.topbar {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 30;
+  display: grid;
+  grid-template-columns: max-content minmax(320px, 1fr) max-content max-content max-content;
+  grid-template-areas: "brand resources date speed menu";
+  align-items: center;
+  gap: 10px 14px;
+  min-height: 72px;
+  padding: 9px 20px;
+  color: var(--tinte);
+  border: 0;
+  border-bottom: 1px solid rgba(238, 205, 133, .18);
+  background: linear-gradient(180deg, rgba(12, 20, 28, .96), rgba(13, 21, 29, .88));
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .24);
+  backdrop-filter: blur(12px);
+}
+
+.brand {
+  grid-area: brand;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  color: #f4dd9b;
+  font-size: 21px;
+  white-space: nowrap;
+}
+.brand::before { display: none; }
+.brand svg { width: 28px; height: 28px; fill: #e6c264; filter: drop-shadow(0 2px 5px rgba(0,0,0,.42)); }
+.hud { grid-area: date; min-width: 116px; text-align: center; }
+#hud-datum { color: #f4dd9b; font-family: "Cormorant Garamond", Georgia, serif; font-size: 15px; font-weight: 700; }
+.hud .sub, .topbar .sub { color: #a89c7f; font-size: 10px; opacity: 1; }
+
+.ressourcenleiste {
+  grid-area: resources;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(126px, 1fr));
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  overflow: visible;
+}
+.ressourcenleiste > :is(div, button) {
+  min-width: 0;
+  min-height: 50px;
+  margin-inline: 3px;
+  padding: 6px 10px;
+  border: 1px solid rgba(238, 205, 133, .23);
+  border-radius: 10px;
+  color: var(--tinte);
+  background: linear-gradient(180deg, rgba(39, 49, 61, .8), rgba(21, 29, 38, .82));
+  box-shadow: inset 0 1px rgba(255,255,255,.04), 0 5px 16px rgba(0,0,0,.18);
+}
+.ressourcenleiste > :is(div, button)::after { display: none; }
+.ressourcenleiste .hud-icon { color: #e6c264; }
+.ressourcenleiste b { color: #efe7d5; font-size: 14px; font-variant-numeric: tabular-nums; }
+.ressourcenleiste .resource-cashflow.positiv b { color: #9ed19e; }
+.ressourcenleiste .resource-cashflow.negativ b { color: #e0a084; }
+.resource-action { display: none; }
+
+.speed-group {
+  grid-area: speed;
+  display: flex;
+  gap: 6px;
+  min-width: 0;
+}
+.speed-lauf, .speed-schritte {
+  display: flex;
+  border: 1px solid rgba(238, 205, 133, .23);
+  border-radius: 10px;
+  background: rgba(12, 18, 25, .42);
+  overflow: hidden;
+}
+.speed-group .trenner { display: none; }
+.speed-group button {
+  min-width: 38px;
+  min-height: 40px;
+  padding: 5px 8px;
+  border: 0;
+  border-right: 1px solid rgba(238, 205, 133, .16);
+  border-radius: 0;
+  font-size: 10px;
+  background: transparent;
+  box-shadow: none;
+}
+.speed-group button:last-child { border-right: 0; }
+.speed-group button.aktiv {
+  color: #251d0e;
+  background: linear-gradient(180deg, #eecd85, #c69a3f);
+  box-shadow: inset 0 1px rgba(255,255,255,.45);
+}
+.speed-icon { width: 14px; height: 14px; }
+.speed-schritte button { min-width: 70px; }
+
+.menue { grid-area: menu; display: flex; gap: 7px; }
+.menue > button { width: 42px; min-width: 42px; height: 42px; padding: 0; border-radius: 11px; }
+.menue > button span { display: none; }
+.menue-popover {
+  top: calc(100% + 10px);
+  right: 0;
+  color: var(--tinte);
+  border: 1px solid rgba(238,205,133,.3);
+  background: linear-gradient(180deg, rgba(31,40,50,.98), rgba(18,25,33,.99));
+  box-shadow: 0 16px 46px rgba(0,0,0,.55);
+  backdrop-filter: blur(10px);
+}
+.menue-popover button { color: var(--tinte); background: transparent; }
+.menue-popover small { color: var(--gedimmt); }
+
+.screens-nav {
+  position: fixed;
+  z-index: 25;
+  left: 20px;
+  bottom: 14px;
+  display: flex;
+  width: auto;
+  max-width: calc(100vw - 40px);
+  gap: 7px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+.screens-nav button {
+  display: flex;
+  flex: 0 0 86px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-width: 86px;
+  min-height: 60px;
+  padding: 7px 10px;
+  color: #efe7d5;
+  border: 1px solid rgba(238,205,133,.24);
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(37,47,58,.94), rgba(19,26,34,.96));
+  box-shadow: 0 9px 24px rgba(0,0,0,.35);
+  backdrop-filter: blur(8px);
+}
+.screens-nav button .ui-icon { width: 19px; height: 19px; flex-basis: 19px; }
+.screens-nav button span { color: inherit; font-size: 12px; font-weight: 800; font-style: normal; }
+.screens-nav button.aktiv {
+  color: #241d10;
+  border-color: #f4dd9b;
+  background: linear-gradient(180deg, #f0d58a, #c99c3e);
+  box-shadow: 0 3px 0 #8a6a24, 0 10px 25px rgba(0,0,0,.4);
+}
+.screens-nav .zaehler {
+  position: static;
+  display: inline;
+  width: auto;
+  height: auto;
+  margin-left: 2px;
+  color: inherit;
+  background: transparent;
+  font-size: inherit;
+  font-style: normal;
+}
+
+.cashflow-popover, .meldungen-panel {
+  position: fixed;
+  z-index: 44;
+  top: 78px;
+  color: var(--tinte);
+  border: 1px solid rgba(238,205,133,.32);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(31,40,50,.98), rgba(17,24,32,.99));
+  box-shadow: 0 18px 52px rgba(0,0,0,.58);
+  backdrop-filter: blur(10px);
+}
+.cashflow-popover { left: clamp(220px, 28vw, 470px); width: min(500px, calc(100vw - 24px)); max-height: calc(100vh - 174px); overflow: auto; }
+.cashflow-popover.gepinnt { border-color: rgba(238,205,133,.62); }
+.cashflow-popover-kopf { padding-bottom: 10px; border-bottom: 1px solid rgba(238,205,133,.14); }
+.cashflow-popover h2 { margin: 2px 0; }
+.cashflow-details td { color: var(--tinte-2); border-color: rgba(238,205,133,.1); }
+.cashflow-details td:last-child { color: var(--tinte); font-variant-numeric: tabular-nums; }
+.cashflow-details tr.gruppe td { color: #e6c264; background: rgba(238,205,133,.06); }
+.cashflow-details tr.summe td { color: #efe7d5; }
+.cashflow-details tr.tagesgeld td { border-top: 1px solid rgba(238,205,133,.35); }
+.meldungen-panel { right: 20px; }
+.meldungen-panel header, .meldungen-panel li { border-color: rgba(238,205,133,.13); }
+
+/* Screen-Flächen ----------------------------------------------------------- */
+
+.dashboard, .marktplatz, .expose, .endgame, .finanzen, .spielkarte {
+  position: fixed;
+  z-index: 5;
+  inset: 84px 20px 88px;
+  width: auto;
+  max-width: none;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  color: var(--tinte);
+  border: 1px solid rgba(238,205,133,.24);
+  border-radius: 17px;
+  background: linear-gradient(180deg, rgba(30,38,48,.76), rgba(19,25,33,.82));
+  box-shadow: 0 15px 48px rgba(0,0,0,.48);
+  backdrop-filter: blur(6px);
+  overflow: auto;
+}
+
+.dashboard, .finanzen, .marktplatz, .expose, .endgame {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  gap: 14px;
+  padding: 18px 20px 24px;
+}
+
+.screen-heading, .screen-heading--dashboard, .screen-heading--market,
+.screen-heading--finanzen, .screen-heading--map {
+  position: sticky;
+  z-index: 8;
+  top: -18px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 58px;
+  margin: -18px -20px 0;
+  padding: 13px 20px;
+  color: var(--tinte);
+  border: 0;
+  border-bottom: 1px solid rgba(238,205,133,.2);
+  border-radius: 16px 16px 0 0;
+  background: #1b232c;
+  box-shadow: 0 9px 18px rgba(5, 9, 13, .34);
+  isolation: auto;
+  overflow: visible;
+  backdrop-filter: blur(8px);
+}
+.screen-heading::before, .screen-heading::after,
+.screen-heading--dashboard::before, .screen-heading--dashboard::after,
+.screen-heading--market::before, .screen-heading--market::after { display: none; }
+.screen-heading h1, .screen-heading--dashboard h1, .screen-heading--market h1,
+.screen-heading--finanzen h1, .screen-heading--map h1 {
+  margin: 0;
+  color: #f4dd9b;
+  font-size: 23px;
+}
+.screen-heading p { max-width: 42rem; margin: 0; color: var(--gedimmt); text-align: right; }
+.title-icon, .section-icon { color: #e6c264; }
+
+.karte, .kpi-gruppe, .kachel, .konto-karte, .transfer-karte,
+.mini-chart, .finanz-kurzwerte > div, .expose-preisbox {
+  color: var(--tinte);
+  border-color: rgba(238,205,133,.2);
+  background: rgba(255,255,255,.035);
+  box-shadow: inset 0 1px rgba(255,255,255,.025);
+}
+.karte:hover { box-shadow: inset 0 1px rgba(255,255,255,.025); }
+.karten-kopf { border-color: rgba(238,205,133,.14); }
+.karten-kopf > div > .eyebrow { display:block; margin-bottom:3px; }
+.karten-kopf h2, .karte h2, .karte h3 { color: #f0d995; }
+.haushalt td, .fakten td, .ende-tabelle td, .vergleich-tabelle td,
+.vergleich-tabelle th { color: var(--tinte-2); border-color: rgba(238,205,133,.1); }
+.haushalt td:last-child, .fakten td:last-child, .ende-tabelle td:last-child { color: var(--tinte); }
+.balken, .flow-track, .objekt-flow-zeile > div, .risiko-track,
+.ownership-meter, .finanz-mix-balken { background: rgba(3,7,10,.55); }
+
+/* Stadt -------------------------------------------------------------------- */
+
+#screen-karte {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  overflow: hidden;
+}
+.karten-staedte {
+  position: absolute;
+  z-index: 12;
+  top: 4px;
+  left: 50%;
+  display: flex;
+  max-width: min(720px, calc(100% - 360px));
+  padding: 5px;
+  border: 1px solid rgba(238,205,133,.22);
+  border-radius: 13px;
+  background: rgba(17,24,32,.82);
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+  transform: translateX(-50%);
+  backdrop-filter: blur(9px);
+  overflow-x: auto;
+}
+.karten-staedte button {
+  min-width: 122px;
+  padding: 7px 12px;
+  border: 1px solid transparent;
+  background: transparent;
+}
+.karten-staedte button b, .karten-staedte button small { display: block; color: inherit; text-align: left; }
+.karten-staedte button small { font-size: 10px; font-weight: 500; }
+.karten-staedte button.aktiv { color: #f4dd9b; border-color: rgba(238,205,133,.55); background: rgba(238,205,133,.13); }
+.karten-filter {
+  position: absolute;
+  z-index: 13;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  max-width: 320px;
+  padding: 4px;
+  border: 1px solid rgba(238,205,133,.2);
+  border-radius: 11px;
+  background: rgba(17,24,32,.8);
+  overflow-x: auto;
+}
+.karten-filter button { min-width: auto; min-height: 34px; padding: 5px 9px; border: 0; background: transparent; font-size: 11px; }
+.karten-filter button.aktiv { color: #21190b; background: linear-gradient(180deg,#eecd85,#c69a3f); }
+
+.karten-layout {
+  display: grid;
+  grid-template-columns: minmax(250px, 300px) minmax(360px, 1fr) minmax(250px, 300px);
+  align-items: stretch;
+  gap: 12px;
+  height: 100%;
+  padding-top: 76px;
+}
+.stadt-links, .karten-legende { display: grid; min-height: 0; gap: 12px; }
+.stadt-links { grid-template-rows: auto minmax(0, 1fr); }
+.stadt-panel, .karten-legende {
+  min-width: 0;
+  padding: 15px;
+  border: 1px solid rgba(238,205,133,.25);
+  border-radius: 15px;
+  background: linear-gradient(180deg, rgba(34,43,54,.93), rgba(23,30,39,.94));
+  box-shadow: 0 13px 35px rgba(0,0,0,.38);
+  backdrop-filter: blur(8px);
+}
+.familie-panel header { display: flex; align-items: center; gap: 11px; margin-bottom: 13px; }
+.familie-panel header img { width: 52px; height: 52px; border: 2px solid #d8b866; border-radius: 50%; object-fit: cover; }
+.familie-panel h2, .post-panel h2, .karten-legende h2 { margin: 0; color: #f4dd9b; font-size: 18px; }
+.familie-panel p { margin: 1px 0 0; font-size: 11px; }
+.sims-zeile { display: grid; grid-template-columns: 27px 56px minmax(50px,1fr) 43px; align-items: center; gap: 7px; margin-top: 9px; color: var(--tinte-2); font-size: 12px; }
+.sims-icon { display: grid; width: 25px; height: 25px; place-items: center; border-radius: 50%; color: white; }
+.sims-icon svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; }
+.sims-icon.familie { background: #b86d55; }
+.sims-icon.zeit { background: #806aa1; }
+.sims-icon.nerven { background: #c79531; }
+.sims-icon.puffer { background: #58886e; }
+.sims-zeile > div { height: 8px; border-radius: 99px; background: rgba(3,7,10,.66); overflow: hidden; }
+.sims-zeile > div i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg,#e0a084,#e6c264); }
+.sims-zeile:nth-of-type(2) > div i { background: linear-gradient(90deg,#806aa1,#b79bd6); }
+.sims-zeile:nth-of-type(4) > div i { background: linear-gradient(90deg,#6fae7f,#9ed19e); }
+.sims-zeile b { color: #efe7d5; font-size: 11px; text-align: right; font-variant-numeric: tabular-nums; }
+
+.post-panel { min-height: 0; overflow: hidden; }
+.post-panel header, .karten-legende > header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 9px; }
+.post-panel h2 { display: flex; align-items: center; gap: 7px; }
+.post-panel > header small, .karten-legende > header small { color: var(--gedimmt); }
+.stadt-post { display: grid; gap: 6px; max-height: 100%; overflow: auto; }
+.stadt-post button { display: grid; grid-template-columns: 18px 1fr; align-items: start; gap: 8px; min-height: 0; padding: 9px; color: var(--tinte-2); background: rgba(255,255,255,.04); font-size: 11px; font-weight: 500; text-align: left; }
+.stadt-post .ui-icon { color: #e6c264; }
+
+.stadtkarte { position: relative; min-width: 0; min-height: 0; padding: 0; border-radius: 16px; overflow: hidden; }
+.stadt-buehne-bg, .stadt-wash, .stadt-markerfeld { position: absolute; inset: 0; }
+.stadt-buehne-bg { background: var(--stadtbild) center / cover no-repeat; filter: saturate(.82) brightness(.84) blur(2px); transform: scale(1.03); }
+.stadt-wash { pointer-events: none; }
+.stadt-wash.stadt-berlin-innen { background: linear-gradient(180deg,rgba(34,60,74,.26),rgba(18,30,40,.14) 55%,rgba(12,20,28,.28)); }
+.stadt-wash.stadt-berlin-aussen { background: linear-gradient(180deg,rgba(44,64,52,.26),rgba(22,36,28,.14) 55%,rgba(14,24,18,.28)); }
+.stadt-wash.stadt-leipzig { background: linear-gradient(180deg,rgba(80,60,34,.26),rgba(44,32,20,.14) 55%,rgba(28,20,12,.28)); }
+.stadt-wash.stadt-meissen { background: linear-gradient(180deg,rgba(78,52,60,.25),rgba(42,28,34,.14) 55%,rgba(24,18,22,.28)); }
+.stadt-markerfeld { overflow: hidden; }
+.karten-marker {
+  position: absolute;
+  width: 154px;
+  min-height: 116px;
+  padding: 0;
+  border-color: rgba(230,194,100,.62);
+  border-radius: 13px;
+  background: #121a22;
+  box-shadow: 0 10px 24px rgba(0,0,0,.48);
+  transform: translate(-50%,-50%);
+  overflow: visible;
+}
+.karten-marker:hover, .karten-marker.is-focus { z-index: 10; border-color: #f4dd9b; transform: translate(-50%,-52%) scale(1.03); }
+.marker-bild { position: relative; display: block; width: 100%; height: 72px; overflow: hidden; border-radius: 12px 12px 0 0; }
+.marker-bild img { width: 100%; height: 100%; object-fit: cover; }
+.status-pausiert .marker-bild img { filter: grayscale(.62) brightness(.72); }
+.karten-marker.is-kommend { opacity:.72; cursor:default; border-style:dashed; }
+.karten-marker.is-kommend:hover { transform:translate(-50%,-50%); }
+.karten-marker.is-kommend .marker-status { color:#d9dfe3; background:#596570; }
+.marker-status { position: absolute; top: 6px; left: 6px; display: grid; width: 25px; height: 25px; place-items: center; color: #111820; border-radius: 7px; background: #e6c264; }
+.status-reserviert .marker-status { background: #7ea8d8; }
+.status-bestand .marker-status, .status-eigenheim .marker-status { background: #6fae7f; }
+.status-pausiert .marker-status { background: #8d979e; }
+.marker-copy { display: block; padding: 7px 8px 8px; text-align: left; }
+.marker-copy b, .marker-copy small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.marker-copy b { color: #efe7d5; font-size: 11px; }
+.marker-copy small { color: var(--gedimmt); font-size: 9.5px; }
+.marker-stiel { position: absolute; top: 100%; left: 50%; width: 2px; height: 14px; background: currentColor; }
+.marker-stiel::after { content:''; position:absolute; bottom:-4px; left:-3px; width:8px; height:8px; border-radius:50%; background: currentColor; }
+
+.karten-legende { grid-template-rows: auto auto minmax(0,1fr) auto; overflow: hidden; }
+.status-legende { display: flex; flex-wrap: wrap; gap: 5px 10px; color: var(--gedimmt); font-size: 9px; }
+.marker-symbol { width: 9px; height: 9px; background: #e6c264; }
+.marker-symbol.reserviert { background: #7ea8d8; }
+.marker-symbol.bestand, .marker-symbol.eigenheim { background: #6fae7f; }
+.marker-symbol.pausiert { background: #8d979e; }
+.karten-liste { min-height: 0; overflow: auto; }
+.karten-listenpunkt { min-height: 0; padding: 8px 4px; border: 0; border-bottom: 1px solid rgba(238,205,133,.09); border-radius: 0; background: transparent; }
+.karten-listenpunkt:hover { background: rgba(238,205,133,.06); }
+.karten-listenpunkt.is-kommend { opacity:.68; cursor:default; }
+.karten-listenpunkt.is-kommend:hover { background:transparent; }
+.karten-listenpunkt b { color: var(--tinte); }
+.karten-listenpunkt small { color: var(--gedimmt); }
+.naechster-zug { padding: 13px; border: 1px solid rgba(238,205,133,.3); border-radius: 12px; background: linear-gradient(145deg,rgba(238,205,133,.13),rgba(126,93,38,.08)); }
+.naechster-zug h3 { margin: 4px 0; color: #f4dd9b; font-size: 15px; }
+.naechster-zug p { margin: 0 0 10px; font-size: 11px; }
+.naechster-zug button { width: 100%; }
+
+/* Zentrale ----------------------------------------------------------------- */
+
+.zentrale-tabs { display: flex; align-self: center; gap: 4px; }
+.zentrale-tabs button { min-height: 44px; padding: 6px 14px; border: 0; border-bottom: 2px solid transparent; border-radius: 0; color: var(--gedimmt); background: transparent; }
+.zentrale-tabs button.aktiv { color: #f4dd9b; border-bottom-color: #e6c264; }
+.dashboard > [data-zentrale-panel] { min-width: 0; }
+.dashboard .kacheln { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 10px; }
+.kpi-gruppe { padding: 12px; border-radius: 13px; }
+.kpi-gruppe h2 { color: var(--gedimmt); font-size: 10px; letter-spacing: .09em; text-transform: uppercase; }
+.kpi-paar { gap: 7px; }
+.kachel { min-height: 95px; padding: 11px; }
+.kachel .wert { color: #f4dd9b; font-family: "Cormorant Garamond", Georgia, serif; font-size: 22px; }
+.kachel .sub { color: var(--gedimmt); }
+.chart-karte, .portfolio-board, .quartalsbericht, .seiten-spalte { grid-column: 1; }
+.chart-karte { padding: 16px; }
+.chart-wrap { min-height: 330px; border-radius: 12px; background: rgba(2,6,9,.2); }
+#chart .grid { stroke: rgba(238,205,133,.1); }
+#chart .axis { fill: #8b8069; }
+.chart-zusatz { grid-template-columns: 1fr 1fr; }
+.mini-chart h3 { color: #f0d995; }
+.mix-cash { background: #6fae7f !important; }
+.mix-etf { background: #c69a3f !important; }
+.mix-immo { background: #7ea8d8 !important; }
+.mix-ruecklage { background: #b79bd6 !important; }
+.seiten-spalte { grid-template-columns: minmax(0,1.25fr) minmax(280px,.75fr); align-items: start; }
+.log-karte { grid-column: 1 / -1; }
+.portfolio-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+.owned-card { border-color: rgba(238,205,133,.22); background: rgba(255,255,255,.035); }
+.owned-body h3 { color: #f0d995; }
+.portfolio-empty { color: var(--tinte); border-color: rgba(238,205,133,.2); background: rgba(255,255,255,.025); }
+.quartals-naechster { border-color: rgba(238,205,133,.25); background: rgba(238,205,133,.07); }
+.log-eintrag { border-color: rgba(238,205,133,.12); background: rgba(255,255,255,.025); }
+
+/* Marktplatz --------------------------------------------------------------- */
+
+.marktplatz { grid-template-rows: auto auto 1fr; }
+.filter-zeile {
+  position: sticky;
+  z-index: 7;
+  top: 52px;
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 0 4px;
+  padding: 9px 10px;
+  border: 1px solid rgba(238,205,133,.18);
+  border-radius: 11px;
+  background: #151c24;
+  box-shadow: 0 8px 16px rgba(5,9,13,.3);
+}
+.filter-zeile select {
+  min-height: 37px;
+  color: #efe7d5;
+  border-color: rgba(238,205,133,.24);
+  background: #19232e;
+  color-scheme: dark;
+}
+.filter-zeile input[type="checkbox"] { accent-color:#d2a847; }
+.filter-check { color: var(--tinte-2); }
+.filter-zeile #btn-vergleich { flex: 0 0 auto; margin-left: auto; }
+.markt-liste { display: grid; grid-template-columns: 1fr; gap: 10px; }
+.markt-karte {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(330px, 392px) minmax(260px,1fr) minmax(190px,216px);
+  gap: 0;
+  min-height: 184px;
+  padding: 0;
+  color: var(--tinte);
+  border: 1px solid rgba(238,205,133,.2);
+  border-radius: 14px;
+  background: rgba(255,255,255,.035);
+  box-shadow: none;
+  overflow: hidden;
+}
+.markt-karte:hover { border-color: rgba(238,205,133,.48); box-shadow: 0 12px 32px rgba(0,0,0,.28); transform: translateY(-1px); }
+.markt-gallery { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 0; min-width: 0; }
+.markt-ansicht { position: relative; min-width: 0; border-right: 1px solid rgba(238,205,133,.12); }
+.markt-ansicht > span { position: absolute; left: 8px; bottom: 7px; z-index: 2; padding: 2px 6px; color: #efe7d5; border-radius: 6px; background: rgba(7,11,15,.78); font-size: 9px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.markt-gallery .expose-bild { width: 100%; height: 100%; min-height: 184px; border: 0; border-radius: 0; }
+.markt-gallery .expose-bild img, .markt-gallery .expose-bild svg { width: 100%; height: 100%; object-fit: cover; }
+.markt-karte .karte-inhalt { display: flex; min-width: 0; flex-direction: column; gap: 7px; padding: 13px 15px; }
+.karte-kopfzeile h3 { margin: 0; color: #efe7d5; font-family: inherit; font-size: 15px; }
+/* Kartentitel sind echte Buttons: der Tastaturweg ins Exposé bzw. Objekt.
+   Der restliche Kartenklick bleibt reiner Zeigegeräte-Komfort. */
+.karte-titel {
+  display: inline;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.karte-titel:hover:not(:disabled) { border: 0; background: none; box-shadow: none; transform: none; text-decoration: underline; }
+.karte-ort { color: var(--gedimmt); font-size: 10.5px; }
+.karte-fakten { display: flex; flex-wrap: wrap; gap: 6px 13px; color: var(--tinte-2); font-size: 11px; }
+.karte-fakten > span { display: inline-flex; align-items: center; gap: 4px; }
+.karte-fakten .ui-icon { width: 13px; height: 13px; color: #e6c264; }
+.karte-badges { gap: 5px; }
+.markt-zitat { display: -webkit-box; margin: auto 0 0; padding-left: 10px; color: #9e947d; border-left: 2px solid rgba(238,205,133,.3); font-size: 10.5px; font-style: italic; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.markt-deal { display: flex; min-width: 0; flex-direction: column; justify-content: center; gap: 9px; padding: 14px 15px; border-left: 1px solid rgba(238,205,133,.13); }
+.karte-preis { color: #f4dd9b; font-size: 25px; }
+.karte-preis small { display: block; margin-top: 2px; font-family: inherit; font-size: 10px; }
+.markt-aktionen { display: grid; grid-template-columns: 1fr; gap: 7px; }
+.markt-aktionen button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.vergleich-check { color: var(--gedimmt); font-size: 10px; }
+.fav { color: #e6c264; background: rgba(14,20,27,.76); }
+
+/* Exposé und Objekt -------------------------------------------------------- */
+
+.expose-kopf {
+  position: sticky;
+  z-index: 8;
+  top: -18px;
+  display: grid;
+  grid-template-columns: auto minmax(0,1fr) auto;
+  align-items: center;
+  gap: 12px;
+  margin: -18px -20px 0;
+  padding: 12px 20px;
+  border-bottom: 1px solid rgba(238,205,133,.2);
+  background: #1b232c;
+  box-shadow: 0 9px 18px rgba(5,9,13,.34);
+  backdrop-filter: blur(8px);
+}
+.expose-kopf h1 { margin: 0; color: #f4dd9b; font-size: 22px; }
+.expose-oben, .objekt-oben { grid-template-columns: minmax(0,1.65fr) minmax(320px,.75fr); gap: 13px; }
+.expose-gallery { gap: 10px; }
+.expose-bild { border-color: rgba(238,205,133,.2); background: rgba(3,7,10,.4); }
+.expose-bild img { object-fit: cover; }
+.expose-preisbox, .objekt-status { background: rgba(255,255,255,.035); }
+.preis-gross { color: #f4dd9b; font-size: 34px; }
+.maklertext { color: var(--tinte-2); border-color: rgba(238,205,133,.35); background: rgba(238,205,133,.055); }
+.expose-unten { grid-template-columns: 1.25fr .75fr; }
+.dd-buttons button { color: var(--tinte); background: rgba(255,255,255,.035); }
+.dd-liste li { color: var(--tinte-2); border-color: rgba(238,205,133,.12); }
+.notizen-karte textarea { background: rgba(3,7,10,.35); }
+
+.ansicht-umschalter { display: flex; padding: 3px; border: 1px solid rgba(238,205,133,.2); border-radius: 10px; }
+.ansicht-umschalter button { min-height: 32px; padding: 4px 13px; border: 0; background: transparent; }
+.ansicht-umschalter button.aktiv { color: #21190b; background: linear-gradient(180deg,#eecd85,#c69a3f); }
+.objekt-visual { min-height: 390px; border: 1px solid rgba(238,205,133,.2); border-radius: 13px; background: rgba(3,7,10,.35); overflow: hidden; }
+.objekt-visual .expose-bild { height: 100%; min-height: 390px; border: 0; }
+.objekt-visual .expose-bild img, .objekt-visual .expose-bild svg { width:100%; height:100%; object-fit:cover; }
+.objekt-visual-overlay { color: var(--tinte-2); background: linear-gradient(transparent,rgba(4,8,12,.8)); }
+.objekt-kennzahlen { display: grid; gap: 0; margin: 0; border: 1px solid rgba(238,205,133,.14); border-radius: 11px; background: rgba(2,6,9,.18); overflow: hidden; }
+.objekt-kennzahlen > div { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 13px; border-bottom: 1px solid rgba(238,205,133,.09); }
+.objekt-kennzahlen > div:last-child { border-bottom: 0; }
+.objekt-kennzahlen dt { color: var(--tinte-2); font-weight: 500; }
+.objekt-kennzahlen dd { margin: 0; padding: 5px 9px; border-radius: 8px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.wert-gold { color: #f4dd9b; background: rgba(238,205,133,.12); }
+.wert-positiv { color: #b6ddb3; background: rgba(143,188,143,.13); }
+.wert-negativ { color: #efb49b; background: rgba(224,160,132,.14); }
+.objekt-daten { margin-top: 11px; }
+.objekt-daten summary { color: #e6c264; cursor: pointer; font-weight: 700; }
+.objekt-daten .objekt-wert { margin-top: 10px; }
+.objekt-spalten { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; }
+.objekt-flow-zeile { color: var(--tinte-2); }
+.mietrecht-hinweis { border-color: rgba(126,168,216,.38); background: rgba(126,168,216,.08); }
+
+/* Gebot */
+.gebot-zeile { display: grid; gap: 9px; margin-top: 12px; padding: 14px; border: 1px solid rgba(238,205,133,.22); border-radius: 12px; background: rgba(2,6,9,.2); }
+#gebot-live { color: #f4dd9b; font-size: 38px; line-height: 1; }
+#gebot-delta { margin: -3px 0 0; color: var(--gedimmt); font-size: 11px; }
+.gebot-chance { display: grid; gap: 5px; }
+.gebot-chance > span { display:flex; justify-content:space-between; color: var(--tinte-2); font-size:11px; }
+.gebot-chance > div { height: 8px; border-radius: 99px; background: rgba(3,7,10,.6); overflow:hidden; }
+.gebot-chance i { display:block; height:100%; border-radius:inherit; background:#e0a084; transition:width 120ms ease; }
+.gebot-chance i[data-stufe="mittel"] { background:#e6c264; }
+.gebot-chance i[data-stufe="hoch"] { background:#9ed19e; }
+.gebot-chance small { color: var(--gedimmt); }
+
+/* Finanzen ----------------------------------------------------------------- */
+
+.finanz-ueberblick { order: 1; }
+.finanz-konten { order: 2; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 10px; }
+.finanz-aktionen { order: 3; }
+.finanz-unten { order: 4; }
+.konto-karte { position: relative; min-height: 220px; padding: 15px 15px 14px 18px; overflow: hidden; }
+.konto-karte::before { content:''; position:absolute; inset:0 auto 0 0; width:3px; background:#6fae7f; }
+#fin-konto-immo::before { background:#7ea8d8; }
+#fin-konto-etf::before { background:#c69a3f; }
+.konto-karte header { border-color: rgba(238,205,133,.12); }
+.konto-symbol { color: #e6c264; background: rgba(238,205,133,.08); }
+.konto-karte h2 { color: #efe7d5; font-family: inherit; }
+.konto-karte > strong { color: #f4dd9b; font-size: 28px; }
+.konto-karte dl div { border-color: rgba(238,205,133,.09); }
+.konto-karte dd { color: var(--tinte); }
+.finanz-kurzwerte { grid-template-columns: repeat(3,1fr); }
+.finanz-kurzwerte dd { color: #f4dd9b; }
+.finanz-mix-balken { border-color: rgba(238,205,133,.18); }
+#fin-mix-cash { background:#6fae7f; }
+#fin-mix-etf { background:#c69a3f; }
+.transfer-raster { grid-template-columns: repeat(2,minmax(0,1fr)); }
+.transfer-karte { border-color: rgba(238,205,133,.18); background: rgba(2,6,9,.2); }
+.transfer-karte h3 { color:#f0d995; }
+.transfer-vorschau { color:var(--tinte-2); background:rgba(255,255,255,.035); }
+.transfer-regler { display:grid; gap:12px; margin-top:14px; }
+.transfer-slider-label { display:flex; align-items:end; justify-content:space-between; gap:12px; color:var(--tinte-2); font-size:12px; }
+.transfer-slider-label output { color:#f4dd9b; font-family:"Cormorant Garamond",Georgia,serif; font-size:20px; font-weight:700; font-variant-numeric:tabular-nums; }
+.transfer-slider-wrap { position:relative; padding:3px 0; }
+.transfer-slider-wrap::after { content:''; position:absolute; z-index:0; top:0; bottom:0; left:50%; width:1px; background:rgba(238,205,133,.52); pointer-events:none; }
+#fin-transfer { position:relative; z-index:1; width:100%; accent-color:#d9b464; }
+.transfer-skala { display:grid; grid-template-columns:1fr auto 1fr; gap:10px; margin-top:-7px; color:var(--gedimmt); font-size:10px; }
+.transfer-skala b { color:var(--tinte-2); font-weight:500; text-align:center; }
+.transfer-skala span:last-child { text-align:right; }
+.transfer-konten { display:grid; grid-template-columns:minmax(0,1fr) 48px minmax(0,1fr); align-items:stretch; gap:10px; }
+.transfer-konto { display:flex; align-items:center; gap:12px; min-width:0; padding:13px; border:1px solid rgba(238,205,133,.18); border-radius:12px; background:rgba(2,6,9,.24); }
+.transfer-konto > div { display:grid; min-width:0; }
+.transfer-konto small { color:var(--gedimmt); font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; }
+.transfer-konto strong { color:#f4dd9b; font-family:"Cormorant Garamond",Georgia,serif; font-size:25px; line-height:1.1; font-variant-numeric:tabular-nums; }
+.transfer-konto div > span { color:var(--gedimmt); font-size:12px; font-weight:700; font-variant-numeric:tabular-nums; }
+.transfer-konto div > span.positiv { color:var(--positiv); }
+.transfer-konto div > span.negativ { color:var(--negativ); }
+.transfer-pfeil { display:grid; place-items:center; color:#e6c264; font-family:"Cormorant Garamond",Georgia,serif; font-size:30px; }
+.transfer-regler .transfer-vorschau { min-height:44px; margin:0; padding:10px 12px; border:1px solid rgba(238,205,133,.12); border-radius:9px; }
+.transfer-regler.is-anlage .transfer-vorschau { background:rgba(143,188,143,.07); }
+.transfer-regler.is-verkauf .transfer-vorschau { background:rgba(224,160,132,.07); }
+.transfer-regler > button { justify-self:end; min-width:min(100%,260px); }
+.transfer-regler > button.transfer-verkaufen { color:#24150f; border-color:#e0a084; background:linear-gradient(180deg,#e5b096,#bd7357); box-shadow:0 3px 0 #824b38,0 9px 20px rgba(0,0,0,.28); }
+.transfer-regler > button.transfer-neutral { color:var(--gedimmt); background:rgba(255,255,255,.025); }
+.sparplan-karte, .bewegungen-karte { background:rgba(255,255,255,.035); }
+.finanz-bewegungen li { color:var(--tinte-2); border-color:rgba(238,205,133,.11); }
+
+/* Referenzhierarchie: Konten zuerst, Umschichten und Vermögensmix gemeinsam. */
+.finanzen { grid-template-columns:minmax(0,1fr) minmax(280px,340px); }
+.finanzen > .screen-heading { grid-column:1/-1; grid-row:1; }
+.finanz-konten { grid-column:1/-1; grid-row:2; order:initial; }
+.finanz-aktionen { grid-column:1; grid-row:3; order:initial; padding:14px 16px 16px; }
+.finanz-ueberblick {
+  grid-column:2;
+  grid-row:3;
+  order:initial;
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+  padding:14px 16px 16px;
+}
+.finanz-unten { grid-column:1/-1; grid-row:4; order:initial; grid-template-columns:1fr; }
+.finanz-ueberblick > .karten-kopf > b { color:#f4dd9b; font-size:21px; font-variant-numeric:tabular-nums; }
+.finanz-liquid { display:flex; justify-content:space-between; gap:12px; margin:12px 0 0; color:var(--tinte-2); }
+.finanz-liquid b { color:#efe7d5; font-variant-numeric:tabular-nums; }
+.finanz-ueberblick .finanz-mix { margin-top:13px; }
+.finanz-mix-balken { height:16px; border:1px solid rgba(238,205,133,.18); }
+#fin-mix-immo { background:#7ea8d8; }
+.finanz-mix-legende { display:grid; gap:7px; margin:13px 0 0; padding:0; list-style:none; }
+.finanz-mix-legende li { display:grid; grid-template-columns:10px minmax(0,1fr) auto; align-items:center; gap:8px; color:var(--tinte-2); }
+.finanz-mix-legende li::before { content:''; width:9px; height:9px; border-radius:2px; background:#6fae7f; }
+.finanz-mix-legende li.fin-mix-etf-row::before { background:#c69a3f; }
+.finanz-mix-legende li.fin-mix-immo-row::before { background:#7ea8d8; }
+.finanz-mix-legende b { color:#efe7d5; font-variant-numeric:tabular-nums; }
+.finanz-ueberblick .finanz-kurzwerte { grid-template-columns:1fr; margin-top:auto; }
+.finanz-ueberblick .finanz-kurzwerte > div { display:flex; align-items:baseline; justify-content:space-between; gap:12px; border-right:0; border-bottom:1px solid rgba(238,205,133,.12); }
+.finanz-ueberblick .finanz-kurzwerte > div:last-child { border-bottom:0; }
+
+.konto-karte { min-height:144px; padding:13px 15px 12px 18px; }
+.konto-karte::after { width:100px; height:100px; right:-48px; top:-52px; }
+.konto-karte header { gap:9px; }
+.konto-karte .konto-symbol { width:34px; height:34px; flex-basis:34px; border-radius:9px; }
+.konto-karte h2 { font-size:15px; }
+.konto-karte > strong { margin:9px 0 7px; font-size:25px; }
+.konto-karte dl { display:flex; flex-wrap:wrap; gap:4px 13px; }
+.konto-karte dl > div { display:inline-flex; justify-content:flex-start; gap:4px; padding:0; border:0; font-size:10.5px; }
+.konto-karte dt { font-size:9px; }
+.konto-karte dd { color:var(--tinte-2); font-weight:600; }
+.konto-karte > .hinweis { display:none; }
+
+.finanz-aktionen > .karten-kopf { margin-bottom:0; }
+.finanz-aktionen .transfer-regler { gap:9px; margin-top:10px; }
+.finanz-aktionen .transfer-konto { padding:10px 12px; }
+.finanz-aktionen .transfer-konto .konto-symbol { width:34px; height:34px; flex-basis:34px; }
+.finanz-aktionen .transfer-konto strong { font-size:21px; }
+.finanz-aktionen .transfer-regler .transfer-vorschau { min-height:40px; padding:8px 10px; }
+.finanz-aktionen .transfer-regler > button { justify-self:stretch; width:100%; }
+.finanz-aktionen > .sparplan-karte { margin-top:14px; padding:12px 0 0; border-top:1px solid rgba(238,205,133,.16); background:transparent; }
+.finanz-aktionen > .sparplan-karte .karten-kopf { align-items:baseline; margin-bottom:7px; }
+.finanz-aktionen > .sparplan-karte h2 { font-size:15px; }
+.finanz-aktionen > .sparplan-karte form { grid-template-columns:minmax(0,1fr) auto; gap:5px 12px; }
+.finanz-aktionen > .sparplan-karte form > label,
+.finanz-aktionen > .sparplan-karte form > input,
+.finanz-aktionen > .sparplan-karte .sparplan-aufteilung { grid-column:1; }
+.finanz-aktionen > .sparplan-karte form > button { grid-column:2; grid-row:1/4; align-self:end; justify-self:end; }
+.finanz-aktionen > .sparplan-karte > .hinweis { display:none; }
+
+/* Dialoge und Finanzierung ------------------------------------------------ */
+
+dialog {
+  max-width: min(720px, calc(100vw - 24px));
+  max-height: calc(100vh - 24px);
+  color: var(--tinte);
+  border: 1px solid rgba(238,205,133,.32);
+  border-radius: 16px;
+  background: linear-gradient(180deg,rgba(31,40,50,.99),rgba(18,25,33,.99));
+  box-shadow: 0 20px 70px rgba(0,0,0,.68);
+  backdrop-filter: blur(10px);
+}
+dialog::backdrop { background: rgba(4,8,12,.7); backdrop-filter: blur(3px); }
+dialog > header, dialog form > header { border-color: rgba(238,205,133,.16); }
+dialog h2, dialog h3 { color:#f4dd9b; }
+dialog footer { border-color:rgba(238,205,133,.15); background:rgba(7,12,17,.2); }
+#dlg-neu { max-width: min(940px,calc(100vw - 24px)); }
+.preset-option, .diff-option { color:var(--tinte); border-color:rgba(238,205,133,.18); background:rgba(255,255,255,.035); }
+.preset-option:has(input:checked), .diff-option:has(input:checked) { border-color:#e6c264; background:rgba(238,205,133,.1); }
+.start-vorschau, .start-anpassen { color:var(--tinte-2); border-color:rgba(238,205,133,.17); background:rgba(2,6,9,.2); }
+.start-einstellungen fieldset { border-color:rgba(238,205,133,.17); }
+.hilfe-abschnitt, .tutorial-ablauf li, .admin-gruppe { color:var(--tinte-2); border-color:rgba(238,205,133,.15); background:rgba(255,255,255,.03); }
+.event-option { color:var(--tinte); border-color:rgba(238,205,133,.2); background:rgba(255,255,255,.035); }
+
+#dlg-finanzierung {
+  width: min(580px,100vw);
+  max-width: 100vw;
+  height: 100vh;
+  max-height: 100vh;
+  margin: 0 0 0 auto;
+  padding: 0;
+  border-radius: 16px 0 0 16px;
+}
+#dlg-finanzierung[open] { animation: fin-panel-in 220ms ease-out; }
+#form-finanzierung { display:grid; grid-template-rows:auto auto minmax(0,1fr) auto; height:100%; min-height:0; }
+.bank-kopf { display:grid; grid-template-columns:48px minmax(0,1fr) auto; align-items:center; gap:11px; padding:13px 16px; }
+.bank-kopf img { width:46px; height:46px; border:2px solid #d8b866; border-radius:50%; object-fit:cover; }
+.bank-kopf h2 { margin:1px 0 0; font-size:18px; }
+.bank-kopf > button { width:38px; padding:0; }
+.fin-schritte { display:grid; grid-template-columns:repeat(3,1fr); border-bottom:1px solid rgba(238,205,133,.16); }
+.fin-schritte button { display:flex; align-items:center; justify-content:center; gap:6px; min-height:48px; border:0; border-bottom:2px solid transparent; border-radius:0; color:var(--gedimmt); background:transparent; }
+.fin-schritte button b { display:grid; width:20px; height:20px; place-items:center; border:1px solid currentColor; border-radius:50%; font-size:10px; }
+.fin-schritte button.aktiv { color:#f4dd9b; border-bottom-color:#e6c264; }
+.fin-flow-step { min-height:0; padding:16px 18px; overflow:auto; }
+.fin-flow-step > h3 { margin-top:0; }
+.nutzungs-karten { display:grid; grid-template-columns:repeat(2,1fr); gap:9px; }
+.nutzungs-karten > label { position:relative; min-width:0; }
+.nutzungs-karten input { position:absolute; opacity:0; }
+.nutzungs-karten label > span { display:grid; gap:6px; min-height:132px; padding:14px; color:var(--tinte-2); border:1px solid rgba(238,205,133,.2); border-radius:12px; background:rgba(255,255,255,.035); cursor:pointer; }
+.nutzungs-karten input:checked + span { color:var(--tinte); border-color:#e6c264; background:rgba(238,205,133,.1); }
+.nutzungs-karten .ui-icon { width:25px; height:25px; color:#e6c264; }
+.nutzungs-karten b { color:#efe7d5; }
+.nutzungs-karten small { color:var(--gedimmt); }
+.nutzungs-karten .gesperrt, .nutzungs-karten label.gesperrt > span { opacity:.52; }
+.fin-ek-panel, .fin-etf-panel { border-color:rgba(238,205,133,.18); background:rgba(255,255,255,.035); }
+.fin-ek-quote strong { color:#f4dd9b; }
+.fin-ek-schnellwahl { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.fin-ek-schnellwahl button { min-height:44px; font-size:11px; }
+.fin-ek-schnellwahl button.aktiv { color:#241d10; border-color:#eecd85; background:linear-gradient(180deg,#eecd85,#c69a3f); }
+.fin-slider-werte { grid-template-columns:1fr; color:var(--tinte-2); }
+.fin-ltv-viz { border-color:rgba(238,205,133,.18); background:rgba(2,6,9,.2); }
+.ltv-track { background:rgba(3,7,10,.6); }
+.fin-tabelle { margin-top:12px; }
+.fin-tabelle .fin-gruppe th { padding:11px 8px 5px; color:#e6c264; font-size:10px; letter-spacing:.08em; text-align:left; text-transform:uppercase; }
+.verdikt { border-color:rgba(238,205,133,.18); background:rgba(255,255,255,.03); }
+.verdikt.ok { border-color:rgba(158,209,158,.35); background:rgba(143,188,143,.07); }
+.verdikt.abgelehnt { border-color:rgba(224,160,132,.36); background:rgba(224,160,132,.07); }
+.fin-monatsvergleich { margin-top:13px; padding:12px; border:1px solid rgba(238,205,133,.16); border-radius:11px; background:rgba(2,6,9,.2); }
+.fin-monatsvergleich > header { display:flex; justify-content:space-between; gap:10px; margin-bottom:9px; }
+.fin-monatsvergleich > header small { color:var(--gedimmt); text-align:right; }
+.fin-szenarien { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+.fin-szenario { padding:10px; border:1px solid rgba(238,205,133,.12); border-radius:9px; background:rgba(255,255,255,.025); }
+.fin-szenario.geplant { border-color:rgba(158,209,158,.28); background:rgba(143,188,143,.045); }
+.fin-szenario h4 { margin:0 0 6px; color:#f0d995; font-family:inherit; font-size:11px; text-transform:uppercase; letter-spacing:.06em; }
+.fin-cashflow-zeile { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:8px; color:var(--tinte-2); }
+.fin-cashflow-zeile b { font-variant-numeric:tabular-nums; }
+.fin-cashflow-zeile.steuer-null { grid-template-columns:1fr auto; margin-top:8px; padding:9px; border-radius:8px; background:rgba(255,255,255,.03); }
+.fin-cashflow-zeile.steuer-null small { grid-column:1/-1; color:var(--gedimmt); }
+.fin-cashflow-summe { border-color:rgba(238,205,133,.18); }
+.weg-aufteilung { margin-top:8px; }
+.weg-aufteilung summary { color:#e6c264; cursor:pointer; font-size:11px; font-weight:700; }
+.weg-aufteilung small { display:block; margin-top:6px; color:var(--gedimmt); }
+.fin-haushalt-wirkung { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:9px; margin:10px 0; padding:10px; border:1px solid rgba(238,205,133,.18); border-radius:9px; background:rgba(238,205,133,.045); }
+.fin-haushalt-wirkung span { display:grid; }
+.fin-haushalt-wirkung small { color:var(--gedimmt); }
+.fin-haushalt-wirkung b { color:#efe7d5; font-size:17px; font-variant-numeric:tabular-nums; }
+#form-finanzierung > footer { display:flex; justify-content:flex-end; gap:8px; padding:12px 16px 15px; }
+
+@keyframes fin-panel-in { from { opacity:0; transform:translateX(28px); } to { opacity:1; transform:none; } }
+
+/* Responsive Gates --------------------------------------------------------- */
+
+@media (max-width: 1180px) {
+  .topbar {
+    grid-template-columns:max-content minmax(0,1fr) max-content;
+    grid-template-areas:"brand date menu" "resources speed speed";
+    min-height:128px;
+    padding:8px 14px;
+  }
+  .ressourcenleiste { grid-template-columns:repeat(3,minmax(130px,1fr)); }
+  .speed-group { justify-self:end; }
+  .dashboard, .marktplatz, .expose, .endgame, .finanzen, .spielkarte { inset:140px 14px 88px; }
+  .karten-layout { grid-template-columns:250px minmax(320px,1fr) 250px; }
+  .stadt-panel, .karten-legende { padding:12px; }
+  .karten-staedte { max-width:calc(100% - 360px); }
+  .markt-karte { grid-template-columns:minmax(280px,34%) minmax(240px,1fr) 190px; }
+  .markt-gallery .expose-bild { min-height:174px; }
+}
+
+@media (max-width: 920px) {
+  .finanzen { grid-template-columns:1fr; }
+  .finanzen > .screen-heading { grid-column:1; grid-row:auto; order:0; }
+  .finanz-konten { grid-column:1; grid-row:auto; order:1; }
+  .finanz-aktionen { grid-column:1; grid-row:auto; order:2; }
+  .finanz-ueberblick { grid-column:1; grid-row:auto; order:3; min-height:300px; }
+  .finanz-unten { grid-column:1; grid-row:auto; order:4; }
+  .karten-filter { top:58px; right:auto; left:50%; max-width:calc(100% - 24px); transform:translateX(-50%); }
+  .karten-staedte { max-width:calc(100% - 24px); }
+  .karten-layout { grid-template-columns:220px minmax(300px,1fr); padding-top:108px; }
+  .karten-legende { display:none; }
+  .markt-karte { grid-template-columns:minmax(250px,42%) minmax(250px,1fr); }
+  .markt-deal { grid-column:1/-1; display:grid; grid-template-columns:1fr 2fr auto; align-items:center; border-top:1px solid rgba(238,205,133,.13); border-left:0; }
+  .markt-aktionen { grid-template-columns:1fr; }
+  .objekt-oben, .expose-oben { grid-template-columns:1fr; }
+  .objekt-spalten { grid-template-columns:1fr 1fr; }
+  .pnl-karte { grid-column:1/-1; }
+  .finanz-konten { grid-template-columns:1fr 1fr; }
+  .konto-karte:last-child { grid-column:1/-1; }
+}
+
+@media (max-width: 700px) {
+  body { overflow:hidden; }
+  .topbar {
+    grid-template-columns:minmax(0,1fr) auto;
+    grid-template-areas:"brand menu" "date date" "resources resources" "speed speed";
+    min-height:190px;
+    gap:5px 8px;
+    padding:7px 10px;
+    overflow:hidden;
+  }
+  .brand { font-size:18px; }
+  .brand svg { width:24px; height:24px; }
+  .hud { display:flex; justify-content:center; gap:8px; min-width:0; }
+  #hud-datum { font-size:13px; }
+  .hud .sub { align-self:center; }
+  .ressourcenleiste { display:flex; width:100%; overflow-x:auto; }
+  .ressourcenleiste > :is(div,button) { flex:1 0 136px; min-height:45px; }
+  .speed-group { justify-self:stretch; justify-content:center; width:100%; overflow-x:auto; }
+  .speed-group button { min-width:36px; }
+  .speed-lauf button span { display:none; }
+  .dashboard, .marktplatz, .expose, .endgame, .finanzen, .spielkarte { inset:198px 8px 82px; }
+  .dashboard, .finanzen, .marktplatz, .expose, .endgame { padding:14px 12px 20px; }
+  .screen-heading, .screen-heading--dashboard, .screen-heading--market, .screen-heading--finanzen { top:-14px; margin:-14px -12px 0; padding:11px 12px; }
+  .screen-heading p { display:none; }
+  .screen-heading h1, .screen-heading--dashboard h1, .screen-heading--market h1, .screen-heading--finanzen h1 { font-size:20px; }
+  .screen-heading--dashboard { flex-direction:column; align-items:flex-start; }
+  .screen-heading--dashboard .zentrale-tabs { align-self:stretch; width:100%; }
+  .screens-nav { left:8px; bottom:8px; max-width:calc(100vw - 16px); gap:5px; }
+  .screens-nav button { flex-basis:76px; min-width:76px; min-height:57px; padding:6px 8px; }
+  .cashflow-popover { top:196px; left:8px; width:calc(100vw - 16px); max-height:calc(100vh - 292px); }
+  .meldungen-panel { top:196px; right:8px; width:calc(100vw - 16px); max-height:calc(100vh - 292px); }
+
+  #screen-karte { overflow:auto; }
+  .karten-staedte { position:sticky; top:0; left:0; max-width:100%; transform:none; }
+  .karten-filter { position:sticky; top:58px; left:0; max-width:100%; transform:none; margin-top:5px; }
+  .karten-layout { grid-template-columns:1fr; height:auto; padding-top:8px; }
+  .stadt-links { grid-template-rows:auto auto; }
+  .post-panel { max-height:230px; }
+  .stadtkarte { min-height:520px; }
+  .karten-legende { display:grid; min-height:420px; }
+  .karten-marker { width:138px; }
+
+  .dashboard .kacheln { grid-template-columns:1fr; }
+  .kpi-paar { grid-template-columns:1fr 1fr; }
+  .chart-zusatz, .seiten-spalte, .portfolio-grid { grid-template-columns:1fr; }
+  .log-karte { grid-column:1; }
+  .chart-wrap { min-height:260px; overflow-x:auto; }
+  #chart { min-width:680px; }
+  .zentrale-tabs { overflow-x:auto; }
+  .zentrale-tabs button { padding-inline:9px; }
+
+  .filter-zeile { top:46px; }
+  .filter-zeile label, .filter-zeile select { min-width:0; flex:1 1 130px; }
+  .markt-karte { grid-template-columns:1fr; }
+  .markt-gallery .expose-bild { min-height:150px; }
+  .markt-deal { grid-column:1; grid-template-columns:1fr; }
+  .markt-aktionen { grid-template-columns:1fr; }
+  .markt-zitat { -webkit-line-clamp:3; }
+
+  .expose-kopf { top:-14px; grid-template-columns:auto minmax(0,1fr); margin:-14px -12px 0; padding:10px 12px; }
+  .expose-kopf h1 { font-size:18px; }
+  .ansicht-umschalter { grid-column:1/-1; justify-self:end; }
+  .expose-gallery, .expose-unten, .objekt-spalten { grid-template-columns:1fr; }
+  .objekt-visual, .objekt-visual .expose-bild { min-height:300px; }
+  .pnl-karte { grid-column:1; }
+
+  .finanz-konten, .transfer-raster, .finanz-unten, .finanz-kurzwerte { grid-template-columns:1fr; }
+  .konto-karte:last-child { grid-column:1; }
+  .transfer-karte { min-width:0; }
+  .geld-eingabe input { min-width:0; }
+
+  dialog { max-width:calc(100vw - 12px); max-height:calc(100vh - 12px); }
+  #dlg-finanzierung { width:100vw; max-width:100vw; border-radius:0; }
+  .fin-schritte button { padding-inline:4px; font-size:11px; }
+  .nutzungs-karten, .fin-szenarien { grid-template-columns:1fr; }
+  .fin-haushalt-wirkung { grid-template-columns:1fr; }
+  .fin-haushalt-wirkung > i { transform:rotate(90deg); text-align:center; }
+  .preset-optionen { grid-template-columns:1fr; }
+  .start-einstellungen { grid-template-columns:1fr; }
+}
+
+@media (max-width: 420px) {
+  .finanz-aktionen > .sparplan-karte form { grid-template-columns:1fr; }
+  .finanz-aktionen > .sparplan-karte form > label,
+  .finanz-aktionen > .sparplan-karte form > input,
+  .finanz-aktionen > .sparplan-karte .sparplan-aufteilung,
+  .finanz-aktionen > .sparplan-karte form > button { grid-column:1; grid-row:auto; justify-self:stretch; }
+  .brand span { font-size:16px; }
+  .menue > button { width:38px; min-width:38px; height:38px; }
+  .ressourcenleiste > :is(div,button) { flex-basis:126px; padding-inline:7px; }
+  .ressourcenleiste b { font-size:12px; }
+  .karten-marker { width:124px; }
+  .marker-bild { height:64px; }
+  .kpi-paar { grid-template-columns:1fr; }
+  .markt-aktionen { grid-template-columns:1fr; }
+  #gebot-live { font-size:32px; }
+  .objekt-kennzahlen > div { align-items:flex-start; flex-direction:column; gap:5px; }
+  .bank-kopf { grid-template-columns:42px minmax(0,1fr) 36px; padding-inline:10px; }
+  .bank-kopf img { width:40px; height:40px; }
+  .fin-ek-schnellwahl { grid-template-columns:1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; scroll-behavior:auto !important; transition-duration:.01ms !important; }
+}

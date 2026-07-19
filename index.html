@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Betongold Tycoon</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23141b22'/%3E%3Cpath d='M14 45h36v8H14zM19 31h31v8H19zM25 17h25v8H25z' fill='%23e6c264'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/style.css?v=36">
+</head>
+<body>
+
+<div class="game-backdrop" aria-hidden="true"></div>
+<svg class="icon-sprite" aria-hidden="true">
+  <symbol id="icon-wallet" viewBox="0 0 24 24"><path d="M3 7.5h15.5A2.5 2.5 0 0 1 21 10v8.5A2.5 2.5 0 0 1 18.5 21h-13A2.5 2.5 0 0 1 3 18.5V7.5Zm0 0V6a3 3 0 0 1 3-3h11v4.5M16 14h5"/></symbol>
+  <symbol id="icon-chart" viewBox="0 0 24 24"><path d="M4 20V10m6 10V4m6 16v-7m5 7H2"/><path d="m3 8 6-5 6 7 6-5"/></symbol>
+  <symbol id="icon-building" viewBox="0 0 24 24"><path d="M4 21V7l8-4 8 4v14M2 21h20M8 9h2m4 0h2m-8 4h2m4 0h2m-8 4h2m4 0h2"/></symbol>
+  <symbol id="icon-home" viewBox="0 0 24 24"><path d="m3 11 9-8 9 8v10h-6v-6H9v6H3V11Z"/></symbol>
+  <symbol id="icon-map" viewBox="0 0 24 24"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3V6Zm6-3v15m6-12v15"/></symbol>
+  <symbol id="icon-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.8 9a2.4 2.4 0 1 1 3.4 2.2c-.9.4-1.2 1-1.2 1.8m0 4h.01"/></symbol>
+  <symbol id="icon-settings" viewBox="0 0 24 24"><path d="M4 6h10m4 0h2M4 12h2m4 0h10M4 18h8m4 0h4"/><circle cx="16" cy="6" r="2"/><circle cx="8" cy="12" r="2"/><circle cx="14" cy="18" r="2"/></symbol>
+  <symbol id="icon-save" viewBox="0 0 24 24"><path d="M4 3h14l2 2v16H4V3Zm4 0v6h8V3M8 21v-7h8v7"/></symbol>
+  <symbol id="icon-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="icon-family" viewBox="0 0 24 24"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M2.5 21v-3a5.5 5.5 0 0 1 11 0v3m0-6.5A4.5 4.5 0 0 1 21.5 17v4"/></symbol>
+  <symbol id="icon-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></symbol>
+  <symbol id="icon-tax" viewBox="0 0 24 24"><path d="M5 3h14v18l-3-2-4 2-4-2-3 2V3Zm4 5h6m-6 4h6m-6 4h4"/></symbol>
+  <symbol id="icon-log" viewBox="0 0 24 24"><path d="M6 3h12v18H6zM9 8h6m-6 4h6m-6 4h4"/></symbol>
+  <symbol id="icon-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/></symbol>
+  <symbol id="icon-compare" viewBox="0 0 24 24"><path d="M8 4H4v16h4m8-16h4v16h-4M9 8h6m-6 8h6"/></symbol>
+  <symbol id="icon-pause" viewBox="0 0 24 24"><path d="M8 5v14m8-14v14"/></symbol>
+  <symbol id="icon-play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7V5Z"/></symbol>
+  <symbol id="icon-fast" viewBox="0 0 24 24"><path d="m3 6 8 6-8 6V6Zm9 0 8 6-8 6V6Z"/></symbol>
+  <symbol id="icon-turbo" viewBox="0 0 24 24"><path d="m2 7 6 5-6 5V7Zm7 0 6 5-6 5V7Zm7 0 6 5-6 5V7Z"/></symbol>
+  <symbol id="icon-trending" viewBox="0 0 24 24"><path d="m3 17 6-6 4 4 8-9"/><path d="M15 6h6v6"/></symbol>
+  <symbol id="icon-landmark" viewBox="0 0 24 24"><path d="m3 9 9-6 9 6M5 10v8m5-8v8m4-8v8m5-8v8M3 21h18M2 18h20"/></symbol>
+  <symbol id="icon-scale" viewBox="0 0 24 24"><path d="M12 3v18M5 6h14M4 6l-3 7h6L4 6Zm16 0-3 7h6l-3-7ZM8 21h8"/></symbol>
+  <symbol id="icon-shield" viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 5 3.4 8 8 9 4.6-1 8-4 8-9V6l-8-3Z"/></symbol>
+  <symbol id="icon-heart" viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></symbol>
+  <symbol id="icon-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></symbol>
+  <symbol id="icon-wrench" viewBox="0 0 24 24"><path d="M14.5 6.5a4 4 0 0 0-5-5L12 4 9 7 6.5 4.5a4 4 0 0 0 5 5L4 17l3 3 7.5-7.5a4 4 0 0 0 5-5L17 10l-3-3 2.5-2.5Z"/></symbol>
+  <symbol id="icon-ruler" viewBox="0 0 24 24"><path d="m4 15 11-11 5 5L9 20H4v-5Z"/><path d="m12 7 2 2m-5 1 2 2m-5 1 2 2"/></symbol>
+  <symbol id="icon-door" viewBox="0 0 24 24"><path d="M4 21h16M6 21V4l11-2v19M13 12h.01"/></symbol>
+  <symbol id="icon-hammer" viewBox="0 0 24 24"><path d="m14 5 5 5M12 7l4-4 5 5-4 4M13 8 3 18l3 3 10-10"/></symbol>
+  <symbol id="icon-bell" viewBox="0 0 24 24"><path d="M6 9a6 6 0 0 1 12 0c0 7 3 7 3 9H3c0-2 3-2 3-9Zm4 12h4"/></symbol>
+  <symbol id="icon-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+</svg>
+<a class="skip-link" href="#screen-karte">Zum Spielinhalt springen</a>
+
+<header class="topbar">
+  <div class="brand"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M3 17h18v4H3zM6 10h15v4H6zM10 3h11v4H10z"/></svg><span>Betongold Tycoon</span></div>
+
+  <div class="hud">
+    <div id="hud-datum">—</div>
+    <div id="hud-alter" class="sub"></div>
+  </div>
+
+  <div class="ressourcenleiste" aria-label="Wichtige Spielwerte">
+    <button type="button" id="hud-cash-aktion" class="resource-cash" title="Tagesgeldkonto und Depot öffnen"><svg class="hud-icon"><use href="#icon-wallet"></use></svg><span class="resource-copy"><small>Tagesgeld</small><b id="hud-cash">—</b></span><span class="resource-action">Finanzen</span></button>
+    <button type="button" class="resource-cashflow" id="hud-cashflow-aktion" aria-expanded="false" aria-controls="cashflow-popover"><svg class="hud-icon"><use href="#icon-trending"></use></svg><span class="resource-copy"><small>Haushaltsüberschuss</small><b id="hud-cashflow">—</b></span><span class="resource-action">Details</span></button>
+    <button type="button" id="hud-etf-aktion" title="Tagesgeldkonto und Depot öffnen"><svg class="hud-icon"><use href="#icon-chart"></use></svg><span class="resource-copy"><small>ETF-Depot</small><b id="hud-etf">—</b></span><span class="resource-action">Finanzen</span></button>
+  </div>
+
+  <div class="speed-group" id="speed-group" role="toolbar" aria-label="Zeitsteuerung">
+    <div class="speed-lauf" role="group" aria-label="Automatischer Zeitlauf">
+      <button type="button" data-speed="0" class="aktiv" title="Zeit pausieren" aria-label="Zeit pausieren" aria-pressed="true"><svg class="speed-icon"><use href="#icon-pause"></use></svg><span>Pause</span></button>
+      <button type="button" data-speed="0.5" title="Ruhig: 1 Monat in 2 Sekunden (30 Jahre in ca. 12 Minuten)" aria-label="Ruhige Geschwindigkeit: ein halber Monat pro Sekunde" aria-pressed="false"><svg class="speed-icon"><use href="#icon-play"></use></svg><span>0,5 M/s</span></button>
+      <button type="button" data-speed="1" title="Normal: 1 Monat pro Sekunde (30 Jahre in ca. 6 Minuten)" aria-label="Normale Geschwindigkeit: 1 Monat pro Sekunde" aria-pressed="false"><svg class="speed-icon"><use href="#icon-fast"></use></svg><span>1 M/s</span></button>
+      <button type="button" data-speed="3" title="Schnell: 3 Monate pro Sekunde (30 Jahre in ca. 2 Minuten)" aria-label="Schnell: 3 Monate pro Sekunde" aria-pressed="false"><svg class="speed-icon"><use href="#icon-turbo"></use></svg><span>3 M/s</span></button>
+    </div>
+    <span class="trenner" aria-hidden="true"></span>
+    <div class="speed-schritte" role="group" aria-label="Zeit schrittweise vorspulen">
+      <button type="button" id="btn-step-monat" title="Einen Monat weiter" aria-label="Einen Monat weiter"><span>+1 Monat</span></button>
+      <button type="button" id="btn-step-jahr" title="Ein Jahr weiter" aria-label="Ein Jahr weiter"><span>+1 Jahr</span></button>
+    </div>
+  </div>
+
+  <nav class="menue" aria-label="Spielmenü">
+    <button type="button" id="btn-meldungen" aria-label="Benachrichtigungen öffnen" title="Benachrichtigungen"><svg class="ui-icon"><use href="#icon-bell"></use></svg><span>Hinweise</span><i id="meldungen-zaehler" class="menue-zaehler" hidden></i></button>
+    <button type="button" id="btn-menue" aria-label="Spielmenü öffnen" title="Spielmenü" aria-expanded="false" aria-controls="spielmenue-popover"><svg class="ui-icon"><use href="#icon-menu"></use></svg><span>Menü</span></button>
+    <div id="spielmenue-popover" class="menue-popover" hidden>
+      <button type="button" id="btn-hilfe"><svg class="ui-icon"><use href="#icon-help"></use></svg><span><b>Spielhilfe</b><small>Anleitung und Bildschirm-Tour</small></span></button>
+      <button type="button" id="btn-admin"><svg class="ui-icon"><use href="#icon-settings"></use></svg><span><b>Einstellungen</b><small>Annahmen der laufenden Partie</small></span></button>
+      <button type="button" id="btn-saves"><svg class="ui-icon"><use href="#icon-save"></use></svg><span><b>Spielstände</b><small>Speichern, laden und exportieren</small></span></button>
+      <button type="button" id="btn-neu"><svg class="ui-icon"><use href="#icon-plus"></use></svg><span><b>Neues Spiel</b><small>Startlage und Schwierigkeit wählen</small></span></button>
+    </div>
+  </nav>
+</header>
+<nav class="screens-nav" aria-label="Spielbereiche">
+  <button type="button" id="nav-karte" class="aktiv" aria-current="page"><svg class="ui-icon"><use href="#icon-map"></use></svg><span>Stadt</span></button>
+  <button type="button" id="nav-dashboard"><svg class="ui-icon"><use href="#icon-landmark"></use></svg><span>Zentrale</span></button>
+  <button type="button" id="nav-marktplatz"><svg class="ui-icon"><use href="#icon-scale"></use></svg><span>Marktplatz <i id="markt-zaehler" class="zaehler" aria-hidden="true"></i></span></button>
+  <button type="button" id="nav-objekte"><svg class="ui-icon"><use href="#icon-building"></use></svg><span>Objekte</span></button>
+  <button type="button" id="nav-finanzen"><svg class="ui-icon"><use href="#icon-wallet"></use></svg><span>Finanzen</span></button>
+</nav>
+<aside id="cashflow-popover" class="cashflow-popover" aria-label="Cashflow-Aufschlüsselung" hidden></aside>
+<aside id="meldungen-panel" class="meldungen-panel" aria-labelledby="meldungen-titel" hidden>
+  <header><div><span class="eyebrow">Zuletzt passiert</span><h2 id="meldungen-titel">Benachrichtigungen</h2></div><button type="button" id="btn-meldungen-schliessen" aria-label="Benachrichtigungen schließen">✕</button></header>
+  <ol id="meldungen-liste"></ol>
+</aside>
+
+<main class="dashboard" id="screen-dashboard" tabindex="-1" aria-labelledby="dashboard-titel" hidden>
+  <header class="screen-heading screen-heading--dashboard">
+    <div><span class="eyebrow">Eure Bücher</span><h1 id="dashboard-titel"><svg class="title-icon"><use href="#icon-landmark"></use></svg>Zentrale</h1></div>
+    <div class="zentrale-tabs" role="tablist" aria-label="Bereich der Zentrale">
+      <button type="button" role="tab" id="zentrale-tab-vermoegen" data-zentrale-tab="vermoegen" class="aktiv" aria-selected="true" aria-controls="zentrale-panel-kacheln zentrale-panel-chart zentrale-panel-quartal"><svg class="ui-icon"><use href="#icon-trending"></use></svg>Vermögen</button>
+      <button type="button" role="tab" id="zentrale-tab-haushalt" data-zentrale-tab="haushalt" aria-selected="false" tabindex="-1" aria-controls="zentrale-panel-haushalt"><svg class="ui-icon"><use href="#icon-scale"></use></svg>Haushalt</button>
+      <button type="button" role="tab" id="zentrale-tab-objekte" data-zentrale-tab="objekte" aria-selected="false" tabindex="-1" aria-controls="zentrale-panel-objekte"><svg class="ui-icon"><use href="#icon-building"></use></svg>Objekte</button>
+    </div>
+  </header>
+  <section class="kacheln" id="zentrale-panel-kacheln" role="tabpanel" aria-labelledby="zentrale-tab-vermoegen" aria-label="Kennzahlen nach Themen" data-zentrale-panel="vermoegen">
+    <section class="kpi-gruppe" aria-labelledby="kpi-liquiditaet"><h2 id="kpi-liquiditaet"><svg class="section-icon"><use href="#icon-wallet"></use></svg>Liquidität</h2><div class="kpi-paar">
+      <div class="kachel" id="tile-cash"><div class="label"><svg class="metric-icon"><use href="#icon-wallet"></use></svg>Tagesgeld</div><div class="wert">—</div><div class="sub"></div></div>
+      <div class="kachel" id="tile-cashflow"><div class="label"><svg class="metric-icon"><use href="#icon-trending"></use></svg>Haushaltsüberschuss</div><div class="wert">—</div><div class="sub"></div></div>
+    </div></section>
+    <section class="kpi-gruppe" aria-labelledby="kpi-vermoegen"><h2 id="kpi-vermoegen"><svg class="section-icon"><use href="#icon-building"></use></svg>Vermögen</h2><div class="kpi-paar">
+      <div class="kachel" id="tile-vermoegen"><div class="label"><svg class="metric-icon"><use href="#icon-building"></use></svg>Nettovermögen</div><div class="wert">—</div><div class="sub"></div></div>
+      <div class="kachel" id="tile-etf"><div class="label"><svg class="metric-icon"><use href="#icon-chart"></use></svg>ETF-Benchmark brutto</div><div class="wert">—</div><div class="sub"></div></div>
+    </div></section>
+    <section class="kpi-gruppe" aria-labelledby="kpi-alltag"><h2 id="kpi-alltag"><svg class="section-icon"><use href="#icon-family"></use></svg>Alltag</h2><div class="kpi-paar">
+      <div class="kachel" id="tile-zeit"><div class="label"><svg class="metric-icon"><use href="#icon-clock"></use></svg>Zeitbudget</div><div class="wert">—</div><div class="sub"></div></div>
+      <div class="kachel" id="tile-familie">
+        <div class="label"><svg class="metric-icon"><use href="#icon-family"></use></svg>Familie</div><div class="wert">—</div><div class="sub"></div>
+        <div class="balken"><div id="familie-balken"></div></div>
+      </div>
+    </div>
+    </section>
+  </section>
+
+  <section class="karte portfolio-board" id="zentrale-panel-objekte" role="tabpanel" aria-labelledby="zentrale-tab-objekte" data-zentrale-panel="objekte" hidden>
+    <header class="karten-kopf">
+      <div><span class="eyebrow">Euer Bestand</span><h2 id="portfolio-titel"><svg class="section-icon"><use href="#icon-building"></use></svg>Eure Immobilien</h2></div>
+      <div class="karten-kopf-aktionen"><span id="portfolio-summary" class="badge">Noch kein Objekt</span><button type="button" id="btn-zur-karte">Zur Stadt</button></div>
+    </header>
+    <div id="portfolio-liste" class="portfolio-grid"></div>
+  </section>
+
+  <section class="karte chart-karte" id="zentrale-panel-chart" role="tabpanel" aria-labelledby="zentrale-tab-vermoegen" data-zentrale-panel="vermoegen">
+    <header class="karten-kopf">
+      <h2><svg class="section-icon"><use href="#icon-chart"></use></svg>Nettovermögen vs. ETF-Benchmark brutto <button type="button" class="info-tooltip" aria-label="Info: Der ETF ist eine Brutto-Opportunitätskosten-Linie, kein kaufbares Spielkonto. Steuer entsteht erst bei realisierten Gewinnen." data-tooltip="Der ETF ist eine Brutto-Opportunitätskosten-Linie, kein kaufbares Spielkonto. Steuer entsteht erst bei realisierten Gewinnen.">?</button></h2>
+      <div class="legende">
+        <span><i class="punkt punkt-netto"></i>Nettovermögen</span>
+        <span><i class="punkt punkt-etf"></i>gleiches Geld im Welt-ETF (brutto)</span>
+      </div>
+    </header>
+    <div class="chart-wrap">
+      <svg id="chart" viewBox="0 0 920 340" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Verlauf von Nettovermögen und ETF-Benchmark"></svg>
+      <div id="chart-tooltip" class="tooltip" hidden></div>
+    </div>
+    <div id="chart-zusatz" class="chart-zusatz" aria-label="Zusätzliche Vermögensdiagramme"></div>
+  </section>
+
+  <section class="karte quartalsbericht" id="zentrale-panel-quartal" role="tabpanel" aria-labelledby="zentrale-tab-vermoegen" data-zentrale-panel="vermoegen">
+    <header class="karten-kopf"><div><span class="eyebrow">Rückblick & nächster Zug</span><h2 id="quartalsbericht-titel">Quartalsbericht</h2></div><span id="quartalsbericht-zeitraum" class="badge"></span></header>
+    <div id="quartalsbericht-inhalt"></div>
+  </section>
+
+  <div class="seiten-spalte" id="zentrale-panel-haushalt" role="tabpanel" aria-labelledby="zentrale-tab-haushalt" data-zentrale-panel="haushalt" hidden>
+    <section class="karte haushalt-karte">
+      <header class="karten-kopf"><h2><svg class="section-icon"><use href="#icon-family"></use></svg>Haushaltsrechnung</h2></header>
+      <div id="cashflow-viz" class="cashflow-viz" aria-label="Cashflow-Aufschlüsselung des Haushalts"></div>
+    </section>
+
+    <section class="karte steuer-karte">
+      <header class="karten-kopf"><h2><svg class="section-icon"><use href="#icon-tax"></use></svg>Steuern auf Vermietung</h2><span id="steuer-satz-wert" class="badge blau">35 %</span></header>
+      <p class="steuer-regel">Nur ein positiver Mietüberschuss wird im Dezember besteuert: <b>Miete − Eigentümerkosten − Kreditzinsen − AfA</b>. Euer Haushalts-Nettoeinkommen bleibt außen vor.</p>
+      <label class="slider-zeile"><span>Persönlicher Grenzsteuersatz</span>
+        <input type="range" id="steuer-slider" min="20" max="45" step="1" value="35">
+      </label>
+      <div id="steuer-vorschau" class="steuer-vorschau"></div>
+      <p id="steuer-letzter" class="hinweis"></p>
+    </section>
+
+    <section class="karte log-karte">
+      <header class="karten-kopf"><h2><svg class="section-icon"><use href="#icon-log"></use></svg>Ereignisse</h2></header>
+      <div id="log-liste"></div>
+    </section>
+  </div>
+</main>
+
+<!-- Tagesgeldkonto und echtes ETF-Depot: vermögensneutrale Umschichtungen. -->
+<main class="finanzen" id="screen-finanzen" tabindex="-1" aria-labelledby="finanzen-titel" hidden>
+  <header class="screen-heading screen-heading--finanzen">
+    <div><span class="eyebrow">Konten &amp; Depot</span><h1 id="finanzen-titel"><svg class="title-icon"><use href="#icon-wallet"></use></svg>Finanzen</h1></div>
+    <p>Drei Vermögensformen im Vergleich</p>
+  </header>
+
+  <section class="finanz-ueberblick karte" aria-labelledby="finanz-ueberblick-titel">
+    <header class="karten-kopf"><div><span class="eyebrow">Vermögensstruktur</span><h2 id="finanz-ueberblick-titel">Vermögensmix</h2></div><b id="fin-netto">—</b></header>
+    <p class="finanz-liquid"><span>Liquide Anlagen</span><b id="fin-liquid-gesamt">—</b></p>
+    <div class="finanz-mix" role="img" aria-labelledby="fin-mix-label">
+      <div class="finanz-mix-balken"><i id="fin-mix-cash"></i><i id="fin-mix-etf"></i><i id="fin-mix-immo"></i></div>
+      <p id="fin-mix-label" class="sr-only">—</p>
+      <ul class="finanz-mix-legende" aria-hidden="true">
+        <li class="fin-mix-cash-row"><span>Tagesgeld</span><b id="fin-mix-cash-wert">—</b></li>
+        <li class="fin-mix-etf-row"><span>Welt-ETF</span><b id="fin-mix-etf-wert">—</b></li>
+        <li class="fin-mix-immo-row"><span>Immobilien</span><b id="fin-mix-immo-wert">—</b></li>
+      </ul>
+    </div>
+    <dl class="finanz-kurzwerte">
+      <div><dt>Haushaltsüberschuss / Monat</dt><dd id="fin-cashflow">—</dd></div>
+      <div><dt>Liquiditätspuffer</dt><dd id="fin-puffer">—</dd></div>
+    </dl>
+  </section>
+
+  <div class="finanz-konten">
+    <section class="konto-karte karte" id="fin-konto-cash" aria-labelledby="fin-cash-titel">
+      <header><span class="konto-symbol"><svg class="section-icon"><use href="#icon-wallet"></use></svg></span><div><span class="eyebrow">Spielkonto</span><h2 id="fin-cash-titel">Tagesgeldkonto</h2></div></header>
+      <strong id="fin-cash-wert">—</strong>
+      <dl><div><dt>Habenzins</dt><dd id="fin-cash-zins">—</dd></div><div><dt>Voraussicht nächster Monat</dt><dd id="fin-cash-zins-naechster">—</dd></div><div><dt>Verfügbarkeit</dt><dd>sofort</dd></div></dl>
+      <p class="hinweis">Für Eigenkapital, laufende Ausgaben und ungeplante Kosten. Negatives Tagesgeld wird im Spiel als Dispo verzinst.</p>
+    </section>
+
+    <section class="konto-karte karte" id="fin-konto-immo" aria-labelledby="fin-immo-titel">
+      <header><span class="konto-symbol"><svg class="section-icon"><use href="#icon-building"></use></svg></span><div><span class="eyebrow">Sachwerte</span><h2 id="fin-immo-titel">Immobilienportfolio</h2></div></header>
+      <strong id="fin-immo-ek">—</strong>
+      <dl><div><dt>Objekte</dt><dd id="fin-immo-anzahl">—</dd></div><div><dt>Marktwert</dt><dd id="fin-immo-wert">—</dd></div><div><dt>Restschuld</dt><dd id="fin-immo-schuld">—</dd></div><div><dt>Cashflow / Monat</dt><dd id="fin-immo-cashflow">—</dd></div></dl>
+      <p class="hinweis">Gezeigter Hauptwert ist das gebundene Eigenkapital inklusive Objekt-Rücklagen.</p>
+    </section>
+
+    <section class="konto-karte karte" id="fin-konto-etf" aria-labelledby="fin-etf-titel">
+      <header><span class="konto-symbol"><svg class="section-icon"><use href="#icon-chart"></use></svg></span><div><span class="eyebrow">Welt-ETF</span><h2 id="fin-etf-titel">ETF-Depot</h2></div></header>
+      <strong id="fin-etf-wert">—</strong>
+      <dl><div><dt>Marktrendite (brutto)</dt><dd id="fin-etf-rendite">—</dd></div><div><dt>Nach Steuer*</dt><dd id="fin-etf-rendite-netto">—</dd></div><div><dt>Sparplan / Monat</dt><dd id="fin-etf-rate">—</dd></div><div><dt>Netto bei Verkauf</dt><dd id="fin-etf-liquidation">—</dd></div></dl>
+      <p class="hinweis">*Konservative Vergleichsgröße ohne Pauschbetrag. Kursgewinne werden erst beim Verkauf besteuert; der Welt-Aktien-ETF erhält 30 % Teilfreistellung.</p>
+    </section>
+
+  </div>
+
+  <section class="finanz-aktionen karte" aria-labelledby="finanz-aktionen-titel">
+    <header class="karten-kopf"><div><span class="eyebrow">Tagesgeld &amp; Welt-ETF</span><h2 id="finanz-aktionen-titel">Umschichten</h2></div><span class="badge blau">Beide Konten rechnen live mit</span></header>
+    <form id="form-etf-transfer" class="transfer-regler">
+      <label class="transfer-slider-label" for="fin-transfer"><span>Betrag und Richtung</span><output id="fin-transfer-betrag" for="fin-transfer">0 € · halten</output></label>
+      <div class="transfer-slider-wrap">
+        <input id="fin-transfer" name="betrag" type="range" min="-20000" max="20000" step="500" value="0">
+      </div>
+      <div class="transfer-skala" aria-hidden="true"><span>20.000 € in Tagesgeld</span><b>halten</b><span>20.000 € in ETF</span></div>
+      <div class="transfer-konten" aria-label="Kontostände nach der Umbuchung">
+        <article class="transfer-konto transfer-cash">
+          <span class="konto-symbol"><svg class="section-icon"><use href="#icon-wallet"></use></svg></span>
+          <div><small>Tagesgeld danach</small><strong id="fin-transfer-cash-nachher">—</strong><span id="fin-transfer-cash-delta">unverändert</span></div>
+        </article>
+        <div id="fin-transfer-pfeil" class="transfer-pfeil" aria-hidden="true">—</div>
+        <article class="transfer-konto transfer-etf">
+          <span class="konto-symbol"><svg class="section-icon"><use href="#icon-chart"></use></svg></span>
+          <div><small>Welt-ETF danach</small><strong id="fin-transfer-etf-nachher">—</strong><span id="fin-transfer-etf-delta">unverändert</span></div>
+        </article>
+      </div>
+      <p id="fin-transfer-vorschau" class="transfer-vorschau" aria-live="polite">Nichts verschieben — beide Konten bleiben unverändert.</p>
+      <button id="fin-transfer-submit" type="submit" disabled>Betrag am Slider wählen</button>
+    </form>
+    <section class="sparplan-karte" aria-labelledby="sparplan-titel">
+      <header class="karten-kopf"><div><span class="eyebrow">Ab dem nächsten Monat</span><h2 id="sparplan-titel">ETF-Sparplan · Anteil der Sparrate</h2></div><b id="fin-sparplan-wert">—</b></header>
+      <form id="form-sparplan">
+        <label for="fin-sparplan">Anteil: <output id="fin-sparplan-prozent" for="fin-sparplan">—</output></label>
+        <input id="fin-sparplan" name="anteil" type="range" min="0" max="100" step="5">
+        <div class="sparplan-aufteilung"><span id="fin-sparplan-cash">—</span><span id="fin-sparplan-etf">—</span></div>
+        <button type="submit">Sparplan übernehmen</button>
+      </form>
+      <p class="hinweis">Bei negativer Haushaltssparrate wird nichts investiert; ETF-Anteile werden nicht automatisch verkauft.</p>
+    </section>
+  </section>
+
+  <div class="finanz-unten">
+    <section class="bewegungen-karte karte" aria-labelledby="bewegungen-titel">
+      <header class="karten-kopf"><div><span class="eyebrow">Kontohistorie</span><h2 id="bewegungen-titel">Letzte Finanzbewegungen</h2></div></header>
+      <ol id="finanz-bewegungen" class="finanz-bewegungen"></ol>
+    </section>
+  </div>
+</main>
+
+<!-- Stadt als dauerhafte Spielbühne: echte Exposé-Kacheln statt Fantasiegebäude. -->
+<main class="spielkarte" id="screen-karte" tabindex="-1" aria-labelledby="karte-titel">
+  <h1 id="karte-titel" class="sr-only">Stadt</h1>
+  <div class="karten-filter" role="group" aria-label="Kartenstatus filtern">
+    <button type="button" data-kartenfilter="alle" class="aktiv" aria-pressed="true">Alle</button>
+    <button type="button" data-kartenfilter="markt" aria-pressed="false">Am Markt</button>
+    <button type="button" data-kartenfilter="bestand" aria-pressed="false">Im Bestand</button>
+    <button type="button" data-kartenfilter="favoriten" aria-pressed="false">Favoriten</button>
+  </div>
+  <div id="karten-staedte" class="karten-staedte" role="group" aria-label="Stadt auswählen"></div>
+  <div class="karten-layout">
+    <aside class="stadt-links" aria-label="Familie und Post">
+      <section class="stadt-panel familie-panel">
+        <header><img src="assets/avatar/t-05.webp" alt="Familie"><div><h2>Familie</h2><p>Euer wichtigstes Asset — nicht beleihbar.</p></div></header>
+        <div class="sims-zeile"><span class="sims-icon familie"><svg><use href="#icon-heart"></use></svg></span><span>Familie</span><div><i id="stadt-familie-balken"></i></div><b id="stadt-familie-wert">—</b></div>
+        <div class="sims-zeile"><span class="sims-icon zeit"><svg><use href="#icon-clock"></use></svg></span><span>Zeit</span><div><i id="stadt-zeit-balken"></i></div><b id="stadt-zeit-wert">—</b></div>
+        <div class="sims-zeile"><span class="sims-icon nerven"><svg><use href="#icon-trending"></use></svg></span><span>Nerven</span><div><i id="stadt-nerven-balken"></i></div><b id="stadt-nerven-wert">—</b></div>
+        <div class="sims-zeile"><span class="sims-icon puffer"><svg><use href="#icon-shield"></use></svg></span><span>Puffer</span><div><i id="stadt-puffer-balken"></i></div><b id="stadt-puffer-wert">—</b></div>
+      </section>
+      <section class="stadt-panel post-panel">
+        <header><h2><svg class="section-icon"><use href="#icon-mail"></use></svg>Post</h2><small>letzte Meldungen</small></header>
+        <div id="stadt-post" class="stadt-post"></div>
+      </section>
+    </aside>
+    <div id="stadtkarte" class="stadtkarte" aria-label="Atmosphärische Stadtbühne mit echten Immobilienangeboten"></div>
+    <aside class="karten-legende" aria-labelledby="kartenliste-titel">
+      <header><h2 id="kartenliste-titel">Orte hier</h2><small id="karten-stadt-label"></small></header>
+      <div class="status-legende" aria-label="Legende">
+        <span><i class="marker-symbol markt"></i>zu verkaufen</span><span><i class="marker-symbol reserviert"></i>Gebot</span><span><i class="marker-symbol bestand"></i>Bestand</span><span><i class="marker-symbol pausiert"></i>pausiert</span>
+      </div>
+      <div id="karten-liste" class="karten-liste"></div>
+      <section class="naechster-zug" aria-labelledby="stadt-naechster-titel">
+        <span class="eyebrow">Nächster kluger Zug</span>
+        <h3 id="stadt-naechster-titel">Angebote bewusst prüfen</h3>
+        <p id="stadt-naechster-text">Ein guter Weggang ist ebenso eine Entscheidung wie ein Kauf.</p>
+        <button type="button" id="karte-zum-markt" class="primaer">Marktplatz öffnen</button>
+      </section>
+    </aside>
+  </div>
+</main>
+
+<!-- Screen 2: Marktplatz -->
+<main class="marktplatz" id="screen-marktplatz" tabindex="-1" aria-labelledby="marktplatz-titel" hidden>
+  <header class="screen-heading screen-heading--market">
+    <div><span class="eyebrow">Neue Chancen</span><h1 id="marktplatz-titel"><svg class="title-icon"><use href="#icon-search"></use></svg>Marktplatz</h1></div>
+    <p>Prüfen, vergleichen und nur kaufen, wenn der Deal zu eurer Strategie passt.</p>
+  </header>
+  <form id="markt-filter" class="filter-zeile" onsubmit="return false">
+    <label><span class="sr-only">Segment filtern</span><select name="segment" aria-label="Segment filtern">
+      <option value="alle">Alle Segmente</option>
+      <option value="berlin-innenstadt">Berlin Innenstadt</option>
+      <option value="berlin-rand">Berlin Rand</option>
+      <option value="leipzig">Leipzig</option>
+      <option value="meissen-umland">Meißen + Umland</option>
+    </select></label>
+    <label><span class="sr-only">Mietstatus filtern</span><select name="mietstatus" aria-label="Mietstatus filtern">
+      <option value="alle">Vermietet & frei</option>
+      <option value="vermietet">Nur vermietet</option>
+      <option value="frei">Nur bezugsfrei</option>
+    </select></label>
+    <label><span class="sr-only">Angebote sortieren</span><select name="sortierung" aria-label="Angebote sortieren">
+      <option value="neu">Neueste zuerst</option>
+      <option value="preisAuf">Preis aufsteigend</option>
+      <option value="preisAb">Preis absteigend</option>
+      <option value="rendite">Bruttorendite</option>
+    </select></label>
+    <label class="filter-check"><input type="checkbox" name="nurFavoriten"> nur ★ Favoriten</label>
+    <button id="btn-vergleich" type="button" disabled><svg class="ui-icon"><use href="#icon-compare"></use></svg>Vergleichen</button>
+  </form>
+  <div id="markt-liste" class="markt-liste"></div>
+</main>
+
+<!-- Screen 3: Exposé-Detail -->
+<main class="expose" id="screen-expose" tabindex="-1" aria-labelledby="expose-titel" hidden>
+  <div class="expose-kopf">
+    <button id="btn-expose-zurueck">← Marktplatz</button>
+    <h1 id="expose-titel"></h1>
+  </div>
+  <div id="expose-inhalt"></div>
+</main>
+
+<!-- Screen 7: Objekt-Detail -->
+<main class="expose" id="screen-objekt" tabindex="-1" aria-labelledby="objekt-titel" hidden>
+  <div class="expose-kopf">
+    <button id="btn-objekt-zurueck">← Objekte</button>
+    <h1 id="objekt-titel"></h1>
+    <div id="objekt-ansicht" class="ansicht-umschalter" role="group" aria-label="Gebäudeansicht">
+      <button type="button" data-objekt-ansicht="innen" class="aktiv" aria-pressed="true">Innen</button>
+      <button type="button" data-objekt-ansicht="aussen" aria-pressed="false">Außen</button>
+    </div>
+  </div>
+  <div id="objekt-inhalt"></div>
+</main>
+
+<!-- Screen 9: Endauswertung -->
+<main class="endgame" id="screen-endgame" tabindex="-1" aria-label="Endauswertung" hidden>
+  <section id="endgame-zusammenfassung" class="endgame-hero"></section>
+  <section id="endgame-scores" class="score-raster"></section>
+  <section id="endgame-details" class="endgame-details karte"></section>
+  <section class="karte endgame-chart-karte">
+    <header class="karten-kopf"><div><span class="eyebrow">Gleicher Seed</span><h2>Was wäre mit einer anderen Strategie passiert?</h2></div></header>
+    <svg id="endgame-chart" viewBox="0 0 920 350" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Endvergleich der vier Vermögensstrategien"></svg>
+    <div id="endgame-vergleich" class="endgame-vergleich"></div>
+    <p class="hinweis">Eigenheim-first und Invest-first sind deterministische, gescriptete Lern-Benchmarks — keine perfekte Spielweise.</p>
+  </section>
+  <section class="karte">
+    <header class="karten-kopf"><div><span class="eyebrow">Eure Geschichte</span><h2>Entscheidungstimeline</h2></div></header>
+    <div id="endgame-timeline" class="endgame-timeline"></div>
+  </section>
+  <div class="endgame-aktionen">
+    <button id="btn-endgame-dashboard">Dashboard ansehen</button>
+    <button id="btn-endgame-neu" class="primaer">Neues Spiel</button>
+  </div>
+</main>
+
+<!-- Neues Spiel -->
+<dialog id="dlg-neu">
+  <form id="form-neu" method="dialog">
+    <header><h2>Neues Spiel</h2><button type="button" data-schliessen aria-label="Schließen">✕</button></header>
+    <p>Wählt eine Startlage und die Härte der Spielwelt. Bild und Kurztext zeigen den Charakter; alle Startzahlen stehen transparent in der Vorschau.</p>
+    <h3>Startlage</h3>
+    <div id="preset-optionen" class="preset-optionen"></div>
+    <h3>Schwierigkeit</h3>
+    <div id="diff-optionen" class="diff-optionen"></div>
+    <details id="start-anpassen" class="start-anpassen">
+      <summary>Eigene Startzahlen einstellen</summary>
+      <p>Startalter, Kinderalter und Anfangsvermögen gelten nur beim Start. Laufende Annahmen kannst du später unter „Einstellungen“ wieder ändern.</p>
+      <div class="start-einstellungen">
+        <fieldset><legend>Nur beim Spielstart</legend>
+          <label>Alter Eltern <input type="number" name="startAlter" min="17" max="80" step="1"></label>
+          <label>Alter Kind 1 <input type="number" name="kind1Alter" min="0" max="35" step="0.1"></label>
+          <label>Alter Kind 2 <input type="number" name="kind2Alter" min="0" max="35" step="0.1"></label>
+          <label>Tagesgeld Start <span><input type="number" name="cash" min="0" max="10000000" step="1000"> €</span></label>
+          <label>ETF Start <span><input type="number" name="etf" min="0" max="10000000" step="1000"> €</span></label>
+        </fieldset>
+        <fieldset><legend>Auch später änderbar</legend>
+          <label>Arbeitsnetto Person A <span><input type="number" name="netto1" min="0" max="12000" step="100"> €/Monat</span></label>
+          <label>Arbeitsnetto Person B <span><input type="number" name="netto2" min="0" max="12000" step="100"> €/Monat</span></label>
+          <label>Warmmiete <span><input type="number" name="miete" min="0" max="8000" step="10"> €/Monat</span></label>
+          <label>Davon Kaltmiete <span><input type="number" name="mieteKalt" min="0" max="8000" step="10"> €/Monat</span></label>
+          <label>Leben ohne Reisen <span><input type="number" name="lebenOhneReisen" min="0" max="8000" step="10"> €/Monat</span></label>
+          <label>Reisen, gemittelt <span><input type="number" name="reisen" min="0" max="5000" step="50"> €/Monat</span></label>
+          <label>Auto ab Spielmonat <input type="number" name="autoAbMonat" min="0" max="240" step="1"></label>
+          <label>Auto All-in <span><input type="number" name="autoKostenMonat" min="0" max="2000" step="50"> €/Monat</span></label>
+          <label>Kindergeld je Kind <span><input type="number" name="kindergeldProKind" min="0" max="1000" step="10"> €/Monat</span></label>
+          <label>Kindergeld bis Alter <input type="number" name="kindergeldBisAlter" min="0" max="35" step="1"></label>
+          <label>ETF-Sparplan <span><input type="number" name="sparplanEtfProzent" min="0" max="100" step="5"> %</span></label>
+          <label>Tagesgeldzins <span><input type="number" name="tagesgeldZinsProzent" min="0" max="10" step="0.25"> % p.a.</span></label>
+        </fieldset>
+      </div>
+      <p class="hinweis">Vorläufige Autoannahme im Familienpreset: Kauf in Spielmonat 5, sobald Kind 2 ein Jahr alt ist; 600 €/Monat all-in. Beides ist editierbar.</p>
+    </details>
+    <div id="start-vorschau" class="start-vorschau" aria-live="polite"></div>
+    <h3>Seed <small>(optional)</small></h3>
+    <input name="seed" type="text" placeholder="z. B. owner-normal — gleicher Seed, gleicher Run" autocomplete="off">
+    <footer><button type="submit" class="primaer">Spiel starten</button></footer>
+  </form>
+</dialog>
+
+<!-- Spielstände -->
+<dialog id="dlg-saves">
+  <header><h2>Spielstände</h2><button type="button" data-schliessen aria-label="Schließen">✕</button></header>
+  <aside class="save-erklaerung">
+    <b>Wo wird gespeichert?</b>
+    <ul><li>Automatisch in diesem Browser, auf diesem Gerät und unter genau dieser Webadresse.</li><li>Es gibt kein Benutzerkonto und keine Cloud-Synchronisierung.</li><li>Für Backups oder einen Gerätewechsel den Spielstand als JSON exportieren und später importieren.</li></ul>
+    <p>Browserdaten löschen, privates Surfen oder eine andere Domain können den lokalen Spielstand unzugänglich machen.</p>
+  </aside>
+  <div id="slot-liste" class="slot-liste"></div>
+  <form id="form-speichern" class="speichern-zeile">
+    <input name="slotname" type="text" placeholder="Name für neuen Spielstand" autocomplete="off" required>
+    <button type="submit">Speichern</button>
+  </form>
+  <footer class="dialog-fuss">
+    <button id="btn-export">Export (JSON)</button>
+    <button id="btn-import">Import (JSON)</button>
+  </footer>
+  <p class="hinweis">Autosave läuft bei jedem Tick. Manuelle Spielstände und Autosave liegen gemeinsam im lokalen Browser-Speicher.</p>
+</dialog>
+
+<!-- Regelhilfe und optionaler, nicht spielverändernder Rundgang. -->
+<dialog id="dlg-hilfe" class="breit hilfe-dialog" aria-labelledby="hilfe-titel">
+  <header><div><span class="eyebrow">Spielanleitung</span><h2 id="hilfe-titel">So funktioniert Betongold Tycoon</h2></div><button type="button" data-schliessen aria-label="Spielhilfe schließen">✕</button></header>
+  <p class="hinweis">Das Öffnen pausiert die Zeit. Mit <kbd>Tab</kbd> erreichst du alle Aktionen; <kbd>Esc</kbd> schließt diese Hilfe.</p>
+  <section class="tutorial-anleitung" aria-labelledby="tutorial-anleitung-titel">
+    <div class="tutorial-kopf"><div><span class="eyebrow">Erste Partie</span><h3 id="tutorial-anleitung-titel">Schritt für Schritt durchs Spiel</h3></div><button type="button" id="btn-tour-start" class="primaer">Bildschirm-Tour starten</button></div>
+    <ol class="tutorial-ablauf">
+      <li><b>Liquidität prüfen</b><span>Tagesgeld und Monats-Cashflow zuerst.</span></li>
+      <li><b>Haushalt lesen</b><span>Einkommen minus Alltag, Kinder und Sparplan.</span></li>
+      <li><b>Stadt wählen</b><span>Märkte, Angebote und Bestand auf der Karte.</span></li>
+      <li><b>Angebot prüfen</b><span>Preis, Miete, Zustand und Risiken vergleichen.</span></li>
+      <li><b>Finanzierung testen</b><span>Rate, LTV, Reserve und Cashflow nach Kauf.</span></li>
+      <li><b>Objekt führen</b><span>Vermieten, Rücklage bilden, verwalten, renovieren.</span></li>
+      <li><b>Zeit bewusst schalten</b><span>Für Entscheidungen bevorzugt +1 Monat nutzen.</span></li>
+      <li><b>Wirkung beobachten</b><span>Cashflow, Schulden, Familie und Vermögen verfolgen.</span></li>
+    </ol>
+  </section>
+  <div class="hilfe-raster">
+    <section class="hilfe-abschnitt"><h3>Ziel &amp; Zeit</h3><ul><li><b>Altersphasen:</b> Arbeitsnetto, Alltag, Reisen und Auto ändern ihre Faktoren sichtbar; Details stehen in den Einstellungen.</li><li><b>Ruhestand:</b> Einkommen sinkt ab 67 zusätzlich auf 55 %.</li><li><b>Familienpreset:</b> heute kein Auto; 600 € all-in ab Monat 5, wenn Kind 2 ein Jahr alt ist.</li><li><b>Lebensende:</b> je Seed 90–100, Stress kann verkürzen.</li><li><b>Ziel:</b> stabiler Cashflow, Vermögen, Familie und Reserve.</li></ul></section>
+    <section class="hilfe-abschnitt"><h3>Markt &amp; Prüfung</h3><ul><li><b>Bruttorendite:</b> Jahreskaltmiete ÷ Kaufpreis.</li><li>Notiz und Grundriss kosten Zeit.</li><li>Gutachten kostet Geld und senkt Mängelrisiko.</li></ul></section>
+    <section class="hilfe-abschnitt"><h3>Finanzierung &amp; LTV</h3><ul><li><b>LTV:</b> Restschuld ÷ Immobilienwert.</li><li>Mehr Eigenkapital senkt Rate und Risiko.</li><li>Wenig Eigenkapital hält Liquidität frei.</li></ul></section>
+    <section class="hilfe-abschnitt"><h3>Vermietung &amp; Cashflow</h3><ul><li>Rate plus Eigentümerkosten können die Miete übersteigen.</li><li>Höheres Eigenkapital, Kaufpreis und Vermietungsweg verändern das Ergebnis.</li><li>Möbliert und Wohnen auf Zeit bringen Aufwand, Wechsel und Rechtsrisiko.</li></ul></section>
+    <section class="hilfe-abschnitt"><h3>Eigenheim, Steuer &amp; Verkauf</h3><ul><li>Eigenheim ersetzt Miete, bindet aber Kapital.</li><li>AfA, Zins und Kosten mindern den Mietüberschuss.</li><li>Verkauf dauert; Steuer hängt von der Haltedauer ab.</li></ul></section>
+    <section class="hilfe-abschnitt"><h3>Finanzen &amp; ETF</h3><ul><li>ETF kann als Eigenkapital verkauft werden.</li><li>Realisierte ETF-Gewinne nutzen den jährlichen Freibetrag.</li><li>Benchmark und Renditen sind keine Zusage.</li></ul></section>
+  </div>
+  <footer><button type="button" data-schliessen class="primaer">Verstanden</button></footer>
+</dialog>
+
+<aside id="tutorial-tour" class="tutorial-tour" role="dialog" aria-modal="false" aria-labelledby="tour-titel" hidden>
+  <header><span id="tour-fortschritt" class="eyebrow"></span><button type="button" id="btn-tour-schliessen" aria-label="Bildschirm-Tour schließen">✕</button></header>
+  <h2 id="tour-titel"></h2><p id="tour-text"></p>
+  <footer><button type="button" id="btn-tour-zurueck">Zurück</button><button type="button" id="btn-tour-weiter" class="primaer">Weiter</button></footer>
+</aside>
+
+<!-- Einstellungen der laufenden Partie -->
+<dialog id="dlg-admin" class="breit" aria-labelledby="admin-titel">
+  <form id="form-admin" novalidate>
+    <header><div><span class="eyebrow">Laufende Partie</span><h2 id="admin-titel">Einstellungen</h2></div><button type="button" data-schliessen aria-label="Einstellungen schließen">✕</button></header>
+    <p class="hinweis admin-einleitung">Hier veränderst du Annahmen der laufenden Partie. Änderungen werden erst mit „Übernehmen“ gespeichert und greifen ab dem nächsten Monat.</p>
+    <div id="admin-gruppen" class="admin-gruppen"></div>
+    <div id="admin-status" class="admin-status" role="status" aria-live="polite"></div>
+    <footer>
+      <button type="button" id="btn-admin-reset">Globale Standardwerte laden</button>
+      <button type="button" data-schliessen>Abbrechen</button>
+      <button type="submit" class="primaer">Übernehmen</button>
+    </footer>
+  </form>
+</dialog>
+
+<!-- Screen 4: Finanzierungsdialog -->
+<dialog id="dlg-finanzierung">
+  <form id="form-finanzierung" method="dialog">
+    <header class="bank-kopf"><img src="assets/avatar/t-01.webp" alt="Bankberaterin"><div><span class="eyebrow">Bankhaus Krause &amp; Töchter</span><h2 id="fin-titel">Finanzierung</h2></div><button type="button" data-schliessen aria-label="Schließen">✕</button></header>
+    <nav class="fin-schritte" aria-label="Schritte der Finanzierung">
+      <button type="button" data-fin-step="1" class="aktiv" aria-current="step"><b>1</b><span>Nutzung</span></button>
+      <button type="button" data-fin-step="2"><b>2</b><span>Eigenkapital</span></button>
+      <button type="button" data-fin-step="3"><b>3</b><span>Rate &amp; Urteil</span></button>
+    </nav>
+    <div class="fin-slider fin-flow-step" data-fin-step-panel="1">
+      <h3>Wie wollt ihr das Objekt nutzen?</h3>
+      <div id="fin-nutzung" class="fin-nutzung nutzungs-karten">
+        <label><input type="radio" name="nutzung" value="kapitalanlage" checked><span><svg class="ui-icon"><use href="#icon-building"></use></svg><b>Kapitalanlage</b><small>Vermieten und als eigenen Objekt-Cashflow führen</small></span></label>
+        <label id="fin-option-eigenheim"><input type="radio" name="nutzung" value="eigenheim" aria-describedby="fin-nutzung-hinweis"><span><svg class="ui-icon"><use href="#icon-home"></use></svg><b>Eigenheim</b><small>Selbst nutzen; bisherige Wohnmiete entfällt</small><button type="button" id="fin-eigenheim-info" class="info-tooltip" hidden>?</button></span></label>
+      </div>
+      <p id="fin-nutzung-hinweis" class="hinweis"></p>
+    </div>
+    <div class="fin-slider fin-flow-step" data-fin-step-panel="2" hidden>
+      <div class="fin-ek-panel">
+        <div class="fin-ek-quote"><small>Eigenkapital gesamt</small><strong id="fin-ek-quote">—</strong><span>inklusive Kaufnebenkosten</span></div>
+        <div class="fin-ek-schnellwahl" role="group" aria-label="Eigenkapitalquote schnell wählen">
+          <button type="button" data-ek-prozent="0" aria-pressed="false">nur Nebenkosten</button>
+          <button type="button" data-ek-prozent="10" aria-pressed="false">Nebenkosten + 10 %</button>
+          <button type="button" data-ek-prozent="20" aria-pressed="false">Nebenkosten + 20 %</button>
+          <button type="button" data-ek-prozent="30" aria-pressed="false">Nebenkosten + 30 %</button>
+        </div>
+      </div>
+      <div id="fin-etf-panel" class="fin-etf-panel">
+        <div><b>ETF direkt als Eigenkapital nutzen</b><small id="fin-etf-stand"></small></div>
+        <label><span class="sr-only">ETF-Umschichtung</span><input type="number" id="fin-etf-betrag" min="0" step="100" inputmode="numeric"></label>
+        <button type="button" id="btn-fin-etf">Ins Tagesgeld</button>
+      </div>
+      <label>Eigenkapital <button type="button" class="info-tooltip" aria-label="Info: Mehr Eigenkapital senkt Rate und Zinsrisiko, bindet aber liquide Reserven." data-tooltip="Mehr Eigenkapital senkt Rate und Zinsrisiko, bindet aber liquide Reserven.">?</button>
+        <input type="range" name="eigenkapital" min="0" max="100000" step="100">
+      </label>
+    </div>
+    <div class="fin-slider fin-flow-step" data-fin-step-panel="3" hidden>
+      <label>Anfängliche Tilgung <button type="button" class="info-tooltip" aria-label="Info: Höhere Tilgung erhöht die Monatsrate, reduziert aber die Restschuld schneller." data-tooltip="Höhere Tilgung erhöht die Monatsrate, reduziert aber die Restschuld schneller.">?</button>
+        <input type="range" name="tilgung" min="1" max="4" step="0.25" value="2">
+      </label>
+      <div id="fin-slider-werte" class="fin-slider-werte"></div>
+      <div id="fin-ltv-viz" class="fin-ltv-viz"></div>
+      <div class="fin-bindung">Zinsbindung:
+        <label><input type="radio" name="zinsbindung" value="5"> 5 J.</label>
+        <label><input type="radio" name="zinsbindung" value="10" checked> 10 J.</label>
+        <label><input type="radio" name="zinsbindung" value="15"> 15 J.</label>
+      </div>
+      <table class="haushalt fin-tabelle"><tbody id="fin-rechnung"></tbody></table>
+      <div id="fin-verdikt" class="verdikt"></div>
+      <p class="hinweis" id="fin-hinweis"></p>
+    </div>
+    <footer>
+      <button type="button" id="btn-fin-zurueck" hidden>Zurück</button>
+      <button type="button" data-schliessen id="btn-fin-schliessen">Schließen</button>
+      <button type="button" id="btn-fin-weiter" class="primaer">Weiter</button>
+      <button type="button" id="btn-kaufen" class="primaer" hidden>Kauf besiegeln</button>
+    </footer>
+  </form>
+</dialog>
+
+<!-- Kaufabschluss: der "dieses Geld ist weg"-Moment -->
+<dialog id="dlg-kauf">
+  <header><h2>Notartermin</h2></header>
+  <div id="dlg-kauf-inhalt"></div>
+  <footer class="dialog-fuss"><button id="dlg-kauf-ok" class="primaer">Objekt ansehen</button></footer>
+</dialog>
+
+<!-- Verkauf -->
+<dialog id="dlg-verkauf">
+  <header><h2>Verkauf planen</h2><button type="button" data-schliessen aria-label="Schließen">✕</button></header>
+  <div id="verkauf-inhalt"></div>
+  <footer class="dialog-fuss">
+    <button type="button" data-schliessen>Abbrechen</button>
+    <button id="btn-verkauf-starten" class="primaer">Verkauf starten</button>
+  </footer>
+</dialog>
+
+<!-- Vergleich -->
+<dialog id="dlg-vergleich" class="breit">
+  <header><h2>Objektvergleich</h2><button type="button" data-schliessen aria-label="Schließen">✕</button></header>
+  <div id="vergleich-inhalt" class="vergleich-wrap"></div>
+</dialog>
+
+<!-- Screen 6: Bewerbermappe -->
+<dialog id="dlg-bewerber" class="breit">
+  <header><h2 id="bewerber-titel">Vermieten</h2><button type="button" data-schliessen aria-label="Schließen">✕</button></header>
+  <div id="bewerber-inhalt"></div>
+</dialog>
+
+<!-- Screen 5: Renovierungsplaner -->
+<dialog id="dlg-renovieren" class="breit">
+  <header><h2 id="renovieren-titel">Renovieren</h2><button type="button" data-schliessen aria-label="Schließen">✕</button></header>
+  <div id="renovieren-inhalt"></div>
+</dialog>
+
+<!-- Screen 8: Event-Modal -->
+<dialog id="dlg-event">
+  <header><span id="event-kategorie" class="event-kat"></span><h2 id="event-titel"></h2></header>
+  <p id="event-text" class="event-text"></p>
+  <div id="event-optionen" class="event-optionen"></div>
+  <div id="event-folge" hidden>
+    <p class="event-folge-text"></p>
+    <footer class="dialog-fuss"><button id="btn-event-weiter" class="primaer">Weiter</button></footer>
+  </div>
+</dialog>
+
+<!-- Gemeinsame Vollbildansicht für alle Gebäude- und Innenbilder. -->
+<dialog id="dlg-bildzoom" class="bildzoom-dialog" aria-labelledby="bildzoom-titel">
+  <header><h2 id="bildzoom-titel">Gebäudeansicht</h2><button type="button" data-schliessen aria-label="Schließen">✕</button></header>
+  <div id="bildzoom-buehne" class="bildzoom-buehne"></div>
+  <footer class="bildzoom-steuerung">
+    <button type="button" id="bildzoom-minus" aria-label="Verkleinern">−</button>
+    <button type="button" id="bildzoom-reset"><span id="bildzoom-stufe">100 %</span></button>
+    <button type="button" id="bildzoom-plus" aria-label="Vergrößern">+</button>
+  </footer>
+</dialog>
+
+<div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+<input type="file" id="import-datei" accept=".json,application/json" hidden>
+
+<script type="module" src="js/main.js?v=36"></script>
+</body>
+</html>

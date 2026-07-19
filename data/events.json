@@ -1,0 +1,302 @@
+[
+  {
+    "id": "schimmel-bad",
+    "titel": "Schwarze Flecken im Bad",
+    "text": "Deine Mieterin schickt Fotos: Schimmel an der Badezimmerdecke. Ist es ein Lüftungsproblem – oder steckt ein Baumangel dahinter?",
+    "kategorie": "objekt",
+    "gewicht": 1.2,
+    "bedingung": { "vermietet": true, "zustandMax": 3, "einmalig": false, "cooldownMonate": 30 },
+    "optionen": [
+      { "text": "Auf richtiges Lüften verweisen", "effekt": { "familie": -1, "mieterKonflikt": 0.15 }, "folge": "Kostet nichts, aber die Mieterin fühlt sich abgewimmelt." },
+      { "text": "Fachbetrieb beauftragen (ca. 1.800 €)", "effekt": { "cash": -1800, "zustand": 1, "mieterZufriedenheit": 0.15 }, "folge": "Sauber saniert, die Mieterin ist erleichtert." }
+    ]
+  },
+  {
+    "id": "heizung-winter",
+    "titel": "Heizung fällt im Januar aus",
+    "text": "Mitten im Winter streikt die Therme. Die Mieter frieren und rufen täglich an.",
+    "kategorie": "objekt",
+    "gewicht": 1.3,
+    "bedingung": { "vermietet": true, "jahreszeit": "winter", "einmalig": false, "cooldownMonate": 40 },
+    "optionen": [
+      { "text": "Notdienst sofort (teuer, ca. 3.200 €)", "effekt": { "cash": -3200, "mieterZufriedenheit": 0.2 }, "folge": "Am selben Tag warm – die Mieter danken es dir." },
+      { "text": "Günstigen Termin in zwei Wochen (ca. 1.900 €)", "effekt": { "cash": -1900, "mieterKonflikt": 0.3, "familie": -2 }, "folge": "Du sparst, aber zwei Wochen Ärger und eine Mietminderung drohen." }
+    ]
+  },
+  {
+    "id": "gute-mieterin-reduktion",
+    "titel": "Zuverlässige Mieterin bittet um Nachlass",
+    "text": "Deine langjährige Mieterin hat den Job verloren und bittet um drei Monate reduzierte Miete, bis sie wieder Fuß gefasst hat.",
+    "kategorie": "mieter",
+    "gewicht": 1.0,
+    "bedingung": { "vermietet": true, "einmalig": false, "cooldownMonate": 48 },
+    "optionen": [
+      { "text": "Für drei Monate um 30 % senken", "effekt": { "cash": -600, "mieterZufriedenheit": 0.4, "familie": 2 }, "folge": "Sie ist zutiefst dankbar und bleibt dir treu." },
+      { "text": "Freundlich, aber bei der Miete bleiben", "effekt": { "mieterKonflikt": 0.35 }, "folge": "Verständnis ja, Nachlass nein – die Beziehung kühlt ab." }
+    ]
+  },
+  {
+    "id": "weg-dach",
+    "titel": "Eigentümerversammlung: Dachsanierung",
+    "text": "Die WEG stimmt über eine Dachsanierung ab. Als Miteigentümer trägst du deinen Anteil an der Sonderumlage.",
+    "kategorie": "objekt",
+    "gewicht": 1.0,
+    "bedingung": { "brauchtObjekt": true, "einmalig": false, "cooldownMonate": 60 },
+    "optionen": [
+      { "text": "Zustimmen (Anteil ca. 4.500 €)", "effekt": { "cash": -4500, "zustand": 1 }, "folge": "Das Haus bleibt in Schuss – und dein Objekt gewinnt." },
+      { "text": "Dagegen stimmen und aufschieben", "effekt": { "familie": -1 }, "folge": "Diesmal gespart. Aber das Dach wird nicht jünger." }
+    ]
+  },
+  {
+    "id": "schwarzarbeit",
+    "titel": "Handwerker bietet Barzahlung an",
+    "text": "Für eine anstehende Reparatur bietet dir ein Handwerker einen kräftigen Rabatt gegen Bargeld – ohne Rechnung.",
+    "kategorie": "objekt",
+    "gewicht": 0.9,
+    "bedingung": { "brauchtObjekt": true, "einmalig": true },
+    "optionen": [
+      { "text": "Annehmen (ca. 900 € statt 1.500 €)", "effekt": { "cash": -900, "familie": -2 }, "folge": "Günstig – aber keine Gewährleistung, kein gutes Gefühl." },
+      { "text": "Ordentlich mit Rechnung (ca. 1.500 €)", "effekt": { "cash": -1500 }, "folge": "Teurer, aber mit Rechnung und Gewährleistung sauber dokumentiert." }
+    ]
+  },
+  {
+    "id": "wasserschaden",
+    "titel": "Wasserschaden aus der Wohnung darüber",
+    "text": "Aus der Wohnung über deinem Objekt tritt Wasser aus. Deine Decke ist betroffen, die Versicherung zickt.",
+    "kategorie": "objekt",
+    "gewicht": 1.0,
+    "bedingung": { "brauchtObjekt": true, "einmalig": false, "cooldownMonate": 36 },
+    "optionen": [
+      { "text": "Selbst zügig reparieren (ca. 2.200 €)", "effekt": { "cash": -2200, "zustand": 0 }, "folge": "Schnell erledigt, Streit mit der Nachbar-WEG vermieden." },
+      { "text": "Auf Kostenübernahme pochen (Nerven, Zeit)", "effekt": { "cash": -700, "familie": -3 }, "folge": "Am Ende zahlst du weniger, aber der Papierkrieg zehrt." }
+    ]
+  },
+  {
+    "id": "mietnomade-verdacht",
+    "titel": "Mieter zahlt zum zweiten Mal nicht",
+    "text": "Ein Mieter ist erneut im Rückstand. Reden oder Druck machen?",
+    "kategorie": "mieter",
+    "gewicht": 0.9,
+    "bedingung": { "vermietet": true, "einmalig": false, "cooldownMonate": 30 },
+    "optionen": [
+      { "text": "Gespräch und Ratenplan anbieten", "effekt": { "cash": -300, "mieterZufriedenheit": 0.2 }, "folge": "Kostet kurzfristig, rettet aber oft das Mietverhältnis." },
+      { "text": "Anwaltliche Mahnung schicken", "effekt": { "cash": -250, "mieterKonflikt": 0.4 }, "folge": "Klare Kante – riskiert aber die Kündigung durch den Mieter." }
+    ]
+  },
+  {
+    "id": "offmarket-deal",
+    "titel": "Off-Market-Angebot mit dünnen Unterlagen",
+    "text": "Ein Bekannter bietet dir ein Objekt unter der Hand an – günstig, aber mit lückenhaften Unterlagen.",
+    "kategorie": "haushalt",
+    "gewicht": 0.7,
+    "bedingung": { "einmalig": true },
+    "optionen": [
+      { "text": "Finger weg ohne saubere Papiere", "effekt": { "familie": 1 }, "folge": "Diszipliniert. Manche Deals sind zu schön." },
+      { "text": "Anzahlung leisten, um es zu sichern (2.000 €)", "effekt": { "cash": -2000, "familie": 3 }, "folge": "Riskant – aber die Familie honoriert, dass ihr die Chance gemeinsam prüft." }
+    ]
+  },
+  {
+    "id": "energie-foerderung",
+    "titel": "Förderprogramm für Sanierung",
+    "text": "Ein neues Förderprogramm bezuschusst energetische Maßnahmen – aber nur mit Antrag und etwas Bürokratie.",
+    "kategorie": "objekt",
+    "gewicht": 0.8,
+    "bedingung": { "brauchtObjekt": true, "einmalig": true },
+    "optionen": [
+      { "text": "Antrag stellen (Zeit, aber Zuschuss)", "effekt": { "cash": 2500, "familie": -1 }, "folge": "Papierkram, aber der Zuschuss landet auf dem Konto." },
+      { "text": "Zu aufwendig, sein lassen", "effekt": {}, "folge": "Nichts gewonnen, nichts verloren." }
+    ]
+  },
+  {
+    "id": "nachbarschaftsstreit",
+    "titel": "Lärmstreit im Haus",
+    "text": "Zwei Parteien im Haus streiten über Lärm, deine Mieterin sitzt zwischen den Stühlen und droht mit Auszug.",
+    "kategorie": "mieter",
+    "gewicht": 0.8,
+    "bedingung": { "vermietet": true, "einmalig": false, "cooldownMonate": 40 },
+    "optionen": [
+      { "text": "Vermitteln und Hausordnung schärfen", "effekt": { "familie": -1, "mieterZufriedenheit": 0.2 }, "folge": "Etwas Aufwand, aber deine Mieterin bleibt." },
+      { "text": "Raushalten, ist nicht dein Problem", "effekt": { "mieterKonflikt": 0.3 }, "folge": "Bequem – aber deine Mieterin fühlt sich alleingelassen." }
+    ]
+  },
+  {
+    "id": "modernisierung-umlage",
+    "titel": "Modernisierung mit Umlagechance",
+    "text": "Du könntest neue Fenster einbauen und einen Teil der Kosten auf die Miete umlegen.",
+    "kategorie": "objekt",
+    "gewicht": 0.8,
+    "bedingung": { "vermietet": true, "einmalig": false, "cooldownMonate": 60 },
+    "optionen": [
+      { "text": "Modernisieren und umlegen", "effekt": { "cash": -12000, "zustand": 1, "miete": 40, "mieterKonflikt": 0.2 }, "folge": "Wertsteigerung und mehr Miete – teuer, und der Mieter murrt etwas." },
+      { "text": "Alles beim Alten lassen", "effekt": {}, "folge": "Kein Aufwand, keine Veränderung." }
+    ]
+  },
+  {
+    "id": "graffiti",
+    "titel": "Graffiti an der Fassade",
+    "text": "Über Nacht wurde die Hausfassade besprüht. Die WEG fragt, ob schnell oder billig entfernt werden soll.",
+    "kategorie": "objekt",
+    "gewicht": 0.7,
+    "bedingung": { "brauchtObjekt": true, "einmalig": false, "cooldownMonate": 36 },
+    "optionen": [
+      { "text": "Sofort professionell entfernen (Anteil 400 €)", "effekt": { "cash": -400 }, "folge": "Schnell weg, das Haus sieht wieder ordentlich aus." },
+      { "text": "Erstmal so lassen", "effekt": { "familie": -1 }, "folge": "Gespart, aber es sieht ungepflegt aus." }
+    ]
+  },
+  {
+    "id": "auto-kaputt",
+    "titel": "Das Familienauto gibt den Geist auf",
+    "text": "Der alte Kombi ist nicht mehr zu retten. Ohne Auto wird der Alltag mit zwei Kindern zäh.",
+    "kategorie": "haushalt",
+    "gewicht": 1.0,
+    "bedingung": { "einmalig": false, "cooldownMonate": 96 },
+    "optionen": [
+      { "text": "Solider Gebrauchter (ca. 12.000 €)", "effekt": { "cash": -12000, "familie": 2 }, "folge": "Mobil und zuverlässig – die Familie atmet auf." },
+      { "text": "Günstiger Notnagel (ca. 4.000 €)", "effekt": { "cash": -4000, "familie": -1 }, "folge": "Billig, aber die nächste Reparatur kommt bestimmt." }
+    ]
+  },
+  {
+    "id": "job-angebot",
+    "titel": "Jobwechsel mit Bonus, aber mehr Stress",
+    "text": "Einer von euch bekommt ein Jobangebot mit Wechselbonus – aber auch deutlich mehr Verantwortung und Reisen. Das Modell verbucht nur den Bonus, keine dauerhafte Gehaltsänderung.",
+    "kategorie": "haushalt",
+    "gewicht": 0.8,
+    "bedingung": { "einmalig": true },
+    "optionen": [
+      { "text": "Annehmen (4.000 € Wechselbonus, mehr Stress)", "effekt": { "cash": 4000, "familie": -4 }, "folge": "Der Einmalbonus landet auf dem Konto; die Umstellung belastet die Familie." },
+      { "text": "Ablehnen, Balance halten", "effekt": { "familie": 3 }, "folge": "Kein Bonus, dafür bleibt der vertraute Familienrhythmus." }
+    ]
+  },
+  {
+    "id": "elternzeit",
+    "titel": "Wunsch nach einer Auszeit",
+    "text": "Ihr überlegt, ob eine/r von euch für ein paar Monate kürzertritt, um mehr für die Kinder da zu sein.",
+    "kategorie": "haushalt",
+    "gewicht": 0.7,
+    "bedingung": { "einmalig": true },
+    "optionen": [
+      { "text": "Auszeit nehmen (weniger Einkommen)", "effekt": { "cash": -3500, "familie": 5 }, "folge": "Finanziell ein Einschnitt, für die Familie ein Geschenk." },
+      { "text": "Weiter Vollgas arbeiten", "effekt": { "familie": -2 }, "folge": "Das Einkommen bleibt, die Sehnsucht auch." }
+    ]
+  },
+  {
+    "id": "kind-zahnspange",
+    "titel": "Zahnspange für das ältere Kind",
+    "text": "Der Kieferorthopäde empfiehlt eine Zahnspange. Die Kasse zahlt nur einen Teil.",
+    "kategorie": "kind",
+    "gewicht": 1.0,
+    "bedingung": { "einmalig": true },
+    "optionen": [
+      { "text": "Beste Versorgung zahlen (ca. 2.400 €)", "effekt": { "cash": -2400, "familie": 2 }, "folge": "Ein schönes Lächeln ist es euch wert." },
+      { "text": "Nur die Kassenleistung", "effekt": { "cash": -300, "familie": -1 }, "folge": "Reicht medizinisch, aber ihr habt ein leises schlechtes Gewissen." }
+    ]
+  },
+  {
+    "id": "kind-klassenfahrt",
+    "titel": "Auslands-Klassenfahrt",
+    "text": "Ein Kind möchte unbedingt mit auf die teure Klassenfahrt ins Ausland.",
+    "kategorie": "kind",
+    "gewicht": 0.9,
+    "bedingung": { "einmalig": true },
+    "optionen": [
+      { "text": "Mitfahren lassen (ca. 800 €)", "effekt": { "cash": -800, "familie": 3 }, "folge": "Strahlende Augen und viele Geschichten danach." },
+      { "text": "Diesmal nicht", "effekt": { "familie": -3 }, "folge": "Enttäuschung am Küchentisch." }
+    ]
+  },
+  {
+    "id": "zins-anschluss-angebot",
+    "titel": "Bank bietet Anschlussfinanzierungs-Check",
+    "text": "Deine Bank bietet ein frühes Beratungsgespräch zur Anschlussfinanzierung an. Eine konkrete Zinsänderung entsteht daraus in diesem vereinfachten Modell noch nicht.",
+    "kategorie": "haushalt",
+    "gewicht": 0.6,
+    "bedingung": { "brauchtObjekt": true, "einmalig": true },
+    "optionen": [
+      { "text": "Beratung und Unterlagencheck buchen (600 €)", "effekt": { "cash": -600, "familie": 1 }, "folge": "Ihr habt den Ablauf geklärt; der bestehende Kredit bleibt unverändert." },
+      { "text": "Noch nicht prüfen", "effekt": {}, "folge": "Keine Gebühr und keine Änderung am Kredit." }
+    ]
+  },
+  {
+    "id": "leerstand-anfrage",
+    "titel": "Kurzfristige Zwischenmiete angeboten",
+    "text": "Für dein leerstehendes Objekt fragt jemand eine möblierte Zwischenmiete für sechs Monate an.",
+    "kategorie": "objekt",
+    "gewicht": 0.8,
+    "bedingung": { "brauchtObjekt": true, "einmalig": false, "cooldownMonate": 24 },
+    "optionen": [
+      { "text": "Annehmen – etwas Miete ist besser als keine", "effekt": { "cash": 2400, "familie": -1 }, "folge": "Die sechs Monate sind als einmalige Pauschale zusammengefasst; danach bleibt das Objekt im Modell frei." },
+      { "text": "Lieber sauber neu vermieten", "effekt": {}, "folge": "Du wartest auf den richtigen Dauermieter." }
+    ]
+  },
+  {
+    "id": "versicherung-anpassung",
+    "titel": "Nachforderung der Gebäudeversicherung",
+    "text": "Die Wohngebäudeversicherung schickt wegen der Schadenentwicklung eine Nachforderung. Tarif prüfen oder direkt akzeptieren?",
+    "kategorie": "objekt",
+    "gewicht": 0.7,
+    "bedingung": { "brauchtObjekt": true, "einmalig": false, "cooldownMonate": 60 },
+    "optionen": [
+      { "text": "Tarif prüfen und Nachforderung drücken (150 €)", "effekt": { "cash": -150, "familie": -1 }, "folge": "Papierkram, aber die aktuelle Nachforderung fällt kleiner aus." },
+      { "text": "Direkt akzeptieren (300 €)", "effekt": { "cash": -300 }, "folge": "Sofort erledigt; das Modell verbucht nur diese Nachforderung." }
+    ]
+  },
+  {
+    "id": "mieter-verbesserung",
+    "titel": "Mieter will auf eigene Kosten verbessern",
+    "text": "Dein handwerklich begabter Mieter möchte die Küche selbst aufwerten – wenn du das Material zahlst.",
+    "kategorie": "mieter",
+    "gewicht": 0.8,
+    "bedingung": { "vermietet": true, "einmalig": false, "cooldownMonate": 48 },
+    "optionen": [
+      { "text": "Material zahlen (ca. 1.200 €)", "effekt": { "cash": -1200, "miete": 15, "mieterZufriedenheit": 0.3 }, "folge": "Eine kleine Aufwertung – der Mieter bindet sich und akzeptiert etwas mehr Miete." },
+      { "text": "Dankend ablehnen", "effekt": { "mieterKonflikt": 0.1 }, "folge": "Kein Risiko, aber eine verpasste Chance." }
+    ]
+  },
+  {
+    "id": "muellproblem",
+    "titel": "Sperrmüll im Hof",
+    "text": "Immer wieder landet Sperrmüll im Hof. Die WEG diskutiert über eine Kameralösung.",
+    "kategorie": "objekt",
+    "gewicht": 0.6,
+    "bedingung": { "brauchtObjekt": true, "einmalig": true },
+    "optionen": [
+      { "text": "Für eine ordentliche Lösung stimmen (Anteil 250 €)", "effekt": { "cash": -250, "zustand": 0 }, "folge": "Der akute Sperrmüll wird beseitigt; ein dauerhafter Bonus entsteht nicht." },
+      { "text": "Dagegen – zu viel Aufhebens", "effekt": { "familie": -1 }, "folge": "Heute gespart, dafür bleibt der Ärger in Erinnerung." }
+    ]
+  },
+  {
+    "id": "steuer-nachzahlung",
+    "titel": "Überraschende Steuernachzahlung",
+    "text": "Das Finanzamt meldet sich mit einer kleinen Nachzahlung aus dem Vorjahr.",
+    "kategorie": "haushalt",
+    "gewicht": 0.7,
+    "bedingung": { "einmalig": false, "cooldownMonate": 60 },
+    "optionen": [
+      { "text": "Zahlen und abhaken", "effekt": { "cash": -1400 }, "folge": "Ärgerlich, aber erledigt." },
+      { "text": "Einspruch mit Steuerberater (Gebühr, evtl. weniger)", "effekt": { "cash": -800, "familie": -1 }, "folge": "Etwas weniger Nachzahlung, etwas mehr Aufwand." }
+    ]
+  },
+  {
+    "id": "wohnung-einbruch",
+    "titel": "Einbruch im Objekt",
+    "text": "In deine leerstehende Wohnung wurde eingebrochen, ein Fenster ist beschädigt.",
+    "kategorie": "objekt",
+    "gewicht": 0.6,
+    "bedingung": { "brauchtObjekt": true, "einmalig": false, "cooldownMonate": 48 },
+    "optionen": [
+      { "text": "Fenster sichern und reparieren (ca. 1.100 €)", "effekt": { "cash": -1100, "zustand": 0 }, "folge": "Wieder sicher, kein Dauerschaden." },
+      { "text": "Nur notdürftig vernageln", "effekt": { "cash": -150, "zustand": -1, "familie": -1 }, "folge": "Billig, aber das Objekt leidet und wirkt unsicher." }
+    ]
+  },
+  {
+    "id": "nachbar-verkauf",
+    "titel": "Nachbarwohnung wird verkauft",
+    "text": "Im selben Haus steht eine Wohnung zum Verkauf. Willst du dein Engagement im Haus ausbauen?",
+    "kategorie": "objekt",
+    "gewicht": 0.5,
+    "bedingung": { "brauchtObjekt": true, "einmalig": true },
+    "optionen": [
+      { "text": "Unterlagen reservieren und prüfen (500 €)", "effekt": { "cash": -500, "familie": 2 }, "folge": "Ihr prüft die Gelegenheit kontrolliert; daraus entsteht nicht automatisch ein neues Listing." },
+      { "text": "Kein zusätzliches Klumpenrisiko", "effekt": {}, "folge": "Diszipliniert gestreut bleibt gestreut." }
+    ]
+  }
+]

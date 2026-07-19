@@ -1,0 +1,359 @@
+# ARCHITECTURE.md — Codebasis-Leitfaden
+
+Wer den Code übernimmt, liest zuerst `CLAUDE.md`, dann `ROADMAP.md` und
+`HANDOVER.md`. Dieses Dokument wird nur für technische Details benötigt.
+
+**Stand: Automatisierbarer Funktions-/Content-Backlog abgeschlossen
+(17.07.2026).** Kampagne, vier Märkte, Familienhäuser, getrennte Stadtkarten,
+Admin-Panel, Tutorial, 13 breite Balance-Gates, eigener Familienmarkt-Harness,
+Einzelaktien-Sandbox, Accessibility-Basis und statischer Release-Check sind vorhanden. Die wichtigsten
+Invarianten sind Determinismus, fairer ETF-Kontrafaktualvergleich, genau einmal
+verbuchte Geldflüsse, klar versionierte und kontrolliert abgelehnte Alt-Saves
+und eine DOM-freie Engine.
+
+## 1. Modulkarte und Abhängigkeitsrichtung
+
+```text
+index.html ─ lädt ─▶ js/main.js (Spielschleife, Autosave, ctx-Verdrahtung)
+                         │
+Engine: DOM-frei            UI: nur js/ui/, DOM erlaubt
+────────────────────────    ─────────────────────────────
+config.js    alle Annahmen  dashboard.js     Übersicht + Steuer
+admin.js     Config-Whitelist ui/admin.js    Admin-Panel
+state.js     State/RNG/Save marktplatz.js    Feed
+starter.js   Sonderbestand
+content.js   JSON-Inhalte   expose.js        Exposé/DD/Angebot
+engine.js    Monats-Tick    finanzierung.js Nutzung + Kauf
+market.js    Feed/Werte/DD  renovieren.js   Maßnahmen
+finance.js   Kredit/Objekt  bewerber.js     Mieterauswahl
+immobilie.js Objektart/Kosten karte.js      drei getrennte Stadtkarten
+etf.js       Depotbuchung   bildzoom.js     Bild-Lightbox
+aktien.js    Aktienorders/-tick finanzen.js Tagesgeld/ETF/Aktien
+tenants.js   Mieter         objekt.js       Objekt-/Eigenheim-Nabe
+renovation.js Renovierung   event.js        Dilemma-Modal
+events.js    Dilemmas       verkaufen.js    Verkaufsdialog
+signals.js   Wartemomente   tutorial.js      Bildschirm-Tour
+eigenheim.js Eigennutzung   endgame.js      Endauswertung
+tax.js       Jahressteuer   shell.js        Navigation/Slots
+verkauf.js   Exit-Prozess   util.js         Formatierung
+endgame.js   Scores/Benchmarks
+iso.js       SVG-Fallbacks
+ratgeber.js  kontextuelle Tipps für Leicht/Normal
+```
+
+**Eiserne Regel:** Engine-Module greifen weder auf DOM noch auf `localStorage`
+zu. Sie müssen direkt unter Node importierbar bleiben. DOM-Zugriffe liegen nur
+unter `js/ui/`. `iso.js` erzeugt Strings und bleibt daher headless nutzbar.
+
+**Import-Zyklen:** Zwischen `engine`, `finance`, `tenants`, `renovation` und
+`market` gibt es bereits zyklische Bindungen. Sie funktionieren nur, weil die
+Imports erst innerhalb von Funktionen ausgewertet werden. Keine importierte
+Funktion auf Modulebene ausführen.
+
+**ctx-Muster:** `main.js` erzeugt einen UI-Kontext mit State-Zugriff,
+Navigation, Rendering, Autosave, Ticksteuerung und Toasts. Neue Screens werden
+über diesen Kontext angebunden. Kaufaktionen verwenden stabile Listing-IDs;
+keine Array-Indizes über einen Feed-Rerender hinweg speichern.
+
+**Initialisierungsreihenfolge:** Nach Content-Load und `newGame()`/Import laufen
+`initialisiereMarkt()`, `initialisiereAktienmarkt()` und danach
+`initialisiereStartbestand()`. `starter.js` darf damit stabile Listingdaten und
+faire Startwerte verwenden. Alle drei Schritte sind idempotent. Endgame-
+Kontrafaktuale verwenden dieselbe Reihenfolge, damit Sonderstarts dieselbe
+Ausgangsbilanz erhalten.
+
+**Editierbarkeit:** `newGame({ startAnpassung })` überschreibt ausschließlich
+vor dem Start Profilwerte. Startalter, Kinderalter, anfängliches Tagesgeld und
+ETF werden danach als historische Ausgangslage nicht mehr mutiert. Laufende
+Haushalts-, Alters-, Spar- und Kapitalannahmen liegen in `state.config`; das
+Admin-Panel plant sie whitelist-basiert für den nächsten Tick vor. Summen wie
+`nettoEinkommen`, Gesamtausgaben und Sparrate werden aus den Eingabefeldern
+abgeleitet und nie als unabhängige zweite Wahrheit editiert.
+
+## 2. Tick-Pipeline und Determinismus
+
+Der allgemeine RNG-Zustand liegt als `uint32` in `state.rngState`. Der
+ETF-Vergleich besitzt mit `state.etfRngState` einen eigenen exogenen Strom;
+Einzelaktien verwenden analog `state.aktienRngState`. `state.lebensRngState`
+zieht einmalig den Basis-Lebenshorizont.
+Dadurch verändern Gutachten, Gebote oder Mieterentscheidungen nicht die
+ETF-Renditen desselben Seeds. Aktienorders verschieben weder ihren eigenen
+Kurspfad noch den ETF. Lebensdauer verschiebt keinen dieser Pfade. Alle vier
+Ströme sind Teil des Saves. Zufälligkeit
+läuft über die RNG-Funktionen aus `state.js` — niemals über `Math.random()`.
+
+`engine.tick()` hält diese Reihenfolge ein:
+
+0. Vorgemerkte Admin-Config atomar anwenden.
+1. Einkommensmeilenstein beziehungsweise Ruhestandsbeginn loggen und
+   Haushaltswerte für den aktuellen Monat berechnen.
+2. Basiszins-Random-Walk (`tickBasiszins`).
+3. Segmentdrift und Feed-Lifecycle (`tickMarkt`).
+4. Mietobjekte in stabiler Portfolio-Reihenfolge ticken.
+5. Eigenheim ticken, danach Steuerkonto/Dezember-Bescheid aktualisieren.
+6. Cash, Tagesgeld/Dispo, echtes ETF-Depot und ETF-Spiegel verbuchen.
+7. Aktienkurse/Firmenereignisse ticken und gegebenenfalls Netto-Dividenden
+   verbuchen.
+8. Zeitbudget und Familienzufriedenheit aktualisieren.
+9. `monat++`, dann fällige Immobilienverkäufe abschließen.
+10. Statistik und Monatshistorie schreiben.
+11. Den gespeicherten Lebenshorizont aus Seed und kumuliertem Langzeitstress
+    aktualisieren, gegebenenfalls Lebensende setzen; nur sonst den allgemeinen
+    Event-Roll ausführen.
+
+Renovierungsabschluss, abgeschlossener Verkauf, Mieterauszug,
+Zinsbindungsende und vollständig getilgter Kredit melden einen transienten
+Wartemoment über `signals.js`. `advanceMonths()` bricht danach im UI-Lauf ab;
+`main.js` pausiert, erzwingt ein Autosave und zeigt eine wichtige Meldung.
+Headless-Läufe verwerfen diese UI-Signale, damit Balance-Policies weiterlaufen.
+Die Queue ist nicht enumerierbar und wird daher nie gespeichert.
+
+Eine neue RNG-Ziehung oder eine andere Reihenfolge ändert alle Folgezustände
+eines Seeds. Vor Release ist ein Versionssprung vertretbar, innerhalb derselben
+Version nicht. Änderungen im Entscheidungslog dokumentieren.
+
+## 3. Geldfluss: Cashflow ist nicht Nettovermögen
+
+- `state.cash` ist Liquidität.
+- `state.etfDepot` ist echtes, verkaufbares Vermögen; `state.etfVergleich` ist
+  ausschließlich die Kontrafaktual-Linie.
+- `state.kapitalsteuer` hält den gemeinsam verbrauchten Pauschbetrag und die
+  kumulierte Kapitalsteuer. Tagesgeld, ETF und Aktien greifen ausschließlich
+  über `kapitalsteuer.js` darauf zu.
+- `state.aktienDepot` enthält echte Sandbox-Positionen und Kurse; es ist weder
+  Teil des Welt-ETF noch des ETF-Benchmarks.
+- Nettovermögen ist Cash plus echtes ETF-Depot plus Aktiendepot plus faire
+  Immobilienwerte minus Restschulden plus objektspezifische Rücklagen. Das
+  Eigenheim wird identisch bewertet.
+- `tickObjekt` liefert genau eine liquide Cash-Änderung. `engine.tick` addiert
+  sie genau einmal.
+- `entnimmRuecklage(objekt, betrag)` mutiert nur die Rücklage und liefert den
+  ungedeckten Rest. Im Tick verwenden.
+- `zahleReparatur(state, objekt, betrag)` zieht Rücklage und danach direkt Cash.
+  Nur außerhalb des Ticks verwenden.
+- Verkaufserlöse werden erst am Ende des sechsten Monats über
+  `tickVerkaeufe` verbucht und in den letzten Monatscashflow aufgenommen.
+- Der ETF-Spiegel erhält die externe Sparrate des Gegenfalls „weiter mieten“.
+  Auch nach einem Eigenheimkauf läuft dort die hypothetische Wohnmiete weiter;
+  die Linie bekommt keine ersparte Miete ohne die zugehörigen Eigentümerkosten.
+  Mieten aus Anlagen, Cashzinsen und Kaufumschichtungen werden nie gespiegelt.
+- Das echte ETF-Depot erhält im Default 50 % der positiven Haushaltssparrate;
+  die drei anderen Presets sparen zunächst nur ins Tagesgeld. Der verbleibende
+  Anteil plus Tagesgeldzins bildet den angezeigten Tagesgeld-Cashflow.
+- `etf.js` bucht einmalige Beträge in beide Richtungen, führt den proportionalen
+  Einstand und ändert den bereits vorhandenen `sparplanEtfAnteil`. Verkäufe
+  verbrauchen 30-%-Teilfreistellung und Pauschbetrag, aber keinen Zufall;
+  sie verändern den letzten Monatscashflow nicht und werden über `main.js`
+  sofort gespeichert. `ui/finanzen.js` enthält ausschließlich DOM und Vorschauen.
+- `aktien.js` bucht Käufe/Verkäufe gegen Cash, führt Einstand, Kosten, Steuer
+  und Verlusttopf und liefert quartalsweise Netto-Dividenden. Orders verwenden
+  keinen Zufall; der monatliche Kurstick verbraucht immer dieselbe eigene
+  RNG-Sequenz, unabhängig vom Depotbestand.
+
+## 4. Phase-4-Systeme
+
+### Eigenheim
+
+`eigenheim.js` wandelt nur ein gekauftes, freies Listing mit mindestens der
+konfigurierten Familien-Zimmerzahl und dem erforderlichen `familienScore` in
+Eigennutzung um. `immobilie.js` zentralisiert Eignung, artabhängige Fixkosten,
+Instandhaltung und Gebäudeanteil für WEG-Wohnung und Haus.
+Es liegt separat in `state.eigenheim`, erzeugt keine Miete, trägt aber Kredit,
+Hausgeld, Instandhaltung, Wert und Rücklage. Es hebt das Familienziel und
+dämpft negative Kinderevents. Weitere Immobilien bleiben im `portfolio`.
+
+### Steuern
+
+`tax.js` sammelt pro Kalenderjahr Mieteinnahmen, abzugsfähige Kosten, Zinsen
+und lineare AfA. Im Dezember wird der positive Überschuss mit dem einstellbaren
+Grenzsteuersatz belastet. Das System ist bewusst stark vereinfacht; Vorschau,
+Satz und letzter Bescheid sind auf dem Dashboard sichtbar.
+
+`kapitalsteuer.js` ist davon getrennt: Es besteuert positive Kapitalerträge mit
+einem gemeinsamen Kalenderjahres-Pauschbetrag, 26,375 % Satz und beim Welt-ETF
+30 % Teilfreistellung. Die Domänenmodule übergeben nur ihre jeweilige
+Steuerbasis; UI-Vorschauen dürfen den Tracker nicht mutieren.
+
+### Verkauf
+
+`verkauf.js` verwaltet einen sechsmonatigen Prozess pro Objekt. Nach Ablauf
+werden Maklerkosten, Restschuld und gegebenenfalls Spekulationssteuer abgezogen.
+Das Objekt wird erst dann aus Portfolio oder Eigenheim entfernt. Während eines
+Verkaufs bleibt es über dieselbe Detail-Nabe sichtbar. Vor dem Entfernen werden
+aktive objektbezogene Zustände sauber behandelt.
+
+### Endgame
+
+`endgame.js` berechnet fünf Scores: Nettovermögen, nachhaltiger Cashflow,
+Resilienz, Stress und Familie. Es simuliert vom gleichen Seed drei feste
+Vergleichspolitiken neu: reiner ETF, Eigenheim-first und invest-first. Die
+Objektgrenze zählt Eigenheim plus Mietobjekte, damit beide Immobilien-Policies
+dieselbe maximale Gesamtzahl halten. Zusammen
+mit der Spielerhistorie entstehen vier Linien. Diese Benchmarks sind
+deterministische Orientierung, keine behaupteten optimalen Strategien.
+Alle Vergleichspolitiken laufen exakt bis zum tatsächlich erreichten
+Lebensende des Spielers; unterschiedliche Todeszeitpunkte dürfen den
+Strategievergleich nicht verzerren. Ruhestand ist zuvor lediglich der
+Einkommenswechsel auf `rentenNettoFaktor`.
+
+## 5. Event-Fluss
+
+- Ein Treffer setzt `state.aktivesEvent = { eventId, objektIndex, monat }`.
+- Jeder tatsächliche Treffer erhöht `state.statistik.eventsGesamt`; der
+  Balance-Harness nutzt den Zähler zur Schwierigkeitstrennung.
+- `advanceMonths` stoppt bei einem aktiven Event. Im Browser pausiert die Zeit;
+  Headless-Tests geben eine `autoResolve`-Funktion mit.
+- `resolveEvent` selbst zieht keinen Zufall. Seed plus Optionsfolge bleibt
+  reproduzierbar.
+- Hausverwaltung und Energieklasse reduzieren jetzt die tatsächliche Eventlast,
+  nicht nur den Beschreibungstext.
+
+## 6. Save-Format und Vorab-Release-Kompatibilität
+
+- Aktuelle `SAVE_VERSION`: **13**.
+- Vor dem ausdrücklich erklärten Release akzeptiert `state.js` nur exakt die
+  aktuelle Version in Hülle und State. Ältere und neuere Versionen werden mit
+  verständlicher Fehlermeldung abgelehnt; es gibt keinen Migrationspfad.
+- Import prüft die tragende Struktur und lehnt auch formal aktuelle, aber
+  beschädigte Saves ab.
+- Markt-, Aktien- und Startbestandinitialisierung bleiben idempotent und laufen
+  in dieser Reihenfolge nach Neu/Laden/Import.
+- Bei jeder weiteren State-Strukturänderung: Version erhöhen und Ablehnungs-
+  sowie Current-Save-Roundtrip testen. Migration nur nach ausdrücklichem
+  Owner-Auftrag.
+
+## 7. Content und Assets
+
+`content.js` hält Listings, Mieter, Events und Aktienprofile, lädt sie aber nicht selbst:
+
+- Browser: `main.js` lädt `data/*.json` per `fetch`.
+- Node: `test/simtest.mjs` liest dieselben Dateien direkt.
+
+`iso.js` hält SVG-Fallbacks für künftige oder versehentlich fehlende Bilder
+bereit; der aktuelle 40er-Katalog besitzt gemäß `ASSET_MANIFEST.md` jedoch für
+jede ID eine Außenansicht und zwei Cutaways. Spielcode bleibt trotzdem vom
+Vorhandensein einzelner Rasterdateien entkoppelt. Der vollständige warme
+WebP-Batch ist der gemeinsame Style-Lock für Berlin, Leipzig und Meißen +
+Umland.
+Außen- und Innenbilder teilen die delegierte Zoom-Lightbox in `ui/bildzoom.js`.
+
+### Lokaler Ein-Klick-Start
+
+`BETONGOLD_STARTEN.cmd` ist der Windows-Einstieg für einen Doppelklick. Die
+Datei startet `tools/start-game.mjs` mit dem installierten Node.js unsichtbar;
+der Launcher liefert das Projekt ausschließlich auf `127.0.0.1` aus, bevorzugt
+Port 4173 und öffnet den Standardbrowser. Ein bereits laufendes Betongold auf
+diesem Port wird wiederverwendet. Andernfalls werden freie Ports bis 4183
+geprüft.
+
+Nur die vom Launcher ausgelieferte `index.html` erhält einen kleinen
+Keepalive-Ping. Bleibt er drei Minuten aus, beendet sich der versteckte Server
+selbst. Der Spielcode und die statischen Dateien bleiben unverändert, ein
+Build-Schritt oder eine Runtime-Abhängigkeit im Produkt entsteht nicht.
+Direktes `file://` bleibt verboten: ES-Module und JSON-Fetches benötigen HTTP;
+außerdem soll der Origin für `localStorage` stabil bei `127.0.0.1:4173` bleiben.
+
+## 8. UI- und Navigationsinvarianten
+
+- `[hidden]` muss Screens zuverlässig aus dem Layout nehmen: Zu jedem Zeitpunkt
+  ist genau ein Hauptscreen sichtbar.
+- Marktfeed und Exposé werden nach strukturellen Änderungen vollständig neu
+  gerendert; keine alten Kaufen-/Bieten-Aktionen stehen lassen.
+- Mietobjekt und Eigenheim verwenden dieselbe Detail-Nabe. Steuerzustand steht
+  direkt auf dem Dashboard, Verkaufsstatus direkt am betroffenen Objekt.
+- Nach Kauf erscheint das Dashboard; „Objekt ansehen“ führt in einem Klick zum
+  neuen Objekt. Kernaktionen sollen höchstens zwei Klicks entfernt sein.
+- Das Admin-Panel bearbeitet nur die Whitelist in `admin.js`. Werte werden erst
+  beim Übernehmen als `state.adminPending` vorgemerkt, begrenzt und mit der
+  Partie gespeichert; `engine.tick()` wendet sie zu Beginn des Folgemonats an.
+  Reset lädt zunächst nur Standardwerte ins Formular.
+- Alle Hauptscreens sind programmatisch fokussierbar. Markt-Karten funktionieren
+  per Enter, Navigation setzt `aria-current`, Charts besitzen dynamische
+  Textalternativen. Tooltips müssen per Tastatur oder als dauerhaft verknüpfter
+  Hilfetext erreichbar sein. `prefers-reduced-motion` wird respektiert.
+- Die Spielhilfe pausiert die Partie, zeigt alle Regelkapitel dauerhaft offen
+  und enthält acht nummerierte Schritte. `ui/tutorial.js` steuert eine optionale
+  Tour nur über `zeigeScreen`; sie verändert keinen State.
+- Die Game-Shell darf den Dokument-Viewport nie horizontal verbreitern. Die
+  Topbar wrappt als vollständige Funktionsgruppen; KPI-Raster verwenden
+  `minmax(0, …)`. Bei 1280 px sind Topbaraktionen, sechs KPIs und drei
+  Marktplatzkarten vollständig innerhalb des Viewports.
+- `SAVE_VERSION` versioniert ausschließlich persistente Zustände. Reines
+  UI-Polish erhöht `UI_VERSION`; CSS- und alle lokalen Modulimporte folgen
+  dieser separaten Version und lösen keine unnötige Save-Migration aus. Beim
+  Versionssprung den vollständigen Importgraphen gemeinsam aktualisieren.
+- Portfolio-, Cashflow-, LTV-, Eigenkapital- und Rücklagenbalken sind nur
+  abgeleitete DOM-Darstellungen. Die exakten Tabellen-/Enginewerte bleiben die
+  Quelle; Visualisierungen dürfen den State nie mutieren.
+- Das Ownership-Board verwendet stabile Objekt-/Listing-IDs und zeigt Status
+  zusätzlich als Text. Ein Objekt bleibt über Marktplatz, Exposé, Besitzkarte
+  und Detail-Nabe visuell wiedererkennbar.
+- Die sticky Ressourcenleiste zeigt genau drei laufende Werte: Cash,
+  farbcodierten letzten Cashflow und echtes ETF-Depot. Nettovermögen ist kein
+  permanenter Header-KPI; es bleibt in Zentrale, Finanzscreen und Endbilanz.
+- Der Finanzscreen zeigt genau vier Kontokarten: Tagesgeld, Immobilienportfolio,
+  ETF und Einzelaktien. Tagesgeld→ETF bleibt vermögensneutral; ETF-Verkäufe und
+  Aktienorders zeigen mögliche Steuer bzw. Kosten vor Bestätigung und verändern
+  das Nettovermögen nur um diese Reibung.
+- `ui/karte.js` rendert drei getrennte, schematische Karten für Berlin,
+  Leipzig und Meißen + Umland sowie eine gleichwertige Liste aus denselben 19
+  Listings. Marker öffnen ausschließlich vorhandene
+  Exposé-/Objektwege; es existiert keine zweite Objektdatenhaltung.
+- Das kompakte Spielmenü bündelt Hilfe, Einstellungen, Spielstände und Neustart.
+  Meldungen erscheinen rechts unten, verblassen und bleiben im wiederöffnbaren
+  Archiv erhalten. Der Header-Cashflow öffnet eine vollständige Ein-/Ausgabenbox.
+- Mietobjekte wählen explizit zwischen regulärer, möblierter und befristeter
+  Vermietung; Stadtregulierung, Ertrag, Aufwand und Rechtsrisiko werden aus
+  derselben Objektkonfiguration abgeleitet. Eigenbedarf ist ein zeitgebundener,
+  seeded Prozess mit möglichem Konflikt und Abfindung, keine Sofortaktion.
+- Neue ästhetische Umbauten folgen `DESIGN_SYSTEM.md`. Ownership-Board, exakte
+  Tabellen, kurze Kernwege und Reduced Motion sind dabei Invarianten.
+
+## 9. Testen
+
+- `node test/simtest.mjs`: mehr als 90 Checks, einschließlich kompletter
+  Kampagnenläufe aller vier Startprofile, Save-Determinismus, Versionsablehnung, exakter Renovierungs- und
+  Verkaufsdauer, Eigenheim, Jahressteuer, Aktienorders/-pfad, fünf Endscores und vier Linien.
+- `node test/chat-contracts.mjs`: statische Querschnittsprüfung der 22
+  Owner-Verträge aus dem Arbeitschat, darunter Presets, Zeitsteuerung,
+  Header-/Menüstruktur, Hilfen, Karten, Vermietungswege, Eigenbedarf,
+  Steuern, Launcher und explizit vertagte Ideen.
+- `node test/family-market.mjs --seeds=300`: gepaarte Miete-/Wohnung-/Hausläufe,
+  Finanzierbarkeit, artabhängige laufende Kosten, Contentstruktur und
+  Dominanzgrenze.
+- `node test/balance.mjs --seeds=300 --check`: 6.300 vollständige Strategieläufe
+  plus Gutachter-Matrix. 13 Gates prüfen Mindest-EK, Eigenheim-Timing, selektiven
+  Gutachterwert, strategieunabhängige ETF-Pfade und die messbare Abstufung von
+  Ereignissen, Mängeln, Vermögen und Score über alle Schwierigkeiten.
+- `node test/balance-regressions.mjs --seeds=300`: fünf kleine Gates isolieren
+  Möblierung, Renovierungsrenditen, Grundrissbonus und Energie-Exposure. Sie
+  bleiben absichtlich getrennt vom breiten Kampagnen-Harness.
+- `node test/browser-smoke.mjs`: startet Edge/Chrome ohne Zusatzpakete headless
+  und bedient Dashboard → Finanzen → Markt → Exposé → Finanzierung → Kauf →
+  Portfolio. Zusätzlich prüft er beidseitige ETF-Umschichtung, Sparplan, eine
+  echte Aktienkauforder mit Gebühren,
+  Owner-UI-Verträge, Tutorial, Admin-Hilfen, Stadtkarte, Chartlabel ≥14 px und
+  Responsive/A11y für Dashboard, Finanzen und Karte bei 1024/700/390 px. Nach jeder
+  Navigation muss genau ein Hauptscreen sichtbar sein.
+- `node test/launcher-smoke.mjs`: startet den Ein-Klick-Server ohne Browser auf
+  einem freien Port und prüft Launcher-Marker, HTML-Injektion, Keepalive sowie
+  korrekte MIME-Typen.
+- `node test/release-check.mjs`: lokale HTML-/Modulreferenzen, JSON und eindeutige
+  Content-IDs, derzeit 143 Modulimporte, 5 Aktien und 85 Runtime-Assets, 15-MB-Budget,
+  Merge-Marker, Cachebuster und
+  `.nojekyll`.
+- `node --check` über alle JS-Dateien für Syntaxfehler.
+- Betroffene Abläufe zusätzlich über einen lokalen HTTP-Server im Browser
+  spielen. Im aktuellen Pass wurden zusätzlich die Bewerbermappe, sichtbare
+  Leerstandskosten und drei Dossiers nebeneinander bei 1280 px geprüft.
+
+## 10. Checkliste beim Erweitern
+
+1. Formel zuerst in `ECONOMY_MODEL.md`, Parameter in `DEFAULT_CONFIG`.
+2. Zufälligkeit ausschließlich über den State-RNG.
+3. Neue State-Struktur: Save-Version erhöhen; alte Version ablehnen und aktuellen
+   Roundtrip testen. Migration nur auf ausdrücklichen Owner-Auftrag.
+4. Engine DOM-frei; UI nur unter `js/ui/`.
+5. Strukturänderungen vollständig rerendern; IDs statt Feed-Indizes.
+6. Simtest und einen realen Browserflow ausführen.
+7. `HANDOVER.md` überschreiben und `DECISIONS.md` ergänzen.

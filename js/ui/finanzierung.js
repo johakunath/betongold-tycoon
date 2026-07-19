@@ -1,0 +1,304 @@
+// finanzierung.js — Screen 4: Finanzierungsdialog. Slider für Eigenkapital,
+// Tilgung, Zinsbindung; live berechnetes Angebot + Haushaltsrechnungs-Verdikt.
+// Modus 'szenario' = reiner Rechner, Modus 'kauf' = mit Kaufabschluss.
+
+import { getListing } from '../content.js?v=36';
+import { finanzierungsCashflowVorschau, kreditAngebot, kaufeObjekt, nebenkostenFuer } from '../finance.js?v=36';
+import { kaufeEigenheim } from '../eigenheim.js?v=36';
+import { fmtEUR, fmtEURSigniert } from './util.js?v=36';
+import { eigenheimEignung, fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=36';
+import { etfVerkaufVorschau } from '../etf.js?v=36';
+import { vergleichsmiete } from '../market.js?v=36';
+import { fixkostenAufschluesselung } from '../immobilie.js?v=36';
+import { haushaltsUeberschussMonat, liquiditaetsPufferMonate } from './kennzahlen.js?v=36';
+
+let ctx = null;
+let lage = null; // { listingId, kaufpreis, modus }
+let nachKaufAuswahl = null;
+let bankStep = 1;
+
+export function initFinanzierung(context) {
+  ctx = context;
+  const dlg = document.getElementById('dlg-finanzierung');
+  dlg.addEventListener('input', (ev) => {
+    if (ev.target.matches('input:not(#fin-etf-betrag)')) render();
+  });
+  dlg.querySelectorAll('[data-ek-prozent]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (!lage) return;
+      const input = document.getElementById('form-finanzierung').elements.eigenkapital;
+      input.value = ekSchnellZiel(ctx.getState(), Number(btn.dataset.ekProzent));
+      render();
+    });
+  });
+  dlg.querySelectorAll('[data-fin-step]').forEach((button) => {
+    button.addEventListener('click', () => setzeBankStep(Number(button.dataset.finStep)));
+  });
+  document.getElementById('btn-fin-weiter').addEventListener('click', () => setzeBankStep(Math.min(3, bankStep + 1)));
+  document.getElementById('btn-fin-zurueck').addEventListener('click', () => setzeBankStep(Math.max(1, bankStep - 1)));
+  document.getElementById('btn-fin-etf').addEventListener('click', () => {
+    const betrag = Number(document.getElementById('fin-etf-betrag').value) || 0;
+    if (betrag <= 0 || !ctx.etfVerkaufen(betrag)) return;
+    aktualisiereEkGrenzen(ctx.getState());
+    render();
+  });
+  document.getElementById('btn-kaufen').addEventListener('click', abschliessen);
+  document.getElementById('dlg-kauf-ok').addEventListener('click', () => {
+    document.getElementById('dlg-kauf').close();
+    if (nachKaufAuswahl) ctx.oeffneObjekt(nachKaufAuswahl);
+    nachKaufAuswahl = null;
+  });
+}
+
+export function oeffneFinanzierung({ listingId, kaufpreis, modus }) {
+  const state = ctx.getState();
+  lage = { listingId, kaufpreis, modus };
+  const f = document.getElementById('form-finanzierung');
+  const maxEk = aktualisiereEkGrenzen(state);
+  f.elements.eigenkapital.value = Math.min(maxEk, ekSchnellZiel(state, 20));
+  f.elements.tilgung.value = 2;
+  f.elements.zinsbindung.value = '10';
+  f.elements.nutzung.value = 'kapitalanlage';
+  const listing = getListing(listingId);
+  const eignung = eigenheimEignung(state, listing);
+  const kannEigenheim = eignung.geeignet && !state.eigenheim;
+  document.getElementById('fin-nutzung').hidden = false;
+  const eigenheimRadio = f.querySelector('input[name="nutzung"][value="eigenheim"]');
+  eigenheimRadio.disabled = !kannEigenheim;
+  const grund = state.eigenheim
+    ? 'Ihr besitzt bereits ein Eigenheim.'
+    : !eignung.geeignet
+      ? `Nicht als Familienheim geeignet: ${eignung.gruende.join(', ')}.`
+      : 'Als Eigenheim entfallen die bisherigen Mietkosten; Kredit, laufende Eigentümerkosten und Rücklage treten an ihre Stelle.';
+  const eigenheimOption = document.getElementById('fin-option-eigenheim');
+  const eigenheimInfo = document.getElementById('fin-eigenheim-info');
+  eigenheimOption.classList.toggle('gesperrt', !kannEigenheim);
+  eigenheimOption.setAttribute('aria-disabled', String(!kannEigenheim));
+  eigenheimOption.title = kannEigenheim ? 'Dieses Objekt als Eigenheim nutzen.' : grund;
+  eigenheimInfo.hidden = kannEigenheim;
+  eigenheimInfo.dataset.tooltip = grund;
+  eigenheimInfo.setAttribute('aria-label', `Warum Eigenheim nicht möglich ist: ${grund}`);
+  const nutzungHinweis = document.getElementById('fin-nutzung-hinweis');
+  nutzungHinweis.textContent = grund;
+  nutzungHinweis.classList.toggle('gesperrt', !kannEigenheim);
+  document.getElementById('dlg-finanzierung').showModal();
+  setzeBankStep(1);
+  render();
+}
+
+function ekSchnellZiel(state, kaufpreisAnteil) {
+  if (!lage) return 0;
+  const listing = getListing(lage.listingId);
+  const nk = nebenkostenFuer(state, listing, lage.kaufpreis);
+  return Math.round((nk.summe + lage.kaufpreis * kaufpreisAnteil / 100) / 100) * 100;
+}
+
+function setzeBankStep(step) {
+  bankStep = Math.max(1, Math.min(3, step));
+  document.querySelectorAll('[data-fin-step]').forEach((button) => {
+    const aktiv = Number(button.dataset.finStep) === bankStep;
+    button.classList.toggle('aktiv', aktiv);
+    if (aktiv) button.setAttribute('aria-current', 'step');
+    else button.removeAttribute('aria-current');
+  });
+  document.querySelectorAll('[data-fin-step-panel]').forEach((panel) => {
+    panel.hidden = Number(panel.dataset.finStepPanel) !== bankStep;
+  });
+  document.getElementById('btn-fin-zurueck').hidden = bankStep === 1;
+  document.getElementById('btn-fin-weiter').hidden = bankStep === 3;
+  document.getElementById('btn-fin-schliessen').hidden = bankStep !== 1;
+  const kaufen = document.getElementById('btn-kaufen');
+  kaufen.hidden = bankStep !== 3 || lage?.modus !== 'kauf';
+}
+
+function werte() {
+  const f = document.getElementById('form-finanzierung');
+  return {
+    eigenkapital: Number(f.elements.eigenkapital.value),
+    tilgungssatz: Number(f.elements.tilgung.value) / 100,
+    zinsbindungJahre: Number(f.elements.zinsbindung.value),
+    nutzung: f.elements.nutzung.value || 'kapitalanlage',
+  };
+}
+
+function aktualisiereEkGrenzen(state) {
+  const maxEk = Math.max(0, Math.floor(state.cash / 100) * 100);
+  const input = document.getElementById('form-finanzierung').elements.eigenkapital;
+  input.max = maxEk;
+  document.querySelectorAll('[data-ek-prozent]').forEach((btn) => {
+    const ziel = lage ? ekSchnellZiel(state, Number(btn.dataset.ekProzent)) : 0;
+    btn.disabled = ziel > maxEk;
+    btn.title = btn.disabled ? `Dafür wären ${fmtEUR(ziel)} Tagesgeld nötig.` : `${fmtEUR(ziel)} insgesamt einsetzen`;
+  });
+  const etfInput = document.getElementById('fin-etf-betrag');
+  etfInput.max = Math.floor(state.etfDepot.wert);
+  etfInput.value = Math.min(Math.floor(state.etfDepot.wert), Math.max(0, Math.round(((lage?.kaufpreis || 0) * .2 - state.cash) / 100) * 100 || Math.floor(state.etfDepot.wert)));
+  const liquidation = etfVerkaufVorschau(state, state.etfDepot.wert);
+  document.getElementById('fin-etf-stand').textContent = `${fmtEUR(state.etfDepot.wert)} Marktwert · ` +
+    `${fmtEUR(liquidation.ok ? liquidation.netto : 0)} nach aktueller Steuer verfügbar.`;
+  document.getElementById('btn-fin-etf').disabled = state.etfDepot.wert < 1;
+  return maxEk;
+}
+
+function render() {
+  if (!lage) return;
+  const state = ctx.getState();
+  const listing = getListing(lage.listingId);
+  const { eigenkapital, tilgungssatz, zinsbindungJahre, nutzung } = werte();
+  const a = kreditAngebot(state, {
+    listingId: lage.listingId, kaufpreis: lage.kaufpreis,
+    eigenkapital, tilgungssatz, zinsbindungJahre, nutzung,
+  });
+
+  document.getElementById('fin-titel').textContent =
+    (lage.modus === 'kauf' ? 'Finanzierung: ' : 'Szenario: ') + listing.titel +
+    (nutzung === 'eigenheim' ? ' · Eigenheim' : '');
+
+  document.getElementById('fin-ek-quote').textContent = fmtEUR(eigenkapital);
+  document.querySelectorAll('[data-ek-prozent]').forEach((btn) => {
+    const ziel = ekSchnellZiel(state, Number(btn.dataset.ekProzent));
+    const aktiv = Math.abs(eigenkapital - ziel) < 50;
+    btn.classList.toggle('aktiv', aktiv);
+    btn.setAttribute('aria-pressed', String(aktiv));
+  });
+  aktualisiereEkGrenzen(state);
+
+  document.getElementById('fin-slider-werte').innerHTML =
+    `<span>Eigenkapital gesamt <b>${fmtEUR(eigenkapital)}</b></span>` +
+    `<span>Restpuffer <b>${fmtEUR(Math.max(0, state.cash - eigenkapital))}</b> · ${liquiditaetsPufferMonate({ ...state, cash: Math.max(0, state.cash - eigenkapital) }).toLocaleString('de-DE', { maximumFractionDigits: 1 })} Mon.</span>` +
+    `<span>Anfangstilgung <b>${(tilgungssatz * 100).toFixed(2).replace('.', ',')} %</b></span>`;
+
+  const ltvProzent = Math.max(0, a.ltv * 100);
+  const ltvBreite = Math.min(100, ltvProzent);
+  const ltvKlasse = ltvProzent <= 60 ? 'stabil' : ltvProzent <= 80 ? 'angespannt' : 'riskant';
+  document.getElementById('fin-ltv-viz').innerHTML =
+    `<div><span>Finanzierungsquote (LTV)</span><b>${ltvProzent.toFixed(0)} %</b></div>` +
+    `<div class="ltv-track" aria-label="Beleihung ${ltvProzent.toFixed(0)} Prozent"><i class="${ltvKlasse}" style="width:${ltvBreite.toFixed(1)}%"></i></div>` +
+    `<small>${ltvProzent <= 60 ? 'viel Eigenkapital · geringerer Zinsdruck' : ltvProzent <= 80 ? 'mittlerer Hebel · Reserve im Blick behalten' : 'hoher Hebel · wenig Puffer bei Preisrückgang'}</small>`;
+
+  const nk = a.nebenkosten;
+  document.getElementById('fin-rechnung').innerHTML =
+    `<tr class="fin-gruppe"><th colspan="2">Kauf</th></tr>` +
+    `<tr><td>Kaufpreis</td><td>${fmtEUR(lage.kaufpreis)}</td></tr>` +
+    `<tr><td>Nebenkosten · sofort weg</td><td>${fmtEUR(Math.round(nk.summe))}</td></tr>` +
+    `<tr class="summe"><td>Eigenkapital gesamt</td><td>${fmtEUR(eigenkapital)}</td></tr>` +
+    `<tr class="fin-gruppe"><th colspan="2">Kredit</th></tr>` +
+    `<tr class="summe"><td>Darlehen ` +
+      `<button type="button" class="info-tooltip" ` +
+      `aria-label="Info: LTV ist Restschuld geteilt durch Immobilienwert. Hohe Werte bedeuten mehr Hebel und Risiko." ` +
+      `data-tooltip="LTV = Restschuld ÷ Immobilienwert. Hohe Werte bedeuten mehr Hebel und Risiko.">?</button></td>` +
+      `<td>${fmtEUR(Math.round(a.darlehen))}</td></tr>` +
+    (a.zins !== null
+      ? `<tr><td>Sollzins</td><td>${(a.zins * 100).toFixed(2).replace('.', ',')} % p.a.</td></tr>` +
+        `<tr class="summe"><td>Monatsrate</td><td>${fmtEUR(Math.round(a.rate))}</td></tr>` +
+        `<tr><td>Restschuld nach ${a.zinsbindungJahre} J.</td><td>${fmtEUR(Math.round(a.restschuldNachBindung))}</td></tr>`
+      : '');
+
+  const verdikt = document.getElementById('fin-verdikt');
+  const vorschau = finanzierungsCashflowVorschau(state, a);
+  const klasse = (wert) => wert > .5 ? 'positiv' : wert < -.5 ? 'negativ' : 'neutral';
+  const zeile = (label, wert, vorzeichen = '−') =>
+    `<span class="fin-cashflow-zeile"><span><i>${vorzeichen}</i>${label}</span>` +
+    `<b class="${klasse(wert)}">${fmtEURSigniert(Math.round(wert))}</b></span>`;
+  let monatsbild = '';
+  if (vorschau) {
+    const istEigenheim = nutzung === 'eigenheim';
+    const aktuellVermietet = !istEigenheim && !!listing.mietstatus?.vermietet;
+    const fixLeer = fixkostenMonat(state, listing, false);
+    const fixVermietet = fixkostenMonat(state, listing, true);
+    const ruecklage = instandhaltungMonat(state, listing);
+    const mieteGeplant = istEigenheim ? 0 : aktuellVermietet
+      ? Number(listing.mietstatus.kaltmiete) || 0
+      : Math.round(vergleichsmiete(state, listing));
+    const objektJetzt = istEigenheim
+      ? vorschau.mietersparnis - vorschau.rate - fixLeer - ruecklage
+      : (aktuellVermietet ? mieteGeplant - fixVermietet : -fixLeer) - vorschau.rate - ruecklage;
+    const objektGeplant = istEigenheim
+      ? objektJetzt
+      : mieteGeplant - fixVermietet - vorschau.rate - ruecklage;
+    const steuerErgebnisGeplant = istEigenheim ? 0 : mieteGeplant - vorschau.zinsanteil - fixVermietet - vorschau.afa;
+    const steuerGeplant = Math.max(0, steuerErgebnisGeplant) * state.steuer.grenzsatz;
+    const haushaltBasis = haushaltsUeberschussMonat(state);
+    const haushaltDanach = haushaltBasis + objektGeplant + vorschau.cashzinsAenderung - steuerGeplant;
+    const wegGesamt = listing.objektart === 'wohnung'
+      ? Number(listing.hausgeld) || fixkostenAufschluesselung(listing).reduce((summe, posten) => summe + posten.betrag, 0)
+      : null;
+    const wegAufteilung = wegGesamt === null ? '' :
+      `<details class="weg-aufteilung"><summary>WEG-Kosten aufteilen</summary>` +
+      zeile('Hausgeld gesamt an die WEG', -wegGesamt) +
+      zeile('voraussichtlich umlagefähig', Math.max(0, wegGesamt - fixVermietet), '+') +
+      zeile('nicht umlegbarer Owner-Anteil', -fixVermietet) +
+      zeile('zusätzliche Objektrücklage', -ruecklage) +
+      `<small>Umlagefähigkeit und Rücklagen sind vereinfachte Spielannahmen; die zusätzliche Rücklage betrifft das Sondereigentum.</small></details>`;
+    const steuerZeile = steuerGeplant > .5
+      ? zeile(`Steuerrückstellung (${Math.round(state.steuer.grenzsatz * 100)} %, geschätzt)`, -steuerGeplant)
+      : `<span class="fin-cashflow-zeile steuer-null"><span>Steuerwirkung im aktuellen Modell</span><b>0 €</b><small>${steuerErgebnisGeplant < 0
+        ? 'Negatives Vermietungsergebnis: Das MVP rechnet weder Erstattung noch Verlustvortrag.'
+        : 'Kein positiver steuerlicher Überschuss in dieser Szenariorechnung.'}</small></span>`;
+    const szenario = (titel, miete, kosten, objektCashflow, geplant = false) =>
+      `<section class="fin-szenario ${geplant ? 'geplant' : ''}"><h4>${titel}</h4>` +
+      (istEigenheim ? zeile('entfallende Warmmiete', vorschau.mietersparnis, '+') : zeile(miete ? 'Kaltmiete' : 'Miete im Leerstand', miete, '+')) +
+      zeile(listing.objektart === 'haus' ? 'Owner-Kosten' : 'Owner-Anteil / Hausgeld', -kosten) +
+      zeile('Objektrücklage', -ruecklage) +
+      zeile('Kreditrate', -vorschau.rate) +
+      `<strong class="fin-cashflow-summe haupt"><span>Objekt-Cashflow</span><b class="${klasse(objektCashflow)}">${fmtEURSigniert(Math.round(objektCashflow))}</b></strong></section>`;
+    monatsbild = `<div class="fin-monatsvergleich"><header><b>Objekt pro Monat</b><small>normalisierte Szenariorechnung · keine Mietgarantie</small></header>` +
+      `<div class="fin-szenarien">${szenario(vorschau.leerstand ? 'Bis zur Vermietung' : istEigenheim ? 'Als Eigenheim' : 'Mit Bestandsmiete', aktuellVermietet ? mieteGeplant : 0, aktuellVermietet ? fixVermietet : fixLeer, objektJetzt)}` +
+      (vorschau.leerstand ? szenario('Nach geplanter Vermietung', mieteGeplant, fixVermietet, objektGeplant, true) : '') +
+      `</div>${wegAufteilung}${steuerZeile}` +
+      `<div class="fin-haushalt-wirkung"><span><small>Haushaltsüberschuss heute</small><b>${fmtEURSigniert(Math.round(haushaltBasis))}</b></span>` +
+      `<i>→</i><span><small>nach Kauf${vorschau.leerstand ? ' & Vermietung' : ''}</small><b class="${klasse(haushaltDanach)}">${fmtEURSigniert(Math.round(haushaltDanach))}</b></span></div>` +
+      `<small>Einmalige Kaufkosten, Reparaturen, Leerstandszeit und spätere Miet- oder Zinsänderungen sind nicht enthalten.</small></div>`;
+  }
+  if (a.zusage) {
+    verdikt.className = 'verdikt ok';
+    verdikt.innerHTML =
+      `<b>Die Bank sagt zu.</b> Rate ${fmtEUR(Math.round(a.rate))} bei ` +
+      `${fmtEUR(Math.round(a.spielraum))} Spielraum laut Haushaltsrechnung.${monatsbild}`;
+  } else {
+    verdikt.className = 'verdikt abgelehnt';
+    verdikt.innerHTML =
+      `<b>So finanziert die Bank nicht:</b><ul>` +
+      a.gruende.map((g) => `<li>${g}</li>`).join('') + `</ul>${monatsbild}`;
+  }
+
+  const kaufen = document.getElementById('btn-kaufen');
+  kaufen.hidden = bankStep !== 3 || lage.modus !== 'kauf';
+  kaufen.disabled = !a.zusage;
+  document.getElementById('fin-hinweis').textContent =
+    lage.modus === 'szenario'
+      ? 'Nur ein Rechenszenario — es wird nichts gekauft.'
+      : '';
+  setzeBankStep(bankStep);
+}
+
+function abschliessen() {
+  const state = ctx.getState();
+  const a = kreditAngebot(state, { listingId: lage.listingId, kaufpreis: lage.kaufpreis, ...werte() });
+  if (!a.zusage) return;
+  const objekt = a.nutzung === 'eigenheim' ? kaufeEigenheim(state, a) : kaufeObjekt(state, a);
+  document.getElementById('dlg-finanzierung').close();
+
+  // Der "dieses Geld ist weg"-Moment (PLAN §5.4)
+  const nk = a.nebenkosten;
+  document.getElementById('dlg-kauf-inhalt').innerHTML =
+    `<p><b>${objekt.titel}</b> gehört euch${a.nutzung === 'eigenheim' ? ' — als neues Eigenheim' : ''}. Beim Notar sind geflossen:</p>` +
+    `<table class="ende-tabelle">` +
+    `<tr><td>Kaufpreis</td><td>${fmtEUR(a.kaufpreis)}</td></tr>` +
+    `<tr><td>Grunderwerbsteuer</td><td>${fmtEUR(Math.round(nk.grESt))}</td></tr>` +
+    `<tr><td>Notar & Grundbuch</td><td>${fmtEUR(Math.round(nk.notar))}</td></tr>` +
+    (nk.makler > 0 ? `<tr><td>Makler</td><td>${fmtEUR(Math.round(nk.makler))}</td></tr>` : '') +
+    `<tr class="summe"><td>Nebenkosten gesamt</td><td>${fmtEUR(Math.round(nk.summe))}</td></tr>` +
+    `</table>` +
+    `<p class="muted">Die ${fmtEUR(Math.round(nk.summe))} Nebenkosten sind weg — sie stecken in ` +
+    `keinem Vermögenswert. ${a.nutzung === 'eigenheim'
+      ? 'Eure bisherige Wohnmiete entfällt; Hausgeld, Rücklage und Kreditrate werden sichtbar gegenübergestellt.'
+      : 'Das Objekt steht ab sofort mit Marktwert und Restschuld in eurem Portfolio.'}</p>`;
+  document.getElementById('dlg-kauf').showModal();
+
+  nachKaufAuswahl = a.nutzung === 'eigenheim' ? 'eigenheim' : objekt.listingId;
+  ctx.autosave();
+  ctx.zeigeScreen('dashboard');
+  ctx.toast(a.nutzung === 'eigenheim' ? 'Eigenheim gekauft — die Wohnkosten sind jetzt neu aufgeteilt.' : 'Objekt gekauft — als Nächstes bewirtschaften.');
+  lage = null;
+}
