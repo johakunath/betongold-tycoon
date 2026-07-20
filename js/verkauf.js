@@ -1,8 +1,9 @@
 // verkauf.js — sechsmonatiger Verkauf von Kapitalanlage oder Eigenheim.
 // Keine Zufälligkeit; der Marktwert am Abschluss bestimmt den Erlös.
 
-import { fairerWert } from './market.js?v=36';
-import { meldeWartemoment } from './signals.js?v=36';
+import { fairerWert } from './market.js?v=41';
+import { meldeWartemoment } from './signals.js?v=41';
+import { protokolliereWirkung } from './gameplay.js?v=41';
 
 export function verkaufsVorschau(state, objekt) {
   const cfg = state.config.verkauf;
@@ -29,6 +30,13 @@ export function starteVerkauf(state, objekt) {
   state.log.push({
     monat: state.monat,
     text: `${objekt.titel}: Verkauf gestartet — geplanter Abschluss in ${state.config.verkauf.dauerMonate} Monaten.`,
+  });
+  protokolliereWirkung(state, {
+    typ: 'verkauf-gestartet',
+    titel: 'Portfolio wird verkleinert',
+    text: `${objekt.titel}: sechsmonatiger Verkauf gestartet; heutiger Nettoerlös etwa ${Math.round(vorschau.nettoerloes).toLocaleString('de-DE')} €, laufende Wirkung erst beim Abschluss.`,
+    ziel: objekt.listingId,
+    route: 'objekt',
   });
   return objekt.verkauf;
 }
@@ -76,6 +84,13 @@ function schliesseAb(state, objekt, eigenheim) {
           ? `, davon ${Math.round(v.spekulationssteuer).toLocaleString('de-DE')} € Spekulationssteuer.`
           : ', innerhalb der Spekulationsfrist, aber ohne steuerpflichtigen Gewinn.'
         : ', außerhalb der Spekulationsfrist.')
+  });
+  protokolliereWirkung(state, {
+    typ: 'verkauft',
+    titel: 'Verkauf abgeschlossen',
+    text: `${objekt.titel}: Restschuld abgelöst, ${Math.round(v.nettoerloes).toLocaleString('de-DE')} € Nettoerlös gebucht; der bisherige Objekt-Cashflow entfällt.`,
+    ziel: objekt.listingId,
+    route: 'portfolio',
   });
   meldeWartemoment(
     state,

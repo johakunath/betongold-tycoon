@@ -8,18 +8,18 @@
 // optimale Spielweise; sie zeigen robuste Ausreißer und Richtungen.
 
 import { readFile } from 'node:fs/promises';
-import { newGame } from '../js/state.js?v=36';
-import { setzeInhalte, alleListings } from '../js/content.js?v=36';
+import { newGame } from '../js/state.js?v=41';
+import { setzeInhalte, alleListings } from '../js/content.js?v=41';
 import {
   initialisiereMarkt, sichtbareListings, gebotAbgeben, vergleichsmiete,
   gutachterBeauftragen,
-} from '../js/market.js?v=36';
-import { kreditAngebot, kaufeObjekt, nebenkostenFuer } from '../js/finance.js?v=36';
-import { kaufeEigenheim } from '../js/eigenheim.js?v=36';
-import { starteVermietung, neueBewerber, waehleBewerber } from '../js/tenants.js?v=36';
-import { resolveEvent } from '../js/events.js?v=36';
-import { advanceMonths, gesamtMonate, nettovermoegen } from '../js/engine.js?v=36';
-import { berechneScores } from '../js/endgame.js?v=36';
+} from '../js/market.js?v=41';
+import { kreditAngebot, kaufeObjekt, nebenkostenFuer } from '../js/finance.js?v=41';
+import { kaufeEigenheim } from '../js/eigenheim.js?v=41';
+import { starteVermietung, neueBewerber, waehleBewerber } from '../js/tenants.js?v=41';
+import { resolveEvent } from '../js/events.js?v=41';
+import { advanceMonths, gesamtMonate, nettovermoegen } from '../js/engine.js?v=41';
+import { berechneScores } from '../js/endgame.js?v=41';
 
 const lade = async (name) =>
   JSON.parse(await readFile(new URL(`../data/${name}`, import.meta.url), 'utf8'));

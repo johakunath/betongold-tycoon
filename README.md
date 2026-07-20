@@ -3,9 +3,10 @@
 Ein deutsches Browser-Aufbauspiel über Immobilien, Familie und
 Opportunitätskosten. Die vollständige Kampagne führt von Marktplatz, Prüfung,
 Finanzierung und Vermietung bis Eigenheim, Steuer, Verkauf und Endauswertung.
-Ein separater Finanzscreen stellt Tagesgeld, Immobilienportfolio, Welt-ETF und
-fünf fiktive Einzelaktien als unterschiedliche Vermögens- und Risikoformen
-nebeneinander.
+Ein separater Finanzscreen stellt Tagesgeld, Immobilienportfolio und Welt-ETF
+als unterschiedliche Vermögens- und Risikoformen nebeneinander. Freiwillige
+3–8-Jahres-Ziele, mehrmonatige Objektgeschichten sowie Arbeits- und
+Familienmodelle verbinden einzelne Monatsentscheidungen zu längeren Verläufen.
 
 Das Standardprofil „Familienstrategie mit Puffer“ startet mit Alter 40,
 zwei jungen Kindern, 4.300 € + 4.000 € Arbeitsnetto sowie je 90.000 € Tagesgeld
@@ -19,6 +20,10 @@ Stresstest und einen 17-jährigen Handwerker-Azubi mit Gesellenlohn-
 Der Ruhestand ist eine eigene Lebensphase: standardmäßig sinkt das fortgeschriebene
 Haushalts-Netto mit 67 auf 55 %. Das Spiel endet je Seed und langfristigem Stress
 zwischen 90 und 100 Jahren; der genaue Zeitpunkt ist keine reale Prognose.
+Kommende Lebensphasen werden rechtzeitig angekündigt. Karriere und Familienzeit
+sind zwölf Monate gebunden und tauschen Einkommen gegen Zeit und
+Familienzufriedenheit; Eigenleistung spart bei Renovierungen nur gedeckelt und
+erhöht Aufwand und Kostenrisiko.
 
 ## Spielen
 
@@ -65,8 +70,8 @@ Wichtige Bedienpunkte:
   ETF-Depot auf jedem Screen sichtbar. Nettovermögen bleibt bewusst in Zentrale,
   Charts, Finanzübersicht und Endbilanz statt als permanenter Header-KPI.
 - Tagesgeld oder ETF in der Leiste sowie „Finanzen“ öffnen den gemeinsamen
-  Konto-/Depot-Screen. Vier Karten trennen Tagesgeld, Immobilienportfolio,
-  Welt-ETF und Einzelaktien; Puffer, Zinsannahmen, Vermögensmix und letzte
+  Konto-/Depot-Screen. Drei Karten trennen Tagesgeld, Immobilienportfolio und
+  Welt-ETF; Puffer, Zinsannahmen, Vermögensmix und letzte
   Finanzbewegungen bleiben sichtbar.
 - Der Monatscashflow im Header öffnet eine detaillierte Aufschlüsselung. Kurze
   Toasts verschwinden selbstständig; die Glocke zeigt die letzten Meldungen der
@@ -75,11 +80,12 @@ Wichtige Bedienpunkte:
   auf realisierte Gewinne nach Teilfreistellung und gemeinsamem Pauschbetrag
   Steuern anfallen; die Vorschau zeigt Brutto, Steuer und Netto. Der Anteil der positiven Haushaltssparrate für den monatlichen
   ETF-Sparplan ist von 0 bis 100 % einstellbar.
-- Fünf fiktive Einzelaktien lassen sich gegen Tagesgeld in ganzen Stücken
-  kaufen und verkaufen. Orderkosten, gemeinsamer Sparer-Pauschbetrag,
-  Kapitalertragsteuer,
-  Verlusttopf, Quartalsdividenden und Einzelwert-Ereignisse sind sichtbar;
-  die Sandbox gibt keine Empfehlung und nutzt keine Livekurse.
+- In der Zentrale lassen sich drei freiwillige mittelfristige Ziele wählen oder
+  jederzeit ohne versteckte Strafe pausieren. Fortschritt entsteht aus echten
+  Objekt-, Eigenheim-, Cashflow- und Pufferwerten; es gibt keine Questprämie.
+- Im Haushalt stehen Balance, Karriereschritt und Familienzeit mit ihren
+  monatlichen Geld-, Zeit- und Familienwirkungen. Nach einer Wahl gilt eine
+  zwölfmonatige Bindung.
 - In der Finanzierung ergänzt 0/10/20/30 % Eigenkapital den freien Slider; die
   aktuelle EK-Quote bleibt prominent sichtbar.
 - Marktplatz und Exposé zeigen Außen- und Innenansichten; alle Bilder sind
@@ -101,7 +107,11 @@ Wichtige Bedienpunkte:
   trennt Rentenalter, Renten-Netto sowie das variable Lebensende samt
   begrenztem Stress-Einfluss.
 - Renovierungsabschluss und ähnliche erwartete Meilensteine pausieren den
-  Zeitlauf automatisch und erscheinen als wichtige Meldung.
+  Zeitlauf automatisch und erscheinen als wichtige Meldung. Im Planer kann
+  Eigenleistung mit vorab sichtbarer Ersparnis, Zeitlast und höherem Risiko
+  gewählt werden.
+- Schimmel-, Nachbarschafts- und Zinsentscheidungen können Monate später eine
+  nachvollziehbare Folge am betroffenen Objekt auslösen.
 
 ## Dokumente
 
@@ -122,6 +132,10 @@ Wichtige Bedienpunkte:
 
 ```text
 node test/simtest.mjs
+node test/b0-economy.mjs
+node test/e-gameplay.mjs
+node test/f-turnaround.mjs
+node test/gh-development.mjs
 node test/chat-contracts.mjs
 node test/family-market.mjs --seeds=300
 node test/balance.mjs --seeds=300 --check

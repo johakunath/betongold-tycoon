@@ -1,8 +1,11 @@
 // market.js — Feed-Lifecycle, Preisformel, Segment-Drift, Verhandlung,
 // Due Diligence. Formeln: ECONOMY_MODEL.md §7–8, §11, §13. DOM-frei.
 
-import { rngFloat, rngNormal } from './state.js?v=36';
-import { alleListings, getListing } from './content.js?v=36';
+import { rngFloat, rngNormal } from './state.js?v=41';
+import { alleListings, getListing } from './content.js?v=41';
+import {
+  oeffneDealEntscheidung, setzeDealEntscheidung,
+} from './gameplay.js?v=41';
 
 // ---------------------------------------------------------------------------
 // Initialisierung: einmal pro Spielstand (nach newGame bzw. aktuellem Save-Import).
@@ -111,6 +114,9 @@ function erscheine(state, id) {
     runden: alt ? alt.runden + 1 : 0,
     letztesGebotMonat: -1,
   };
+  // Eine neue Marktrunde ist eine echte neue Chance (mit geringerem
+  // Aufschlag), nicht dieselbe bereits verworfene Entscheidung.
+  oeffneDealEntscheidung(state, id);
 }
 
 // ---------------------------------------------------------------------------
@@ -224,6 +230,7 @@ export function gebotAbgeben(state, id, gebot) {
   if (rngFloat(state) < chance) {
     e.status = 'reserviert';
     e.reserviertPreis = gebot;
+    oeffneDealEntscheidung(state, id);
     return { ok: true, angenommen: true };
   }
   return { ok: true, angenommen: false };
@@ -234,7 +241,33 @@ export function kaufAbbrechen(state, id) {
   if (e && e.status === 'reserviert') {
     e.status = 'amMarkt';
     delete e.reserviertPreis;
+    setzeDealEntscheidung(state, id, 'verworfen', angebotsPreis(state, id));
   }
+}
+
+export function angebotBeobachten(state, id) {
+  const e = state.markt.feed[id];
+  if (!e || e.status !== 'amMarkt') return { ok: false, grund: 'Nicht am Markt.' };
+  if (!state.favoriten.includes(id)) state.favoriten.push(id);
+  return { ok: true, entscheidung: setzeDealEntscheidung(state, id, 'beobachtet', angebotsPreis(state, id)) };
+}
+
+export function angebotVerwerfen(state, id) {
+  const e = state.markt.feed[id];
+  if (!e || (e.status !== 'amMarkt' && e.status !== 'reserviert')) {
+    return { ok: false, grund: 'Nicht mehr entscheidbar.' };
+  }
+  if (e.status === 'reserviert') {
+    e.status = 'amMarkt';
+    delete e.reserviertPreis;
+  }
+  const favorit = state.favoriten.indexOf(id);
+  if (favorit >= 0) state.favoriten.splice(favorit, 1);
+  return { ok: true, entscheidung: setzeDealEntscheidung(state, id, 'verworfen', angebotsPreis(state, id)) };
+}
+
+export function angebotNeuPruefen(state, id) {
+  oeffneDealEntscheidung(state, id);
 }
 
 // ---------------------------------------------------------------------------

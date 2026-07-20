@@ -1,8 +1,9 @@
 // events.js — Dilemma-Events: monatlicher Roll (feste RNG-Position im Tick)
 // und Auflösung ohne RNG. Formeln: ECONOMY_MODEL §18. DOM-frei.
 
-import { rngFloat, zahleReparatur } from './state.js?v=36';
-import { alleEvents, getEvent } from './content.js?v=36';
+import { rngFloat, zahleReparatur } from './state.js?v=41';
+import { alleEvents, getEvent } from './content.js?v=41';
+import { planeObjektArc, schliesseAktivenArc } from './arcs.js?v=41';
 
 function kalendermonat(state) {
   return ((state.config.zeit.startMonat - 1 + state.monat) % 12) + 1;
@@ -27,6 +28,7 @@ function passendeObjekte(state, ev) {
 
 function istErfuellbar(state, ev) {
   const b = ev.bedingung || {};
+  if (b.nurArc) return false;
   const hist = state.eventHistorie[ev.id];
   if (b.einmalig && hist !== undefined) return false;
   if (b.cooldownMonate && hist !== undefined && state.monat - hist < b.cooldownMonate) return false;
@@ -101,12 +103,20 @@ export function resolveEvent(state, optionIndex) {
   const objekt = aktiv.objektIndex >= 0 ? state.portfolio[aktiv.objektIndex] : null;
   const eff = opt.effekt || {};
 
+  if (aktiv.arcId) schliesseAktivenArc(state, aktiv.arcId);
+
   if (typeof eff.cash === 'number') {
     if (eff.cash < 0) zahleReparatur(state, objekt, -eff.cash);
     else state.cash += eff.cash;
   }
   if (typeof eff.ruecklage === 'number' && objekt) {
     objekt.ruecklage = Math.max(0, objekt.ruecklage + eff.ruecklage);
+  }
+  if (typeof eff.sondertilgung === 'number' && objekt?.darlehen) {
+    const betrag = Math.min(objekt.darlehen.restschuld, Math.max(0, eff.sondertilgung));
+    state.cash -= betrag;
+    objekt.darlehen.restschuld -= betrag;
+    if (objekt.darlehen.restschuld <= 0) objekt.darlehen.rate = 0;
   }
   if (typeof eff.zustand === 'number' && objekt) {
     objekt.zustand = Math.max(1, Math.min(5, objekt.zustand + eff.zustand));
@@ -129,6 +139,7 @@ export function resolveEvent(state, optionIndex) {
       : eff.familie;
     state.familienzufriedenheit = Math.max(0, Math.min(100, state.familienzufriedenheit + familienEffekt));
   }
+  if (opt.arc && objekt) planeObjektArc(state, objekt, opt.arc);
 
   state.log.push({
     monat: state.monat,

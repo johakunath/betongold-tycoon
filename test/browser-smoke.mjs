@@ -260,7 +260,7 @@ async function main() {
       form.requestSubmit();
     })()`);
     await bis(`!document.querySelector('#dlg-neu').open`, 'Schuldenberg-Spielstart');
-    await auswerten(`document.querySelector('#nav-objekte').click()`);
+    await auswerten(`(() => { document.querySelector('#nav-dashboard').click(); document.querySelector('[data-zentrale-tab=\"objekte\"]').click(); })()`);
     await bis(`document.querySelector('#portfolio-liste').children.length === 5`, 'Schuldenberg-Portfolio');
     await screen('dashboard');
     const sonderstartVertrag = await auswerten(`(() => ({
@@ -272,6 +272,37 @@ async function main() {
       throw new Error(`Schuldenberg-Startbestand fehlt im UI: ${JSON.stringify(sonderstartVertrag)}`);
     }
     console.log('OK   Schuldenberg startet im echten UI-Weg mit fünf Portfolioobjekten');
+    const turnaroundVertrag = await auswerten(`(() => ({
+      sichtbar: !document.querySelector('#turnaround-board').hidden,
+      linien: document.querySelectorAll('.turnaround-linien article').length,
+      objekte: document.querySelectorAll('.turnaround-tabelle tbody tr').length,
+      ziele: document.querySelectorAll('.turnaround-ziele meter').length,
+      bankfenster: document.querySelector('#turnaround-board').textContent.includes('noch 12 Monate'),
+      nichtGratis: document.querySelector('#turnaround-board').textContent.includes('Gebühren heute') &&
+        document.querySelector('#turnaround-board').textContent.includes('negativer Nettoerlös'),
+    }))()`);
+    if (!turnaroundVertrag.sichtbar || turnaroundVertrag.linien !== 2 || turnaroundVertrag.objekte !== 5 ||
+        turnaroundVertrag.ziele !== 2 || !turnaroundVertrag.bankfenster || !turnaroundVertrag.nichtGratis) {
+      throw new Error(`Turnaround-Triage unvollständig: ${JSON.stringify(turnaroundVertrag)}`);
+    }
+    await auswerten(`document.querySelector('.turnaround-tabelle [data-triage-objekt]').click()`);
+    await bis(`!document.querySelector('#screen-objekt').hidden && !!document.querySelector('#btn-banktermin')`, 'Turnaround-Objekt');
+    await auswerten(`document.querySelector('#btn-banktermin').click()`);
+    await bis(`document.querySelector('#dlg-bank').open`, 'Banktermin');
+    const bankVertrag = await auswerten(`(() => ({
+      output: document.querySelector('#bank-inhalt').textContent.includes('Monatlich frei'),
+      gebuehr: document.querySelector('#bank-inhalt').textContent.includes('Gebühr heute'),
+      folgerisiko: document.querySelector('#bank-inhalt').textContent.includes('Mehr Restschuld'),
+      bestaetigung: !document.querySelector('#btn-bank-anpassen').disabled,
+    }))()`);
+    if (!bankVertrag.output || !bankVertrag.gebuehr || !bankVertrag.folgerisiko || !bankVertrag.bestaetigung) {
+      throw new Error(`Bankanpassung verschweigt Wirkung/Folge: ${JSON.stringify(bankVertrag)}`);
+    }
+    await auswerten(`document.querySelector('#btn-bank-anpassen').click()`);
+    await bis(`!document.querySelector('#dlg-bank').open`, 'Bankanpassung abgeschlossen');
+    await auswerten(`(() => { document.querySelector('#nav-dashboard').click(); document.querySelector('[data-zentrale-tab=\"objekte\"]').click(); })()`);
+    await bis(`document.querySelector('.turnaround-kpis').textContent.includes('1/3')`, 'Banktermin gezählt');
+    console.log('OK   F-Turnaround: Triage, zwei Linien, Zwischenziele und kostenpflichtiger Bankhebel');
     await auswerten(`document.querySelector('#btn-neu').click()`);
     await bis(`document.querySelector('#dlg-neu')?.open`, 'Startdialog für Default-Reset');
     await auswerten(`(() => {
@@ -343,6 +374,33 @@ async function main() {
       throw new Error(`Dashboard-Owner-Vertrag verletzt: ${JSON.stringify(dashboardVertrag)}`);
     }
     console.log('OK   Owner-Dashboard: Cashflow neben Tagesgeld, 520 € Kindergeld, 600 € Kinderkosten, Steuerformel und 2 Zusatzcharts');
+
+    const ghVertrag = await auswerten(`(() => ({
+      zielButtons: document.querySelectorAll('#strategie-board [data-entwicklungsziel]').length,
+      wechselOhneKosten: document.querySelector('#strategie-board').textContent.includes('Wechsel ohne Kosten'),
+      keinQuestzwang: document.querySelector('#strategie-board').textContent.includes('Kein Questzwang'),
+    }))()`);
+    if (ghVertrag.zielButtons !== 4 || !ghVertrag.wechselOhneKosten || !ghVertrag.keinQuestzwang) {
+      throw new Error(`G-Zielvertrag fehlt: ${JSON.stringify(ghVertrag)}`);
+    }
+    await auswerten(`document.querySelector('[data-entwicklungsziel="erstesStabilesObjekt"]').click()`);
+    await bis(`document.querySelector('#strategie-board meter') && document.querySelector('#strategie-board').textContent.includes('36 Monate')`, 'Entwicklungsziel gesetzt');
+    await auswerten(`document.querySelector('[data-zentrale-tab="haushalt"]').click()`);
+    const lebensplan = await auswerten(`(() => ({
+      modelle: document.querySelectorAll('#lebensplan-board [data-arbeitsmodell]').length,
+      tradeoffs: [...document.querySelectorAll('#lebensplan-board output')].every((o) => o.textContent.includes('h')),
+      phase: document.querySelector('#lebensplan-board').textContent.includes('Auto-Pauschale beginnt'),
+      annahmen: !!document.querySelector('#btn-lebensplan-admin'),
+    }))()`);
+    if (lebensplan.modelle !== 3 || !lebensplan.tradeoffs || !lebensplan.phase || !lebensplan.annahmen) {
+      throw new Error(`H-Familienplan fehlt: ${JSON.stringify(lebensplan)}`);
+    }
+    await auswerten(`document.querySelector('[data-arbeitsmodell="karriere"]').click()`);
+    await bis(`document.querySelector('#lebensplan-board').textContent.includes('noch 12 Mon. gebunden')`, 'Arbeitsmodell gebunden');
+    const arbeitWirkt = await auswerten(`document.querySelector('[data-arbeitsmodell="karriere"]').getAttribute('aria-pressed') === 'true' && document.querySelector('#lebensplan-board').textContent.includes('+650') && document.querySelector('#lebensplan-board').textContent.includes('-6 h')`);
+    if (!arbeitWirkt) throw new Error('Arbeitsmodell zeigt Einkommen-/Zeitfolge nicht gemeinsam.');
+    await auswerten(`document.querySelector('[data-zentrale-tab="vermoegen"]').click()`);
+    console.log('OK   G/H: freiwilliges 3-Jahres-Ziel, Arbeitsmodelle, Bindung, Lebensphase und editierbare Annahmen');
 
     const globaleUi = await auswerten(`(() => {
       const cashflow = document.querySelector('#hud-cashflow-aktion');
@@ -578,6 +636,31 @@ async function main() {
       })()`);
       await bis(`!document.querySelector('#screen-expose').hidden`, 'Exposé');
       await screen('expose');
+      if (versuch === 0) {
+        const eVertrag = await auswerten(`(() => ({
+          phasen: document.querySelectorAll('.handlungskette li').length,
+          progress: document.querySelector('.pruefstand progress')?.tagName,
+          meter: document.querySelector('.pruefstand meter')?.tagName,
+          beobachten: !!document.querySelector('#btn-beobachten'),
+          weggehen: !!document.querySelector('#btn-verwerfen'),
+        }))()`);
+        if (eVertrag.phasen !== 4 || eVertrag.progress !== 'PROGRESS' || eVertrag.meter !== 'METER' ||
+            !eVertrag.beobachten || !eVertrag.weggehen) {
+          throw new Error(`E-Handlungskette unvollständig: ${JSON.stringify(eVertrag)}`);
+        }
+        await auswerten(`document.querySelector('#btn-besichtigen').click()`);
+        const pruefung = await auswerten(`(() => ({
+          fortschritt: Number(document.querySelector('.pruefstand progress').value),
+          unsicherheit: Number(document.querySelector('.pruefstand meter').value),
+        }))()`);
+        if (pruefung.fortschritt !== 1 || pruefung.unsicherheit !== 72) {
+          throw new Error(`Prüfwirkung nicht sichtbar: ${JSON.stringify(pruefung)}`);
+        }
+        await auswerten(`document.querySelector('#btn-beobachten').click()`);
+        const beobachtet = await auswerten(`document.querySelector('#btn-beobachten')?.getAttribute('aria-pressed') === 'true' && document.querySelector('.handlungskette').textContent.includes('Beobachtung')`);
+        if (!beobachtet) throw new Error('Beobachten erzeugt keine sichtbare Entscheidung und Wirkung.');
+        console.log('OK   E-Handlungskette: Anlass, native Prüfanzeige, Beobachten und sichtbare Wirkung');
+      }
       await auswerten(`(() => {
         const input = document.querySelector('#gebot-input');
         input.value = Math.ceil(Number(input.value) * 1.12 / 1000) * 1000;
@@ -607,6 +690,7 @@ async function main() {
       const info = document.querySelector('#fin-eigenheim-info');
       const hinweis = document.querySelector('#fin-nutzung-hinweis');
       const haushalt = document.querySelector('.fin-haushalt-wirkung');
+      const pfad = document.querySelector('.fin-pfad-urteil');
       const steuerZeilen = [...document.querySelectorAll('.fin-cashflow-zeile')]
         .filter((zeile) => /Steuerrückstellung|Steuerwirkung im aktuellen Modell/.test(zeile.textContent));
       return {
@@ -624,6 +708,7 @@ async function main() {
         hud: euro(document.querySelector('#hud-cashflow').textContent),
         steuerZeilen: steuerZeilen.length,
         steuerErklaert: steuerZeilen.every((zeile) => zeile.textContent.includes('geschätzt') || zeile.textContent.includes('0 €')),
+        pfadUrteil: pfad?.tagName === 'OUTPUT' && /Tragfähiger Pfad|Nahe Break-even|Auch stabilisiert untragfähig/.test(pfad.textContent) && pfad.textContent.includes('nach Steuer'),
         gruppen: [...document.querySelectorAll('#fin-rechnung .fin-gruppe')].map((zeile) => zeile.textContent.trim()),
       };
     })()`);
@@ -634,10 +719,11 @@ async function main() {
         finanzierungsErklaerung.objektSummen !== finanzierungsErklaerung.szenarien ||
         finanzierungsErklaerung.aktuell !== finanzierungsErklaerung.hud ||
         finanzierungsErklaerung.steuerZeilen !== 1 || !finanzierungsErklaerung.steuerErklaert ||
+        !finanzierungsErklaerung.pfadUrteil ||
         JSON.stringify(finanzierungsErklaerung.gruppen) !== JSON.stringify(['Kauf', 'Kredit'])) {
       throw new Error(`Finanzierungs-Cashflow nicht vollständig erklärt: ${JSON.stringify(finanzierungsErklaerung)}`);
     }
-    console.log(`OK   Finanzierung erklärt Eigenheim-Sperre (${finanzierungsErklaerung.eigenheimGesperrt ? 'gesperrt' : 'verfügbar'}), Objektszenario, Steuer und Haushaltswirkung`);
+    console.log(`OK   Finanzierung erklärt Eigenheim-Sperre (${finanzierungsErklaerung.eigenheimGesperrt ? 'gesperrt' : 'verfügbar'}), Objektszenario, aktiven Pfad, Steuer und Haushaltswirkung`);
 
     await auswerten(`document.querySelector('#btn-fin-weiter').click()`);
     await auswerten(`document.querySelector('[data-ek-prozent="30"]').click()`);
@@ -757,6 +843,7 @@ async function main() {
         staedte.push({
           id: button.dataset.stadt,
           marker: marker.length,
+          kommend: marker.filter((e) => e.classList.contains('is-kommend')).length,
           liste: document.querySelectorAll('.karten-listenpunkt').length,
           hintergrund: document.querySelector('.stadt-buehne-bg')?.style.getPropertyValue('--stadtbild') || '',
           alleBilderEcht: marker.every((e) => e.querySelector('img')?.getAttribute('src')?.startsWith('assets/expose/')),
@@ -771,8 +858,11 @@ async function main() {
         statusText: [...document.querySelectorAll('.karten-listenpunkt small')].every((e) => e.textContent.trim().length > 0),
       };
     })()`);
+    // Bühne und Liste sind bewusst nicht deckungsgleich: Die Bühne zeigt den Ort
+    // räumlich inklusive „noch nicht erschienener" Vorschauen, die Liste ist der
+    // handlungsfähige Index. Erwartet wird genau die Differenz dieser Vorschauen.
     if (kartenStand.tabs !== 4 || kartenStand.ids < 1 ||
-        kartenStand.staedte.some((s) => s.liste !== s.marker || !s.hintergrund.includes('assets/ui/city-') || !s.alleBilderEcht) ||
+        kartenStand.staedte.some((s) => s.liste !== s.marker - s.kommend || !s.hintergrund.includes('assets/ui/city-') || !s.alleBilderEcht) ||
         !kartenStand.nativeButtons || !kartenStand.statusText) {
       throw new Error(`Kartenvertrag verletzt: ${JSON.stringify(kartenStand)}`);
     }
@@ -880,12 +970,12 @@ async function main() {
     // Lebensphasen auch im echten Renderpfad: Ruhestands-HUD und private
     // Endbilanz werden mit einem isolierten deterministischen Teststate gezeigt.
     const lebensphasenUi = await auswerten(`(async () => {
-      const { newGame } = await import('/js/state.js?v=36');
-      const { initialisiereMarkt } = await import('/js/market.js?v=36');
-      const { advanceMonths } = await import('/js/engine.js?v=36');
-      const { resolveEvent } = await import('/js/events.js?v=36');
-      const { updateHud } = await import('/js/ui/shell.js?v=36');
-      const { zeigeEnde } = await import('/js/ui/endgame.js?v=36');
+      const { newGame } = await import('/js/state.js?v=41');
+      const { initialisiereMarkt } = await import('/js/market.js?v=41');
+      const { advanceMonths } = await import('/js/engine.js?v=41');
+      const { resolveEvent } = await import('/js/events.js?v=41');
+      const { updateHud } = await import('/js/ui/shell.js?v=41');
+      const { zeigeEnde } = await import('/js/ui/endgame.js?v=41');
       const rente = newGame({ seedText: 'browser-rente' });
       rente.monat = (rente.config.zeit.rentenAlter - rente.config.zeit.startAlter) * 12;
       updateHud(rente, 0);

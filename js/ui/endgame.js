@@ -1,8 +1,8 @@
 // ui/endgame.js — Screen 9: fünf Scores, Seed-Benchmarks und Timeline.
 
-import { berechneEndauswertung } from '../endgame.js?v=36';
-import { fmtEUR, fmtEURSigniert, fmtDatum } from './util.js?v=36';
-import { aktienDepotWert } from '../aktien.js?v=36';
+import { berechneEndauswertung } from '../endgame.js?v=41';
+import { fmtEUR, fmtEURSigniert, fmtDatum } from './util.js?v=41';
+import { aktienDepotWert } from '../aktien.js?v=41';
 
 const PHASEN_LABEL = {
   boom: 'Boom — Rückenwind für Märkte',

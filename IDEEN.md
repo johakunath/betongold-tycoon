@@ -6,9 +6,11 @@ Phasen-Disziplin gilt weiter (nichts aus späteren Phasen vorziehen). Vieles
 hiervon ist explizit **Phase 5** („visual polish, tooltips" — PLAN §12).
 Aufwand grob: S = klein, M = mittel, L = groß.
 
-**Stand 16.07.2026:** Phase 5 und der erste vollständige 0H-Designpass sind
-umgesetzt. Erledigte Ideen sind unten markiert; Sound, neue Event-Bitmaps,
-Dark Mode sowie echter Geräte-/Screenreader-Test bleiben optional. Die
+**Stand 20.07.2026:** Phase 5, der erste vollständige 0H-Designpass sowie die
+Basis aus freiwilligen Zielen, Objekt-Arcs, Arbeitsmodellen, Lebensphasen und
+begrenzter Eigenleistung sind umgesetzt. Erledigte Ideen sind unten markiert;
+Sound, neue Event-Bitmaps, Dark Mode sowie echter Geräte-/Screenreader-Test
+bleiben optional. Die
 Abnahme steht in `DESIGN_ROADMAP.md`; dieser Speicher bleibt Detailquelle und
 wird nicht als zweite Roadmap geführt.
 
@@ -147,17 +149,14 @@ Mieter-Raumpersonalisierung, animierte Nachbarschaftskarte, WG-
 Einzelvermietung, zweite Bank/Angebotsvergleich, prozedurale Listing-/Mieter-
 Generatoren, Räumung/Mahnkette, „schlechtere Event-Ausgänge bei Zeitstress".
 
-- **Karriere-/Gehaltsentscheidungen mit Zeit-Trade-off (M/L, später):** Im
-  Berufsleben gezielt zwischen Überstunden, Teilzeit, Jobwechsel,
-  Weiterbildung/Meisterschule und gegebenenfalls Selbstständigkeit wählen.
-  Jede Option verändert transparent Einkommen oder Einkommenswachstum **und**
-  das monatlich verfügbare Zeitbudget; manche dürfen zusätzlich Geld,
-  Übergangsmonate oder Familienstress kosten. Keine universell beste Karriere:
-  mehr Gehalt kann Eigenleistung und Familienzeit verdrängen, während freie
-  Zeit Renovierungen günstiger nutzbar macht. Das feste Gesellenlohn-
-  Meilenstein des Handwerker-Azubi-Presets ist nur ein erster Profilanker, noch
-  kein interaktives Karrieresystem. Determinismus, explizite Save-Versionierung
-  und verständliche Vorher-/Nachher-Vorschau sind Pflicht; vor dem Release
+- **Karriere-/Gehaltsentscheidungen mit Zeit-Trade-off (Basis ✅):** Balance,
+  Karriereschritt und Familienzeit verändern Einkommen, Zeit und Familienziel
+  transparent und sind zwölf Monate gebunden. Differenziertere Jobwechsel,
+  Weiterbildung/Meisterschule oder Selbstständigkeit bleiben nur eine spätere
+  Vertiefungsoption. Keine universell beste Karriere: mehr Gehalt verdrängt
+  Immobilien- und Familienzeit, während freie Zeit Renovierungen erleichtert.
+  Determinismus, Save v19 und verständliche Vorher-/Nachher-Vorschau sind
+  abgesichert; vor dem Release
   genügt die kontrollierte Ablehnung alter Spielstände.
 
 - **Ferienwohnung an der Ostsee (L/XL, langfristig):** Unabhängig vom

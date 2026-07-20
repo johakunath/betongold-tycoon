@@ -69,9 +69,10 @@ Der Schuldenberg-Sonderstart übernimmt fünf echte, bereits vermietete
 Marktobjekte mit gestaffelten Zinsbindungen und zusammen mehr als 1 Mio. €
 Restschuld. Der knappe Puffer und 93–97 % Beleihung machen ihn zu einer
 Turnaround-Herausforderung: Der Spieler soll Monatsverlust, Zinsrisiko und
-Puffer mit mehreren glaubwürdigen Hebeln stabilisieren können. Solange diese
-Hebel fehlen, ist das Preset ein Diagnose-/Stresstest und kein ausgewogener
-Spaßstart. Der Handwerker-Azubi beginnt mit 17 in Leipzig, geringem
+Puffer mit mehreren glaubwürdigen Hebeln stabilisieren. Mietprüfung,
+kostenpflichtige Ratenstreckung oder ein verzögerter Verkauf bilden dafür zwei
+messbare Linien; ein freiwilliges Fünfjahresziel hält die Stabilisierung länger
+sichtbar. Der Handwerker-Azubi beginnt mit 17 in Leipzig, geringem
 Einkommen und 26 Stunden monatlichem Zeitbudget. Nach 36 Monaten steigt das
 Basiseinkommen planmäßig um Faktor 1,75; Renovierungsschätzungen sind 30 %
 günstiger, die Basisdauer 25 % kürzer und das Überziehungsrisiko reduziert.
@@ -111,13 +112,108 @@ Invest-first auf demselben Seed.
    nach wichtigen Handlungen die konkrete Vorher-/Nachher-Wirkung erleben.
 6. Miete anpassen, Verwaltung/Rücklagen steuern, Eigenheim kaufen oder Objekt
    mit sechs Monaten Friktion verkaufen.
+7. Ein freiwilliges 3–8-Jahres-Ziel verfolgen, Folgen früherer
+   Objektentscheidungen erleben und Arbeitsmodell oder Eigenleistung gegen
+   Geld, Zeit und Familie abwägen.
+
+Die spielerische Qualität entsteht nicht durch die Menge möglicher Menüpunkte,
+sondern durch eine wiederkehrende Kette aus Anlass, begrenzter Prüfung,
+menschlicher oder finanzieller Entscheidung und sichtbarer Wirkung. Die bereits
+vorhandenen Bewerberdossiers, Leerstandskosten, Due-Diligence-Schritte und
+Gebotsentscheidung sind das Referenzmuster: konkret, kontextgebunden und mit
+einem verständlichen Verzicht. Dieses Muster soll auch Renovierung,
+Refinanzierung, Familienzeit und Portfolio-Stabilisierung tragen.
+
+## Langfristige Entwicklung, Familie und Arbeit
+
+Drei optionale mittelfristige Ziele geben Orientierung, ohne eine zweite
+Questökonomie zu eröffnen: erstes stabiles Mietobjekt (36 Monate), Eigenheim
+(96 Monate) oder Bestand stabilisieren (60 Monate). Fortschritt wird aus echten
+Bestands-, Haushalts- und Pufferwerten berechnet. Wechsel und Pause sind frei;
+es gibt keine Geld-, Punkte- oder Zufallsbelohnung.
+
+Wenige Objektgeschichten verbinden Entscheidungen über mehrere Monate.
+Schimmel-, Nachbarschafts- und Finanzierungsereignisse können terminierte
+Folgeevents erzeugen, deren Zustand und Wirkung am betroffenen Objekt sichtbar
+bleiben. Ein separates Ruf- oder Beziehungssammelsystem gehört nicht zum MVP.
+
+Arbeit verwendet drei verständliche Modelle mit zwölf Monaten Mindestbindung:
+Balance, Karriere mit mehr Netto gegen weniger Zeit/Familie und Familienzeit
+mit weniger Netto gegen mehr Zeit/Familie. Kommende Auto-, Einkommens-,
+Ruhestands- und Kinderphasen werden rechtzeitig angekündigt. Eigenleistung bei
+Renovierungen ist optional und spart nur gedeckelt; dafür bindet sie monatliche
+Zeit und erhöht das Kostenrisiko. Alle Zahlen sind als editierbare
+Spielannahmen ausgewiesen.
+
+## Finanzsprache und Balanceziel
+
+Alle Screens verwenden dieselben vier Ebenen und vermischen sie nicht:
+
+- **Haushaltsüberschuss:** laufendes Einkommen und Alltag plus Objektwirkungen,
+  vor freiwilliger ETF-Umschichtung;
+- **Objekt-Cashflow:** Miete minus Owner-Kosten, Verwaltung, Rücklage und volle
+  Kreditrate;
+- **Vermögensaufbau:** ETF-Einzahlung, Tilgung und gebildete Rücklagen;
+- **Tagesgeld-Veränderung:** tatsächliche Kontobewegung inklusive Transfers und
+  Einmaleffekten.
+
+Die Finanzierungsquote (LTV) bleibt ein sekundärer, aber wirksamer Risiko- und
+Kreditwert. Handlungsnäher und deshalb prominenter sind Eigenkapital, Rate,
+Restpuffer und stabilisierter Objekt-Cashflow. Vor und nach Steuer dürfen
+identisch sein, wenn kein positives steuerliches Vermietungsergebnis entsteht;
+das wird einmal begründet statt als zweite scheinbar andere Kennzahl gezeigt.
+
+Realismus bedeutet nicht, dass jede Wohnung rentabel sein muss. Das Spiel muss
+aber in jedem Markt mehrere auffindbare, plausible Wege bieten, auf denen
+Prüfen, Verhandeln, Vermieten oder Verbessern einen schlechten Ausgang erkennbar
+in Richtung Tragfähigkeit bewegt. Ein Markt, in dem fast jede Analyse nur
+„nicht kaufen“ ergibt, verfehlt das Ziel ebenso wie eine Renditegarantie.
+
+## UI-, Layout- und Elementprinzipien
+
+Die v36-Gestaltung bleibt bestehen. Einfachheit bedeutet innerhalb dieses
+Designs:
+
+1. **Eine Quelle pro Inhalt:** Bestand hat einen Hauptscreen, Meldungen ein
+   Archiv und jede Kennzahl eine definierte Bedeutung. Andere Orte dürfen
+   zusammenfassen oder verlinken, aber keine abweichende zweite Version führen.
+2. **Eine Aufgabe pro Screen:** Stadt orientiert, Marktplatz sucht, Exposé prüft,
+   Objektdetail bewirtschaftet, Finanzen verschiebt Liquidität und Zentrale
+   erklärt Vermögen/Haushalt. Die wichtigste nächste Handlung steht vor
+   vollständigen Detailtabellen.
+3. **Progressive Offenlegung:** Kernurteil, Risiko und Aktion zuerst; lange
+   Faktenblöcke, Herleitungen und seltene Einstellungen in sinnvoll
+   beschrifteten Detailsektionen.
+4. **Native-first:** Das semantisch passende HTML-Element ist verbindlich und
+   wird nicht durch ein nachgebautes `div` ersetzt.
+
+Elementvertrag:
+
+- Hauptnavigation: `<nav>` + Buttons mit `aria-current`; In-Screen-Ansichten:
+  Tabs mit genau einem Panel pro Tab; binäre Ansichts-/Filterwahl:
+  `aria-pressed`-Buttons.
+- Exklusive Formwahl: `<fieldset>`/`<legend>` + Radios; unabhängige Option:
+  Checkbox; Zahlenbereich: Range/Number + `<output>`.
+- Faktenpaare: `<dl>`; mehrspaltiger Vergleich: `<table>` mit Headern;
+  zeitliche Historie: `<ol>` + `<time>`; begrenzter Wert: `<meter>`; laufender
+  Fortschritt: `<progress>`.
+- Zusätzliche Details: `<details>/<summary>`; Overlays: natives `<dialog>`;
+  Bildzoom: nativer Button mit genau einem zugänglichen Bild.
+- Eine Karte ist ein `<article>` mit sichtbarer echter Aktion. Die ganze Karte
+  wird nicht unsichtbar klickbar gemacht, wenn Titel und CTA bereits denselben
+  Weg anbieten.
+
+Die fünf Hauptziele bleiben Stadt, Zentrale, Marktplatz, Objekte und Finanzen.
+„Objekte“ wird nicht zusätzlich als Zentrale-Tab geführt. Post ist eine Vorschau
+des kanonischen Meldungsarchivs; ein drittes abweichendes Ereignislog entfällt.
 
 ## MVP-Systeme und Inhalt
 
 - 40 handgefertigte Listings: 20 in Berlin sowie je 10 in Leipzig und Meißen +
   Umland, einschließlich Wohnungen, Reihen-/Doppelhäusern, freistehenden EFH,
   Neubauten, gutem Bestand und klaren Sanierungsfällen. 18 Mieterdossiers und
-  25 Events liegen als JSON vor. Jedes Listing besitzt eine eigene
+  25 zufällig ziehbare Events plus 5 ausschließlich terminierte Arc-Folgen
+  liegen als JSON vor. Jedes Listing besitzt eine eigene
   Außenansicht und zwei passende Zustands-Cutaways.
 - Seeded Markt-, Zins-, Event- und ETF-Pfade; Autosave, benannte Slots und
   JSON-Export/-Import.
@@ -126,18 +222,25 @@ Invest-first auf demselben Seed.
 - Eigenheim mit Mindestgröße, vereinfachter Jahressteuerbescheid, Verkauf,
   fünf Endscores und Entscheidungstimeline.
 - Admin-Panel mit Whitelist, sicherem Reset und Wirksamkeit ab Folgemonat.
-- Drei getrennte, schematische Stadtkarten für Berlin, Leipzig und Meißen +
-  Umland mit identischen Markt-/Bestandsdaten sowie gleichwertiger
-  Listenalternative.
+- Eine atmosphärische Stadtbühne mit vier wählbaren Marktsegmenten — Berlin
+  Innenstadt, Berlin Rand, Leipzig sowie Meißen + Umland. Eine gleichwertige
+  Ortsliste darf als umschaltbare Alternative bestehen, wird aber nicht
+  gleichzeitig als zweite vollständige interaktive Navigation daneben gezeigt.
 - Desktop-first, tablet-/mobile-tauglich, tastaturbedienbar, Reduced Motion.
 
 ## Visuelles Ziel
 
-Ein warmes, charmantes Aufbauspiel statt eines Banking-Dashboards: dauerhafte
-Ressourcenleiste, klarer Stadt-/Objektfokus, sichtbarer Besitz, kurze Wege und
-reaktives Feedback. WebP-Heroart und Cutaways folgen `STYLE_GUIDE.md`; UI,
-Charts und Fallbacks bleiben CSS/SVG. Der nächste vollständige Design-Rework
-wird separat mit Claude Design beurteilt.
+Das umgesetzte UI-v36-Design ist die visuelle Basis: ein dunkles, warmes
+City-Builder-Bild mit Goldakzenten, lokaler Cormorant-/Alegreya-Typografie,
+atmosphärischer Stadtbühne, dauerhafter Ressourcenleiste und fünf klaren
+Bottom-Navigationswegen. Sichtbarer Besitz, kurze Wege und reaktives Feedback
+stehen vor Dashboard-Dichte. WebP-Heroart und Cutaways folgen
+`STYLE_GUIDE.md`; UI, Charts und Fallbacks bleiben CSS/SVG.
+
+Es ist kein weiterer vollständiger Design-Rework geplant. Offene visuelle
+Arbeit ist ein fokussierter Kohärenz-, Dichte- und Responsive-Pass: keine
+überlappenden Ortskarten, weniger verschachteltes Scrollen, wichtige Inhalte
+nicht unnötig unterhalb des Folds und klare Priorität innerhalb jedes Screens.
 
 ## Technischer Rahmen und Scope-Grenze
 
@@ -146,7 +249,7 @@ Statische GitHub-Pages-Seite, Vanilla JS, kein Build. Fachdetails stehen in
 
 Nicht Teil des aktuellen MVP: Einzelaktienhandel, echte Geodaten/exakte
 Hauskoordinaten, Reputation, WG-Einzelvermietung, weitere Rechtsräume,
-individuelle Zimmerdekoration, Audio und Dark Mode. Der frühere
+individuelle Zimmerdekoration und Audio. Der frühere
 Einzelaktienentwurf ist in `IDEEN.md` archiviert und käme höchstens als späteres,
 optionales Value-Investing-Modul infrage. Andere Kandidaten bleiben dort, bis
 der Owner sie priorisiert.

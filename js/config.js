@@ -3,10 +3,10 @@
 // Änderungen greifen zum nächsten Tick. Werte sind plausible Defaults, keine Fakten —
 // vor Release gegen reale Daten prüfen (siehe PLAN.md §4).
 
-export const SAVE_VERSION = 15;
+export const SAVE_VERSION = 19;
 // UI-/Cache-Version ist unabhängig vom Save-Format. Bei reinen CSS-/UI-Reworks
 // erhöhen, ohne unnötig Spielstände zu migrieren.
-export const UI_VERSION = 36;
+export const UI_VERSION = 41;
 
 // Startlage und Schwierigkeit sind bewusst getrennt. Das Preset beschreibt
 // Haushalt, Vermögensaufteilung und optionale besondere Startbedingungen;
@@ -380,6 +380,7 @@ export const DEFAULT_CONFIG = {
   bewirtschaftung: {
     hausgeldNichtUmlegbar: 0.35, // Anteil des Hausgelds, der am Eigentümer hängt (vermietet)
     instandhaltungM2Jahr: 10,    // €/m²/Jahr → fließt in die Objekt-Rücklage
+    cashflowNaheNullMonat: 100,  // bis −100 €/Monat gilt ein aktiver Pfad als nahe Break-even
     zeitProObjekt: 3,            // h/Monat Selbstverwaltung je Objekt
     hausverwaltungProzent: 0.05, // Anteil der Kaltmiete an die Hausverwaltung
     hausverwaltungEventDaempfung: 0.5, // multipliziert die Event-Wahrscheinlichkeit des Objekts
@@ -401,6 +402,20 @@ export const DEFAULT_CONFIG = {
         gebaeudeAnteil: 0.70,
       },
     },
+  },
+
+  // Sonderstart „Viel Bestand, wenig Luft“: begrenzte, kostenpflichtige
+  // Stabilisierung statt automatischer Rettung (ECONOMY_MODEL §14a).
+  turnaround: {
+    preset: 'schuldenberg',
+    bankFensterMonate: 12,
+    bankMaxAnpassungen: 3,
+    bankTilgungNeu: 0.005,
+    bankGebuehrProzent: 0.002,
+    bankGebuehrMin: 500,
+    bankZeit: 3,
+    ruecklageZielJahre: 1,
+    zwischenzielVerbesserungMonat: 600,
   },
 
   // --- Phase 3: Mieter & Vermietung (ECONOMY_MODEL §15–16) ---------------------
@@ -490,6 +505,15 @@ export const DEFAULT_CONFIG = {
     ueberziehungBasis: 0.1,      // Grund-Überziehungsrisiko
     ueberziehungJeZustand: 0.06, // je Stufe unter 5 mehr Risiko (schlechter Zustand → mehr Überraschungen)
     zeitProRenovierung: 6,       // h/Monat während der Bauzeit
+    eigenleistung: {
+      rabatt: 0.12,              // begrenzter Anteil der Schätzsumme
+      rabattHandwerklich: 0.20,
+      ersparnisMax: 6000,
+      zeitJe1000Euro: 0.6,       // zusätzliche h/Monat, aus Basisvolumen und Dauer abgeleitet
+      zeitMonatMax: 6,
+      risikoFaktor: 1.30,        // ohne Handwerksprofil mehr Überziehungsrisiko
+      risikoFaktorHandwerklich: 1.05,
+    },
   },
 
   // --- Phase 3: Events (ECONOMY_MODEL §18) ------------------------------------
@@ -506,6 +530,25 @@ export const DEFAULT_CONFIG = {
     driftProMonat: 0.15,         // Erholung/Monat Richtung Neutral
     proZeitUeberzug: 0.5,        // Malus je Stunde Zeitüberzug/Monat
     dispoMalus: 1.5,             // Malus/Monat bei negativem Cash
+  },
+
+  // G/H: Ziele bleiben reine Ableitungen vorhandener Systeme. Arbeitsmodelle
+  // verändern Einkommen, verfügbare Immobilienzeit und Familien-Drift zugleich.
+  entwicklung: {
+    zielOptionen: {
+      erstesStabilesObjekt: { label: 'Erstes stabiles Mietobjekt', fristMonate: 36 },
+      eigenheim: { label: 'Passendes Eigenheim', fristMonate: 96 },
+      bestandStabilisieren: { label: 'Bestand und Puffer stabilisieren', fristMonate: 60 },
+    },
+    arbeitsmodellBindungMonate: 12,
+    arbeitsmodelle: {
+      balance: { label: 'Balance halten', einkommenDeltaMonat: 0, zeitPlusMonat: 0, zeitBelastungMonat: 0, familieZielDelta: 0 },
+      karriere: { label: 'Karriereschritt', einkommenDeltaMonat: 650, zeitPlusMonat: 0, zeitBelastungMonat: 6, familieZielDelta: -4 },
+      familienzeit: { label: 'Familienzeit', einkommenDeltaMonat: -900, zeitPlusMonat: 8, zeitBelastungMonat: 0, familieZielDelta: 5 },
+    },
+    lebensphaseVorlaufMonate: 12,
+    stabilerCashflowGrenze: -100,
+    pufferZielMonate: 6,
   },
 
   // --- Phase 4: Eigenheim, Steuern, Verkauf, Endauswertung -------------------

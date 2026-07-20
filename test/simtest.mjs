@@ -5,42 +5,42 @@
 // Bei neuen Systemen (Phase 2+) hier Checks ergänzen.
 
 import { readFile } from 'node:fs/promises';
-import { SAVE_VERSION, DEFAULT_CONFIG } from '../js/config.js?v=36';
-import { newGame, exportString, importString, rngFloat } from '../js/state.js?v=36';
+import { SAVE_VERSION, DEFAULT_CONFIG } from '../js/config.js?v=41';
+import { newGame, exportString, importString, rngFloat } from '../js/state.js?v=41';
 import {
   advanceMonths, alterGenau, gesamtMonate, istImRuhestand,
   lebensendeVorschau, monatsWerte, nettovermoegen,
-} from '../js/engine.js?v=36';
-import { setzeInhalte, getListing } from '../js/content.js?v=36';
+} from '../js/engine.js?v=41';
+import { setzeInhalte, getListing } from '../js/content.js?v=41';
 import {
   initialisiereMarkt, sichtbareListings, gebotAbgeben, fairerWert,
   besichtigen, dokumenteAnfordern, gutachterBeauftragen,
-} from '../js/market.js?v=36';
+} from '../js/market.js?v=41';
 import {
   finanzierungsCashflowVorschau, kreditAngebot, kaufeObjekt, restschuldNach, nebenkostenFuer,
-} from '../js/finance.js?v=36';
+} from '../js/finance.js?v=41';
 import {
   starteVermietung, neueBewerber, waehleBewerber, kannErhoehen, erhoeheMiete, marktmiete,
   mietrechtFuer, angesetzteMiete, vermietungsmodell, starteEigenbedarf,
   zahleEigenbedarfAbfindung,
-} from '../js/tenants.js?v=36';
-import { etfVerkaufVorschau, kaufeEtf, setzeSparplanEtfAnteil, verkaufeEtf } from '../js/etf.js?v=36';
+} from '../js/tenants.js?v=41';
+import { etfVerkaufVorschau, kaufeEtf, setzeSparplanEtfAnteil, verkaufeEtf } from '../js/etf.js?v=41';
 import {
   initialisiereAktienmarkt, aktienDepotWert, aktienKaufVorschau,
   kaufeAktie, verkaufeAktie,
-} from '../js/aktien.js?v=36';
-import { renovierungsOptionen, starteRenovierung } from '../js/renovation.js?v=36';
-import { resolveEvent } from '../js/events.js?v=36';
-import { kaufeEigenheim } from '../js/eigenheim.js?v=36';
-import { starteVerkauf } from '../js/verkauf.js?v=36';
-import { zieheWartemomente } from '../js/signals.js?v=36';
-import { leerstandsKosten } from '../js/ui/bewerber.js?v=36';
-import { berechneEndauswertung } from '../js/endgame.js?v=36';
-import { initialisiereStartbestand } from '../js/starter.js?v=36';
+} from '../js/aktien.js?v=41';
+import { renovierungsOptionen, starteRenovierung } from '../js/renovation.js?v=41';
+import { resolveEvent } from '../js/events.js?v=41';
+import { kaufeEigenheim } from '../js/eigenheim.js?v=41';
+import { starteVerkauf } from '../js/verkauf.js?v=41';
+import { zieheWartemomente } from '../js/signals.js?v=41';
+import { leerstandsKosten } from '../js/ui/bewerber.js?v=41';
+import { berechneEndauswertung } from '../js/endgame.js?v=41';
+import { initialisiereStartbestand } from '../js/starter.js?v=41';
 import {
   aktuelleAdminWerte, standardAdminWerte, wendeAdminWerteAn, planeAdminWerte,
-} from '../js/admin.js?v=36';
-import { kapitalertragVorschau, kapitalsteuerStatus } from '../js/kapitalsteuer.js?v=36';
+} from '../js/admin.js?v=41';
+import { kapitalertragVorschau, kapitalsteuerStatus } from '../js/kapitalsteuer.js?v=41';
 
 const lade = async (name) =>
   JSON.parse(await readFile(new URL(`../data/${name}`, import.meta.url), 'utf8'));
@@ -472,6 +472,8 @@ check(!ablehnung.zusage && ablehnung.gruende.length > 0, 'Ablehnung nennt Gründ
 const cashVorher = k.cash;
 kaufeObjekt(k, angebot);
 check(k.portfolio.length === 1, 'Objekt im Portfolio');
+check(k.entscheidungsHistorie.at(-1)?.typ === 'gekauft' && k.entscheidungsHistorie.at(-1).text.includes('Tagesgeld'),
+  'Kauf erzeugt einen strukturierten Abschlussmoment mit Reservewirkung');
 check(Math.abs(cashVorher - k.cash - angebot.eigenkapital) < 0.01, 'Kauf zieht genau das EK ab');
 check(k.markt.feed[ziel.listing.id].status === 'verkauft', 'Listing als verkauft markiert');
 
@@ -635,12 +637,16 @@ check(optionen.length === 4 && optionen.every((o) => o.schaetzung > 0), 'vier Re
 const cashVorReno = p3.cash;
 starteRenovierung(p3, leer, 'kuecheBad');
 check(leer.renovierung && p3.cash < cashVorReno, 'Renovierung gestartet, Schätzsumme fällig');
+check(p3.entscheidungsHistorie.at(-1)?.typ === 'renovierung-gestartet' && p3.entscheidungsHistorie.at(-1).text.includes('→ Ziel'),
+  'Renovierungsstart zeigt Zustand vorher und Ziel');
 const dauer = p3.config.renovierung.stufen.kuecheBad.dauer;
 advanceMonths(p3, dauer - 1, auto);
 check(leer.renovierung !== null, 'Renovierung läuft bis zum letzten ausgewiesenen Monat');
 advanceMonths(p3, 1);
 check(leer.renovierung === null, 'Renovierung nach exakt der ausgewiesenen Dauer abgeschlossen');
 check(leer.zustand >= 4 && leer.zustand > zustandVor, `Zustand gestiegen: ${zustandVor} → ${leer.zustand}`);
+check(p3.entscheidungsHistorie.at(-1)?.typ === 'renovierung-fertig' && p3.entscheidungsHistorie.at(-1).text.includes('→'),
+  'Renovierungsabschluss hält Vorher/Nachher-Wirkung fest');
 const renoSignale = zieheWartemomente(p3);
 check(renoSignale.length === 1 && renoSignale[0].text.includes('Zeit pausiert'),
   'Renovierungsabschluss erzeugt einen Fast-Forward-Stopp mit Benachrichtigung');
@@ -667,6 +673,8 @@ check(leerstand.entgangeneMiete === leer.suche.miete && leerstand.laufendeZahlun
   'Bewerbermappe beziffert entgangene Miete und laufende Leerstandszahlungen');
 waehleBewerber(p3, leer, leer.suche.bewerber[0].id);
 check(leer.vermietet && leer.mieter && leer.kaltmiete > 0, `vermietet an ${leer.mieter?.name}`);
+check(p3.entscheidungsHistorie.at(-1)?.typ === 'vermietet' && p3.entscheidungsHistorie.at(-1).text.includes('Leerstand →'),
+  'Vermietung erzeugt einen strukturierten Abschlussmoment');
 check(leer.suche === null, 'Suche nach Einzug beendet');
 
 const ruecklageVor = leer.ruecklage;

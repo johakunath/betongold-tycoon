@@ -1,21 +1,25 @@
 // objekt.js — Screen 7: Objekt-Detail. Cutaway, Monats-P&L, Mieter/Leerstand,
 // Rücklage, Hausverwaltung, Mieterhöhung, Renovieren. Nabe der Phase-3-Loop.
 
-import { getListing } from '../content.js?v=36';
-import { fairerWert } from '../market.js?v=36';
+import { getListing } from '../content.js?v=41';
+import { fairerWert } from '../market.js?v=41';
 import {
   marktmiete, kannErhoehen, maxMiete, erhoeheMiete, mietrechtFuer, vermietungsmodell,
   starteEigenbedarf, zieheEigenbedarfZurueck, zahleEigenbedarfAbfindung,
-} from '../tenants.js?v=36';
-import { bildHTML, cutawayHTML } from '../iso.js?v=36';
-import { faktenLabel, fmtEUR, fmtEURSigniert } from './util.js?v=36';
-import { oeffneBewerber } from './bewerber.js?v=36';
-import { oeffneRenovieren } from './renovieren.js?v=36';
-import { oeffneVerkauf } from './verkaufen.js?v=36';
+} from '../tenants.js?v=41';
+import { bildHTML, cutawayHTML } from '../iso.js?v=41';
+import { faktenLabel, fmtEUR, fmtEURSigniert } from './util.js?v=41';
+import { oeffneBewerber } from './bewerber.js?v=41';
+import { oeffneRenovieren } from './renovieren.js?v=41';
+import { oeffneVerkauf } from './verkaufen.js?v=41';
 import {
   fixkostenMonat, instandhaltungMonat, objektartConfig, fixkostenAufschluesselung,
-} from '../immobilie.js?v=36';
-import { bezieheBestandsobjekt } from '../eigenheim.js?v=36';
+} from '../immobilie.js?v=41';
+import { bezieheBestandsobjekt } from '../eigenheim.js?v=41';
+import { protokolliereWirkung } from '../gameplay.js?v=41';
+import { bankAnpassungVorschau, turnaroundAktiv } from '../turnaround.js?v=41';
+import { oeffneBankAnpassung } from './turnaround.js?v=41';
+import { objektArcsFuerObjekt } from '../arcs.js?v=41';
 
 let ctx = null;
 let auswahl = null; // stabile listingId oder 'eigenheim'
@@ -29,7 +33,7 @@ const STIMMUNG = [
 
 export function initObjekt(context) {
   ctx = context;
-  document.getElementById('btn-objekt-zurueck').addEventListener('click', () => document.getElementById('nav-objekte').click());
+  document.getElementById('btn-objekt-zurueck').addEventListener('click', () => ctx.zeigePortfolio());
   document.querySelectorAll('[data-objekt-ansicht]').forEach((button) => {
     button.addEventListener('click', () => {
       ansicht = button.dataset.objektAnsicht;
@@ -63,6 +67,8 @@ export function renderObjekt(state) {
   const wert = fairerWert(state, objekt);
   const markt = marktmiete(state, objekt);
   const mietrecht = mietrechtFuer(state, objekt);
+  const bank = turnaroundAktiv(state) ? bankAnpassungVorschau(state, objekt) : null;
+  const arcs = objektArcsFuerObjekt(state, objekt).slice(-3).reverse();
 
   document.getElementById('objekt-titel').textContent = objekt.titel;
 
@@ -135,8 +141,11 @@ export function renderObjekt(state) {
     `</div>` +
     // Mieter / Vermietung
     `<div class="karte">${mieterHTML(state, objekt, istEigenheim)}</div>` +
+    (arcs.length ? `<div class="karte objekt-arcs"><span class="eyebrow">Mehrmonatige Folgen</span><h3>Objektgeschichten</h3><ol>` +
+      arcs.map((arc) => `<li><b>${arc.titel}</b><span>${arc.entscheidung}</span><small>${arc.status === 'laufend' ? `nächste Klärung in ${Math.max(0, arc.faelligMonat - state.monat)} Monaten` : arc.status}</small></li>`).join('') +
+      `</ol></div>` : '') +
     // Bewirtschaftung
-    `<div class="karte">${bewirtschaftungHTML(state, objekt, ruecklageBeitrag, istEigenheim)}</div>` +
+    `<div class="karte">${bewirtschaftungHTML(state, objekt, ruecklageBeitrag, istEigenheim, bank)}</div>` +
     `</div>`;
 
   wire(state, objekt, index, istEigenheim);
@@ -278,10 +287,9 @@ function cashflowErklaerung(miete, netto, laufendeKosten, verwaltung, ruecklage,
     `<li>Rücklage nur bewusst reduzieren – sie schützt vor späteren Reparaturschocks.</li></ul></aside>`;
 }
 
-function bewirtschaftungHTML(state, objekt, ruecklageBeitrag, istEigenheim) {
+function bewirtschaftungHTML(state, objekt, ruecklageBeitrag, istEigenheim, bank) {
   const bw = state.config.bewirtschaftung;
   const faktor = objekt.ruecklageFaktor ?? 1;
-  const kannReno = !objekt.vermietet && !objekt.renovierung;
   const ruecklageZiel = Math.max(1, objekt.flaeche * objektartConfig(state, objekt).instandhaltungM2Jahr);
   const ruecklageFortschritt = Math.max(0, Math.min(100, objekt.ruecklage / ruecklageZiel * 100));
   return (
@@ -292,12 +300,15 @@ function bewirtschaftungHTML(state, objekt, ruecklageBeitrag, istEigenheim) {
     `<label class="slider-zeile">Rücklage sparen: <b>${faktor.toFixed(1).replace('.', ',')}×</b> ` +
     `(${fmtEUR(Math.round(ruecklageBeitrag))}/Monat)` +
     `<input type="range" id="ruecklage-slider" min="0" max="2" step="0.5" value="${faktor}"></label>` +
+    (bank ? `<section class="turnaround-bank"><span class="eyebrow">Bankfenster</span><h4>Rate gegen längere Schuld senken</h4>` +
+      `<output>+${fmtEUR(Math.round(bank.entlastung))}/Monat</output>` +
+      `<p>${fmtEUR(bank.gebuehr)} Gebühr · ${bank.zeit} h · ca. ${fmtEUR(Math.round(bank.restschuldMehr))} mehr Restschuld bis Zinsbindung</p>` +
+      `<button type="button" id="btn-banktermin" ${bank.moeglich ? '' : 'disabled'} title="${bank.grund}">${bank.moeglich ? 'Banktermin prüfen' : bank.grund}</button></section>` : '') +
+    // Renovieren hat genau eine Stelle: die Vermietungssektion oben, wo das
+    // Objekt leer steht. Hier stünde sonst dieselbe Aktion ein zweites Mal.
     (istEigenheim ? '' :
       `<label class="check-zeile"><input type="checkbox" id="hausverwaltung-check" ${objekt.hausverwaltung ? 'checked' : ''}> ` +
-      `Hausverwaltung (${Math.round(bw.hausverwaltungProzent * 100)} % der Miete, spart Zeit &amp; dämpft Events)</label>` +
-      (objekt.vermietet
-        ? `<p class="hinweis">Renovieren geht nur bei leerem Objekt.</p>`
-        : `<div class="expose-aktionen"><button id="btn-renovieren-2" ${kannReno ? '' : 'disabled'}>Renovierungsplaner</button></div>`)) +
+      `Hausverwaltung (${Math.round(bw.hausverwaltungProzent * 100)} % der Miete, spart Zeit &amp; dämpft Events)</label>`) +
     `<hr class="karten-trenner">` +
     (objekt.verkauf
       ? `<p><b>Verkauf läuft.</b><br><span class="muted">Abschluss ${restText(objekt.verkauf.abschlussMonat - state.monat)}; bis dahin laufen Kosten und Mieten weiter.</span></p>`
@@ -313,8 +324,8 @@ function restText(monate) {
 function wire(state, objekt, index, istEigenheim) {
   document.getElementById('btn-vermieten')?.addEventListener('click', () => oeffneBewerber(index));
   document.getElementById('btn-renovieren')?.addEventListener('click', () => oeffneRenovieren(index));
-  document.getElementById('btn-renovieren-2')?.addEventListener('click', () => oeffneRenovieren(index));
   document.getElementById('btn-verkaufen')?.addEventListener('click', () => oeffneVerkauf(objekt));
+  document.getElementById('btn-banktermin')?.addEventListener('click', () => oeffneBankAnpassung(objekt));
 
   document.getElementById('btn-erhoehen')?.addEventListener('click', () => {
     if (erhoeheMiete(state, objekt)) {
@@ -362,6 +373,17 @@ function wire(state, objekt, index, istEigenheim) {
 
   document.getElementById('hausverwaltung-check')?.addEventListener('change', (ev) => {
     objekt.hausverwaltung = ev.target.checked;
+    const kosten = Math.round((objekt.kaltmiete || 0) * state.config.bewirtschaftung.hausverwaltungProzent);
+    const zeit = state.config.bewirtschaftung.zeitProObjekt;
+    protokolliereWirkung(state, {
+      typ: 'verwaltung',
+      titel: 'Verwaltung neu geordnet',
+      text: objekt.hausverwaltung
+        ? `${objekt.titel}: Selbstverwaltung → Hausverwaltung; etwa ${zeit} h/Monat frei, ${kosten.toLocaleString('de-DE')} €/Monat Kosten.`
+        : `${objekt.titel}: Hausverwaltung → Selbstverwaltung; ${kosten.toLocaleString('de-DE')} €/Monat gespart, etwa ${zeit} h/Monat mehr Aufwand.`,
+      ziel: objekt.listingId,
+      route: 'objekt',
+    });
     ctx.toast(objekt.hausverwaltung ? 'Hausverwaltung übernimmt.' : 'Du verwaltest wieder selbst.');
     ctx.autosave();
     renderObjekt(state);

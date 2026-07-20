@@ -11,45 +11,85 @@ eines Pakets gleichzeitig zu bauen.
 > sichtbare Verbesserung und kontrolliertes Risiko — nicht nur Tabellenanalyse
 > oder garantiert steigendes Vermögen.
 
-1. **P0 — den Kern spielerisch machen:** häufiger entscheiden, Wirkung erleben,
-   Fortschritt feiern und reale Kaufschritte gefahrlos üben.
-2. **P0 — „Viel Bestand, wenig Luft“ zum echten Turnaround-Spiel machen:**
-   glaubwürdige Sanierungshebel statt passivem Pufferabbau.
-3. **P1 — Cashflow-Balance nach korrekter Darstellung kalibrieren:** Kosten,
-   Mieten und plausible Bewirtschaftungswege mit der 40er-Matrix prüfen.
-4. **P1 — Einzelaktien-Code aus dem Kernstate entfernen:** Die UI ist seit v32
+## Neuanalyse nach dem Claude-Redesign (20.07.2026)
+
+UI v36 wurde im laufenden Spiel entlang Stadt → Zentrale → Marktplatz →
+Finanzierung → Objekt → Bewerber → Finanzen geprüft. Die neue Gestaltung ist
+die verbindliche Basis; ein weiterer Vollumbau ist nicht geplant.
+
+| Befund | Status nach v36 | Konsequenz |
+|---|---|---|
+| Cashflow nur per Hover verständlich | **gelöst:** Klick pinnt den normalisierten Detailblock | aus Gameplay-Backlog entfernen |
+| Vor-/Nach-Steuer und Cashflow-Begriffe redundant | **gelöst:** Haushalt, Objekt, Vermögensaufbau und echte Kontobewegung sind getrennt; 0 € Steuer wird begründet | B0 bestätigt konservativ: keine sofortige Erstattung und kein Verlustvortrag im MVP |
+| LTV zu dominant | **gelöst:** als sekundäre „Finanzierungsquote“ im Kredit-/Risikokontext | Modellwert behalten |
+| Zahlen ungeordnet und textlastig | **gelöst in B1 (UI v41):** Exposé folgt der Handlungskette, Faktentabelle aufklappbar, Finanzen-Mix rechnet netto wie seine Überschrift | erledigt |
+| Doppelte Wege und Meldungen | **gelöst in B1 (UI v41):** Meldungsarchiv liest `state.log`; Renovieren, Bestandsweg und Bühne/Liste haben je eine Stelle | erledigt |
+| Passender Elementtyp | **teilweise gelöst in B1:** ein Tab steuert genau ein Tabpanel | Bildzoom (`div role="button"`), SVG/WebP-Doppelung und generische Messbalken bleiben offen |
+| Responsive Layout | **gelöst in B1 (UI v41):** `--inhalt-max` ab 1680 px, 390 px ohne HUD-/Filter-Scrollbars; 1280-px-Kollision war nicht reproduzierbar | erledigt |
+| Kern eher analytisch als spielerisch | **gelöst in E/G:** Anlass, drei Prüfungen, Entscheidung und länger sichtbare Wirkung bilden eine wiederholbare Schleife; guter Weggang und mehrmonatige Objektgeschichten zählen | Muster bei weiteren Inhalten beibehalten |
+| „Viel Bestand, wenig Luft“ | **gelöst in F/G/H:** priorisierte Triage, zwei kostenpflichtige Linien, begrenztes Bankfenster, freiwilliges Stabilisierungsziel und Arbeitsmodell-Trade-offs | im Owner-Playtest abnehmen |
+
+Aktuelle Reihenfolge:
+
+1. **P1 — Einzelaktien-Code aus dem Kernstate entfernen (B2):** Die UI ist
    scopekonform; Engine-, Save- und Testreste folgen als eigener Fachpass.
-5. **P1 — langfristige Vielfalt und Familie vertiefen:** wenige starke,
-   miteinander verknüpfte Systeme statt vieler kleiner Menüpunkte.
-6. **P3 — Kapitel/Kampagnenrhythmus:** erst nach einem abwechslungsreichen und
-   befriedigenden Monatskern.
+2. **P2 — Eventdichte vor dem ersten Kauf (E2):** `eventChanceBasis` liegt bei
+   0,035/Monat und skaliert erst mit Portfolio-Exposure. Ohne Objekt passiert
+   damit rund 60 Monate lang fast nichts. Bewusst nicht im UI-Pass geändert,
+   weil es RNG-Verbrauch und Balance verschiebt; eigener Block mit vollen
+   300-Seed-Gates oder alternativ ein paar gescriptete Anfangsmomente.
+3. **P3 — Kapitel/Kampagnenrhythmus (I):** erst nach einem abwechslungsreichen
+   und befriedigenden Monatskern.
 
-## Arbeitspaket B0 — Balance nach korrekter Darstellung (P1)
+**B1 ist mit UI v41 abgeschlossen** (siehe `DONE.md`). Offen bleibt aus dem
+Elementvertrag nur der Rest von B1.3: Bildzoom als nativer `<button>`,
+`aria-hidden` für den SVG-Fallback bei vorhandenem WebP und echte `<meter>`
+statt generischer Div-Messbalken.
 
-Die UI trennt Haushaltsüberschuss, Objekt-Cashflow, Vermögensaufbau und die
-Tagesgeld-Veränderung. Auf dieser Basis wird dieselbe 40-Listing-Matrix für
-mehrere Eigenkapital-, Tilgungs-, Miet- und Vermietungswege erneut ausgewertet.
+## Arbeitspaket B — Qualitäts- und Scope-Pass (P1)
 
-Zu prüfen:
+### B1. Nativer Elementvertrag (Rest) — die Umsetzung ist abgeschlossen
 
-- Preis-/Mietverhältnisse je Region und Objektart;
-- Hausgeld pro m² und dessen reale Bestandteile;
-- doppelte oder zu konservative Rücklagenannahmen;
-- Bestandsmieten, Mietsteigerungswege und realistische Leerstandsphasen;
-- mehrere glaubwürdige Investmentpfade je Markt, ohne positiven Cashflow für
-  jedes Objekt zu garantieren;
-- ein getrennter Economy-Entscheid zu Verlustverrechnung oder Verlustvortrag.
+Der Vereinfachungspass B1.1/B1.2/B1.4 ist mit UI v41 erledigt und in `DONE.md`
+protokolliert. Es bleibt der **verbindliche Elementvertrag**: Er gilt dauerhaft
+für jede neue UI, unabhängig vom Arbeitspaket. Offen sind daraus noch Bildzoom,
+SVG-/WebP-Doppelung und die generischen Messbalken.
 
-Ausgangsdiagnose vom 18.07.2026: Mit dem früher missverständlich benannten
-20-%-Schnellwert, 2 % Anfangstilgung und regulärer Folgevermietung waren 0/40
-Standardfälle positiv; Median −644 €/Monat. Selbst echte 80-%-Finanzierung
-ergab nur 1/40 positive Fälle. `me-10` bleibt wegen 205 € Hausgeld bei 34 m² ein
-besonders prüfpflichtiger Datensatz. Es wird weder pauschal die Miete erhöht
-noch eine Renditegarantie eingebaut.
+#### B1.3 Verbindlicher nativer Elementvertrag
 
-## Arbeitspaket B — Scope-Bereinigung (P1)
+- Navigation zwischen Hauptscreens: `<nav>` mit echten Buttons und
+  `aria-current`; Tabs nur innerhalb eines Screens und genau ein `<tabpanel>`
+  je Tab.
+- Bildzoom: nativer `<button>` statt `div role="button"`; bei vorhandenem WebP
+  genau ein zugängliches Bild, der SVG-Fallback ist dann `aria-hidden`.
+- Einzelobjektkarte: `<article>` bleibt Inhalt, eine sichtbare echte
+  Öffnen-Schaltfläche ist die Aktion; keine unsichtbar vollflächig klickbare
+  Karte und kein buttonartig gestaltetes `<span>`.
+- Faktenpaare: `<dl>`; echte mehrspaltige Vergleiche: `<table>` mit `<th>`;
+  chronologische Ereignisse: `<ol>` mit `<time>`.
+- Exklusive Formularwahl: `<fieldset>` + `<legend>` + Radios; unabhängige Wahl:
+  Checkbox; stetiger Zahlenwert: Range/Number mit `<output>`.
+- Begrenzter Zustand wie Familie, Rücklage oder Eigenkapitalquote: `<meter>`;
+  laufender Vorgang: `<progress>`; Auf-/Zuklappen: `<details>/<summary>`.
+- Dialoge: natives `<dialog>` mit beschriftender Überschrift und normaler
+  Aktionsleiste. Dialog-Header/-Footer erzeugen keine zusätzlichen
+  Banner-/Contentinfo-Landmarks. Doppelte Schließen-Aktionen nur behalten, wenn
+  eine davon inhaltlich „Abbrechen und verwerfen“ bedeutet.
+- Favorit und andere binäre Toolbaraktionen: Toggle-Button mit
+  `aria-pressed`; berechnete Nachher-Werte: `<output>` statt `<article>`.
 
-### B1. Verbliebenen Einzelaktien-Code aus dem Kern entfernen
+#### B1.4 Dauerhaftes Layout-Gate (erfüllt, gilt weiter für neue UI)
+
+- 2560/1440/1280/1024/700/390 px sowie kurze Viewports visuell abnehmen.
+- Bei 390 px keine horizontalen Seiten-, HUD-, Zeit- oder Filter-Scrollbars;
+  nur Bottom-Navigation und der bewusst breite Chart dürfen intern scrollen.
+- Ab 1680 px begrenzt `--inhalt-max` die Bühnenbreite; Screens werden über
+  auto-Margins zentriert, nie über `transform` (die `screen-in`-Animation
+  überschreibt eigene `transform`-Deklarationen dauerhaft).
+- Keine kollidierenden Karten oder Zeilen, keine abgeschnittene Hauptaktion und
+  höchstens eine primäre Scrollrichtung pro Screen.
+
+### B2. Verbliebenen Einzelaktien-Code aus dem Kern entfernen
 
 - Einzelaktien-Screens und -Navigation sind seit UI v32 entfernt.
 - Orders, Kurspfade, Depotstate, Content-Fetches und aktienspezifische Tests in
@@ -58,83 +98,6 @@ noch eine Renditegarantie eingebaut.
   Kapitalertragsteuer vollständig erhalten.
 - Das alte Konzept bleibt nur in `IDEEN.md` als möglicher, klar abtrennbarer
   Value-Investing-Ableger archiviert.
-
-## Arbeitspaket E — Vom Analysieren zum Handeln (P0)
-
-### E1. „Mut zum ersten Kauf“-Schleife
-
-Eine Wohnungssuche wird als kurze, wiederholbare Handlungskette spielbar:
-
-1. persönlicher Anlass oder plausibles Angebot;
-2. zwei bis vier echte Prüfhandlungen mit begrenzter Zeit und Geld;
-3. verständlicher Erkenntnisgewinn statt bloßer Prozentwerte;
-4. begründete Entscheidung: bieten, verhandeln, beobachten oder weggehen;
-5. sichtbare Wirkung auf Objekt, Haushalt, Wissen und nächste Chance.
-
-Ein guter Weggang zählt als Erfolg. Unsicherheit wird reduziert, nicht durch
-eine sichere Rendite ersetzt.
-
-### E2. Mehr sinnvolle Monatszüge
-
-- Pro Monat mindestens ein klarer Anlass oder bewusstes „weiter beobachten“.
-- Stadt/Post als Einstieg in Situationen; Marktplatz für Suche und Vergleich;
-  Objektansicht für Prüfung und Bewirtschaftung.
-- Quartalsbericht und „Nächster kluger Zug“ verdichten Wirkung, ohne den Spieler
-  zu einer bestimmten Anlage zu drängen.
-- Wiederholte Routineaktionen bündeln, seltene Entscheidungen hervorheben.
-
-### E3. Ehrliches Erfolgsfeedback
-
-- Fortschritt an Wissen, Reserve, Zustand, Vermietbarkeit und reduzierter
-  Unsicherheit zeigen, nicht nur am Nettovermögen.
-- Vorher/Nachher bei Renovierung und Bewirtschaftung sichtbar machen.
-- Kauf, Vermietung, gelöster Mangel und bewusst verworfener Deal bekommen kurze,
-  nüchterne Abschlussmomente.
-
-Abnahme: Ein neuer Spieler kann Anlass → Prüfung → Entscheidung → Wirkung ohne
-Hilfe durchspielen und versteht, warum auch Nichtkaufen eine valide Aktion ist.
-
-## Arbeitspaket F — „Viel Bestand, wenig Luft“ als Turnaround (P0)
-
-Das Schuldenberg-Preset darf nicht nur Liquidität abbauen. Benötigt werden echte
-Gegenhebel mit Kosten und Nebenwirkungen:
-
-- Objekttriage nach Cashflow, Risiko, Arbeitslast und gebundenem Eigenkapital;
-- Verkauf, Refinanzierung, Verwaltung, Renovierung und Vermietungsweg als
-  unterscheidbare Sanierungsoptionen;
-- begrenzte Bank-/Zeitfenster und sichtbare Konsequenzen des Nichtstuns;
-- messbare Zwischenziele wie positiver Objektverbund, Reserveaufbau oder
-  reduzierte Zinsbindungsrisiken;
-- keine kostenlose Rettung und kein unvermeidbarer Abstieg.
-
-## Arbeitspaket G — Langfristige Vielfalt (P1)
-
-### G1. Objekt- und Portfolio-Arcs
-
-- wenige mehrmonatige Objektgeschichten statt vieler isolierter Popups;
-- Zustands-, Mieter-, Nachbarschafts- und Finanzierungsfolgen verbinden;
-- Entscheidungen verändern spätere Optionen und Texte nachvollziehbar.
-
-### G2. Mittelfristige Ziele
-
-- freiwillige 3–8-Jahres-Ziele wie erstes stabiles Mietobjekt, Eigenheim oder
-  Turnaround;
-- Zielwechsel ohne versteckte Strafe;
-- Fortschritt über bestehende Systeme, kein paralleler Quest-Apparat.
-
-### G3. Ruf und Beziehungen (P2)
-
-Nur weiterverfolgen, wenn Makler-, Bank-, Handwerker- oder Mieterbeziehungen
-mehrere vorhandene Systeme sinnvoll verbinden. Kein separates Sammelsystem.
-
-## Arbeitspaket H — Familie, Zeit und Arbeit (P1)
-
-- wenige echte Familienentscheidungen mit Finanz-, Zeit- und Zufriedenheits-
-  Trade-offs;
-- Karriere-/Gehaltsoptionen nur mit gegenläufigem Zeitbudget;
-- Eigenleistung als begrenzte Fähigkeit, nicht als kostenloser Rabatt;
-- Lebensphasen verständlich ankündigen und im nächsten Zug berücksichtigen;
-- private Annahmen weiterhin editierbar und klar als Spielmodell benennen.
 
 ## Arbeitspaket I — Kampagnenrhythmus und Kapitel (P3)
 

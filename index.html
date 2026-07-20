@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Betongold Tycoon</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23141b22'/%3E%3Cpath d='M14 45h36v8H14zM19 31h31v8H19zM25 17h25v8H25z' fill='%23e6c264'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="css/style.css?v=36">
+  <link rel="stylesheet" href="css/style.css?v=41">
 </head>
 <body>
 
@@ -88,7 +88,6 @@
   <button type="button" id="nav-karte" class="aktiv" aria-current="page"><svg class="ui-icon"><use href="#icon-map"></use></svg><span>Stadt</span></button>
   <button type="button" id="nav-dashboard"><svg class="ui-icon"><use href="#icon-landmark"></use></svg><span>Zentrale</span></button>
   <button type="button" id="nav-marktplatz"><svg class="ui-icon"><use href="#icon-scale"></use></svg><span>Marktplatz <i id="markt-zaehler" class="zaehler" aria-hidden="true"></i></span></button>
-  <button type="button" id="nav-objekte"><svg class="ui-icon"><use href="#icon-building"></use></svg><span>Objekte</span></button>
   <button type="button" id="nav-finanzen"><svg class="ui-icon"><use href="#icon-wallet"></use></svg><span>Finanzen</span></button>
 </nav>
 <aside id="cashflow-popover" class="cashflow-popover" aria-label="Cashflow-Aufschlüsselung" hidden></aside>
@@ -101,12 +100,15 @@
   <header class="screen-heading screen-heading--dashboard">
     <div><span class="eyebrow">Eure Bücher</span><h1 id="dashboard-titel"><svg class="title-icon"><use href="#icon-landmark"></use></svg>Zentrale</h1></div>
     <div class="zentrale-tabs" role="tablist" aria-label="Bereich der Zentrale">
-      <button type="button" role="tab" id="zentrale-tab-vermoegen" data-zentrale-tab="vermoegen" class="aktiv" aria-selected="true" aria-controls="zentrale-panel-kacheln zentrale-panel-chart zentrale-panel-quartal"><svg class="ui-icon"><use href="#icon-trending"></use></svg>Vermögen</button>
+      <button type="button" role="tab" id="zentrale-tab-vermoegen" data-zentrale-tab="vermoegen" class="aktiv" aria-selected="true" aria-controls="zentrale-panel-vermoegen"><svg class="ui-icon"><use href="#icon-trending"></use></svg>Vermögen</button>
       <button type="button" role="tab" id="zentrale-tab-haushalt" data-zentrale-tab="haushalt" aria-selected="false" tabindex="-1" aria-controls="zentrale-panel-haushalt"><svg class="ui-icon"><use href="#icon-scale"></use></svg>Haushalt</button>
       <button type="button" role="tab" id="zentrale-tab-objekte" data-zentrale-tab="objekte" aria-selected="false" tabindex="-1" aria-controls="zentrale-panel-objekte"><svg class="ui-icon"><use href="#icon-building"></use></svg>Objekte</button>
     </div>
   </header>
-  <section class="kacheln" id="zentrale-panel-kacheln" role="tabpanel" aria-labelledby="zentrale-tab-vermoegen" aria-label="Kennzahlen nach Themen" data-zentrale-panel="vermoegen">
+  <!-- Ein Tab steuert genau ein Tabpanel. Die drei Vermögensblöcke liegen
+       deshalb gemeinsam in diesem Panel statt als drei Einzelpanels. -->
+  <div id="zentrale-panel-vermoegen" role="tabpanel" aria-labelledby="zentrale-tab-vermoegen" data-zentrale-panel="vermoegen">
+  <section class="kacheln" id="zentrale-panel-kacheln" aria-label="Kennzahlen nach Themen">
     <section class="kpi-gruppe" aria-labelledby="kpi-liquiditaet"><h2 id="kpi-liquiditaet"><svg class="section-icon"><use href="#icon-wallet"></use></svg>Liquidität</h2><div class="kpi-paar">
       <div class="kachel" id="tile-cash"><div class="label"><svg class="metric-icon"><use href="#icon-wallet"></use></svg>Tagesgeld</div><div class="wert">—</div><div class="sub"></div></div>
       <div class="kachel" id="tile-cashflow"><div class="label"><svg class="metric-icon"><use href="#icon-trending"></use></svg>Haushaltsüberschuss</div><div class="wert">—</div><div class="sub"></div></div>
@@ -125,15 +127,7 @@
     </section>
   </section>
 
-  <section class="karte portfolio-board" id="zentrale-panel-objekte" role="tabpanel" aria-labelledby="zentrale-tab-objekte" data-zentrale-panel="objekte" hidden>
-    <header class="karten-kopf">
-      <div><span class="eyebrow">Euer Bestand</span><h2 id="portfolio-titel"><svg class="section-icon"><use href="#icon-building"></use></svg>Eure Immobilien</h2></div>
-      <div class="karten-kopf-aktionen"><span id="portfolio-summary" class="badge">Noch kein Objekt</span><button type="button" id="btn-zur-karte">Zur Stadt</button></div>
-    </header>
-    <div id="portfolio-liste" class="portfolio-grid"></div>
-  </section>
-
-  <section class="karte chart-karte" id="zentrale-panel-chart" role="tabpanel" aria-labelledby="zentrale-tab-vermoegen" data-zentrale-panel="vermoegen">
+  <section class="karte chart-karte" id="zentrale-panel-chart">
     <header class="karten-kopf">
       <h2><svg class="section-icon"><use href="#icon-chart"></use></svg>Nettovermögen vs. ETF-Benchmark brutto <button type="button" class="info-tooltip" aria-label="Info: Der ETF ist eine Brutto-Opportunitätskosten-Linie, kein kaufbares Spielkonto. Steuer entsteht erst bei realisierten Gewinnen." data-tooltip="Der ETF ist eine Brutto-Opportunitätskosten-Linie, kein kaufbares Spielkonto. Steuer entsteht erst bei realisierten Gewinnen.">?</button></h2>
       <div class="legende">
@@ -148,9 +142,20 @@
     <div id="chart-zusatz" class="chart-zusatz" aria-label="Zusätzliche Vermögensdiagramme"></div>
   </section>
 
-  <section class="karte quartalsbericht" id="zentrale-panel-quartal" role="tabpanel" aria-labelledby="zentrale-tab-vermoegen" data-zentrale-panel="vermoegen">
+  <section class="karte quartalsbericht" id="zentrale-panel-quartal">
     <header class="karten-kopf"><div><span class="eyebrow">Rückblick & nächster Zug</span><h2 id="quartalsbericht-titel">Quartalsbericht</h2></div><span id="quartalsbericht-zeitraum" class="badge"></span></header>
     <div id="quartalsbericht-inhalt"></div>
+    <section id="strategie-board" class="strategie-board" aria-label="Freiwilliges Entwicklungsziel"></section>
+  </section>
+  </div>
+
+  <section class="karte portfolio-board" id="zentrale-panel-objekte" role="tabpanel" aria-labelledby="zentrale-tab-objekte" data-zentrale-panel="objekte" hidden>
+    <header class="karten-kopf">
+      <div><span class="eyebrow">Euer Bestand</span><h2 id="portfolio-titel"><svg class="section-icon"><use href="#icon-building"></use></svg>Eure Immobilien</h2></div>
+      <div class="karten-kopf-aktionen"><span id="portfolio-summary" class="badge">Noch kein Objekt</span><button type="button" id="btn-zur-karte">Zur Stadt</button></div>
+    </header>
+    <div id="turnaround-board" hidden></div>
+    <div id="portfolio-liste" class="portfolio-grid"></div>
   </section>
 
   <div class="seiten-spalte" id="zentrale-panel-haushalt" role="tabpanel" aria-labelledby="zentrale-tab-haushalt" data-zentrale-panel="haushalt" hidden>
@@ -158,6 +163,8 @@
       <header class="karten-kopf"><h2><svg class="section-icon"><use href="#icon-family"></use></svg>Haushaltsrechnung</h2></header>
       <div id="cashflow-viz" class="cashflow-viz" aria-label="Cashflow-Aufschlüsselung des Haushalts"></div>
     </section>
+
+    <section class="karte" id="lebensplan-board" aria-label="Familien- und Arbeitsplan"></section>
 
     <section class="karte steuer-karte">
       <header class="karten-kopf"><h2><svg class="section-icon"><use href="#icon-tax"></use></svg>Steuern auf Vermietung</h2><span id="steuer-satz-wert" class="badge blau">35 %</span></header>
@@ -182,24 +189,6 @@
     <div><span class="eyebrow">Konten &amp; Depot</span><h1 id="finanzen-titel"><svg class="title-icon"><use href="#icon-wallet"></use></svg>Finanzen</h1></div>
     <p>Drei Vermögensformen im Vergleich</p>
   </header>
-
-  <section class="finanz-ueberblick karte" aria-labelledby="finanz-ueberblick-titel">
-    <header class="karten-kopf"><div><span class="eyebrow">Vermögensstruktur</span><h2 id="finanz-ueberblick-titel">Vermögensmix</h2></div><b id="fin-netto">—</b></header>
-    <p class="finanz-liquid"><span>Liquide Anlagen</span><b id="fin-liquid-gesamt">—</b></p>
-    <div class="finanz-mix" role="img" aria-labelledby="fin-mix-label">
-      <div class="finanz-mix-balken"><i id="fin-mix-cash"></i><i id="fin-mix-etf"></i><i id="fin-mix-immo"></i></div>
-      <p id="fin-mix-label" class="sr-only">—</p>
-      <ul class="finanz-mix-legende" aria-hidden="true">
-        <li class="fin-mix-cash-row"><span>Tagesgeld</span><b id="fin-mix-cash-wert">—</b></li>
-        <li class="fin-mix-etf-row"><span>Welt-ETF</span><b id="fin-mix-etf-wert">—</b></li>
-        <li class="fin-mix-immo-row"><span>Immobilien</span><b id="fin-mix-immo-wert">—</b></li>
-      </ul>
-    </div>
-    <dl class="finanz-kurzwerte">
-      <div><dt>Haushaltsüberschuss / Monat</dt><dd id="fin-cashflow">—</dd></div>
-      <div><dt>Liquiditätspuffer</dt><dd id="fin-puffer">—</dd></div>
-    </dl>
-  </section>
 
   <div class="finanz-konten">
     <section class="konto-karte karte" id="fin-konto-cash" aria-labelledby="fin-cash-titel">
@@ -259,6 +248,27 @@
     </section>
   </section>
 
+  <!-- Steht im Layout rechts neben „Umschichten" (grid-column 2, grid-row 3);
+       die DOM-Reihenfolge folgt der visuellen, damit Tab- und Lesereihenfolge
+       übereinstimmen. -->
+  <section class="finanz-ueberblick karte" aria-labelledby="finanz-ueberblick-titel">
+    <header class="karten-kopf"><div><span class="eyebrow">Vermögensstruktur</span><h2 id="finanz-ueberblick-titel">Vermögensmix</h2></div><b id="fin-netto">—</b></header>
+    <p class="finanz-liquid"><span>Liquide Anlagen</span><b id="fin-liquid-gesamt">—</b></p>
+    <div class="finanz-mix" role="img" aria-labelledby="fin-mix-label">
+      <div class="finanz-mix-balken"><i id="fin-mix-cash"></i><i id="fin-mix-etf"></i><i id="fin-mix-immo"></i></div>
+      <p id="fin-mix-label" class="sr-only">—</p>
+      <ul class="finanz-mix-legende" aria-hidden="true">
+        <li class="fin-mix-cash-row"><span>Tagesgeld</span><b id="fin-mix-cash-wert">—</b></li>
+        <li class="fin-mix-etf-row"><span>Welt-ETF</span><b id="fin-mix-etf-wert">—</b></li>
+        <li class="fin-mix-immo-row"><span>Immobilien</span><b id="fin-mix-immo-wert">—</b></li>
+      </ul>
+    </div>
+    <dl class="finanz-kurzwerte">
+      <div><dt>Haushaltsüberschuss / Monat</dt><dd id="fin-cashflow">—</dd></div>
+      <div><dt>Liquiditätspuffer</dt><dd id="fin-puffer">—</dd></div>
+    </dl>
+  </section>
+
   <div class="finanz-unten">
     <section class="bewegungen-karte karte" aria-labelledby="bewegungen-titel">
       <header class="karten-kopf"><div><span class="eyebrow">Kontohistorie</span><h2 id="bewegungen-titel">Letzte Finanzbewegungen</h2></div></header>
@@ -299,7 +309,7 @@
       </div>
       <div id="karten-liste" class="karten-liste"></div>
       <section class="naechster-zug" aria-labelledby="stadt-naechster-titel">
-        <span class="eyebrow">Nächster kluger Zug</span>
+        <span class="eyebrow" id="stadt-naechster-phase">Nächster kluger Zug</span>
         <h3 id="stadt-naechster-titel">Angebote bewusst prüfen</h3>
         <p id="stadt-naechster-text">Ein guter Weggang ist ebenso eine Entscheidung wie ein Kauf.</p>
         <button type="button" id="karte-zum-markt" class="primaer">Marktplatz öffnen</button>
@@ -464,10 +474,10 @@
     </ol>
   </section>
   <div class="hilfe-raster">
-    <section class="hilfe-abschnitt"><h3>Ziel &amp; Zeit</h3><ul><li><b>Altersphasen:</b> Arbeitsnetto, Alltag, Reisen und Auto ändern ihre Faktoren sichtbar; Details stehen in den Einstellungen.</li><li><b>Ruhestand:</b> Einkommen sinkt ab 67 zusätzlich auf 55 %.</li><li><b>Familienpreset:</b> heute kein Auto; 600 € all-in ab Monat 5, wenn Kind 2 ein Jahr alt ist.</li><li><b>Lebensende:</b> je Seed 90–100, Stress kann verkürzen.</li><li><b>Ziel:</b> stabiler Cashflow, Vermögen, Familie und Reserve.</li></ul></section>
+    <section class="hilfe-abschnitt"><h3>Ziel &amp; Zeit</h3><ul><li><b>Altersphasen:</b> Arbeitsnetto, Alltag, Reisen und Auto ändern ihre Faktoren sichtbar und werden vorab angekündigt; Details stehen in den Einstellungen.</li><li><b>Ruhestand:</b> Einkommen sinkt ab 67 zusätzlich auf 55 %.</li><li><b>Familienpreset:</b> heute kein Auto; 600 € all-in ab Monat 5, wenn Kind 2 ein Jahr alt ist.</li><li><b>Lebensende:</b> je Seed 90–100, Stress kann verkürzen.</li><li><b>Ziel:</b> Wähle freiwillig einen 3–8-Jahres-Horizont oder spiele ohne Ziel; Fortschritt kommt ohne Questprämie aus Bestand, Cashflow, Familie und Reserve.</li></ul></section>
     <section class="hilfe-abschnitt"><h3>Markt &amp; Prüfung</h3><ul><li><b>Bruttorendite:</b> Jahreskaltmiete ÷ Kaufpreis.</li><li>Notiz und Grundriss kosten Zeit.</li><li>Gutachten kostet Geld und senkt Mängelrisiko.</li></ul></section>
-    <section class="hilfe-abschnitt"><h3>Finanzierung &amp; LTV</h3><ul><li><b>LTV:</b> Restschuld ÷ Immobilienwert.</li><li>Mehr Eigenkapital senkt Rate und Risiko.</li><li>Wenig Eigenkapital hält Liquidität frei.</li></ul></section>
-    <section class="hilfe-abschnitt"><h3>Vermietung &amp; Cashflow</h3><ul><li>Rate plus Eigentümerkosten können die Miete übersteigen.</li><li>Höheres Eigenkapital, Kaufpreis und Vermietungsweg verändern das Ergebnis.</li><li>Möbliert und Wohnen auf Zeit bringen Aufwand, Wechsel und Rechtsrisiko.</li></ul></section>
+    <section class="hilfe-abschnitt"><h3>Finanzierung &amp; LTV</h3><ul><li><b>LTV:</b> Restschuld ÷ Immobilienwert.</li><li>Mehr Eigenkapital senkt Rate und Risiko.</li><li>Eigenleistung spart bei Renovierungen gedeckelt Geld, kostet aber Zeit und erhöht das Überziehungsrisiko.</li></ul></section>
+    <section class="hilfe-abschnitt"><h3>Vermietung &amp; Cashflow</h3><ul><li>Rate plus Eigentümerkosten können die Miete übersteigen; manche Entscheidungen wirken in mehrmonatigen Objektgeschichten nach.</li><li>Höheres Eigenkapital, Kaufpreis und Vermietungsweg verändern das Ergebnis.</li><li>Möbliert und Wohnen auf Zeit bringen Aufwand, Wechsel und Rechtsrisiko.</li></ul></section>
     <section class="hilfe-abschnitt"><h3>Eigenheim, Steuer &amp; Verkauf</h3><ul><li>Eigenheim ersetzt Miete, bindet aber Kapital.</li><li>AfA, Zins und Kosten mindern den Mietüberschuss.</li><li>Verkauf dauert; Steuer hängt von der Haltedauer ab.</li></ul></section>
     <section class="hilfe-abschnitt"><h3>Finanzen &amp; ETF</h3><ul><li>ETF kann als Eigenkapital verkauft werden.</li><li>Realisierte ETF-Gewinne nutzen den jährlichen Freibetrag.</li><li>Benchmark und Renditen sind keine Zusage.</li></ul></section>
   </div>
@@ -572,6 +582,16 @@
   </footer>
 </dialog>
 
+<!-- Begrenzter Banktermin im Schuldenberg-Turnaround -->
+<dialog id="dlg-bank" aria-labelledby="bank-titel">
+  <header><h2 id="bank-titel">Kreditrate neu verhandeln</h2><button type="button" data-schliessen aria-label="Schließen">✕</button></header>
+  <div id="bank-inhalt"></div>
+  <footer class="dialog-fuss">
+    <button type="button" data-schliessen>Abbrechen</button>
+    <button type="button" id="btn-bank-anpassen" class="primaer">Kostenpflichtig anpassen</button>
+  </footer>
+</dialog>
+
 <!-- Vergleich -->
 <dialog id="dlg-vergleich" class="breit">
   <header><h2>Objektvergleich</h2><button type="button" data-schliessen aria-label="Schließen">✕</button></header>
@@ -615,6 +635,6 @@
 <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 <input type="file" id="import-datei" accept=".json,application/json" hidden>
 
-<script type="module" src="js/main.js?v=36"></script>
+<script type="module" src="js/main.js?v=41"></script>
 </body>
 </html>

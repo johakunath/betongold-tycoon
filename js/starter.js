@@ -2,10 +2,11 @@
 // Läuft nach market.initialisiereMarkt(), damit Listingdaten, Mängel und
 // Feedstatus existieren. DOM-frei und vollständig im Save abbildbar.
 
-import { getListing } from './content.js?v=36';
-import { fairerWert } from './market.js?v=36';
-import { kaufeObjekt, nebenkostenFuer } from './finance.js?v=36';
-import { aktienDepotWert } from './aktien.js?v=36';
+import { getListing } from './content.js?v=41';
+import { fairerWert } from './market.js?v=41';
+import { kaufeObjekt, nebenkostenFuer } from './finance.js?v=41';
+import { aktienDepotWert } from './aktien.js?v=41';
+import { initialisiereTurnaround } from './turnaround.js?v=41';
 
 export function initialisiereStartbestand(state) {
   if (state.startbestandInitialisiert) return { angewendet: false, anzahl: 0 };
@@ -61,6 +62,10 @@ export function initialisiereStartbestand(state) {
     objekt.darlehen.zinsbindungBis = state.monat + zinsbindungRestJahre * 12;
     objekt.ruecklage = Math.max(0, Number(eintrag.ruecklage) || 0);
     objekt.hausverwaltung = !!eintrag.hausverwaltung;
+    const kaufWirkung = state.entscheidungsHistorie.at(-1);
+    if (kaufWirkung?.typ === 'gekauft' && kaufWirkung.ziel === listing.id && kaufWirkung.monat === state.monat) {
+      state.entscheidungsHistorie.pop(); // historischer Startbestand, kein aktueller Kaufmoment
+    }
     const log = state.log.at(-1);
     if (log) {
       log.text = `Startbestand: ${listing.titel}, ${Math.round(ltv * 100)} % LTV, ` +
@@ -87,6 +92,7 @@ export function initialisiereStartbestand(state) {
     monat: state.monat,
     text: `Sonderstart: ${anzahl} Mietobjekte mit ${Math.round(restschuld).toLocaleString('de-DE')} € Restschuld übernommen.`,
   });
+  initialisiereTurnaround(state);
   return { angewendet: true, anzahl, restschuld, nettovermoegen: netto };
 }
 

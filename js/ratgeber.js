@@ -1,7 +1,7 @@
 // ratgeber.js — seltene, zustandsabhängige Lernhinweise für Leicht/Normal.
 // DOM-frei: Das Modul entscheidet nur, ob ein neuer Hinweis fällig ist.
 
-import { monatsWerte } from './engine.js?v=36';
+import { monatsWerte } from './engine.js?v=41';
 
 const MINDESTABSTAND = 10;
 

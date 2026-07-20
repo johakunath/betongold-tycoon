@@ -3,34 +3,37 @@
 
 import {
   newGame, saveGame, loadGame, deleteSave, exportString, importString, AUTOSAVE_SLOT,
-} from './state.js?v=36';
-import { advanceMonths } from './engine.js?v=36';
-import { setzeInhalte } from './content.js?v=36';
-import { initialisiereMarkt } from './market.js?v=36';
-import { initDashboard, renderDashboard } from './ui/dashboard.js?v=36';
+} from './state.js?v=41';
+import { advanceMonths } from './engine.js?v=41';
+import { setzeInhalte } from './content.js?v=41';
+import { initialisiereMarkt } from './market.js?v=41';
+import { initDashboard, renderDashboard } from './ui/dashboard.js?v=41';
 import {
   initShell, updateHud, zeigeNeuesSpiel, zeigeScreen, aktiverScreen, toast,
-} from './ui/shell.js?v=36';
-import { initMarktplatz, renderMarktplatz } from './ui/marktplatz.js?v=36';
-import { initExpose, renderExpose, oeffneExpose } from './ui/expose.js?v=36';
-import { initFinanzierung } from './ui/finanzierung.js?v=36';
-import { initObjekt, renderObjekt, oeffneObjekt } from './ui/objekt.js?v=36';
-import { initBewerber } from './ui/bewerber.js?v=36';
-import { initRenovieren } from './ui/renovieren.js?v=36';
-import { initEvent, initEventWeiter, zeigeEvent } from './ui/event.js?v=36';
-import { initVerkaufen } from './ui/verkaufen.js?v=36';
-import { initEndgame, zeigeEnde } from './ui/endgame.js?v=36';
-import { initAdmin } from './ui/admin.js?v=36';
-import { initBildzoom } from './ui/bildzoom.js?v=36';
-import { initKarte, renderKarte } from './ui/karte.js?v=36';
-import { initTutorial } from './ui/tutorial.js?v=36';
-import { initFinanzen, renderFinanzen } from './ui/finanzen.js?v=36';
-import { kaufeEtf, setzeSparplanEtfAnteil, verkaufeEtf } from './etf.js?v=36';
-import { zieheWartemomente } from './signals.js?v=36';
-import { initialisiereAktienmarkt } from './aktien.js?v=36';
-import { initialisiereStartbestand } from './starter.js?v=36';
-import { pruefeRatgeber } from './ratgeber.js?v=36';
-import { UI_VERSION } from './config.js?v=36';
+  zeigePortfolio,
+} from './ui/shell.js?v=41';
+import { initMarktplatz, renderMarktplatz } from './ui/marktplatz.js?v=41';
+import { initExpose, renderExpose, oeffneExpose } from './ui/expose.js?v=41';
+import { initFinanzierung } from './ui/finanzierung.js?v=41';
+import { initObjekt, renderObjekt, oeffneObjekt } from './ui/objekt.js?v=41';
+import { initBewerber } from './ui/bewerber.js?v=41';
+import { initRenovieren } from './ui/renovieren.js?v=41';
+import { initEvent, initEventWeiter, zeigeEvent } from './ui/event.js?v=41';
+import { initVerkaufen } from './ui/verkaufen.js?v=41';
+import { initEndgame, zeigeEnde } from './ui/endgame.js?v=41';
+import { initAdmin } from './ui/admin.js?v=41';
+import { initBildzoom } from './ui/bildzoom.js?v=41';
+import { initTurnaround } from './ui/turnaround.js?v=41';
+import { initStrategy } from './ui/strategy.js?v=41';
+import { initKarte, renderKarte } from './ui/karte.js?v=41';
+import { initTutorial } from './ui/tutorial.js?v=41';
+import { initFinanzen, renderFinanzen } from './ui/finanzen.js?v=41';
+import { kaufeEtf, setzeSparplanEtfAnteil, verkaufeEtf } from './etf.js?v=41';
+import { zieheWartemomente } from './signals.js?v=41';
+import { initialisiereAktienmarkt } from './aktien.js?v=41';
+import { initialisiereStartbestand } from './starter.js?v=41';
+import { pruefeRatgeber } from './ratgeber.js?v=41';
+import { UI_VERSION } from './config.js?v=41';
 
 // Inhalte laden, bevor irgendein State angefasst wird (Markt/Mieter/Events).
 const [listings, tenants, events, stocks] = await Promise.all([
@@ -265,6 +268,7 @@ const ctx = {
   toast,
   autosave: () => autosave(true),
   zeigeScreen,
+  zeigePortfolio,
   oeffneExpose,
   oeffneObjekt,
   etfVerkaufen: (betrag) => app.etfVerkaufen(betrag),
@@ -273,7 +277,7 @@ const ctx = {
 };
 
 initShell(app);
-initDashboard(() => state, oeffneObjekt, () => autosave(true));
+initDashboard(() => state, oeffneObjekt, () => autosave(true), oeffneExpose);
 initMarktplatz(ctx);
 initKarte(ctx);
 initTutorial(ctx);
@@ -286,6 +290,8 @@ initRenovieren(ctx);
 initEvent(ctx);
 initEventWeiter();
 initVerkaufen(ctx);
+initTurnaround(ctx);
+initStrategy(ctx);
 initEndgame(ctx);
 initAdmin(ctx);
 initBildzoom();

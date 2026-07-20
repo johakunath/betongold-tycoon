@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { DEFAULT_CONFIG, SAVE_VERSION, START_PRESETS, UI_VERSION } from '../js/config.js?v=36';
+import { DEFAULT_CONFIG, SAVE_VERSION, START_PRESETS, UI_VERSION } from '../js/config.js?v=41';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const lies = (datei) => fs.readFileSync(path.join(root, datei), 'utf8');
@@ -20,6 +20,16 @@ const finanzenUi = lies('js/ui/finanzen.js');
 const tenants = lies('js/tenants.js');
 const ratgeber = lies('js/ratgeber.js');
 const state = lies('js/state.js');
+const gameplay = lies('js/gameplay.js');
+const turnaround = lies('js/turnaround.js');
+const turnaroundUi = lies('js/ui/turnaround.js');
+const goals = lies('js/goals.js');
+const life = lies('js/life.js');
+const arcs = lies('js/arcs.js');
+const strategyUi = lies('js/ui/strategy.js');
+const renovation = lies('js/renovation.js');
+const expose = lies('js/ui/expose.js');
+const market = lies('js/market.js');
 const roadmap = lies('ROADMAP.md');
 const ideen = lies('IDEEN.md');
 const plan = lies('PLAN.md');
@@ -36,12 +46,26 @@ function vertrag(name, pruefung) {
 }
 
 vertrag('Versionen und Wegwerf-Saves', () => {
-  assert.equal(SAVE_VERSION, 15);
-  assert.equal(UI_VERSION, 36);
+  assert.equal(SAVE_VERSION, 19);
+  assert.equal(UI_VERSION, 41);
   assert.match(state, /Versionskonflikt|Version/);
   assert.doesNotMatch(state, /(?:export\s+)?function\s+migrier/i);
   assert.match(state, /statt Migrationscode mitzuschleppen/);
   assert.match(architektur, /es gibt keinen Migrationspfad/);
+});
+
+vertrag('Handlungskette belohnt Prüfung, Beobachten und guten Weggang', () => {
+  assert.match(state, /dealEntscheidungen/);
+  assert.match(state, /entscheidungsHistorie/);
+  assert.match(gameplay, /Anlass/);
+  assert.match(gameplay, /restunsicherheit/);
+  assert.match(gameplay, /Guter Weggang/);
+  assert.match(gameplay, /kein Kapital gebunden/i);
+  assert.match(market, /angebotBeobachten/);
+  assert.match(market, /angebotVerwerfen/);
+  assert.match(expose, /<progress/);
+  assert.match(expose, /<meter/);
+  assert.match(expose, /Bewusst weggehen/);
 });
 
 vertrag('Vier getrennte Startlagen mit neutralem Familiennamen', () => {
@@ -116,7 +140,11 @@ vertrag('Cashflow-Details, Benachrichtigungen und kompaktes Spielmenü', () => {
     assert.match(html, new RegExp(`id="${id}"`));
   }
   assert.match(shell, /renderCashflowDetails/);
-  assert.match(shell, /meldungen\.length > 50/);
+  // Das Meldungsarchiv hat genau eine Quelle: die gespeicherte Spielhistorie
+  // state.log (begrenzt und mit Spielmonat), nicht die flüchtigen Toasts.
+  assert.match(shell, /log\.slice\(-40\)/);
+  assert.match(shell, /<time datetime=/);
+  assert.doesNotMatch(shell, /meldungen\.unshift/);
   assert.match(shell, /dauer = 5200/);
   assert.match(html, /<b>Einstellungen<\/b>/);
 });
@@ -239,6 +267,43 @@ vertrag('Negativer Objekt-Cashflow wird erklärt und mitigierbar gemacht', () =>
   assert.match(objektUi, /Monatliche Lücke/);
   assert.match(objektUi, /Mehr Eigenkapital oder ein niedrigerer Kaufpreis senken die Rate/);
   assert.match(html, /Rate plus Eigentümerkosten können die Miete übersteigen/);
+  assert.match(finanzierungUi, /finanzierungsCashflowPfade/);
+  assert.match(finanzierungUi, /Tragfähiger Pfad/);
+  assert.match(finanzierungUi, /Auch stabilisiert untragfähig/);
+  assert.match(finanzierungUi, /<output class="fin-pfad-urteil/);
+});
+
+vertrag('Schuldenberg besitzt einen begrenzten und kostenpflichtigen Turnaround', () => {
+  assert.equal(DEFAULT_CONFIG.turnaround.preset, 'schuldenberg');
+  assert.equal(DEFAULT_CONFIG.turnaround.bankFensterMonate, 12);
+  assert.equal(DEFAULT_CONFIG.turnaround.bankMaxAnpassungen, 3);
+  assert.equal(DEFAULT_CONFIG.turnaround.zwischenzielVerbesserungMonat, 600);
+  assert.match(turnaround, /portfolioTriage/);
+  assert.match(turnaround, /stabilisierungsLinien/);
+  assert.match(turnaround, /restschuldMehr/);
+  assert.match(turnaround, /state\.monat >= cfg\.bankFensterMonate/);
+  assert.match(turnaroundUi, /Gebühr heute/);
+  assert.match(turnaroundUi, /Mehr Restschuld bis Zinsbindung/);
+  assert.match(html, /id="turnaround-board"/);
+  assert.match(html, /id="dlg-bank"/);
+});
+
+vertrag('G/H verbindet Ziele, Folgen, Arbeit, Lebensphasen und Eigenleistung', () => {
+  assert.deepEqual(Object.keys(DEFAULT_CONFIG.entwicklung.zielOptionen), ['erstesStabilesObjekt', 'eigenheim', 'bestandStabilisieren']);
+  assert.equal(DEFAULT_CONFIG.entwicklung.arbeitsmodellBindungMonate, 12);
+  assert.equal(DEFAULT_CONFIG.entwicklung.lebensphaseVorlaufMonate, 12);
+  assert.equal(DEFAULT_CONFIG.renovierung.eigenleistung.ersparnisMax, 6000);
+  assert.match(goals, /ohne Belohnungs- oder Queststate/);
+  assert.match(goals, /objektCashflow/);
+  assert.match(life, /setzeArbeitsmodell/);
+  assert.match(life, /naechsteLebensphase/);
+  assert.match(arcs, /faelligMonat/);
+  assert.match(arcs, /folgeEventId/);
+  assert.match(renovation, /eigenleistung.*risikoFaktor/s);
+  assert.match(strategyUi, /Wechsel ohne Kosten/);
+  assert.match(strategyUi, /Alle Beträge sind editierbare Spielannahmen/);
+  assert.match(html, /id="strategie-board"/);
+  assert.match(html, /id="lebensplan-board"/);
 });
 
 vertrag('Eigenbedarf ist ein zeitlicher Prozess mit möglicher Abfindung', () => {

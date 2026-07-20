@@ -1,9 +1,9 @@
 // aktien.js — DOM-freie Wertpapier-Sandbox mit eigenem deterministischem
 // Kursstrom. Einzelaktien bleiben strikt vom Welt-ETF und Benchmark getrennt.
 
-import { alleAktien, getAktie } from './content.js?v=36';
-import { rngFloatStrom, rngNormalStrom } from './state.js?v=36';
-import { kapitalertragVorschau, verbucheKapitalertrag } from './kapitalsteuer.js?v=36';
+import { alleAktien, getAktie } from './content.js?v=41';
+import { rngFloatStrom, rngNormalStrom } from './state.js?v=41';
+import { kapitalertragVorschau, verbucheKapitalertrag } from './kapitalsteuer.js?v=41';
 
 export function initialisiereAktienmarkt(state) {
   if (!state.aktienDepot || typeof state.aktienDepot !== 'object') {

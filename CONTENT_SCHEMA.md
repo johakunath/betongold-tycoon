@@ -124,7 +124,8 @@ alles andere ist Menschenkenntnis.
 
 ## data/events.json (Phase 3)
 
-~25 Dilemma-Events. 2–3 Optionen, **keine strikt dominante** (PLAN §14).
+30 Dilemma-Events: 25 zufällig ziehbare Inhalte und 5 ausschließlich
+terminierte Arc-Folgen. 2–3 Optionen, **keine strikt dominante** (PLAN §14).
 
 ```jsonc
 {
@@ -145,6 +146,13 @@ alles andere ist Menschenkenntnis.
     {
       "text": "Auf Lüften verweisen (Mieter-Ursache)",
       "effekt": { "familie": -2, "mieterKonflikt": 0.15, "mieterZufriedenheit": -0.1 },
+      "arc": {
+        "id": "schimmel-beobachtung",       // innerhalb des Objekts stabil
+        "titel": "Schimmelursache klären",
+        "nachMonaten": 3,
+        "folgeEventId": "arc-schimmel-pruefung",
+        "entscheidung": "Lüften"
+      },
       "folge": "Die Mieterin ist verstimmt, aber es kostet nichts."
     },
     {
@@ -160,10 +168,17 @@ Effekt-Schlüssel (alle optional, werden ohne RNG verrechnet):
 `cash` (±€, aus Rücklage/Cash), `zustand` (± Stufe am Zielobjekt),
 `miete` (± Kaltmiete am Zielobjekt), `mieterZufriedenheit` (±, beeinflusst
 Auszug), `mieterKonflikt` (±), `auszug` (true → Mieter kündigt),
-`familie` (± Punkte), `zeit` (± h einmalig), `ruecklage` (±€ direkt).
+`familie` (± Punkte), `zeit` (± h einmalig), `ruecklage` (±€ direkt),
+`sondertilgung` (+€; zieht denselben Betrag aus Cash und Restschuld).
 `kategorie:"kind"` zählt gegen das Max-2-Kinder-Event-Limit (PLAN §5.9).
 Zielobjekt-Wahl: seeded unter den passenden Objekten; ohne Zielbezug
 (`haushalt`/`kind`) wirkt der Effekt auf den Haushalt.
+
+`option.arc` plant eine persistente Objektgeschichte. `folgeEventId` muss auf
+ein vorhandenes Event mit `gewicht: 0` und `bedingung.nurArc: true` zeigen.
+Solche Folgeevents sind vom zufälligen Pool ausgeschlossen und werden nur im
+gespeicherten Fälligkeitsmonat aktiviert. Arc-IDs, Folgeevent-IDs und
+Listing-IDs bleiben save-stabil.
 
 ## data/stocks.json (Wertpapier-Sandbox)
 

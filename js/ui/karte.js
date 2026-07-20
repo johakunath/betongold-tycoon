@@ -2,10 +2,10 @@
 // Die Hintergründe bleiben bewusst weich; scharf und anklickbar sind nur
 // Listing-Assets aus dem tatsächlichen Katalog.
 
-import { alleListings } from '../content.js?v=36';
-import { fairerWert } from '../market.js?v=36';
-import { fmtEURKompakt } from './util.js?v=36';
-import { liquiditaetsPufferMonate, naechsterZugEmpfehlung } from './kennzahlen.js?v=36';
+import { alleListings } from '../content.js?v=41';
+import { fairerWert } from '../market.js?v=41';
+import { fmtEURKompakt } from './util.js?v=41';
+import { liquiditaetsPufferMonate, naechsterZugEmpfehlung } from './kennzahlen.js?v=41';
 
 let ctx = null;
 let filter = 'alle';
@@ -90,9 +90,13 @@ export function renderKarte(state) {
     `<div class="stadt-wash ${plan.klasse}"></div>` +
     `<div class="stadt-markerfeld">${sichtbar.map((eintrag, index) => markerHTML(state, eintrag, index)).join('')}</div>`;
 
-  document.getElementById('karten-liste').innerHTML = sichtbar.length
-    ? sichtbar.map((eintrag) => listenEintrag(eintrag)).join('')
-    : `<p class="muted">Für diesen Filter gibt es in ${plan.label} gerade keine Orte.</p>`;
+  // Bühne und Liste sind nicht dieselbe Darstellung zweimal: Die Bühne zeigt
+  // den Ort räumlich inklusive noch nicht erschienener Vorschauen, die Liste
+  // ist der handlungsfähige Index — nur Orte, an denen jetzt etwas geht.
+  const handelbar = sichtbar.filter((eintrag) => eintrag.status !== 'kommend');
+  document.getElementById('karten-liste').innerHTML = handelbar.length
+    ? handelbar.map((eintrag) => listenEintrag(eintrag)).join('')
+    : `<p class="muted">In ${plan.label} ist gerade kein Ort offen. Die Bühne zeigt, was hier noch entstehen kann.</p>`;
   renderFamilie(state);
   renderPost(state);
   renderNaechstenZug(state, sichtbar);
@@ -247,8 +251,14 @@ function renderNaechstenZug(state, sichtbar) {
     objekt: () => ctx.oeffneObjekt(empfehlung.ziel),
     expose: () => ctx.oeffneExpose(empfehlung.ziel),
     marktplatz: () => ctx.zeigeScreen('marktplatz'),
+    portfolio: () => ctx.zeigePortfolio(),
+    haushalt: () => {
+      ctx.zeigeScreen('dashboard');
+      document.querySelector('[data-zentrale-tab="haushalt"]')?.click();
+    },
   };
   naechsterAktion = aktionen[empfehlung.typ];
+  document.getElementById('stadt-naechster-phase').textContent = empfehlung.phase || 'Nächster kluger Zug';
   document.getElementById('stadt-naechster-titel').textContent = empfehlung.titel;
   document.getElementById('stadt-naechster-text').textContent = empfehlung.text;
   document.getElementById('karte-zum-markt').textContent = empfehlung.button;

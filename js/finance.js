@@ -3,16 +3,17 @@
 // DOM-frei; zirkulärer Import mit engine.js (monatsWerte) ist auf Funktions-
 // ebene unkritisch.
 
-import { rngFloat, rngNormal, bestandsMieter, entnimmRuecklage } from './state.js?v=36';
-import { getListing } from './content.js?v=36';
-import { monatsWerte } from './engine.js?v=36';
-import { fairerWert } from './market.js?v=36';
-import { mieterMonat } from './tenants.js?v=36';
-import { renovierungAbschluss } from './renovation.js?v=36';
-import { meldeWartemoment } from './signals.js?v=36';
+import { rngFloat, rngNormal, bestandsMieter, entnimmRuecklage } from './state.js?v=41';
+import { getListing } from './content.js?v=41';
+import { monatsWerte } from './engine.js?v=41';
+import { fairerWert } from './market.js?v=41';
+import { angesetzteMiete, marktmiete, mieterMonat } from './tenants.js?v=41';
+import { renovierungAbschluss, renovierungsOptionen } from './renovation.js?v=41';
+import { meldeWartemoment } from './signals.js?v=41';
+import { protokolliereWirkung, pruefstand } from './gameplay.js?v=41';
 import {
   eigenheimEignung, fixkostenMonat, instandhaltungMonat, gebaeudeAnteil,
-} from './immobilie.js?v=36';
+} from './immobilie.js?v=41';
 
 // ---------------------------------------------------------------------------
 // Basiszins: mean-reverting Random Walk (monatlich, aus engine.tick)
@@ -198,6 +199,107 @@ export function finanzierungsCashflowVorschau(state, angebot) {
   };
 }
 
+// Bewertet sichtbare Bewirtschaftungswege eines Kapitalanlage-Angebots, ohne
+// State oder RNG anzufassen. Das ist bewusst keine Renditegarantie: Einmalige
+// Kosten, Leerstands-/Wechselrisiko und regionale Rechtsrisiken bleiben am Pfad
+// erhalten. Die UI kann damit zwischen "stabilisiert tragfähig", "nach einer
+// Handlung nahe null" und "auch stabilisiert untragfähig" unterscheiden.
+export function finanzierungsCashflowPfade(state, angebot) {
+  if (!angebot || angebot.rate === null || angebot.nutzung === 'eigenheim') return null;
+
+  const listing = angebot.listing;
+  const stadt = state.config.segmente[listing.segment].stadt;
+  const fixkosten = fixkostenMonat(state, listing, true);
+  const ruecklage = instandhaltungMonat(state, listing);
+  const rate = Number(angebot.rate) || 0;
+  const zinsanteil = (Number(angebot.darlehen) || 0) * (Number(angebot.zins) || 0) / 12;
+  const afa = angebot.kaufpreis * gebaeudeAnteil(state, listing) * state.config.steuer.afaSatz / 12;
+  const naheNull = state.config.bewirtschaftung.cashflowNaheNullMonat;
+  const urteil = (wert) => wert >= 0 ? 'positiv' : wert >= -naheNull ? 'nahe-null' : 'negativ';
+  const pfade = [];
+  const fuegePfadHinzu = ({ id, label, miete, aktionen, risiko = '', einmalig = 0, dauer = 0 }) => {
+    const cashflowVorSteuer = miete - fixkosten - ruecklage - rate;
+    const steuerErgebnis = miete - zinsanteil - fixkosten - afa;
+    // Wie im Jahressteuerbescheid: keine sofortige Erstattung und kein
+    // Verlustvortrag. Positive Ergebnisse werden als Monatsrückstellung gezeigt.
+    const steuerMonat = Math.max(0, steuerErgebnis) * state.steuer.grenzsatz;
+    const cashflow = cashflowVorSteuer - steuerMonat;
+    pfade.push({
+      id, label, miete, cashflowVorSteuer, steuerMonat, cashflow,
+      urteil: urteil(cashflow), aktionen, risiko, einmalig, dauer,
+    });
+  };
+
+  if (listing.mietstatus?.vermietet) {
+    const bestandsmiete = Number(listing.mietstatus.kaltmiete) || 0;
+    fuegePfadHinzu({
+      id: 'bestand', label: 'Bestandsmiete fortführen', miete: bestandsmiete, aktionen: [],
+    });
+    const recht = state.config.mietrecht[stadt];
+    const rechtssicher = Math.floor(Math.min(
+      marktmiete(state, listing),
+      bestandsmiete * (1 + recht.kappungProzent)
+    ));
+    if (rechtssicher > bestandsmiete + 1) {
+      fuegePfadHinzu({
+        id: 'miete-pruefen',
+        label: 'Bestandsmiete rechtssicher prüfen',
+        miete: rechtssicher,
+        aktionen: [`Mietniveau nach ${recht.kurz} prüfen`],
+        risiko: 'Eine Erhöhung kann die Mieterzufriedenheit und Bindung belasten.',
+      });
+    }
+  } else {
+    const modelle = ['regulaer', 'moebliert', 'wohnenAufZeit'];
+    const modellRisiko = {
+      regulaer: 'Keine Mietgarantie; bis zur Auswahl eines Bewerbers bleibt das Objekt leer.',
+      moebliert: 'Einrichtungskosten und häufigere Mieterwechsel sind nicht im Monatswert enthalten.',
+      wohnenAufZeit: 'Hoher Zeitbedarf, häufigere Wechsel und regionales Rechtsrisiko.',
+    };
+    const fuegeVermietungHinzu = (objekt, modellId, renovierung = null) => {
+      const modell = state.config.mieter.vermietungsmodelle[modellId];
+      const aktionen = [];
+      if (renovierung) aktionen.push(`Kosmetisch renovieren (${renovierung.schaetzung.toLocaleString('de-DE')} €, ${renovierung.dauer} Mon.)`);
+      aktionen.push(modell.label);
+      fuegePfadHinzu({
+        id: `${renovierung ? 'kosmetisch-' : ''}${modellId}`,
+        label: renovierung ? `Nach Renovierung · ${modell.label}` : modell.label,
+        miete: angesetzteMiete(state, objekt, 'auf', modellId),
+        aktionen,
+        risiko: modellRisiko[modellId],
+        einmalig: (renovierung?.schaetzung || 0) + (modell.moebelKosten || 0),
+        dauer: renovierung?.dauer || 0,
+      });
+    };
+
+    for (const modellId of modelle) fuegeVermietungHinzu(listing, modellId);
+
+    const kosmetisch = renovierungsOptionen(state, listing)
+      .find((option) => option.id === 'kosmetisch' && option.moeglich);
+    if (kosmetisch) {
+      const nachRenovierung = { ...listing, zustand: kosmetisch.zielZustand };
+      for (const modellId of modelle) fuegeVermietungHinzu(nachRenovierung, modellId, kosmetisch);
+    }
+  }
+
+  const basis = pfade[0];
+  const risikoRang = (pfad) => pfad.id.includes('wohnenAufZeit') ? 2 : pfad.id.includes('moebliert') ? 1 : 0;
+  const sortiere = (a, b) =>
+    a.aktionen.length - b.aktionen.length || risikoRang(a) - risikoRang(b) || b.cashflow - a.cashflow;
+  const empfehlung = [...pfade].filter((pfad) => pfad.cashflow >= 0).sort(sortiere)[0]
+    || [...pfade].filter((pfad) => pfad.cashflow >= -naheNull).sort(sortiere)[0]
+    || [...pfade].sort((a, b) => b.cashflow - a.cashflow)[0];
+
+  return {
+    basis,
+    empfehlung,
+    pfade,
+    naheNull,
+    hatPositivenPfad: pfade.some((pfad) => pfad.cashflow >= 0),
+    urteil: empfehlung?.urteil || 'negativ',
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Kaufabwicklung (Notartermin)
 // ---------------------------------------------------------------------------
@@ -212,8 +314,11 @@ export function kaufeObjekt(state, angebot) {
   if (!e || e.status !== 'reserviert') throw new Error('Kauf ohne angenommenes Gebot.');
   if (!angebot.zusage) throw new Error('Kauf ohne Kreditzusage.');
 
+  const cashVorher = state.cash;
   state.cash -= angebot.eigenkapital;
   e.status = 'verkauft';
+  const favorit = state.favoriten.indexOf(id);
+  if (favorit >= 0) state.favoriten.splice(favorit, 1);
 
   const dd = state.dd[id] || { aufgedeckteMaengel: [] };
   const ddCfg = state.config.dueDiligence;
@@ -294,6 +399,14 @@ export function kaufeObjekt(state, angebot) {
     text: `Gekauft: ${listing.titel} für ${Math.round(angebot.kaufpreis).toLocaleString('de-DE')} € ` +
       `(+ ${Math.round(angebot.nebenkosten.summe).toLocaleString('de-DE')} € Nebenkosten).`,
   });
+  const stand = pruefstand(state, id);
+  protokolliereWirkung(state, {
+    typ: 'gekauft',
+    titel: 'Kauf abgeschlossen',
+    text: `${listing.titel}: ${stand.schritte}/3 Prüfungen, Tagesgeld ${Math.round(cashVorher).toLocaleString('de-DE')} € → ${Math.round(state.cash).toLocaleString('de-DE')} €, Objekt im Bestand.`,
+    ziel: id,
+    route: 'objekt',
+  });
   return objekt;
 }
 
@@ -370,6 +483,13 @@ export function tickObjekt(state, objekt) {
         monat: state.monat,
         text: `${objekt.titel}: ${f.name} — ${f.kosten.toLocaleString('de-DE')} €` +
           (f.ueberraschung ? ' (nicht entdeckt vor dem Kauf!)' : ''),
+      });
+      protokolliereWirkung(state, {
+        typ: 'mangel-behoben',
+        titel: 'Mangel behoben',
+        text: `${objekt.titel}: ${f.name} erledigt; ${f.kosten.toLocaleString('de-DE')} € mit Rücklage/Tagesgeld finanziert.`,
+        ziel: objekt.listingId,
+        route: 'objekt',
       });
     }
   }

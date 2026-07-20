@@ -1,12 +1,12 @@
 // finanzen.js — UI für Tagesgeldkonto, echtes ETF-Depot und Sparplan.
 // Die vermögensneutralen Buchungen selbst bleiben DOM-frei in etf.js.
 
-import { monatsWerte, nettovermoegen } from '../engine.js?v=36';
-import { fmtEUR, fmtEURSigniert } from './util.js?v=36';
-import { etfVerkaufVorschau } from '../etf.js?v=36';
-import { kapitalertragVorschau, renditeNachSteuer } from '../kapitalsteuer.js?v=36';
-import { fairerWert } from '../market.js?v=36';
-import { haushaltsUeberschussMonat, liquiditaetsPufferMonate } from './kennzahlen.js?v=36';
+import { monatsWerte, nettovermoegen } from '../engine.js?v=41';
+import { fmtEUR, fmtEURSigniert } from './util.js?v=41';
+import { etfVerkaufVorschau } from '../etf.js?v=41';
+import { kapitalertragVorschau, renditeNachSteuer } from '../kapitalsteuer.js?v=41';
+import { fairerWert } from '../market.js?v=41';
+import { haushaltsUeberschussMonat, liquiditaetsPufferMonate } from './kennzahlen.js?v=41';
 
 let ctx;
 
@@ -53,7 +53,10 @@ export function renderFinanzen(state) {
   const immoRuecklagen = immobilien.reduce((summe, objekt) => summe + Math.max(0, objekt.ruecklage || 0), 0);
   const immoEigenkapital = immoWert - immoSchuld + immoRuecklagen;
   const immoCashflow = (state.letzterImmoCashflow || 0) + (state.letzterEigenheimCashflow || 0);
-  const mixWerte = [cashPositiv, Math.max(0, etf), Math.max(0, immoWert)];
+  // Der Mix gehört unter die Nettovermögens-Überschrift und zeigt deshalb das
+  // gebundene Eigenkapital, nicht den Brutto-Marktwert. Sonst stünde eine
+  // Nettosumme über einer Bruttoaufteilung.
+  const mixWerte = [cashPositiv, Math.max(0, etf), Math.max(0, immoEigenkapital)];
   const mixGesamt = mixWerte.reduce((summe, wert) => summe + wert, 0);
 
   text('fin-liquid-gesamt', fmtEUR(liquideAnlagen));
@@ -66,7 +69,7 @@ export function renderFinanzen(state) {
     document.getElementById(`fin-mix-${id}`).style.width = `${mixGesamt > 0 ? wert / mixGesamt * 100 : 0}%`;
     text(`fin-mix-${id}-wert`, fmtEUR(wert));
   }
-  const mixText = `Tagesgeld ${fmtEUR(cash)} · Welt-ETF ${fmtEUR(etf)} · Immobilien ${fmtEUR(immoWert)}`;
+  const mixText = `Tagesgeld ${fmtEUR(cash)} · Welt-ETF ${fmtEUR(etf)} · Immobilien ${fmtEUR(immoEigenkapital)} Eigenkapital`;
   text('fin-mix-label', mixText);
   document.querySelector('.finanz-mix').setAttribute('aria-label', `Aufteilung der Vermögenswerte: ${mixText}.`);
 

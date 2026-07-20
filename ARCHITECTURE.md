@@ -3,10 +3,10 @@
 Wer den Code übernimmt, liest zuerst `CLAUDE.md`, dann `ROADMAP.md` und
 `HANDOVER.md`. Dieses Dokument wird nur für technische Details benötigt.
 
-**Stand: Automatisierbarer Funktions-/Content-Backlog abgeschlossen
-(17.07.2026).** Kampagne, vier Märkte, Familienhäuser, getrennte Stadtkarten,
+**Stand: Arbeitspakete G/H abgeschlossen (20.07.2026).** Kampagne, vier Märkte,
+Familienhäuser, freiwillige Ziele, Objekt-Arcs, Arbeitsmodelle, Lebensphasen,
 Admin-Panel, Tutorial, 13 breite Balance-Gates, eigener Familienmarkt-Harness,
-Einzelaktien-Sandbox, Accessibility-Basis und statischer Release-Check sind vorhanden. Die wichtigsten
+Accessibility-Basis und statischer Release-Check sind vorhanden. Die wichtigsten
 Invarianten sind Determinismus, fairer ETF-Kontrafaktualvergleich, genau einmal
 verbuchte Geldflüsse, klar versionierte und kontrolliert abgelehnte Alt-Saves
 und eine DOM-freie Engine.
@@ -25,6 +25,11 @@ starter.js   Sonderbestand
 content.js   JSON-Inhalte   expose.js        Exposé/DD/Angebot
 engine.js    Monats-Tick    finanzierung.js Nutzung + Kauf
 market.js    Feed/Werte/DD  renovieren.js   Maßnahmen
+gameplay.js  Prüfstand/Wirkungen
+turnaround.js Triage/Banklinien turnaround.js Bankdialog
+goals.js     freiwillige Ziele strategy.js Ziel-/Lebensplan
+life.js      Arbeit/Lebensphasen
+arcs.js      terminierte Objektgeschichten
 finance.js   Kredit/Objekt  bewerber.js     Mieterauswahl
 immobilie.js Objektart/Kosten karte.js      drei getrennte Stadtkarten
 etf.js       Depotbuchung   bildzoom.js     Bild-Lightbox
@@ -84,9 +89,10 @@ läuft über die RNG-Funktionen aus `state.js` — niemals über `Math.random()`
 
 `engine.tick()` hält diese Reihenfolge ein:
 
-0. Vorgemerkte Admin-Config atomar anwenden.
+0. Vorgemerkte Admin-Config atomar anwenden und bevorstehende Lebensphasen
+   genau einmal ankündigen.
 1. Einkommensmeilenstein beziehungsweise Ruhestandsbeginn loggen und
-   Haushaltswerte für den aktuellen Monat berechnen.
+   Haushaltswerte einschließlich des gewählten Arbeitsmodells berechnen.
 2. Basiszins-Random-Walk (`tickBasiszins`).
 3. Segmentdrift und Feed-Lifecycle (`tickMarkt`).
 4. Mietobjekte in stabiler Portfolio-Reihenfolge ticken.
@@ -94,12 +100,14 @@ läuft über die RNG-Funktionen aus `state.js` — niemals über `Math.random()`
 6. Cash, Tagesgeld/Dispo, echtes ETF-Depot und ETF-Spiegel verbuchen.
 7. Aktienkurse/Firmenereignisse ticken und gegebenenfalls Netto-Dividenden
    verbuchen.
-8. Zeitbudget und Familienzufriedenheit aktualisieren.
+8. Zeitbudget einschließlich Arbeit/Eigenleistung und Familienzufriedenheit
+   einschließlich des Arbeitsmodellziels aktualisieren.
 9. `monat++`, dann fällige Immobilienverkäufe abschließen.
 10. Statistik und Monatshistorie schreiben.
 11. Den gespeicherten Lebenshorizont aus Seed und kumuliertem Langzeitstress
-    aktualisieren, gegebenenfalls Lebensende setzen; nur sonst den allgemeinen
-    Event-Roll ausführen.
+    aktualisieren, gegebenenfalls Lebensende setzen; sonst zuerst einen fälligen
+    Objekt-Arc aktivieren und nur ohne fällige Folge den allgemeinen Event-Roll
+    ausführen.
 
 Renovierungsabschluss, abgeschlossener Verkauf, Mieterauszug,
 Zinsbindungsende und vollständig getilgter Kredit melden einen transienten
@@ -122,11 +130,32 @@ Version nicht. Änderungen im Entscheidungslog dokumentieren.
   über `kapitalsteuer.js` darauf zu.
 - `state.aktienDepot` enthält echte Sandbox-Positionen und Kurse; es ist weder
   Teil des Welt-ETF noch des ETF-Benchmarks.
+- `state.dealEntscheidungen` hält je Listing nur die aktuelle Wahl
+  „beobachtet“/„verworfen“; `state.entscheidungsHistorie` hält kurze,
+  strukturierte Abschlusswirkungen. `gameplay.js` leitet Prüfstand und
+  Monatsanlass DOM- und RNG-frei aus dem vorhandenen Fachstate ab. Es gibt
+  keinen parallelen Quest- oder Belohnungsstate.
+- `state.turnaround` hält für den Schuldenberg nur den unveränderten
+  Portfolio-Baseline-Cashflow und die Zahl verbrauchter Banktermine. Die
+  konkrete Darlehensfolge liegt am betroffenen Kredit. `turnaround.js` leitet
+  Triage und beide Linien DOM-/RNG-frei ab; es gibt keinen zweiten
+  Portfolio- oder Zielstate.
+- `state.entwicklung` hält nur aktive freiwillige Zielwahl, Arbeitsmodell,
+  Startmonate und bereits angekündigte Lebensphasen. `goals.js` berechnet
+  Fortschritt aus realem Fachstate; Zielwechsel verändern weder Cash noch RNG.
+- `state.objektArcs` hält terminierte, objektbezogene Folgen mit stabiler
+  Listing-ID. `arcs.js` aktiviert sie bei Fälligkeit über den normalen
+  Eventvertrag und beendet sie sauber, wenn das Objekt nicht mehr existiert.
 - Nettovermögen ist Cash plus echtes ETF-Depot plus Aktiendepot plus faire
   Immobilienwerte minus Restschulden plus objektspezifische Rücklagen. Das
   Eigenheim wird identisch bewertet.
 - `tickObjekt` liefert genau eine liquide Cash-Änderung. `engine.tick` addiert
   sie genau einmal.
+- `finanzierungsCashflowPfade(state, angebot)` bewertet ausschließlich
+  abgeleitete Bestands-, Miet-, Vermietungs- und Renovierungsszenarien. Die
+  Funktion zieht keinen RNG, mutiert keinen State und liefert Einmalkosten,
+  Risiko sowie Objekt-Cashflow nach vereinfachter Steuerschätzung an die UI.
+  `ui/finanzierung.js` rendert das Ergebnis semantisch als `<output>`.
 - `entnimmRuecklage(objekt, betrag)` mutiert nur die Rücklage und liefert den
   ungedeckten Rest. Im Tick verwenden.
 - `zahleReparatur(state, objekt, betrag)` zieht Rücklage und danach direkt Cash.
@@ -207,10 +236,14 @@ Einkommenswechsel auf `rentenNettoFaktor`.
   reproduzierbar.
 - Hausverwaltung und Energieklasse reduzieren jetzt die tatsächliche Eventlast,
   nicht nur den Beschreibungstext.
+- Events mit `bedingung.nurArc` haben Gewicht null und sind vom zufälligen Roll
+  ausgeschlossen. Eine Optionsdefinition `arc` plant ihre Folge; beim Auflösen
+  schließt `resolveEvent` den aktiven Arc. Der Effekt `sondertilgung` reduziert
+  Cash und Restschuld direkt, ohne die laufende Rate neu zu berechnen.
 
 ## 6. Save-Format und Vorab-Release-Kompatibilität
 
-- Aktuelle `SAVE_VERSION`: **13**.
+- Aktuelle `SAVE_VERSION`: **19**.
 - Vor dem ausdrücklich erklärten Release akzeptiert `state.js` nur exakt die
   aktuelle Version in Hülle und State. Ältere und neuere Versionen werden mit
   verständlicher Fehlermeldung abgelehnt; es gibt keinen Migrationspfad.
@@ -291,10 +324,10 @@ außerdem soll der Origin für `localStorage` stabil bei `127.0.0.1:4173` bleibe
 - Die sticky Ressourcenleiste zeigt genau drei laufende Werte: Cash,
   farbcodierten letzten Cashflow und echtes ETF-Depot. Nettovermögen ist kein
   permanenter Header-KPI; es bleibt in Zentrale, Finanzscreen und Endbilanz.
-- Der Finanzscreen zeigt genau vier Kontokarten: Tagesgeld, Immobilienportfolio,
-  ETF und Einzelaktien. Tagesgeld→ETF bleibt vermögensneutral; ETF-Verkäufe und
-  Aktienorders zeigen mögliche Steuer bzw. Kosten vor Bestätigung und verändern
-  das Nettovermögen nur um diese Reibung.
+- Der Finanzscreen zeigt Tagesgeld, Immobilienportfolio und ETF; die
+  Einzelaktien-UI bleibt aus dem sichtbaren Kern entfernt. Tagesgeld→ETF bleibt
+  vermögensneutral; ETF-Verkäufe zeigen mögliche Steuer vor Bestätigung und
+  verändern das Nettovermögen nur um diese Reibung.
 - `ui/karte.js` rendert drei getrennte, schematische Karten für Berlin,
   Leipzig und Meißen + Umland sowie eine gleichwertige Liste aus denselben 19
   Listings. Marker öffnen ausschließlich vorhandene
@@ -314,7 +347,20 @@ außerdem soll der Origin für `localStorage` stabil bei `127.0.0.1:4173` bleibe
 - `node test/simtest.mjs`: mehr als 90 Checks, einschließlich kompletter
   Kampagnenläufe aller vier Startprofile, Save-Determinismus, Versionsablehnung, exakter Renovierungs- und
   Verkaufsdauer, Eigenheim, Jahressteuer, Aktienorders/-pfad, fünf Endscores und vier Linien.
-- `node test/chat-contracts.mjs`: statische Querschnittsprüfung der 22
+- `node test/b0-economy.mjs`: vollständige 40-Listing-Matrix bei 80 % LTV,
+  2 % Tilgung und zehn Jahren Zinsbindung; prüft Rohökonomie, State-/RNG-
+  Reinheit, zustandsabhängige Miete und positive Pfade je Segment mit höchstens
+  zwei sichtbaren Handlungen.
+- `node test/e-gameplay.mjs`: vollständige E-Kernschleife mit drei
+  Prüfhandlungen, RNG-neutralem Beobachten/Weggehen, bewusstem Warten und
+  Save-Roundtrip.
+- `node test/f-turnaround.mjs`: reproduzierbarer Schuldenberg mit priorisierter
+  Triage, zwei kostenpflichtigen Linien, Gebühren/Mehrschuld, +600-€-Ziel,
+  geschlossenem Bankfenster nach zwölf Monaten und Save-Roundtrip.
+- `node test/gh-development.mjs`: freiwillige Ziele, Schimmel-/Nachbarschafts-/
+  Finanzierungs-Arcs, Arbeitsmodelle, Lebensphasen, Eigenleistung und
+  Save-Roundtrip.
+- `node test/chat-contracts.mjs`: statische Querschnittsprüfung der 27
   Owner-Verträge aus dem Arbeitschat, darunter Presets, Zeitsteuerung,
   Header-/Menüstruktur, Hilfen, Karten, Vermietungswege, Eigenbedarf,
   Steuern, Launcher und explizit vertagte Ideen.
@@ -339,7 +385,7 @@ außerdem soll der Origin für `localStorage` stabil bei `127.0.0.1:4173` bleibe
   einem freien Port und prüft Launcher-Marker, HTML-Injektion, Keepalive sowie
   korrekte MIME-Typen.
 - `node test/release-check.mjs`: lokale HTML-/Modulreferenzen, JSON und eindeutige
-  Content-IDs, derzeit 143 Modulimporte, 5 Aktien und 85 Runtime-Assets, 15-MB-Budget,
+  Content-IDs, derzeit 188 Modulimporte, 30 Events, 5 Aktien und 159 Runtime-Assets, 15-MB-Budget,
   Merge-Marker, Cachebuster und
   `.nojekyll`.
 - `node --check` über alle JS-Dateien für Syntaxfehler.

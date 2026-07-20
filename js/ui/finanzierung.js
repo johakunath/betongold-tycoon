@@ -2,15 +2,17 @@
 // Tilgung, Zinsbindung; live berechnetes Angebot + Haushaltsrechnungs-Verdikt.
 // Modus 'szenario' = reiner Rechner, Modus 'kauf' = mit Kaufabschluss.
 
-import { getListing } from '../content.js?v=36';
-import { finanzierungsCashflowVorschau, kreditAngebot, kaufeObjekt, nebenkostenFuer } from '../finance.js?v=36';
-import { kaufeEigenheim } from '../eigenheim.js?v=36';
-import { fmtEUR, fmtEURSigniert } from './util.js?v=36';
-import { eigenheimEignung, fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=36';
-import { etfVerkaufVorschau } from '../etf.js?v=36';
-import { vergleichsmiete } from '../market.js?v=36';
-import { fixkostenAufschluesselung } from '../immobilie.js?v=36';
-import { haushaltsUeberschussMonat, liquiditaetsPufferMonate } from './kennzahlen.js?v=36';
+import { getListing } from '../content.js?v=41';
+import {
+  finanzierungsCashflowPfade, finanzierungsCashflowVorschau, kreditAngebot, kaufeObjekt, nebenkostenFuer,
+} from '../finance.js?v=41';
+import { kaufeEigenheim } from '../eigenheim.js?v=41';
+import { fmtEUR, fmtEURSigniert } from './util.js?v=41';
+import { eigenheimEignung, fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=41';
+import { etfVerkaufVorschau } from '../etf.js?v=41';
+import { angesetzteMiete } from '../tenants.js?v=41';
+import { fixkostenAufschluesselung } from '../immobilie.js?v=41';
+import { haushaltsUeberschussMonat, liquiditaetsPufferMonate } from './kennzahlen.js?v=41';
 
 let ctx = null;
 let lage = null; // { listingId, kaufpreis, modus }
@@ -209,7 +211,7 @@ function render() {
     const ruecklage = instandhaltungMonat(state, listing);
     const mieteGeplant = istEigenheim ? 0 : aktuellVermietet
       ? Number(listing.mietstatus.kaltmiete) || 0
-      : Math.round(vergleichsmiete(state, listing));
+      : angesetzteMiete(state, listing, 'auf', 'regulaer');
     const objektJetzt = istEigenheim
       ? vorschau.mietersparnis - vorschau.rate - fixLeer - ruecklage
       : (aktuellVermietet ? mieteGeplant - fixVermietet : -fixLeer) - vorschau.rate - ruecklage;
@@ -242,10 +244,25 @@ function render() {
       zeile('Objektrücklage', -ruecklage) +
       zeile('Kreditrate', -vorschau.rate) +
       `<strong class="fin-cashflow-summe haupt"><span>Objekt-Cashflow</span><b class="${klasse(objektCashflow)}">${fmtEURSigniert(Math.round(objektCashflow))}</b></strong></section>`;
+    const perspektive = istEigenheim ? null : finanzierungsCashflowPfade(state, a);
+    const pfad = perspektive?.empfehlung;
+    let pfadUrteil = '';
+    if (pfad) {
+      const aktionen = pfad.aktionen.length ? pfad.aktionen.join(' → ') : pfad.label;
+      const titel = pfad.cashflow >= 0
+        ? `Tragfähiger Pfad: ${fmtEURSigniert(Math.round(pfad.cashflow))}/Monat nach Steuer`
+        : pfad.cashflow >= -perspektive.naheNull
+          ? `Nahe Break-even: ${fmtEURSigniert(Math.round(pfad.cashflow))}/Monat nach Steuer`
+          : `Auch stabilisiert untragfähig: ${fmtEURSigniert(Math.round(pfad.cashflow))}/Monat nach Steuer`;
+      const einmalig = pfad.einmalig > 0 ? ` Einmalig rund ${fmtEUR(Math.round(pfad.einmalig))}` + (pfad.dauer ? ` und ${pfad.dauer} Monate Umbau` : '') + '.' : '';
+      pfadUrteil = `<output class="fin-pfad-urteil ${pfad.urteil}" aria-label="Bewertung des Bewirtschaftungspfads">` +
+        `<b>${titel}</b><span>${aktionen}.${einmalig}</span>` +
+        (pfad.risiko ? `<small>${pfad.risiko}</small>` : '') + `</output>`;
+    }
     monatsbild = `<div class="fin-monatsvergleich"><header><b>Objekt pro Monat</b><small>normalisierte Szenariorechnung · keine Mietgarantie</small></header>` +
       `<div class="fin-szenarien">${szenario(vorschau.leerstand ? 'Bis zur Vermietung' : istEigenheim ? 'Als Eigenheim' : 'Mit Bestandsmiete', aktuellVermietet ? mieteGeplant : 0, aktuellVermietet ? fixVermietet : fixLeer, objektJetzt)}` +
       (vorschau.leerstand ? szenario('Nach geplanter Vermietung', mieteGeplant, fixVermietet, objektGeplant, true) : '') +
-      `</div>${wegAufteilung}${steuerZeile}` +
+      `</div>${pfadUrteil}${wegAufteilung}${steuerZeile}` +
       `<div class="fin-haushalt-wirkung"><span><small>Haushaltsüberschuss heute</small><b>${fmtEURSigniert(Math.round(haushaltBasis))}</b></span>` +
       `<i>→</i><span><small>nach Kauf${vorschau.leerstand ? ' & Vermietung' : ''}</small><b class="${klasse(haushaltDanach)}">${fmtEURSigniert(Math.round(haushaltDanach))}</b></span></div>` +
       `<small>Einmalige Kaufkosten, Reparaturen, Leerstandszeit und spätere Miet- oder Zinsänderungen sind nicht enthalten.</small></div>`;

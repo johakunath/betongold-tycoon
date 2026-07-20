@@ -3,6 +3,141 @@
 Kompaktes, chronologisches Log. Details älterer Sessions bleiben in
 `DECISIONS.md` und den Fachdocs nachvollziehbar.
 
+## 2026-07-20
+
+- **B1-Vereinfachungspass als UI v41 abgeschlossen** (reines UI/CSS,
+  `SAVE_VERSION` bleibt 19). Ausgangspunkt war ein vollständiger Spiel- und
+  Layoutreview bei 390, 1280, 1440 und 2560 px:
+  - **Exposé folgt der eigenen Handlungskette.** Vorher stand „Gebot abgeben"
+    bei y≈1239 px, die Due Diligence aber erst bei y≈1654 px — die
+    Kaufentscheidung wurde 535 px *vor* den Prüfwerkzeugen angeboten. Jetzt:
+    Bild/Kernfakten → Due Diligence (y≈760) → Szenario/Gebot (y≈1026). Die
+    18-zeilige Faktentabelle liegt aufklappbar unter den Kernfakten
+    (`<details class="objekt-daten">`); die Seite ist von 1829 auf 1445 px
+    gekürzt.
+  - **Finanzen ist wieder in sich stimmig.** Der Vermögensmix rechnete mit dem
+    Brutto-Marktwert (1.622.418 €) unter einer Nettovermögens-Überschrift
+    (103.521 €). Er nutzt jetzt das bereits vorhandene `immoEigenkapital`; die
+    drei Segmente summieren sich exakt auf die Überschrift. Zusätzlich folgt die
+    DOM-Reihenfolge der visuellen (`.finanz-ueberblick` steht in `grid-column: 2`
+    und jetzt auch an dieser Stelle im Markup).
+  - **Eine Quelle je Inhalt.** Das Benachrichtigungspanel las bisher ein
+    sitzungsflüchtiges Toast-Archiv mit Wanduhrzeit — inklusive „Gespeichert
+    als …". Es liest nun `state.log` mit Spielmonat und übersteht Reloads.
+    „Renovieren"/„Renovierungsplaner" öffneten denselben Dialog; die Aktion
+    steht jetzt einmal kontextuell am leeren Objekt. Stadtbühne und „Orte hier"
+    rendern nicht mehr dasselbe Array: Die Bühne bleibt räumlich inklusive
+    „noch nicht erschienener" Vorschauen, die Liste ist der handlungsfähige
+    Index.
+  - **Navigation ehrlich.** Der Bottom-Nav-Punkt „Objekte" war ein Alias, der
+    die Zentrale öffnete und deren Objekte-Tab klickte — fünf Einträge, vier
+    Ziele. Der Punkt entfällt; `zeigePortfolio()` in `shell.js` ist der eine Weg
+    zum Bestand, die Sonderfallverzweigung in `aktualisiereNavMarkierung()` ist
+    weg. Ein Tab steuert nun genau ein Tabpanel
+    (`#zentrale-panel-vermoegen` fasst Kacheln, Chart und Quartalsbericht).
+  - **Breite und schmale Viewports.** Es gab nirgends eine Breitenbegrenzung:
+    bei 2560 px lief `main` auf 2520 px, die Stadtbühne auf 1896 × 1193 px mit
+    3,2 % Füllung. Neues Token `--inhalt-max: 1600px` plus Gate ab 1680 px
+    zentriert die Screens (Füllung jetzt 6,3 %); zentriert wird über
+    auto-Margins, weil `animation: screen-in … both` jede eigene
+    `transform`-Deklaration dauerhaft überschreiben würde. Bei 390 px sind die
+    beiden verbliebenen horizontalen Scrollleisten weg
+    (`.ressourcenleiste` hatte `flex-shrink: 0`, `.karten-staedte button` eine
+    Mindestbreite von 122 px). Der Chart behält seine bewusste Innenscrollfläche.
+  - Als stale geschlossen, weil nicht reproduzierbar: doppelte
+    `+1 Monat`/`+1 M`-Labels, fehlende zugängliche Namen bei kompaktem Menü,
+    Kartenkollisionen bei 1280 px.
+  - Verträge mitgeführt statt umgangen: `chat-contracts` prüft jetzt die neue
+    Meldungsquelle (`log.slice(-40)`, `<time datetime=`, kein
+    `meldungen.unshift`), `browser-smoke` die neue Bühne/Liste-Beziehung
+    (`liste === marker - kommend`) und den Weg zum Bestand über den Zentrale-Tab.
+
+- **Arbeitspakete G und H als Save v19/UI v40 abgeschlossen:** Drei freiwillige
+  3–8-Jahres-Ziele — erstes stabiles Mietobjekt, Eigenheim und Bestand
+  stabilisieren — leiten ihren Fortschritt ausschließlich aus Portfolio,
+  Haushalt und Puffer ab. Zielwechsel und Pause kosten nichts, vergeben keine
+  Belohnung und erzeugen keinen parallelen Queststate.
+- **Mehrmonatige Objektgeschichten statt isolierter Popups:** Schimmel,
+  Nachbarschaft und Zinsplanung können fünf planbare Folgetermine auslösen.
+  Entscheidungen bestimmen Zeitpunkt und Folge; Zustand, Miete,
+  Mieterzufriedenheit oder Restschuld ändern sich erst über den normalen
+  Eventvertrag. Zufällige Events ziehen diese Arc-only-Inhalte nie direkt.
+- **Arbeit, Familie und Eigenleistung mit echten Gegenwerten:** Balance,
+  Karriere und Familienzeit sind für zwölf Monate gebunden und verändern
+  Einkommen, verfügbares Zeitbudget und Familienziel gegensätzlich.
+  Automatische Lebensphasen werden bis zu zwölf Monate vorher einmalig
+  angekündigt. Eigenleistung spart gedeckelt 12 % beziehungsweise 20 % beim
+  Handwerkerprofil, bindet monatlich Zeit und erhöht das Überziehungsrisiko.
+  Alle Annahmen bleiben im Einstellungsdialog editierbar.
+- **G/H-Abnahme grün:** `test/gh-development.mjs` sichert Ziele, drei Arc-Typen,
+  Arbeitsmodelle, Lebensphasen, Eigenleistung und Save-Roundtrip. Browser-Smoke,
+  Simulation, 27 Querschnittsverträge und Release-Check decken die native
+  Strategie-/Haushalts-UI und UI-v40-Importe ab. Ein separates Ruf- oder
+  Beziehungspunktesystem wurde bewusst nicht eingeführt.
+
+- **Arbeitspaket F als Save v18/UI v39 abgeschlossen:** Der Schuldenberg zeigt
+  auf dem Bestandsscreen eine nach Cashflow priorisierte Triage aller fünf
+  Objekte mit Risiko, LTV/Zinsbindung, Eigenkapital/Exit, Arbeitslast und
+  kurzfristigen Chancen. Zwei native Zielanzeigen messen mindestens +600 €
+  Monatsentlastung und ein Planjahr Objektrücklagen.
+- **Zwei echte Turnaround-Linien statt Gratisrettung:** „Bestand halten“
+  kombiniert vier rechtssichere Mietprüfungen mit höchstens drei
+  kostenpflichtigen Bankterminen innerhalb der ersten zwölf Monate. Die
+  Anfangstilgung sinkt auf 0,5 %, Gebühren und Zeit fallen sofort an, die
+  höhere Restschuld am Ende der Zinsbindung wird vor Bestätigung beziffert.
+  „Verkleinern“ verkauft den größten Verlustträger erst nach sechs Monaten und
+  weist beim Startfall den negativen Nettoerlös offen aus.
+- **Abnahmekorridor reproduzierbar erfüllt:** Der Start liegt bei rund −3.302 €
+  Objekt-Cashflow und −632 € Haushaltsüberschuss. Die Halte-Linie verbessert
+  den Monat um rund 766 € bei rund 2.214 € Gebühren und hebt den Haushalt auf
+  etwa +134 €, ohne den Objektverbund künstlich positiv zu rechnen. Nichtstun
+  schließt nach Monat zwölf das Bankfenster. `test/f-turnaround.mjs`,
+  Browser-Smoke, Save-Roundtrip und 26 Querschnittsverträge sichern den Pfad.
+
+- **Arbeitspaket E als Save v17/UI v38 abgeschlossen:** Jedes offene Angebot
+  führt nun sichtbar durch Anlass → drei reale Prüfungen → Entscheidung →
+  Wirkung. Besichtigung, Dokumente und Gutachter zeigen Zeit, Kosten,
+  Risikohinweise und sinkende Restunsicherheit mit nativen `<progress>`- und
+  `<meter>`-Elementen; vollständige Prüfung verspricht ausdrücklich nie null
+  Risiko.
+- **Beobachten und guter Weggang sind echte, gespeicherte Entscheidungen:**
+  Angebote lassen sich bewusst beobachten, begründet verwerfen oder erneut
+  öffnen. Verwerfen entfernt den Favoriten, bindet kein Kapital, erhält das
+  erworbene DD-Wissen und wird als Erfolg protokolliert; eine neue Marktrunde
+  öffnet mit reduziertem Aufschlag wieder eine neue Chance. Diese Aktionen
+  verbrauchen keinen RNG.
+- **Monatsrhythmus und Abschlusswirkung verbunden:** Stadt und Quartalsbericht
+  leiten aus Reservierung, Leerstand, Prüfung, Beobachtung oder bewusstem Warten
+  denselben nächsten Zug ab. Kauf, Vermietung, Renovierungsstart/-abschluss,
+  Hausverwaltungswechsel und behobene Mängel protokollieren kurze
+  Vorher/Nachher-Wirkungen. `test/e-gameplay.mjs`, Browser-Smoke und
+  Querschnittsvertrag sichern die neue Schleife und den Save-Roundtrip.
+
+- **Arbeitspaket B0 als Save v16/UI v37 abgeschlossen:** Die Finanzierung
+  bewertet nun ohne State-/RNG-Mutation Bestandsmiete, rechtssichere
+  Mietprüfung, reguläre/möblierte/Zeitvermietung und eine kosmetische
+  Renovierung. Ein natives `<output>` nennt den risikoärmsten Pfad zu positivem
+  Objekt-Cashflow oder höchstens −100 €/Monat nach vereinfachter
+  Steuerschätzung; sonst urteilt es ausdrücklich „auch stabilisiert
+  untragfähig“. Einmalkosten, Umbauzeit, Wechsel- und Rechtsrisiko bleiben
+  sichtbar.
+- **40er-Matrix reproduzierbar gemacht:** `test/b0-economy.mjs` prüft alle
+  Angebote bei 80 % LTV, 2 % Anfangstilgung und zehn Jahren Zinsbindung. Roh
+  bleiben 1/40 positiv (Median −457 €/Monat); mit höchstens zwei vorhandenen
+  Handlungen sind 7/40 nach Steuerschätzung positiv und 13/40 höchstens 100 €
+  negativ. Jedes Segment besitzt mindestens einen positiven Pfad, darunter
+  sechs Wohnungen; nicht jedes Objekt wird tragfähig.
+- **Kosten- und Mietlogik korrigiert statt schöngerechnet:** WEG-Hausgeld,
+  nicht umlagefähiger Owner-Anteil, separate Objektrücklage und höhere
+  Hausinstandhaltung bleiben unverändert. Die Finanzierung verwendet für freie
+  Objekte jetzt dieselbe zustandsabhängige Marktmiete wie die spätere
+  Vermietung; `me-10` rechnet dadurch mit 202 statt fälschlich 218 €.
+  Verlustverrechnung/-vortrag bleibt bewusst außerhalb des MVP; es gibt keine
+  sofortige Steuererstattung auf negative Vermietungsergebnisse.
+- **Vollständige Gates grün:** B0-Matrix, Simulation, 24 Chat-Verträge,
+  300-Seed-Familienmarkt, 6.300 Strategie-Langläufe mit 13 Balance-Gates, fünf
+  gezielte Regressionen, Browser-Kaufpfad/Responsive-A11y und Release-Check.
+
 ## 2026-07-19
 
 - **UI-Review-Bereinigung als UI v36:** Tote Einzelaktien-UI (Renderer,

@@ -2,7 +2,7 @@
 // DOM-frei und headless testbar. Angezeigte Prozentwerte werden hier sicher in
 // Dezimalwerte zurückgerechnet; unbekannte Pfade können nicht verändert werden.
 
-import { DEFAULT_CONFIG } from './config.js?v=36';
+import { DEFAULT_CONFIG } from './config.js?v=41';
 
 export const ADMIN_GRUPPEN = {
   wirtschaft: {
@@ -52,6 +52,8 @@ export const ADMIN_FELDER = [
   { gruppe: 'wirtschaft', pfad: 'haushalt.autoAltersFaktoren.3.faktor', label: 'Auto ab 80', min: 0, max: 150, step: 5, scale: 100, suffix: '%', hilfe: 'Späte Altersphase der Auto-Pauschale; 0 % würde das Auto ab dann vollständig entfernen.' },
   { gruppe: 'wirtschaft', pfad: 'kapital.etfRendite', label: 'ETF-Erwartungsrendite (brutto)', min: 2, max: 10, step: 0.25, scale: 100, suffix: '% p.a.', hilfe: 'Langfristige nominale Brutto-Drift des Vergleichsdepots vor Marktphase und persönlicher Kapitalsteuer.' },
   { gruppe: 'wirtschaft', pfad: 'kapital.tagesgeldZins', label: 'Tagesgeldzins', min: 0, max: 5, step: 0.25, scale: 100, suffix: '% p.a.', hilfe: 'Rendite auf positives, nicht investiertes Cash.' },
+  { gruppe: 'wirtschaft', pfad: 'entwicklung.arbeitsmodelle.karriere.einkommenDeltaMonat', label: 'Karriereschritt Nettoeffekt', min: 0, max: 3000, step: 50, suffix: '€/Monat', hilfe: 'Zusätzliches Haushaltsnetto im gewählten Karrieremodell; endet im Ruhestand.' },
+  { gruppe: 'wirtschaft', pfad: 'entwicklung.arbeitsmodelle.familienzeit.einkommenDeltaMonat', label: 'Familienzeit Nettoeffekt', min: -4000, max: 0, step: 50, suffix: '€/Monat', hilfe: 'Nettoverlust durch reduzierte Erwerbsarbeit im Familienzeit-Modell.' },
   { gruppe: 'wirtschaft', pfad: 'segmente.berlin-innenstadt.preisM2', label: 'Preis Berlin Innenstadt', min: 2500, max: 10000, step: 100, suffix: '€/m²', hilfe: 'Startwert des Segmentindex; bestehende Objektwerte reagieren ab dem nächsten Tick.' },
   { gruppe: 'wirtschaft', pfad: 'segmente.berlin-rand.preisM2', label: 'Preis Berlin Rand', min: 1800, max: 7000, step: 100, suffix: '€/m²', hilfe: 'Startwert für Berliner Randlagen.' },
   { gruppe: 'wirtschaft', pfad: 'segmente.leipzig.preisM2', label: 'Preis Leipzig', min: 1200, max: 5000, step: 100, suffix: '€/m²', hilfe: 'Startwert für das renditestärkere, volatilere Segment.' },
@@ -69,6 +71,8 @@ export const ADMIN_FELDER = [
   { gruppe: 'spiel', pfad: 'mieter.moebliertAufschlag', label: 'Möbliert-Aufschlag', min: 0, max: 25, step: 1, scale: 100, suffix: '%', hilfe: 'Mietaufschlag bei möblierter Vermietung.' },
   { gruppe: 'spiel', pfad: 'mieter.moebliertMoebelKosten', label: 'Möblierungskosten', min: 2000, max: 20000, step: 500, suffix: '€', hilfe: 'Einmalige Einrichtungskosten beim Wechsel auf möblierte Vermietung.' },
   { gruppe: 'spiel', pfad: 'familie.proZeitUeberzug', label: 'Zeitstress-Malus', min: 0.1, max: 2, step: 0.1, suffix: 'Punkte/h', hilfe: 'Monatlicher Familienmalus je Stunde über dem Zeitbudget.' },
+  { gruppe: 'spiel', pfad: 'entwicklung.arbeitsmodelle.karriere.zeitBelastungMonat', label: 'Karriereschritt Zeitbelastung', min: 0, max: 20, step: 1, suffix: 'h/Monat', hilfe: 'Zusätzliche monatliche Belastung gegen das Immobilien-Zeitbudget.' },
+  { gruppe: 'spiel', pfad: 'entwicklung.arbeitsmodelle.familienzeit.zeitPlusMonat', label: 'Familienzeit Freiraum', min: 0, max: 25, step: 1, suffix: 'h/Monat', hilfe: 'Zusätzliche verfügbare Zeit für Immobilienarbeit im Familienzeit-Modell.' },
 
   { gruppe: 'regeln', pfad: 'zeit.rentenAlter', label: 'Rentenalter', min: 55, max: 75, step: 1, suffix: 'Jahre', hilfe: 'Ab diesem Alter ersetzt das Renten-Netto das Erwerbsnetto. Die Partie läuft bis zum variablen Lebensende weiter.' },
   { gruppe: 'regeln', pfad: 'haushalt.rentenNettoFaktor', label: 'Renten-Netto', min: 30, max: 100, step: 5, scale: 100, suffix: '%', hilfe: 'Anteil des bis dahin nominal fortgeschriebenen Haushalts-Erwerbsnettos im Ruhestand.' },

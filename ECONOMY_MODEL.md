@@ -408,6 +408,29 @@ nur dem Vergleich; die tatsächliche Spielbuchung bleibt der Jahresbescheid im
 Dezember (§21). Einmalige Kaufkosten, Reparaturen und spätere Miet-/Zinswechsel
 sind ausdrücklich nicht Teil dieser Monatsprognose.
 
+Zusätzlich bewertet `finanzierungsCashflowPfade()` bei Kapitalanlagen alle
+bereits spielbaren, höchstens zweistufigen Bewirtschaftungswege ohne State- oder
+RNG-Mutation: Bestandsmiete, regional gekappte Mietprüfung, reguläre,
+möblierte oder Zeitvermietung sowie bei Leerstand eine kosmetische Renovierung
+vor diesen Vermietungswegen. Freie Objekte verwenden dabei exakt dieselbe
+zustandsabhängige Marktmiete wie die spätere Bewerbersuche (§15–16), nicht die
+Vergleichsmiete eines Durchschnittszustands.
+
+```
+Pfad-Cashflow vor Steuer = Pfadmiete − Rate − Owner-Fixkosten − Rücklage
+Pfad-Steuer              = max(0, Pfadmiete − Zinsanteil − Fixkosten − AfA)
+                           × Grenzsteuersatz
+Pfad-Cashflow nach Steuer = Pfad-Cashflow vor Steuer − Pfad-Steuer
+```
+
+Als „nahe Break-even“ gilt der sichtbare, tunbare Defaultkorridor bis
+`−cashflowNaheNullMonat` (100 €/Monat). Aus mehreren ausreichenden Pfaden wird
+zuerst der mit weniger Handlungen, dann der mit geringerem Vermietungsrisiko
+gezeigt — nicht der höchste theoretische Ertrag. Einmalkosten, Umbauzeit,
+Mieterwechsel und regionales Rechtsrisiko werden separat genannt. Erreicht kein
+Pfad den Korridor, lautet das Urteil ausdrücklich „auch stabilisiert
+untragfähig“.
+
 ## 11. Verhandlung
 
 Ein Gebot pro Objekt und Monat. Annahmewahrscheinlichkeit:
@@ -455,6 +478,15 @@ Eilauftrag/Folgeschaden). Nicht entdeckte Sonderumlagen: fällig
 `kauf + uniform(3 … 9)`. In der 300-Seed-Matrix ist der Gutachter dadurch bei
 den riskantesten Objekten positiv, bei sicheren Objekten weiter klar negativ.
 
+Die UI übersetzt den gespeicherten DD-Stand in vier verständliche
+Restunsicherheitsstufen (100/72/43/15 % für 0/1/2/3 Schritte). Diese Werte sind
+Fortschrittssprache, keine Mangel- oder Kaufwahrscheinlichkeit. Beobachten und
+bewusstes Weggehen verändern weder Geld noch RNG; sie speichern nur die
+aktuelle Dealentscheidung und eine kurze Wirkung. Beim Weggehen bleiben
+Prüfkenntnisse erhalten und es wird kein Kapital gebunden. Kehrt das Listing in
+einer neuen Marktrunde mit dem vorhandenen Wiederkehr-Nachlass zurück, ist die
+Entscheidung wieder offen.
+
 ## 14. Objekt-P&L (monatlich, Phase 2)
 
 ```
@@ -471,11 +503,52 @@ Wohnungen verwenden 10 €/m²/Jahr Instandhaltung und bei Vermietung 35 % des
 Hausgelds als Eigentümeranteil. Häuser verwenden 32 €/m²/Jahr sowie 55 % ihrer
 separat ausgewiesenen Fixkosten bei Vermietung; bei Leerstand/Eigennutzung
 fallen die Fixkosten vollständig an. Diese Beiträge sind tunbare
-Spielannahmen, keine individuelle Kostenprognose.
+Spielannahmen, keine individuelle Kostenprognose. Der B0-Audit hat diese
+Trennung bewusst erhalten: Nach § 1 BetrKV sind Verwaltung und Instandhaltung
+keine umlagefähigen Betriebskosten; die zusätzliche Objektrücklage steht im
+Spiel für Sondereigentum und Reparaturschocks und dupliziert nicht die
+umlagefähigen Betriebskosten. Die Hauspauschale bleibt unter dem pauschalen
+36-€/m²-Jahresansatz aus § 13 WoGV.
 Nettovermögen = Cash + echtes ETF-Depot + Aktiendepot + Σ fairerWert(Objekt) − Σ Restschuld
 + Σ Rücklage. Der ETF-Spiegel
 bleibt unverändert (§4): Immobilien-Cashflows und Kaufabflüsse sind interne
 Umschichtung bzw. Anlageertrag, keine externen Zuflüsse.
+
+### 14a. Schuldenberg-Turnaround
+
+Das Preset `schuldenberg` besitzt für seine übernommenen Startdarlehen in den
+ersten zwölf Monaten höchstens drei kostenpflichtige Anpassungen. Neu gekaufte
+Kredite sind ausgeschlossen. Es ist keine Refinanzierung mit neuem
+Sollzins: Nur die anfängliche Tilgung sinkt auf 0,5 %; Sollzins und bestehendes
+Zinsbindungsende bleiben gleich.
+
+```
+gebühr         = round(max(500 €, restschuld · 0,2 %))
+rateNeu        = restschuld · (sollzins + 0,5 %) / 12
+monatsEntlastung = max(0, rateAlt − rateNeu)
+mehrRestschuld = restschuldNeu(am Bindungsende)
+                  − restschuldAlt(am Bindungsende)
+```
+
+Die Restschulden werden für die Vorschau mit derselben monatlichen
+Annuitätenlogik bis zum bereits gespeicherten Bindungsende fortgeschrieben.
+Jeder Termin kostet zusätzlich 3 h Zeit und darf pro Darlehen nur einmal
+genutzt werden. Nach `monat >= 12`, bei laufendem Verkauf, ausgeschöpften drei
+Terminen oder fehlender Gebühr ist die Aktion gesperrt. Sie zieht keinen RNG.
+
+Die zwei angezeigten Linien sind Ableitungen, keine Questbelohnungen:
+
+- **Halten:** Summe aller aktuell rechtssicheren Mietsteigerungen plus der bis
+  zu drei stärksten noch möglichen Bankentlastungen; Gebühren und spätere
+  Mehrschuld bleiben sichtbar.
+- **Verkleinern:** Wegfall des negativsten aktuellen Objekt-Cashflows nach dem
+  normalen sechsmonatigen Verkauf; Nettoerlös berücksichtigt Marktwert,
+  Makler, Steuer und Restschuld gemäß §18.
+
+Der gespeicherte Baseline-Cashflow misst als Zwischenziel mindestens 600 €
+Verbesserung pro Monat. Ein zweites Ziel vergleicht vorhandene
+Objektrücklagen mit einem Planjahr artabhängiger Instandhaltung. Weder Ziel ist
+eine Renditegarantie; das Portfolio darf weiterhin negativ bleiben.
 
 ## 15. Erzielbare Miete & Zustand (Phase 3)
 
@@ -557,6 +630,24 @@ Alle drei Profilfaktoren sind standardmäßig 1. Beim Handwerker-Azubi gelten
 `kostenFaktor = 0,70`, `dauerFaktor = 0,75` und
 `ueberziehungFaktor = 0,65`.
 
+**Optionale Eigenleistung:** Sie verändert nur den gewählten Renovierungsplan
+und wird persistent an der laufenden Renovierung gespeichert.
+
+```
+basisSchaetzung = flaeche · kostenM2 · kostenFaktor
+rabatt           = handwerklich ? 20 % : 12 %
+ersparnis        = min(6.000 €, round(basisSchaetzung · rabatt))
+kostenSchaetzung = basisSchaetzung − ersparnis
+eigenzeitMonat   = min(6, max(1,
+                       ceil(basisSchaetzung / 1.000 · 0,6 / dauer)))
+risikoFaktor     = handwerklich ? 1,05 : 1,30
+```
+
+Die Eigenzeit kommt zusätzlich zu `zeitProRenovierung` in jedem Baumonat. Der
+Risiko-Faktor multipliziert den Überziehungsanteil; Eigenleistung ist damit
+weder kostenlos noch für jedes Profil gleich wirksam. Ohne Auswahl gelten die
+bisherigen Kosten-, Zeit- und Risikoformeln unverändert.
+
 ## 18. Dilemma-Events (Phase 3)
 
 Monatlicher Roll an fixer RNG-Position (nach ETF, vor Monatsende), damit der
@@ -577,6 +668,15 @@ Mieter-Zufriedenheit/Auszug, Familie, Zeit, Rücklage) **ohne RNG** — damit is
 ein Run bei gleichem Seed und gleicher Optionsfolge reproduzierbar. Design:
 keine strikt dominante Option (PLAN §14).
 
+Fünf Folgeevents tragen `bedingung.nurArc = true` und `gewicht = 0`; sie werden
+nie zufällig gezogen. Eine normale Option kann stattdessen einen Objekt-Arc mit
+stabiler Listing-ID und Fälligkeitsmonat planen. Bei Fälligkeit wird genau diese
+Folge als normales aktives Event geöffnet; erst ihre Auflösung schließt den Arc.
+Ist das Objekt vorher verkauft, endet die Geschichte ohne Wirkung. Neben den
+üblichen Effekten darf eine Arc-Folge `sondertilgung` verwenden: Betrag sofort
+aus Cash und Restschuld abziehen, laufende Rate nur bei Volltilgung auf null
+setzen. Arc-Auflösung selbst zieht weiterhin keinen Zufall.
+
 ## 19. Rücklage, Hausverwaltung, Zeit & Familie (Phase 3)
 
 **Rücklage je Objekt:** Der Instandhaltungsbeitrag (§14) fließt monatlich in
@@ -593,7 +693,10 @@ Event-Wahrscheinlichkeit (`hausverwaltungEventDaempfung`).
 
 **Zeitbudget → Stress → Familie:**
 ```
-verbraucht = Σ (hausverwaltung ? 0 : zeitProObjekt) + aktiveRenovierungen · zeitProRenovierung
+verfuegbar = zeitProMonat + arbeitsmodell.zeitPlusMonat
+verbraucht = Σ (hausverwaltung ? 0 : zeitProObjekt)
+             + aktiveRenovierungen · (zeitProRenovierung + eigenzeitMonat)
+             + arbeitsmodell.zeitBelastungMonat
 ueberzug   = max(0, verbraucht − verfuegbar)
 ```
 Überzug senkt die Familienzufriedenheit (`familieProZeitUeberzug` je Stunde)
@@ -602,6 +705,27 @@ Familienzufriedenheit sanft zum Neutralwert `familieNeutral`. Negatives Cash
 und bestimmte Events bewegen den Wert zusätzlich. Clamp 0–100. So kostet
 „passives" Einkommen ehrlich Zeit und Nerven (PLAN §5.9). Eigenheim-Bonus:
 Phase 4.
+
+**Arbeitsmodelle:** Eine Wahl ist zwölf Monate gebunden und wirkt erst in den
+normalen Monatsformeln. Im Ruhestand sind alle Modifikatoren null.
+
+| Modell | Erwerbsnetto/Monat | verfügbare Zeit | Zeitverbrauch | Familien-Neutralziel |
+|---|---:|---:|---:|---:|
+| Balance | 0 € | 0 h | 0 h | 0 |
+| Karriereschritt | +650 € | 0 h | +6 h | −4 |
+| Familienzeit | −900 € | +8 h | 0 h | +5 |
+
+Die Werte sind Defaults in `entwicklung.arbeitsmodelle` und editierbare
+Spielannahmen. Auto-, Einkommens-, Ruhestands- und Kinderkostenphasen werden
+bis zu zwölf Monate vor ihrem Eintritt genau einmal angekündigt; die Ankündigung
+verändert keine Rechnung.
+
+**Freiwillige mittelfristige Ziele:** 36 Monate erstes stabiles Mietobjekt,
+96 Monate Eigenheim oder 60 Monate Bestand stabilisieren. Fortschritt wird aus
+vorhandenem Objekt-Cashflow, Eigenheim, Haushaltsüberschuss und einem
+Sechsmonatspuffer abgeleitet; `stabilerCashflowGrenze = −100 €/Monat` ist der
+konservative Near-Break-even-Wert aus B0. Zielwahl, Wechsel und Pause verändern
+weder Geld noch RNG und vergeben keine Belohnung.
 
 ## 20. Eigenheim (Phase 4)
 
@@ -643,7 +767,12 @@ Steuer              = max(0, steuerliches Ergebnis) × Grenzsteuersatz
 ```
 
 Rücklagenbeiträge und Tilgung sind nicht abzugsfähig. Verluste erzeugen im MVP
-keine Erstattung und keinen Verlustvortrag. Der Grenzsteuersatz ist ein
+keine Erstattung und keinen Verlustvortrag. B0 hat diesen separaten
+Economy-Entscheid bestätigt: Eine sofortige Gutschrift würde negative
+Monatscashflows ohne vollständige Abbildung anderer Einkünfte und der
+Verlustverrechnung zu optimistisch glätten; ein echter Verlustvortrag würde
+zusätzlichen persistenten Steuerstate und eine weitergehende Jahressaldierung
+erfordern. Der Grenzsteuersatz ist ein
 sichtbarer Slider (`grenzsatzMin` bis `grenzsatzMax`); der Bescheid wird im
 Dezember als eine Zahlung verbucht und im Dashboard erklärt.
 

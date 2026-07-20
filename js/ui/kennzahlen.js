@@ -2,8 +2,9 @@
 // Die Engine bleibt DOM-frei; diese Ableitungen benennen dieselben Beträge auf
 // HUD, Zentrale, Finanzen, Stadt und Finanzierung identisch.
 
-import { monatsWerte } from '../engine.js?v=36';
-import { fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=36';
+import { monatsWerte } from '../engine.js?v=41';
+import { fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=41';
+import { monatsAnlass } from '../gameplay.js?v=41';
 
 export function objektCashflowMonat(state, objekt, vermietet = objekt.vermietet && !objekt.renovierung) {
   const miete = vermietet ? Number(objekt.kaltmiete) || 0 : 0;
@@ -58,24 +59,5 @@ export function naechsterZugEmpfehlung(state, marktEintrag = null) {
       button: 'Finanzen öffnen',
     };
   }
-  const leer = state.portfolio.find((objekt) => !objekt.vermietet && !objekt.renovierung && !objekt.verkauf);
-  if (leer) {
-    return {
-      typ: 'objekt',
-      ziel: leer.listingId,
-      titel: `${leer.titel} produktiv machen`,
-      text: 'Leerstand kostet laufend. Vermieten oder gezielt renovieren ist jetzt der klarste nächste Zug.',
-      button: 'Objekt öffnen',
-    };
-  }
-  if (marktEintrag) {
-    return {
-      typ: 'expose',
-      ziel: marktEintrag.listing.id,
-      titel: 'Ein Angebot bewusst prüfen',
-      text: `${marktEintrag.listing.titel}: Erst Substanz und Unterlagen prüfen, dann bieten oder begründet weggehen.`,
-      button: 'Exposé öffnen',
-    };
-  }
-  return null;
+  return monatsAnlass(state);
 }

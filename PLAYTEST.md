@@ -13,10 +13,12 @@ werden klar von menschlicher Beobachtung getrennt.
    vergleichen. Slider sowie 0/10/20/30-%-EK-Schritte ausprobieren und dabei
    laut denken lassen.
 3. Ein Objekt kaufen, vermieten und bis zum ersten Objekt-Event vorspulen.
-4. Eigenheim-Option für eine Wohnung und ein Haus sowie Verkauf öffnen.
-5. Den Übergang in den Ruhestand beobachten, anschließend mit Turbo bis zur
+4. In der Zentrale ein mittelfristiges Ziel setzen, im Haushalt ein
+   Arbeitsmodell wählen und bei einer Renovierung die Eigenleistung vergleichen.
+5. Eigenheim-Option für eine Wohnung und ein Haus sowie Verkauf öffnen.
+6. Den Übergang in den Ruhestand beobachten, anschließend mit Turbo bis zur
    Endauswertung laufen und fünf Scores sowie vier Vergleichslinien erklären lassen.
-6. Danach mindestens 15 Minuten auf **Schwer**, Seed `phase5-hard`, um die
+7. Danach mindestens 15 Minuten auf **Schwer**, Seed `phase5-hard`, um die
    sichtbare Schwierigkeitsabstufung zu prüfen.
 
 ## Beobachtung statt Coaching
@@ -32,15 +34,20 @@ Besonders beobachten:
 - Ist die 50/50-Aufteilung auf echtes ETF-Depot und Tagesgeld klar?
 - Wird der Finanzbereich über Tagesgeld, ETF oder Hauptnavigation gefunden und
   werden einmalige Umschichtung und künftiger Sparplan unterschieden?
-- Wird verstanden, dass die fünf Einzelaktien eine fiktive Lern-Sandbox mit
-  Gebühren, Steuer und höherem Einzelwertrisiko sind — nicht der Welt-ETF und
-  keine Empfehlung?
+- Wird verstanden, dass das mittelfristige Ziel freiwillig ist, aus echtem
+  Spielstand fortschreitet und keine Questprämie vergibt?
+- Sind Geld-, Zeit- und Familienwirkung sowie die zwölfmonatige Bindung des
+  Arbeitsmodells vor der Wahl klar?
+- Wird Eigenleistung als Ersparnis mit zusätzlicher Zeit und höherem Risiko
+  verstanden?
 - Wird das Objekt über Karte/Zentrale wiedergefunden und in höchstens zwei
   Klicks geführt?
 - Werden Kinderkosten als direkte Zusatzkosten und die Steuer nur als
   vereinfachte Vermietungssteuer verstanden?
 - Fühlt sich der Monatsfortschritt wie eine Runde mit Folgen an?
 - Sind Wartemomente, Ereignisursache, Objektbezug und Folgeaktion klar?
+- Ist bei einer mehrmonatigen Objektgeschichte erkennbar, welche frühere
+  Entscheidung die Folge ausgelöst hat?
 - Kann die Person mindestens vier Endscores und den ETF-Gegenfall erklären?
 - Wirken Mieten, Familienwohnung und Haus wie echte Abwägungen oder gibt es
   einen offensichtlichen Autopick?
@@ -53,8 +60,17 @@ Besonders beobachten:
 - Mindestens vier der fünf Endgame-Scores werden ohne Hilfe richtig gedeutet.
 - Normal und Schwer werden im Startdialog und im Spiel als verschieden erkannt.
 
-Grafikstil und „Juiciness“ separat sammeln; sie gehören in den Claude-Design-
-Overhaul und dürfen Verständnisfunde nicht verdecken.
+Grafikstil und „Juiciness“ separat sammeln; die v36-Designbasis bleibt bestehen
+und visuelle Wünsche dürfen Verständnisfunde nicht verdecken.
+
+## Vorbereitung 20.07.2026 — Owner-Test Save v19 / UI v40
+
+**Status:** Automatische Abnahme abgeschlossen; menschlicher Lauf noch offen.
+Der nächste Owner-Test startet wegen des neuen Saveformats als neue Partie.
+Besonders abzunehmen sind freiwillige Zielwahl, zwölfmonatige Arbeitsbindung,
+Lebensphasenankündigung, Eigenleistungsabwägung und eine zeitversetzte
+Objektfolge. Technische Gates für diese Wege sind grün, gelten aber nicht als
+menschlicher Verständlichkeitsnachweis.
 
 ## Protokoll 16.07.2026 — technischer Moderationslauf
 

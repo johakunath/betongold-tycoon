@@ -1,7 +1,7 @@
 // state.js — Spielzustand, Save-Slots (localStorage), JSON-Export/-Import, seeded RNG.
 // Kein DOM-Zugriff auf Top-Level: das Modul läuft auch unter Node (Simulationstests).
 
-import { DEFAULT_CONFIG, SAVE_VERSION, START_PRESETS } from './config.js?v=36';
+import { DEFAULT_CONFIG, SAVE_VERSION, START_PRESETS } from './config.js?v=41';
 
 // ---------------------------------------------------------------------------
 // Seeded RNG (mulberry32). state.rngState treibt die allgemeine Spielwelt;
@@ -210,6 +210,17 @@ export function newGame({
     notizen: {},             // listingId → Text
     dd: {},                  // listingId → Due-Diligence-Stand
     maengelExistenz: {},     // listingId → pro Run gewürfelte Existenz verborgener Mängel
+    dealEntscheidungen: {},  // listingId → aktuelle Wahl: beobachten oder verworfen
+    entscheidungsHistorie: [], // strukturierte Anlass→Prüfung→Entscheidung→Wirkung-Momente
+    turnaround: { bankAnpassungen: 0, baselineCashflow: null },
+    entwicklung: {
+      zielId: null,
+      zielSeitMonat: 0,
+      arbeitsmodellId: 'balance',
+      arbeitsmodellSeitMonat: -config.entwicklung.arbeitsmodellBindungMonate,
+      lebensphasenAngekundigt: [],
+    },
+    objektArcs: [],
     log: [],                 // [{monat, text}] — Anschlussfinanzierung, fällige Mängel …
     ratgeber: { letzterMonat: -10, gezeigt: [] }, // optionale Lernhinweise auf Leicht/Normal
 
@@ -402,8 +413,11 @@ function validiereState(state) {
   if (!state.markt || typeof state.markt !== 'object' || !state.markt.feed) {
     throw new Error('Ungültiger Spielstand: Marktstatus fehlt.');
   }
-  for (const feld of ['portfolio', 'historie', 'log', 'favoriten']) {
+  for (const feld of ['portfolio', 'historie', 'log', 'favoriten', 'entscheidungsHistorie']) {
     if (!Array.isArray(state[feld])) throw new Error(`Ungültiger Spielstand: ${feld} ist keine Liste.`);
+  }
+  if (!state.dealEntscheidungen || typeof state.dealEntscheidungen !== 'object') {
+    throw new Error('Ungültiger Spielstand: Deal-Entscheidungen fehlen.');
   }
   if (!state.etfVergleich || !Number.isFinite(state.etfVergleich.wert)) {
     throw new Error('Ungültiger Spielstand: ETF-Benchmark fehlt.');
@@ -432,6 +446,19 @@ function validiereState(state) {
   }
   if (!state.ratgeber || !Number.isFinite(state.ratgeber.letzterMonat) || !Array.isArray(state.ratgeber.gezeigt)) {
     throw new Error('Ungültiger Spielstand: Ratgeberstatus fehlt.');
+  }
+  if (!state.turnaround || !Number.isInteger(state.turnaround.bankAnpassungen)
+      || state.turnaround.bankAnpassungen < 0
+      || (state.turnaround.baselineCashflow !== null && !Number.isFinite(state.turnaround.baselineCashflow))) {
+    throw new Error('Ungültiger Spielstand: Turnaround-Status fehlt.');
+  }
+  if (!state.entwicklung || !Array.isArray(state.entwicklung.lebensphasenAngekundigt)
+      || !Number.isFinite(state.entwicklung.zielSeitMonat)
+      || !Number.isFinite(state.entwicklung.arbeitsmodellSeitMonat)) {
+    throw new Error('Ungültiger Spielstand: Entwicklungsplan fehlt.');
+  }
+  if (!Array.isArray(state.objektArcs)) {
+    throw new Error('Ungültiger Spielstand: Objektgeschichten fehlen.');
   }
   if (!state.lebensende || !Number.isFinite(state.lebensende.zufallswert) ||
       !Number.isFinite(state.lebensende.basisAlter) || !Number.isFinite(state.lebensende.zielAlter)) {
@@ -475,4 +502,3 @@ export function bestandsMieter(kaltmiete) {
     eingezogen: 0,
   };
 }
-

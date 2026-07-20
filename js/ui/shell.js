@@ -1,22 +1,24 @@
 // shell.js — Topbar (Datum, Geschwindigkeit, Menü), Dialoge (Neues Spiel,
 // Spielstände, Kampagnenende) und Toasts. Spiel-Logik lebt in main.js.
 
-import { DEFAULT_CONFIG, START_PRESETS } from '../config.js?v=36';
-import { listSaves } from '../state.js?v=36';
-import { datum, alter, gesamtMonate, istImRuhestand, monatsWerte } from '../engine.js?v=36';
-import { fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=36';
-import { fmtEUR, fmtDatum } from './util.js?v=36';
+import { DEFAULT_CONFIG, START_PRESETS } from '../config.js?v=41';
+import { listSaves } from '../state.js?v=41';
+import { datum, alter, gesamtMonate, istImRuhestand, monatsWerte } from '../engine.js?v=41';
+import { fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=41';
+import { fmtEUR, fmtDatum } from './util.js?v=41';
 import {
   haushaltsUeberschussMonat, liquiditaetsPufferMonate, vermoegensaufbauMonat,
-} from './kennzahlen.js?v=36';
+} from './kennzahlen.js?v=41';
 
 let app = null; // Callbacks aus main.js
 
 let screen = 'karte';
 let cashflowHideTimer = null;
 let cashflowGepinnt = false;
-let meldungenUngelesen = 0;
-const meldungen = [];
+// Das Meldungsarchiv hat genau eine Quelle: state.log — dieselbe Historie, die
+// Stadt-Post und Quartalsbericht ausschnittweise zeigen. Toasts sind flüchtige
+// Bedienrückmeldung („Gespeichert als …") und gehören bewusst nicht hierher.
+let gesehenLogLaenge = 0;
 
 export function initShell(appApi) {
   app = appApi;
@@ -28,10 +30,6 @@ export function initShell(appApi) {
     document.querySelector('[data-zentrale-tab="vermoegen"]')?.click();
   });
   document.getElementById('nav-marktplatz').addEventListener('click', () => zeigeScreen('marktplatz'));
-  document.getElementById('nav-objekte').addEventListener('click', () => {
-    zeigeScreen('dashboard');
-    document.querySelector('[data-zentrale-tab="objekte"]')?.click();
-  });
   document.getElementById('nav-finanzen').addEventListener('click', oeffneFinanzen);
 
   // Geschwindigkeit
@@ -274,19 +272,25 @@ export function zeigeScreen(name) {
   }
 }
 
-// Genau ein Navigationspunkt ist aktiv. Exposé gehört zum Marktplatz,
-// Objekt-Detail und der Objekte-Tab der Zentrale zum Objektbereich.
+// Der Bestand ist ein Tab der Zentrale, kein eigener Hauptscreen. Alle Wege
+// dorthin (Objekt-Detail „zurück", Empfehlungen) laufen über diese eine Stelle.
+export function zeigePortfolio() {
+  zeigeScreen('dashboard');
+  document.querySelector('[data-zentrale-tab="objekte"]')?.click();
+}
+
+// Genau ein Navigationspunkt ist aktiv. Exposé gehört zum Marktplatz;
+// Objekt-Detail und der Objekte-Tab gehören zur Zentrale.
 export function aktualisiereNavMarkierung() {
-  const zentraleTab = document.querySelector('[data-zentrale-tab].aktiv')?.dataset.zentraleTab;
   const aktivId = {
     karte: 'nav-karte',
-    dashboard: zentraleTab === 'objekte' ? 'nav-objekte' : 'nav-dashboard',
+    dashboard: 'nav-dashboard',
     marktplatz: 'nav-marktplatz',
     expose: 'nav-marktplatz',
-    objekt: 'nav-objekte',
+    objekt: 'nav-dashboard',
     finanzen: 'nav-finanzen',
   }[screen];
-  for (const id of ['nav-karte', 'nav-dashboard', 'nav-marktplatz', 'nav-objekte', 'nav-finanzen']) {
+  for (const id of ['nav-karte', 'nav-dashboard', 'nav-marktplatz', 'nav-finanzen']) {
     const button = document.getElementById(id);
     const aktiv = id === aktivId;
     button.classList.toggle('aktiv', aktiv);
@@ -361,21 +365,35 @@ function initMeldungen() {
     panel.hidden = !panel.hidden;
     button.setAttribute('aria-expanded', String(!panel.hidden));
     if (!panel.hidden) {
-      meldungenUngelesen = 0;
+      gesehenLogLaenge = (app?.getState?.()?.log || []).length;
       renderMeldungen();
     }
   });
   document.getElementById('btn-meldungen-schliessen').addEventListener('click', schliessen);
 }
 
+// Spielmonat eines Logeintrags als Datum — dieselbe Zeitrechnung wie der HUD.
+function logDatum(state, monat) {
+  const z = state.config.zeit;
+  return new Date(z.startJahr, z.startMonat - 1 + monat, 1);
+}
+
 function renderMeldungen() {
+  const state = app?.getState?.();
+  const log = state?.log || [];
   const liste = document.getElementById('meldungen-liste');
-  liste.innerHTML = meldungen.length
-    ? meldungen.map((meldung) => `<li class="${meldung.wichtig ? 'wichtig' : ''}"><span>${escapeHtml(meldung.text)}</span><small>${meldung.zeit}</small></li>`).join('')
-    : '<li class="leer">Noch keine Benachrichtigungen in dieser Sitzung.</li>';
+  const eintraege = log.slice(-40).reverse();
+  liste.innerHTML = eintraege.length
+    ? eintraege.map((eintrag) => {
+      const d = logDatum(state, eintrag.monat);
+      return `<li><span>${escapeHtml(eintrag.text)}</span>` +
+        `<time datetime="${d.toISOString().slice(0, 7)}">${fmtDatum(d)}</time></li>`;
+    }).join('')
+    : '<li class="leer">Noch keine Meldungen. Der erste Marktmonat bringt neue Situationen.</li>';
+  const ungelesen = Math.max(0, log.length - gesehenLogLaenge);
   const zaehler = document.getElementById('meldungen-zaehler');
-  zaehler.hidden = meldungenUngelesen === 0;
-  zaehler.textContent = meldungenUngelesen > 9 ? '9+' : String(meldungenUngelesen);
+  zaehler.hidden = ungelesen === 0;
+  zaehler.textContent = ungelesen > 9 ? '9+' : String(ungelesen);
 }
 
 // --- Topbar / HUD -----------------------------------------------------------
@@ -399,6 +417,8 @@ export function updateHud(state, speed) {
   cashflow.classList.toggle('negativ', !!state && haushaltsUeberschuss < 0);
   cashflow.disabled = !state;
   renderCashflowDetails(state);
+  // Archiv und Ungelesen-Zähler folgen dem Spiel-Log, also jedem Monatszug.
+  renderMeldungen();
   document.getElementById('hud-cash-aktion').disabled = !state;
   document.getElementById('hud-etf-aktion').disabled = !state;
   document.querySelectorAll('#speed-group [data-speed]').forEach((btn) => {
@@ -543,15 +563,6 @@ let toastTimer = null;
 
 export function toast(text, { dauer = 5200, wichtig = false, typ = 'standard' } = {}) {
   const inhalt = String(text);
-  meldungen.unshift({
-    text: inhalt,
-    wichtig,
-    zeit: new Intl.DateTimeFormat('de-DE', { hour: '2-digit', minute: '2-digit' }).format(new Date()),
-  });
-  if (meldungen.length > 50) meldungen.length = 50;
-  if (document.getElementById('meldungen-panel').hidden) meldungenUngelesen += 1;
-  renderMeldungen();
-
   const el = document.getElementById('toast');
   el.textContent = inhalt;
   el.classList.toggle('wichtig', wichtig);

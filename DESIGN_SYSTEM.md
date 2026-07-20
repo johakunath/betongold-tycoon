@@ -1,7 +1,10 @@
-# DESIGN_SYSTEM.md — Betongold Tycoon UI v36
+# DESIGN_SYSTEM.md — Betongold Tycoon Designbasis v36 / aktuelle UI v40
 
 Verbindliche UI-Richtung nach dem konsolidierten Design-Handoff. Die
 Handoff-HTML ist visuelle Referenz, keine zu kopierende Produktimplementierung.
+Die visuelle Basis ist in v36 umgesetzt; Vereinfachung, native Elementtypen und
+Responsive-Korrekturen dieses Dokuments sind das Ziel des offenen
+ROADMAP-Pakets B1 und noch nicht vollständig im Spiel vorhanden.
 
 ## 1. Charakter
 
@@ -29,6 +32,34 @@ Vermeiden:
   und ETF.
 - Exposé gehört visuell zum Marktplatz, Objektdetail zum Objektbereich.
 - Primäraktionen sind gold; Sekundäraktionen bleiben dunkel und konturiert.
+- Hauptziele werden nicht als Tab eines anderen Hauptziels dupliziert. Objekte
+  gehört ausschließlich zum Bottom-Navigationspunkt; die Zentrale erklärt
+  Vermögen und Haushalt.
+- Meldungen haben ein kanonisches Archiv. Stadt-Post ist nur dessen Vorschau,
+  kein zweiter Datenbestand; ein weiteres Ereignislog wiederholt es nicht.
+
+### 2.1 Native Elementtypen und Interaktionsvertrag
+
+- Hauptscreenwechsel: `<nav>` mit nativen Buttons und `aria-current`.
+- Ansichten innerhalb eines Screens: Tabs mit genau einem zugeordneten
+  `<tabpanel>` je Tab. Filter-/Ansichtstoggles verwenden `aria-pressed`.
+- Exklusive Formauswahl: `<fieldset>` + `<legend>` + Radios; unabhängige
+  Optionen: Checkboxen; stetige Zahlen: Range/Number + `<output>`.
+- Bezeichner/Wert: `<dl>`; mehrspaltiger Vergleich: `<table>` mit `<th>`;
+  Chronologie: `<ol>` + `<time>`.
+- Begrenzter Messwert: `<meter>`; laufender Prozess: `<progress>`;
+  Offenlegung: `<details>/<summary>`.
+- Dialoge verwenden `<dialog>` mit einer beschriftenden Überschrift und einer
+  normalen Aktionsleiste. Interne Header/Footer werden nicht als zusätzliche
+  Banner-/Contentinfo-Landmarks ausgegeben.
+- Bildzoom ist ein nativer Button. Bei vorhandenem Rasterbild gibt es genau ein
+  zugängliches Bild; ein SVG-Fallback ist dann dekorativ beziehungsweise
+  `aria-hidden`.
+- Inhaltskarten bleiben `<article>` und erhalten eine sichtbare echte
+  Öffnen-Aktion. Keine `div role="button"`, keine buttonartig gestalteten
+  `<span>` und keine unsichtbar vollflächig klickbare Karte.
+- Berechnete Vorschauwerte verwenden `<output>`, binäre Iconaktionen wie
+  Favoriten einen Toggle-Button mit `aria-pressed`.
 
 ## 3. Tokens
 
@@ -89,15 +120,29 @@ Einzelpositionen sind farbneutral.
 - In einem dünnen aktuellen Markt darf „Alle“ die Bühne mit höchstens drei
   echten, deaktivierten Katalogvorschauen bis auf vier Orte ergänzen. Diese
   tragen ausgeschrieben „noch nicht erschienen“ und öffnen kein Exposé.
-- Familie/Post links, Orte/Legende/nächster Zug rechts; auf kleinen Viewports
-  untereinander.
+- Familie/Post links; rechts gewählter Ort und nächster Zug. Eine vollständige
+  Ortsliste ist eine umschaltbare Alternative zur Bühne, nicht gleichzeitig
+  eine zweite interaktive Navigation.
+- Auf kleinen Viewports erscheint die eigentliche Stadtbühne vor den
+  ausführlichen Familie-/Postbereichen.
 
 ### Zentrale
 
-- Tabs Vermögen, Haushalt und Objekte.
+- Tabs Vermögen und Haushalt; der Bestand lebt ausschließlich unter Objekte.
 - KPI-Gruppen Liquidität, Vermögen und Alltag.
 - Charts und Tabellen bleiben erklärend, nicht primäre Aktion.
 - Kein Einzelaktiendepot.
+- HUD-Werte werden nur wiederholt, wenn die Zentrale zusätzliche Erklärung,
+  Veränderung oder Vergleich liefert.
+- Auf Desktop nutzt der Haushalt die Breite für Rechnung und Steuer, statt
+  Inhalte links zu stapeln und rechts Leerraum zu lassen.
+- Der Quartalsbericht ergänzt ein kompaktes Strategieboard: genau ein
+  freiwilliges Ziel, natives `<meter>`, Horizont und kurze Ableitung. Zielwahl
+  und „ohne Ziel“ sind echte Buttons; keine Quest-, Belohnungs- oder
+  Punktesprache.
+- Der Haushalt ergänzt den Lebensplan mit drei nativen Arbeitsmodell-Buttons,
+  sichtbaren Geld-/Zeit-/Familien-Outputs, Restbindung und nächster
+  angekündigter Lebensphase. Annahmen verlinken in die bestehende Werkstatt.
 
 ### Marktplatz und Exposé
 
@@ -106,6 +151,9 @@ Einzelpositionen sind farbneutral.
 - Favorit und Vergleich sind sekundär.
 - Gebot: Prozentslider, großer Live-Betrag, qualitative Annahmechance.
 - Unsicherheit nie als exakte Annahmewahrscheinlichkeit vortäuschen.
+- Das Exposé folgt Bild/Kernfakten → Due Diligence/Notizen → Szenario/Gebot.
+  Vollständige Fakten sind gruppierte Details und verdrängen die Prüfschritte
+  nicht unter den Fold.
 
 ### Objektdetail
 
@@ -113,6 +161,16 @@ Einzelpositionen sind farbneutral.
 - Primär: Wert, Restschuld, Objekt-Cashflow heute und nach Vermietung.
 - Detailstatus in aufklappbaren Sektionen; Bewirtschaftungsaktionen bleiben
   sichtbar.
+- Die aktuelle Hauptaufgabe steht neben den Hauptkennzahlen. Bildgröße darf
+  Bewerber-, Vermietungs- oder Krisenaktion nicht vollständig unter den Fold
+  drücken.
+- Dieselbe Aktion erscheint nur einmal; insbesondere gibt es nicht getrennt
+  „Renovieren“ und „Renovierungsplaner“ mit identischem Ziel.
+- Laufende oder abgeschlossene Objekt-Arcs stehen als kurze chronologische
+  Historie mit Status und verbleibenden Monaten im Detail, nicht als neue
+  globale Navigation.
+- Eigenleistung ist eine beschriftete Checkbox mit live aktualisierten Kosten,
+  Zeit und Risiko; sie darf nie nur als Rabatt erscheinen.
 
 ### Finanzen
 
@@ -125,6 +183,11 @@ Einzelpositionen sind farbneutral.
   Verkauf Steuer/Netto reagieren live vor der Bestätigung.
 - Haushaltsüberschuss und Liquiditätspuffer stehen vor Depotdetails.
 - Einzelaktien gehören nicht in die Kern-UI.
+- Vermögensmix verwendet entweder Nettoanteile oder zeigt eine vollständige
+  Bruttobilanz mit Schulden. Netto-Headline und Brutto-Immobilienanteil werden
+  nicht in derselben scheinbaren Summe vermischt.
+- Visuelle und DOM-Reihenfolge stimmen überein; live berechnete Nachher-Stände
+  sind Outputs, keine Artikel.
 
 ### Finanzierung
 
@@ -141,6 +204,9 @@ Einzelpositionen sind farbneutral.
 - Cashflow-Details: Hover/Fokus flüchtig, Klick gepinnt, Außenklick/Escape zu.
 - Focus Trap und Rückkehr zum Auslöser bei nativen Dialogen erhalten.
 - Toasts kurz, Meldungen dauerhaft wiederaufrufbar.
+- Benachrichtigungspanel und Menüs verwenden dieselbe dunkle Panelhierarchie
+  wie die App. Ausgeblendete sichtbare Menülabels behalten einen zugänglichen
+  Namen.
 
 ## 5. Bildsprache
 
@@ -161,7 +227,8 @@ Listingassets bleiben der verbindliche Architektur- und Zustandslock:
 
 Kein horizontaler Seiten-Overflow. Bottom-Navigation darf intern horizontal
 scrollen. Auf Mobil werden Stadtspalten gestapelt, Marktkarten einspaltig,
-Finanzkonten untereinander und Diagramme intern scrollbar.
+Finanzkonten, Zielwahl und Arbeitsmodelle untereinander angeordnet; Diagramme
+dürfen intern scrollen.
 
 ## 7. Accessibility
 

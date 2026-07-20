@@ -2,9 +2,9 @@
 // Die laufenden Kosten nutzt engine.tick über finance.tickObjekt; das Modul
 // kapselt den Nutzungswechsel und die Familienwirkung. DOM-frei.
 
-import { kaufeObjekt } from './finance.js?v=36';
-import { eigenheimEignung, fixkostenMonat, instandhaltungMonat } from './immobilie.js?v=36';
-import { getListing } from './content.js?v=36';
+import { kaufeObjekt } from './finance.js?v=41';
+import { eigenheimEignung, fixkostenMonat, instandhaltungMonat } from './immobilie.js?v=41';
+import { getListing } from './content.js?v=41';
 
 export function kaufeEigenheim(state, angebot) {
   if (state.eigenheim) throw new Error('Ihr besitzt bereits ein Eigenheim.');

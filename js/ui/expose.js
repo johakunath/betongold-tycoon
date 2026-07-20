@@ -1,15 +1,17 @@
 // expose.js — Screen 3: Exposé-Detail mit Due Diligence, Notizen,
 // Szenariorechner, Gebot / Weggehen.
 
-import { getListing } from '../content.js?v=36';
+import { getListing } from '../content.js?v=41';
 import {
   angebotsPreis, vergleichsmiete, gebotAbgeben, kaufAbbrechen,
   besichtigen, dokumenteAnfordern, gutachterBeauftragen,
-} from '../market.js?v=36';
-import { bildHTML, cutawayHTML } from '../iso.js?v=36';
-import { fmtEUR } from './util.js?v=36';
-import { oeffneFinanzierung } from './finanzierung.js?v=36';
-import { eigenheimEignung, fixkostenAufschluesselung, instandhaltungMonat, objektartConfig } from '../immobilie.js?v=36';
+  angebotBeobachten, angebotVerwerfen, angebotNeuPruefen,
+} from '../market.js?v=41';
+import { dealEntscheidung, pruefstand } from '../gameplay.js?v=41';
+import { bildHTML, cutawayHTML } from '../iso.js?v=41';
+import { fmtEUR } from './util.js?v=41';
+import { oeffneFinanzierung } from './finanzierung.js?v=41';
+import { eigenheimEignung, fixkostenAufschluesselung, instandhaltungMonat, objektartConfig } from '../immobilie.js?v=41';
 
 let ctx = null;
 let aktuelleId = null;
@@ -54,6 +56,8 @@ export function renderExpose(state, voll = false) {
   const l = getListing(aktuelleId);
   const seg = state.config.segmente[l.segment];
   const dd = state.dd[aktuelleId] || {};
+  const stand = pruefstand(state, aktuelleId);
+  const entscheidung = dealEntscheidung(state, aktuelleId);
   const preis = eintrag ? Math.round(angebotsPreis(state, aktuelleId)) : null;
   const amMarkt = eintrag && eintrag.status === 'amMarkt';
   const reserviert = eintrag && eintrag.status === 'reserviert';
@@ -65,7 +69,12 @@ export function renderExpose(state, voll = false) {
 
   document.getElementById('expose-titel').textContent = l.titel;
 
+  // Reihenfolge folgt der Handlungskette: Anlass (Bild/Kernfakten) → Prüfung
+  // (Due Diligence) → Entscheidung (Szenario/Gebot/Weggehen). Die ausführliche
+  // Faktensammlung liegt aufklappbar unter den Kernfakten, damit Prüfen und
+  // Entscheiden nicht unter den Fold rutschen.
   document.getElementById('expose-inhalt').innerHTML =
+    handlungsketteHTML(state, l, stand, entscheidung) +
     `<div class="expose-oben">` +
     `<div class="expose-gallery">${bildHTML(l, 'gross')}${cutawayHTML(l, l.zustand, 'gross')}</div>` +
     `<div class="expose-preisbox karte">` +
@@ -73,33 +82,28 @@ export function renderExpose(state, voll = false) {
     `<div class="muted" data-live="preism2">${preis ? Math.round(preis / l.flaeche).toLocaleString('de-DE') + ' €/m²' : ''}</div>` +
     `<table class="fakten">` +
     `<tr><td>Segment</td><td>${seg.label} · Lage ${l.lageScore}/10</td></tr>` +
-    `<tr><td>Objekt / Eigentum</td><td>${objektartConfig(state, l).label} · ${l.eigentumsform === 'weg' ? 'WEG-Miteigentum' : 'Alleineigentum'}</td></tr>` +
-    `<tr><td>Mietrecht</td><td>${state.config.mietrecht?.[seg.stadt]?.label || 'Standardregeln'}</td></tr>` +
     `<tr><td>Fläche / Zimmer</td><td>${l.flaeche} m² / ${l.zimmer}</td></tr>` +
-    `<tr><td>Etage</td><td>${l.etage}</td></tr>` +
     `<tr><td>Baujahr</td><td>${l.baujahr}</td></tr>` +
     `<tr><td>Zustand (Eindruck)</td><td>${ZUSTAND_TEXT[l.zustand]}</td></tr>` +
-    `<tr><td>Energieklasse</td><td>${l.energieklasse}</td></tr>` +
-    kosten.map((k) => `<tr><td>${k.label}</td><td>${fmtEUR(k.betrag)}/Monat</td></tr>`).join('') +
-    `<tr><td>Instandhaltung (Planwert)</td><td>${fmtEUR(Math.round(instandhaltungMonat(state, l)))}/Monat</td></tr>` +
-    (l.objektart === 'haus' ? `<tr><td>Grundstück / Außenraum</td><td>${l.grundstueck} m² / ${l.aussenflaeche} m² nutzbar</td></tr>` : `<tr><td>Außenraum</td><td>${l.aussenflaeche || 0} m²</td></tr>`) +
-    `<tr><td>Familienheim</td><td>${eignung.geeignet ? `geeignet · ${eignung.score}/5` : `${eignung.score}/5 · ${eignung.gruende.join(', ')}`}${l.barrierearm ? ' · barrierearm' : ''}</td></tr>` +
     `<tr><td>Mietstatus</td><td>${mietstatusText(l)}</td></tr>` +
-    `<tr><td>Ausstattung</td><td>${AUSSTATTUNG[l.ausstattung] || (l.mietstatus.vermietet ? 'bewohnt' : 'nicht näher angegeben')}</td></tr>` +
     `<tr><td>Vergleichsmiete (Schätzung)</td><td>${fmtEUR(vm)}/Monat</td></tr>` +
     (l.mietstatus.vermietet && preis
       ? `<tr><td>Bruttorendite</td><td data-live="rendite">${(((l.mietstatus.kaltmiete * 12) / preis) * 100).toFixed(1)} %</td></tr>`
       : '') +
     `<tr><td>Markt</td><td data-live="markt">${marktText(state, eintrag, interessenten)}</td></tr>` +
     `</table>` +
-    `<div class="expose-aktionen">` +
-    `<button id="btn-szenario">Szenario rechnen</button>` +
-    (reserviert
-      ? `<button id="btn-finanzieren" class="primaer">Finanzierung anfragen</button>` +
-        `<button id="btn-kauf-abbrechen" class="gefahr">Doch nicht kaufen</button>`
-      : '') +
-    `</div>` +
-    (amMarkt ? gebotHTML(state, preis) : '') +
+    `<details class="objekt-daten"><summary>Alle Objektdaten</summary>` +
+    `<table class="fakten">` +
+    `<tr><td>Objekt / Eigentum</td><td>${objektartConfig(state, l).label} · ${l.eigentumsform === 'weg' ? 'WEG-Miteigentum' : 'Alleineigentum'}</td></tr>` +
+    `<tr><td>Mietrecht</td><td>${state.config.mietrecht?.[seg.stadt]?.label || 'Standardregeln'}</td></tr>` +
+    `<tr><td>Etage</td><td>${l.etage}</td></tr>` +
+    `<tr><td>Energieklasse</td><td>${l.energieklasse}</td></tr>` +
+    kosten.map((k) => `<tr><td>${k.label}</td><td>${fmtEUR(k.betrag)}/Monat</td></tr>`).join('') +
+    `<tr><td>Instandhaltung (Planwert)</td><td>${fmtEUR(Math.round(instandhaltungMonat(state, l)))}/Monat</td></tr>` +
+    (l.objektart === 'haus' ? `<tr><td>Grundstück / Außenraum</td><td>${l.grundstueck} m² / ${l.aussenflaeche} m² nutzbar</td></tr>` : `<tr><td>Außenraum</td><td>${l.aussenflaeche || 0} m²</td></tr>`) +
+    `<tr><td>Familienheim</td><td>${eignung.geeignet ? `geeignet · ${eignung.score}/5` : `${eignung.score}/5 · ${eignung.gruende.join(', ')}`}${l.barrierearm ? ' · barrierearm' : ''}</td></tr>` +
+    `<tr><td>Ausstattung</td><td>${AUSSTATTUNG[l.ausstattung] || (l.mietstatus.vermietet ? 'bewohnt' : 'nicht näher angegeben')}</td></tr>` +
+    `</table></details>` +
     `</div></div>` +
 
     `<blockquote class="maklertext">„${l.maklerText}"<footer>— Maklerexposé</footer></blockquote>` +
@@ -108,9 +112,48 @@ export function renderExpose(state, voll = false) {
     ddHTML(state, l, dd) +
     `<div class="karte notizen-karte"><h3>Eure Notizen</h3>` +
     `<textarea id="expose-notizen" rows="5" aria-label="Notizen zu diesem Exposé" placeholder="z. B. maximal 190.000 bieten; nach der WEG-Rücklage fragen">${state.notizen[aktuelleId] || ''}</textarea>` +
-    `</div></div>`;
+    `</div></div>` +
+
+    `<section class="expose-entscheidung karte" aria-label="Entscheidung zu diesem Angebot">` +
+    `<div class="expose-aktionen">` +
+    `<button id="btn-szenario">Szenario rechnen</button>` +
+    (reserviert
+      ? `<button id="btn-finanzieren" class="primaer">Finanzierung anfragen</button>` +
+        `<button id="btn-kauf-abbrechen" class="gefahr">Doch nicht kaufen</button>`
+      : '') +
+    `</div>` +
+    (amMarkt && entscheidung?.typ !== 'verworfen' ? gebotHTML(state, preis) : '') +
+    (amMarkt || reserviert ? entscheidungsHTML(entscheidung, reserviert) : '') +
+    `</section>`;
 
   wireAktionen(state, l, eintrag);
+}
+
+function handlungsketteHTML(state, listing, stand, entscheidung) {
+  const wirkung = (state.entscheidungsHistorie || []).findLast((e) => e.ziel === listing.id);
+  const eigeneWirkung = wirkung ? wirkung.text : 'Noch keine Wirkung festgehalten.';
+  const entschieden = entscheidung || state.markt.feed[listing.id]?.status === 'reserviert';
+  return `<section class="handlungskette" aria-label="Handlungskette für dieses Angebot">` +
+    `<ol>` +
+      `<li class="erledigt"><span>1</span><b>Anlass</b><small>reales Angebot</small></li>` +
+      `<li class="${stand.schritte ? 'aktiv' : ''}"><span>2</span><b>Prüfung</b><small>${stand.schritte}/3 Schritte</small></li>` +
+      `<li class="${entschieden ? 'aktiv' : ''}"><span>3</span><b>Entscheidung</b><small>${entscheidung?.typ === 'verworfen' ? 'weggegangen' : entscheidung?.typ === 'beobachtet' ? 'beobachten' : state.markt.feed[listing.id]?.status === 'reserviert' ? 'Gebot angenommen' : 'noch offen'}</small></li>` +
+      `<li class="${wirkung ? 'aktiv' : ''}"><span>4</span><b>Wirkung</b><small>${eigeneWirkung}</small></li>` +
+    `</ol></section>`;
+}
+
+function entscheidungsHTML(entscheidung, reserviert) {
+  if (entscheidung?.typ === 'verworfen') {
+    return `<section class="deal-entscheidung weg" aria-live="polite"><span class="eyebrow">Bewusst entschieden</span>` +
+      `<h3>Guter Weggang</h3><p>Kein Kapital gebunden. Eure Prüfkenntnis bleibt erhalten; bei einer neuen Marktrunde entsteht eine neue Chance.</p>` +
+      `<button type="button" id="btn-neu-pruefen">Entscheidung neu öffnen</button></section>`;
+  }
+  return `<section class="deal-entscheidung"><span class="eyebrow">Entscheidung</span>` +
+    `<p>${entscheidung?.typ === 'beobachtet' ? 'Dieses Angebot wird bewusst beobachtet. Ihr könnt trotzdem bieten oder weggehen.' : 'Nach der Prüfung: bieten, beobachten oder bewusst weggehen.'}</p>` +
+    `<div>` +
+      `<button type="button" id="btn-beobachten" aria-pressed="${entscheidung?.typ === 'beobachtet'}" ${reserviert || entscheidung?.typ === 'beobachtet' ? 'disabled' : ''}>${entscheidung?.typ === 'beobachtet' ? 'Wird beobachtet' : 'Beobachten'}</button>` +
+      `<button type="button" id="btn-verwerfen" class="gefahr">Bewusst weggehen</button>` +
+    `</div></section>`;
 }
 
 function mietstatusText(l) {
@@ -154,6 +197,7 @@ function gebotHTML(state, preis) {
 
 function ddHTML(state, l, dd) {
   const cfg = state.config.dueDiligence;
+  const stand = pruefstand(state, l.id);
   const erkenntnisse = [];
   if (dd.besichtigt) l.besichtigung.forEach((t) => erkenntnisse.push(['Besichtigung', t]));
   if (dd.dokumente) {
@@ -177,6 +221,9 @@ function ddHTML(state, l, dd) {
     `<button type="button" class="info-tooltip" ` +
     `aria-label="Info: Vorbereitung deckt Hinweise und manche Risiken auf. Kein Schritt garantiert ein mangelfreies Objekt." ` +
     `data-tooltip="Vorbereitung deckt Hinweise und manche Risiken auf. Kein Schritt garantiert ein mangelfreies Objekt.">?</button></h3>` +
+    `<div class="pruefstand"><label>Prüffortschritt <progress value="${stand.schritte}" max="${stand.gesamt}">${stand.schritte} von ${stand.gesamt}</progress><b>${stand.schritte}/${stand.gesamt}</b></label>` +
+    `<label>Restunsicherheit <meter min="0" max="100" low="25" high="70" optimum="0" value="${stand.restunsicherheit}">${stand.restunsicherheit} %</meter><b>${stand.label}</b></label>` +
+    `<p>${stand.funde} Risikohinweis${stand.funde === 1 ? '' : 'e'} · ${stand.zeit} h eingesetzt · ${fmtEUR(stand.kosten)} Kosten</p></div>` +
     `<div class="dd-buttons">` +
     `<button id="btn-besichtigen" ${dd.besichtigt ? 'disabled' : ''}>Besichtigung <small>kostenlos · ${cfg.besichtigungZeit} h</small></button>` +
     `<button id="btn-dokumente" ${dd.dokumente ? 'disabled' : ''}>Dokumente anfordern <small>kostenlos · ${cfg.dokumenteZeit} h</small></button>` +
@@ -198,18 +245,24 @@ function wireAktionen(state, l, eintrag) {
   };
 
   document.getElementById('btn-besichtigen')?.addEventListener('click', () => {
+    const vorher = pruefstand(state, aktuelleId);
     besichtigen(state, aktuelleId);
-    ctx.toast('Besichtigt — der Eindruck sitzt.');
+    const nachher = pruefstand(state, aktuelleId);
+    ctx.toast(`Besichtigt: Restunsicherheit ${vorher.restunsicherheit} % → ${nachher.restunsicherheit} %.`);
     neu();
   });
   document.getElementById('btn-dokumente')?.addEventListener('click', () => {
+    const vorher = pruefstand(state, aktuelleId);
     dokumenteAnfordern(state, aktuelleId);
-    ctx.toast('Protokolle und Wirtschaftsplan gelesen.');
+    const nachher = pruefstand(state, aktuelleId);
+    ctx.toast(`Dokumente geprüft: ${nachher.funde - vorher.funde} neue Hinweise, Restunsicherheit ${nachher.restunsicherheit} %.`);
     neu();
   });
   document.getElementById('btn-gutachter')?.addEventListener('click', () => {
+    const vorher = pruefstand(state, aktuelleId);
     const r = gutachterBeauftragen(state, aktuelleId);
-    ctx.toast(r.fehler || 'Gutachten liegt vor.');
+    const nachher = pruefstand(state, aktuelleId);
+    ctx.toast(r.fehler || `Gutachten: ${nachher.funde - vorher.funde} neue Hinweise, Restunsicherheit ${nachher.restunsicherheit} % (nie null).`);
     neu();
   });
 
@@ -246,6 +299,22 @@ function wireAktionen(state, l, eintrag) {
   document.getElementById('btn-kauf-abbrechen')?.addEventListener('click', () => {
     kaufAbbrechen(state, aktuelleId);
     ctx.toast('Vom Kauf zurückgetreten.');
+    neu();
+  });
+
+  document.getElementById('btn-beobachten')?.addEventListener('click', () => {
+    const r = angebotBeobachten(state, aktuelleId);
+    ctx.toast(r.grund || 'Beobachtung gespeichert — Preis und Marktzeit werden zur nächsten Chance vergleichbar.');
+    neu();
+  });
+  document.getElementById('btn-verwerfen')?.addEventListener('click', () => {
+    const r = angebotVerwerfen(state, aktuelleId);
+    ctx.toast(r.grund || 'Guter Weggang: Wissen gewonnen, kein Kapital gebunden.');
+    neu();
+  });
+  document.getElementById('btn-neu-pruefen')?.addEventListener('click', () => {
+    angebotNeuPruefen(state, aktuelleId);
+    ctx.toast('Entscheidung wieder geöffnet. Eure Prüfkenntnis bleibt erhalten.');
     neu();
   });
 

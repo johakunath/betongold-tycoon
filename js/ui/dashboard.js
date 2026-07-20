@@ -1,30 +1,34 @@
 // dashboard.js — Screen 1: Kennzahlen-Kacheln, Haushaltsrechnung,
 // Nettovermögen-vs-ETF-Chart (Design-Säule 4: die ETF-Linie bleibt sichtbar).
 
-import { monatsWerte, nettovermoegen, gesamtMonate, datum } from '../engine.js?v=36';
-import { fairerWert } from '../market.js?v=36';
-import { getListing } from '../content.js?v=36';
-import { bildHTML } from '../iso.js?v=36';
-import { eigenheimMonatskosten } from '../eigenheim.js?v=36';
-import { setzeGrenzsteuersatz, steuerVorschau } from '../tax.js?v=36';
-import { fmtEUR, fmtEURKompakt, fmtEURSigniert, fmtDatum } from './util.js?v=36';
-import { fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=36';
-import { vermietungsmodell } from '../tenants.js?v=36';
-import { haushaltsUeberschussMonat, naechsterZugEmpfehlung } from './kennzahlen.js?v=36';
-import { aktualisiereNavMarkierung } from './shell.js?v=36';
+import { monatsWerte, nettovermoegen, gesamtMonate, datum } from '../engine.js?v=41';
+import { fairerWert } from '../market.js?v=41';
+import { getListing } from '../content.js?v=41';
+import { bildHTML } from '../iso.js?v=41';
+import { eigenheimMonatskosten } from '../eigenheim.js?v=41';
+import { setzeGrenzsteuersatz, steuerVorschau } from '../tax.js?v=41';
+import { fmtEUR, fmtEURKompakt, fmtEURSigniert, fmtDatum } from './util.js?v=41';
+import { fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=41';
+import { vermietungsmodell } from '../tenants.js?v=41';
+import { haushaltsUeberschussMonat, naechsterZugEmpfehlung } from './kennzahlen.js?v=41';
+import { aktualisiereNavMarkierung } from './shell.js?v=41';
+import { portfolioTriage, stabilisierungsLinien, turnaroundAktiv } from '../turnaround.js?v=41';
+import { renderStrategy } from './strategy.js?v=41';
 
 let getState = null;
 let onObjekt = null;   // Callback: Portfolio-Objekt anklicken → Objekt-Detail
 let onAenderung = null;
+let onExpose = null;
 let hoverMonat = null; // Monatsindex unter dem Cursor, null = kein Hover
 const letzteKpiWerte = new Map();
 const letzteKpiPulse = new Map();
 let zentraleTab = 'vermoegen';
 
-export function initDashboard(stateAccessor, objektHandler, aenderungsHandler) {
+export function initDashboard(stateAccessor, objektHandler, aenderungsHandler, exposeHandler = null) {
   getState = stateAccessor;
   onObjekt = objektHandler;
   onAenderung = aenderungsHandler;
+  onExpose = exposeHandler;
   const svg = document.getElementById('chart');
   svg.addEventListener('mousemove', onHover);
   svg.addEventListener('mouseleave', () => {
@@ -81,6 +85,7 @@ export function renderDashboard(state) {
   renderPortfolio(state);
   renderLog(state);
   renderQuartalsbericht(state);
+  renderStrategy(state);
   renderSteuer(state);
   renderChart(state);
   renderZusatzCharts(state);
@@ -209,6 +214,7 @@ function renderCashflowViz(zeilen) {
 
 function renderPortfolio(state) {
   const ziel = document.getElementById('portfolio-liste');
+  renderTurnaroundBoard(state);
   const summary = document.getElementById('portfolio-summary');
   const anzahl = state.portfolio.length + (state.eigenheim ? 1 : 0);
   summary.textContent = anzahl
@@ -245,6 +251,62 @@ function renderPortfolio(state) {
   // Karte bleibt als Zeigegeräte-Komfort erhalten und läuft über Bubbling.
   ziel.querySelectorAll('[data-objekt]').forEach((el) => {
     el.addEventListener('click', () => onObjekt && onObjekt(el.dataset.objekt));
+  });
+}
+
+function renderTurnaroundBoard(state) {
+  const ziel = document.getElementById('turnaround-board');
+  if (!ziel) return;
+  if (!turnaroundAktiv(state)) {
+    ziel.hidden = true;
+    ziel.innerHTML = '';
+    return;
+  }
+  ziel.hidden = false;
+  const triage = portfolioTriage(state);
+  const linien = stabilisierungsLinien(state);
+  const haushalt = haushaltsUeberschussMonat(state);
+  const zielPlus = state.config.turnaround.zwischenzielVerbesserungMonat;
+  const verbesserungWert = Math.max(0, Math.min(zielPlus, triage.verbesserung));
+  const reserveWert = Math.max(0, Math.min(triage.ruecklageZiel, triage.ruecklage));
+  const fenster = triage.bankOffen
+    ? `noch ${triage.bankRestMonate} Monat${triage.bankRestMonate === 1 ? '' : 'e'}`
+    : 'geschlossen — Verkauf und Bewirtschaftung bleiben';
+  ziel.innerHTML =
+    `<section class="turnaround-kopf" aria-labelledby="turnaround-titel">` +
+      `<div><span class="eyebrow">12-Monats-Turnaround</span><h3 id="turnaround-titel">Bestand triagieren, nicht blind retten</h3>` +
+      `<p>Bankfenster ${fenster}. Höchstens ${triage.bankMax} Darlehen lassen sich kostenpflichtig strecken.</p></div>` +
+      `<dl class="turnaround-kpis">` +
+        `<div><dt>Objektverbund</dt><dd class="${triage.portfolioCashflow >= 0 ? 'plus-text' : 'minus-text'}">${fmtEURSigniert(Math.round(triage.portfolioCashflow))}/Mon.</dd></div>` +
+        `<div><dt>Haushalt danach</dt><dd class="${haushalt >= 0 ? 'plus-text' : 'minus-text'}">${fmtEURSigniert(Math.round(haushalt))}/Mon.</dd></div>` +
+        `<div><dt>Arbeitslast</dt><dd>${triage.arbeitslast} h/Mon.</dd></div>` +
+        `<div><dt>Banktermine</dt><dd>${triage.bankVerbraucht}/${triage.bankMax}</dd></div>` +
+      `</dl>` +
+      `<div class="turnaround-ziele">` +
+        `<label><span>Zwischenziel: +${fmtEUR(zielPlus)}/Monat</span><meter min="0" max="${zielPlus}" value="${verbesserungWert}">${verbesserungWert}</meter><b>${fmtEURSigniert(Math.round(triage.verbesserung))}</b></label>` +
+        `<label><span>Objektrücklagen: ein Planjahr</span><meter min="0" max="${Math.max(1,triage.ruecklageZiel)}" value="${reserveWert}">${reserveWert}</meter><b>${fmtEUR(Math.round(triage.ruecklage))}</b></label>` +
+      `</div>` +
+    `</section>` +
+    `<section class="turnaround-linien" aria-label="Stabilisierungslinien">${linien.map((linie) =>
+      `<article><span class="eyebrow">${linie.dauer ? `${linie.dauer} Monate` : 'sofort möglich'}</span><h4>${linie.titel}</h4><p>${linie.text}</p>` +
+      `<output>Cashflow-Wirkung bis zu +${fmtEUR(Math.round(linie.wirkung))}/Monat</output>` +
+      `<small>${linie.id === 'halten'
+        ? `${fmtEUR(Math.round(linie.kosten))} Gebühren heute.`
+        : linie.nettoerloes < 0
+          ? `Voraussichtlich negativer Nettoerlös: ${fmtEUR(Math.round(linie.nettoerloes))}.`
+          : `Geschätzter Nettoerlös ${fmtEUR(Math.round(linie.nettoerloes))}.`} ${linie.folge}</small>` +
+      (linie.ziel ? `<button type="button" data-triage-objekt="${linie.ziel}">Objekt prüfen</button>` : '') +
+      `</article>`).join('')}</section>` +
+    `<div class="turnaround-tabelle-wrap"><table class="turnaround-tabelle"><thead><tr><th>Priorität</th><th>Cashflow</th><th>Risiko</th><th>LTV / Bindung</th><th>Eigenkapital</th><th>Arbeit</th><th>Kurzfristige Chancen</th></tr></thead><tbody>` +
+    triage.objekte.map((o, index) => `<tr><th><button type="button" data-triage-objekt="${o.objekt.listingId}">${index + 1}. ${o.objekt.titel}</button></th>` +
+      `<td class="${o.cashflow >= 0 ? 'plus-text' : 'minus-text'}">${fmtEURSigniert(Math.round(o.cashflow))}</td>` +
+      `<td><span class="badge risiko-${o.risiko}">${o.risiko}</span></td>` +
+      `<td>${Math.round(o.ltv * 100)} % · ${o.bindung} Mon.</td>` +
+      `<td>${fmtEUR(Math.round(o.eigenkapital))}<small>Exit: ${fmtEUR(Math.round(o.verkauf.nettoerloes))}</small></td>` +
+      `<td>${o.arbeitslast} h/Mon.</td><td>${o.chancen.length ? o.chancen.join('<br>') : 'nur halten/verkaufen'}</td></tr>`).join('') +
+    `</tbody></table></div>`;
+  ziel.querySelectorAll('[data-triage-objekt]').forEach((button) => {
+    button.addEventListener('click', () => onObjekt?.(button.dataset.triageObjekt));
   });
 }
 
@@ -338,6 +400,7 @@ function renderQuartalsbericht(state) {
   };
   const vorher = state.historie.findLast((h) => h.monat <= seitMonat) || state.historie[0] || aktuell;
   const ereignisse = (state.log || []).filter((e) => e.monat > seitMonat).slice(-3).reverse();
+  const wirkungen = (state.entscheidungsHistorie || []).filter((e) => e.monat > seitMonat);
   const empfehlung = naechsterZug(state);
   document.getElementById('quartalsbericht-zeitraum').textContent = state.monat === 0 ? 'Startlage' : `letzte ${Math.min(3, state.monat)} Monate`;
   ziel.innerHTML =
@@ -346,8 +409,9 @@ function renderQuartalsbericht(state) {
     `<div><dt>ETF-Benchmark brutto</dt><dd>${fmtEURSigniert((aktuell.etf ?? state.etfVergleich.wert) - (vorher.etf ?? 0))}</dd></div>` +
     `<div><dt>Tagesgeld</dt><dd>${fmtEURSigniert((aktuell.cash ?? state.cash) - (vorher.cash ?? 0))}</dd></div></dl>` +
     `<div class="quartals-rueckblick"><h3>Was passiert ist</h3>` +
+    (wirkungen.length ? `<p class="quartals-wirkung"><b>${wirkungen.length} bewusste Wirkung${wirkungen.length === 1 ? '' : 'en'}:</b> ${wirkungen.at(-1).text}</p>` : '') +
     (ereignisse.length ? `<ul>${ereignisse.map((e) => `<li><span class="badge">${logLabel(logTyp(e.text))}</span>${e.text}</li>`).join('')}</ul>` : `<p class="muted">Noch keine Monatsbewegung – die Startlage steht.</p>`) +
-    `</div><div class="quartals-naechster"><span class="eyebrow">Empfehlung</span><h3>${empfehlung.titel}</h3><p>${empfehlung.text}</p>` +
+    `</div><div class="quartals-naechster"><span class="eyebrow">${empfehlung.phase || 'Empfehlung'}</span><h3>${empfehlung.titel}</h3><p>${empfehlung.text}</p>` +
     `<button type="button" id="quartal-cta" class="primaer">${empfehlung.button}</button></div>`;
   document.getElementById('quartal-cta').addEventListener('click', empfehlung.aktion);
 }
@@ -360,6 +424,10 @@ function naechsterZug(state) {
     const aktionen = {
       finanzen: () => document.getElementById('nav-finanzen').click(),
       objekt: () => onObjekt?.(empfehlung.ziel),
+      expose: () => onExpose ? onExpose(empfehlung.ziel) : document.getElementById('nav-marktplatz').click(),
+      marktplatz: () => document.getElementById('nav-marktplatz').click(),
+      portfolio: () => setzeZentraleTab('objekte'),
+      haushalt: () => setzeZentraleTab('haushalt'),
     };
     return { ...empfehlung, aktion: aktionen[empfehlung.typ] };
   }

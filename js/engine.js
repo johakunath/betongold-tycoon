@@ -2,16 +2,18 @@
 // Segment-/Zins-Drift, Feed-Lifecycle, ETF-Benchmark. Formeln in
 // ECONOMY_MODEL.md. Kein DOM-Zugriff (Node-testbar). Ab Phase 3: Event-Rolls.
 
-import { rngNormalStrom } from './state.js?v=36';
-import { tickMarkt, fairerWert } from './market.js?v=36';
-import { tickBasiszins, tickObjekt } from './finance.js?v=36';
-import { rolleEvent } from './events.js?v=36';
-import { tickSteuer } from './tax.js?v=36';
-import { tickVerkaeufe } from './verkauf.js?v=36';
-import { wendeAdminPendingAn } from './admin.js?v=36';
-import { hatWartemoment, verwerfeWartemomente } from './signals.js?v=36';
-import { aktienDepotWert, tickAktienmarkt } from './aktien.js?v=36';
-import { verbucheKapitalertrag } from './kapitalsteuer.js?v=36';
+import { rngNormalStrom } from './state.js?v=41';
+import { tickMarkt, fairerWert } from './market.js?v=41';
+import { tickBasiszins, tickObjekt } from './finance.js?v=41';
+import { rolleEvent } from './events.js?v=41';
+import { tickSteuer } from './tax.js?v=41';
+import { tickVerkaeufe } from './verkauf.js?v=41';
+import { wendeAdminPendingAn } from './admin.js?v=41';
+import { hatWartemoment, verwerfeWartemomente } from './signals.js?v=41';
+import { aktienDepotWert, tickAktienmarkt } from './aktien.js?v=41';
+import { verbucheKapitalertrag } from './kapitalsteuer.js?v=41';
+import { arbeitsmodell, aktualisiereLebensphasen, zeitbudgetMonat } from './life.js?v=41';
+import { tickObjektArcs } from './arcs.js?v=41';
 
 const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
 
@@ -122,7 +124,8 @@ export function monatsWerte(state) {
   const erwerbsEinkommen = erwerbsEinkommenPerson1 + erwerbsEinkommenPerson2;
   const imRuhestand = istImRuhestand(state);
   const rentenFaktor = imRuhestand ? h.rentenNettoFaktor : 1;
-  const einkommenPerson1 = erwerbsEinkommenPerson1 * rentenFaktor;
+  const arbeit = arbeitsmodell(state);
+  const einkommenPerson1 = erwerbsEinkommenPerson1 * rentenFaktor + arbeit.einkommenDeltaMonat;
   const einkommenPerson2 = erwerbsEinkommenPerson2 * rentenFaktor;
   const einkommen = einkommenPerson1 + einkommenPerson2;
   const mieteVergleich = h.miete * Math.pow(1 + h.mietWachstum, jahre);
@@ -160,7 +163,7 @@ export function monatsWerte(state) {
   // während Kredit und Eigentümerkosten nur beim Spieler landen.
   const etfSparrate = gesamteinkommen - mieteVergleich - lebenshaltung - kinder;
   return {
-    einkommen, einkommenPerson1, einkommenPerson2,
+    einkommen, einkommenPerson1, einkommenPerson2, arbeitsmodellDelta: arbeit.einkommenDeltaMonat,
     erwerbsEinkommen, erwerbsEinkommenPerson1, erwerbsEinkommenPerson2,
     kindergeld: kindergeldGesamt, gesamteinkommen,
     elternAlter, einkommensAltersFaktor, lebenshaltungAltersFaktor, reisenAltersFaktor, autoAltersFaktor,
@@ -192,14 +195,14 @@ export function zeitVerbrauch(state) {
   const bw = state.config.bewirtschaftung;
   let h = 0;
   for (const o of state.portfolio) {
-    if (o.renovierung) h += state.config.renovierung.zeitProRenovierung;
+    if (o.renovierung) h += state.config.renovierung.zeitProRenovierung + (o.renovierung.eigenleistung?.zeitProMonat || 0);
     else if (!o.hausverwaltung) h += bw.zeitProObjekt;
     if (o.vermietet) {
       const modell = state.config.mieter.vermietungsmodelle?.[o.vermietungsart || (o.moebliert ? 'moebliert' : 'regulaer')];
       h += (modell?.zeitProMonat || 0) * (o.hausverwaltung ? .35 : 1);
     }
   }
-  return h;
+  return h + arbeitsmodell(state).zeitBelastungMonat;
 }
 
 // Monatliche ETF-Rendite: lognormal um die erwartete Drift, moduliert durch
@@ -225,6 +228,7 @@ export function tick(state) {
       text: `Szenario angepasst: ${adminAenderungen} Admin-Wert${adminAenderungen === 1 ? '' : 'e'} gelten ab diesem Monat.`,
     });
   }
+  aktualisiereLebensphasen(state);
 
   const einkommensSprung = (state.config.haushalt.einkommensSpruenge || [])
     .find((sprung) => sprung.abMonat === state.monat);
@@ -300,13 +304,13 @@ export function tick(state) {
   }
 
   // Zeitbudget monatlich frisch; Überzug erzeugt Familien-Stress (§19).
-  state.zeitbudget.verfuegbar = state.config.budget.zeitProMonat;
+  state.zeitbudget.verfuegbar = zeitbudgetMonat(state);
   state.zeitbudget.verbraucht = zeitVerbrauch(state);
   const ueberzug = Math.max(0, state.zeitbudget.verbraucht - state.zeitbudget.verfuegbar);
 
   // Familienzufriedenheit: Drift zu Neutral, minus Zeitstress und Dispo-Druck.
   const f = state.config.familie;
-  const familieZiel = f.neutral + (state.eigenheim ? state.config.eigenheim.familieNeutralBonus : 0);
+  const familieZiel = f.neutral + (state.eigenheim ? state.config.eigenheim.familieNeutralBonus : 0) + arbeitsmodell(state).familieZielDelta;
   let fz = state.familienzufriedenheit + (familieZiel - state.familienzufriedenheit) * f.driftProMonat;
   fz -= ueberzug * f.proZeitUeberzug;
   if (state.cash < 0) fz -= f.dispoMalus;
@@ -346,6 +350,7 @@ export function tick(state) {
       text: `Lebensende mit ${Math.floor(alterGenau(state))} Jahren: Zufall und langfristiger Stress bestimmten den Zeitpunkt in diesem Spielmodell.`,
     });
   } else {
+    tickObjektArcs(state);
     // Dilemma-Event-Roll an fixer RNG-Position (§18); setzt ggf. state.aktivesEvent.
     rolleEvent(state);
   }

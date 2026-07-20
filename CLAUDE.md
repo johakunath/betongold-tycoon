@@ -31,8 +31,25 @@ Reloads erhalten. Cormorant Garamond und Alegreya Sans liegen lokal vor;
 Tagesgeld und ETF werden über einen bidirektionalen Slider umgeschichtet. Die
 Finanzseite zeigt Konten, Umschichtung und Vermögensmix in einer gemeinsamen
 Desktop-Hierarchie; die Stadtbühne ergänzt leere Zustände um deaktivierte,
-ehrlich als künftig markierte Katalogvorschauen.
-Aktuell: `SAVE_VERSION = 15`, `UI_VERSION = 36`.
+ehrlich als künftig markierte Katalogvorschauen. B0 bewertet in der
+Finanzierung nun konkrete Bewirtschaftungspfade nach Steuer und sichert den
+Abnahmekorridor mit einer reproduzierbaren 40-Listing-Matrix. Arbeitspaket E
+verbindet reale Angebote jetzt zu Anlass → drei Prüfungen → Entscheidung →
+Wirkung; Beobachten und ein guter Weggang sind gespeicherte, RNG-neutrale
+Erfolge. Stadt und Quartalsbericht leiten daraus denselben Monatszug ab.
+Arbeitspaket F macht den hoch verschuldeten Vielbestand zu einem echten
+12-Monats-Turnaround: priorisierte Objekttriage, zwei kostenbehaftete
+Stabilisierungslinien, höchstens drei Banktermine und sichtbare
+Restschuld-/Exitfolgen ersetzen passiven Pufferabbau. Arbeitspakete G und H
+ergänzen freiwillige, aus echtem State abgeleitete 3–8-Jahres-Ziele,
+mehrmonatige Objektgeschichten sowie drei für jeweils zwölf Monate gebundene
+Arbeitsmodelle. Lebensphasen werden rechtzeitig angekündigt; Eigenleistung
+tauscht begrenzte Kostenersparnis gegen Zeit und zusätzliches Risiko. UI v41
+zieht den B1-Vereinfachungspass: Das Exposé folgt der Handlungskette
+Anlass → Prüfung → Entscheidung auch im Layout, jede Zahl und jede Aktion hat
+genau eine Stelle, das Meldungsarchiv genau eine Quelle, und breite Viewports
+bekommen eine Lesebreite statt Vollbildstreckung. Aktuell:
+`SAVE_VERSION = 19`, `UI_VERSION = 41`.
 
 Unter Windows startet `BETONGOLD_STARTEN.cmd` das unveränderte statische Spiel
 per Doppelklick über einen unsichtbaren Loopback-HTTP-Server. `file://` bleibt
@@ -81,6 +98,7 @@ protokolliert.
 
 ```text
 node test/simtest.mjs
+node test/b0-economy.mjs                     # bei Objektökonomie/Finanzierung
 node test/chat-contracts.mjs                  # querschnittliche Owner-/Chat-Verträge
 node test/family-market.mjs --seeds=300       # bei Eigenheim/Objektarten
 node test/balance.mjs --seeds=300 --check   # bei Ökonomie/Events/Strategien

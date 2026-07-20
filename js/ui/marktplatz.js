@@ -1,10 +1,11 @@
 // marktplatz.js — Screen 2: Exposé-Feed mit Filtern, Favoriten, Vergleich.
 
-import { sichtbareListings, vergleichsmiete, fairerWert } from '../market.js?v=36';
-import { getListing } from '../content.js?v=36';
-import { bildHTML, cutawayHTML } from '../iso.js?v=36';
-import { fmtEUR, fmtEURKompakt } from './util.js?v=36';
-import { eigenheimEignung, fixkostenAufschluesselung, instandhaltungMonat, objektartConfig } from '../immobilie.js?v=36';
+import { sichtbareListings, vergleichsmiete, fairerWert } from '../market.js?v=41';
+import { getListing } from '../content.js?v=41';
+import { bildHTML, cutawayHTML } from '../iso.js?v=41';
+import { fmtEUR, fmtEURKompakt } from './util.js?v=41';
+import { eigenheimEignung, fixkostenAufschluesselung, instandhaltungMonat, objektartConfig } from '../immobilie.js?v=41';
+import { dealEntscheidung, pruefstand } from '../gameplay.js?v=41';
 
 let ctx = null;
 let filter = { segment: 'alle', mietstatus: 'alle', nurFavoriten: false, sortierung: 'neu' };
@@ -69,6 +70,8 @@ function karte(state, { listing: l, eintrag, preis, monateAmMarkt }) {
   const bruttorendite = l.mietstatus.vermietet ? ((l.mietstatus.kaltmiete * 12) / preis) * 100 : null;
   const reserviert = eintrag.status === 'reserviert';
   const eignung = eigenheimEignung(state, l);
+  const entscheidung = dealEntscheidung(state, l.id);
+  const stand = pruefstand(state, l.id);
 
   return (
     `<article class="markt-karte ${reserviert ? 'reserviert' : ''}" data-id="${l.id}">` +
@@ -91,13 +94,16 @@ function karte(state, { listing: l, eintrag, preis, monateAmMarkt }) {
     (monateAmMarkt === 0 ? '<span class="badge neu">NEU</span>' : `<span class="badge">seit ${monateAmMarkt} Mon.</span>`) +
     (interessenten > 0 ? `<span class="badge orange">${interessenten} Interessent${interessenten > 1 ? 'en' : ''}</span>` : '') +
     (reserviert ? '<span class="badge blau">Gebot angenommen</span>' : '') +
+    (entscheidung?.typ === 'beobachtet' ? '<span class="badge blau">bewusst beobachten</span>' : '') +
+    (entscheidung?.typ === 'verworfen' ? '<span class="badge">bewusst verworfen</span>' : '') +
+    (stand.schritte ? `<span class="badge">Prüfung ${stand.schritte}/3</span>` : '') +
     (eignung.geeignet ? `<span class="badge familie">Familienheim ${eignung.score}/5</span>` : '') +
     `<span class="badge mietrecht">${state.config.mietrecht?.[seg.stadt]?.kurz || 'Standard-Mietrecht'}</span>` +
     `</div>` +
     `<blockquote class="markt-zitat">„${l.maklerText}“</blockquote>` +
     `</div><div class="markt-deal"><div class="karte-preis">${fmtEUR(Math.round(preis))}` +
     `<small>${bruttorendite === null ? `${fmtEURKompakt(preis / l.flaeche).replace(' €', ' €/m²')}` : `${bruttorendite.toFixed(1)} % brutto`}</small></div>` +
-    `<div class="markt-aktionen"><button type="button" class="primaer" data-markt-aktion="gebot" data-id="${l.id}">Gebot abgeben</button></div>` +
+    `<div class="markt-aktionen"><button type="button" class="primaer" data-markt-aktion="${entscheidung?.typ === 'verworfen' ? 'neu' : 'gebot'}" data-id="${l.id}">${entscheidung?.typ === 'verworfen' ? 'Entscheidung ansehen' : stand.schritte ? 'Prüfung fortsetzen' : 'Prüfen & entscheiden'}</button></div>` +
     `<label class="vergleich-check"><input type="checkbox" data-vergleich="${l.id}" ` +
     `${vergleich.has(l.id) ? 'checked' : ''}> vergleichen</label></div></article>`
   );

@@ -7,8 +7,8 @@
     "gewicht": 1.2,
     "bedingung": { "vermietet": true, "zustandMax": 3, "einmalig": false, "cooldownMonate": 30 },
     "optionen": [
-      { "text": "Auf richtiges Lüften verweisen", "effekt": { "familie": -1, "mieterKonflikt": 0.15 }, "folge": "Kostet nichts, aber die Mieterin fühlt sich abgewimmelt." },
-      { "text": "Fachbetrieb beauftragen (ca. 1.800 €)", "effekt": { "cash": -1800, "zustand": 1, "mieterZufriedenheit": 0.15 }, "folge": "Sauber saniert, die Mieterin ist erleichtert." }
+      { "text": "Auf richtiges Lüften verweisen", "effekt": { "familie": -1, "mieterKonflikt": 0.15 }, "arc": { "id": "schimmel-beobachtung", "titel": "Schimmelursache klären", "nachMonaten": 3, "folgeEventId": "arc-schimmel-pruefung", "entscheidung": "Lüften" }, "folge": "Kostet nichts, aber die Ursache kommt in drei Monaten erneut auf den Tisch." },
+      { "text": "Fachbetrieb beauftragen (ca. 1.800 €)", "effekt": { "cash": -1800, "zustand": 1, "mieterZufriedenheit": 0.15 }, "arc": { "id": "schimmel-nachsorge", "titel": "Schimmelsanierung nachhalten", "nachMonaten": 6, "folgeEventId": "arc-schimmel-nachsorge", "entscheidung": "Fachbetrieb" }, "folge": "Sauber saniert; in sechs Monaten wird gemeinsam nachkontrolliert." }
     ]
   },
   {
@@ -115,8 +115,8 @@
     "gewicht": 0.8,
     "bedingung": { "vermietet": true, "einmalig": false, "cooldownMonate": 40 },
     "optionen": [
-      { "text": "Vermitteln und Hausordnung schärfen", "effekt": { "familie": -1, "mieterZufriedenheit": 0.2 }, "folge": "Etwas Aufwand, aber deine Mieterin bleibt." },
-      { "text": "Raushalten, ist nicht dein Problem", "effekt": { "mieterKonflikt": 0.3 }, "folge": "Bequem – aber deine Mieterin fühlt sich alleingelassen." }
+      { "text": "Vermitteln und Hausordnung schärfen", "effekt": { "familie": -1, "mieterZufriedenheit": 0.2 }, "arc": { "id": "nachbarschaft-vermittlung", "titel": "Hausfrieden stabilisieren", "nachMonaten": 6, "folgeEventId": "arc-nachbarschaft-ruhig", "entscheidung": "Vermittlung" }, "folge": "Etwas Aufwand; in sechs Monaten zeigt sich, ob die Vereinbarung trägt." },
+      { "text": "Raushalten, ist nicht dein Problem", "effekt": { "mieterKonflikt": 0.3 }, "arc": { "id": "nachbarschaft-eskalation", "titel": "Lärmstreit beobachten", "nachMonaten": 3, "folgeEventId": "arc-nachbarschaft-eskalation", "entscheidung": "Raushalten" }, "folge": "Bequem – aber der Konflikt kann in drei Monaten eskalieren." }
     ]
   },
   {
@@ -211,7 +211,7 @@
     "gewicht": 0.6,
     "bedingung": { "brauchtObjekt": true, "einmalig": true },
     "optionen": [
-      { "text": "Beratung und Unterlagencheck buchen (600 €)", "effekt": { "cash": -600, "familie": 1 }, "folge": "Ihr habt den Ablauf geklärt; der bestehende Kredit bleibt unverändert." },
+      { "text": "Beratung und Unterlagencheck buchen (600 €)", "effekt": { "cash": -600, "familie": 1 }, "arc": { "id": "zinsplanung", "titel": "Anschlussfinanzierung vorbereiten", "nachMonaten": 12, "folgeEventId": "arc-zinsplanung", "entscheidung": "Beratung" }, "folge": "Der Kredit bleibt unverändert; in zwölf Monaten folgt eine konkrete Reserveentscheidung." },
       { "text": "Noch nicht prüfen", "effekt": {}, "folge": "Keine Gebühr und keine Änderung am Kredit." }
     ]
   },
@@ -297,6 +297,66 @@
     "optionen": [
       { "text": "Unterlagen reservieren und prüfen (500 €)", "effekt": { "cash": -500, "familie": 2 }, "folge": "Ihr prüft die Gelegenheit kontrolliert; daraus entsteht nicht automatisch ein neues Listing." },
       { "text": "Kein zusätzliches Klumpenrisiko", "effekt": {}, "folge": "Diszipliniert gestreut bleibt gestreut." }
+    ]
+  },
+  {
+    "id": "arc-schimmel-pruefung",
+    "titel": "Schimmel: Ursache weiter sichtbar",
+    "text": "Drei Monate nach dem Lüftungshinweis sind erneut Flecken zu sehen. Jetzt ist klar: Nur Verhalten zu vermuten reicht nicht.",
+    "kategorie": "objekt",
+    "gewicht": 0,
+    "bedingung": { "nurArc": true },
+    "optionen": [
+      { "text": "Baugutachten und Sanierung (2.700 €)", "effekt": { "cash": -2700, "zustand": 1, "mieterZufriedenheit": 0.25 }, "folge": "Die Ursache wird beseitigt; die Verzögerung war teurer als die frühe Sanierung." },
+      { "text": "Nur oberflächlich behandeln (500 €)", "effekt": { "cash": -500, "mieterKonflikt": 0.35, "zustand": -1 }, "folge": "Kurzfristig günstiger, aber Zustand und Mietverhältnis leiden." }
+    ]
+  },
+  {
+    "id": "arc-schimmel-nachsorge",
+    "titel": "Schimmel: Nachkontrolle",
+    "text": "Die Fachsanierung hält. Die Mieterin bittet noch um eine gemeinsame Feuchtemessung und klare Lüftungsinformation.",
+    "kategorie": "mieter",
+    "gewicht": 0,
+    "bedingung": { "nurArc": true },
+    "optionen": [
+      { "text": "Nachkontrolle dokumentieren (350 €)", "effekt": { "cash": -350, "mieterZufriedenheit": 0.15 }, "folge": "Sauber abgeschlossen und für beide Seiten dokumentiert." },
+      { "text": "Ohne weiteren Termin abschließen", "effekt": {}, "folge": "Die Sanierung bleibt erfolgreich, aber ohne zusätzliche Beziehungspflege." }
+    ]
+  },
+  {
+    "id": "arc-nachbarschaft-ruhig",
+    "titel": "Hausordnung trägt",
+    "text": "Die Vermittlung hat den Lärm reduziert. Für dauerhaften Frieden schlägt die Verwaltung eine moderierte Hausrunde vor.",
+    "kategorie": "mieter",
+    "gewicht": 0,
+    "bedingung": { "nurArc": true },
+    "optionen": [
+      { "text": "Moderierte Hausrunde mittragen (600 €)", "effekt": { "cash": -600, "mieterZufriedenheit": 0.2, "familie": -1 }, "folge": "Mehr Aufwand, dafür stabilisiert sich das Mietverhältnis." },
+      { "text": "Beim erreichten Stand belassen", "effekt": {}, "folge": "Der akute Konflikt ist beendet; weitere Kosten entstehen nicht." }
+    ]
+  },
+  {
+    "id": "arc-nachbarschaft-eskalation",
+    "titel": "Lärmstreit eskaliert",
+    "text": "Der Konflikt ist lauter geworden. Deine Mieterin verlangt jetzt eine klare Reaktion oder kündigt.",
+    "kategorie": "mieter",
+    "gewicht": 0,
+    "bedingung": { "nurArc": true },
+    "optionen": [
+      { "text": "Mediation und Rechtsberatung (1.200 €)", "effekt": { "cash": -1200, "mieterZufriedenheit": 0.25, "familie": -2 }, "folge": "Teuer und anstrengend, aber das Mietverhältnis bleibt bestehen." },
+      { "text": "Kündigung akzeptieren", "effekt": { "auszug": true }, "folge": "Der Streit endet für die Mieterin; das Objekt fällt in Leerstand." }
+    ]
+  },
+  {
+    "id": "arc-zinsplanung",
+    "titel": "Anschlussfinanzierung: Reserveentscheidung",
+    "text": "Ein Jahr nach dem Unterlagencheck ist die Restschuld klarer. Ihr könnt jetzt sondertilgen oder Liquidität für die spätere Anschlussrate halten.",
+    "kategorie": "haushalt",
+    "gewicht": 0,
+    "bedingung": { "nurArc": true },
+    "optionen": [
+      { "text": "5.000 € sondertilgen", "effekt": { "sondertilgung": 5000 }, "folge": "Tagesgeld und Restschuld sinken um denselben Betrag; die laufende Rate bleibt bis zur Anschlussfinanzierung gleich." },
+      { "text": "Liquidität als Zinsreserve behalten", "effekt": { "familie": 1 }, "folge": "Die Restschuld bleibt, aber der Puffer steht für die spätere Rate bereit." }
     ]
   }
 ]

@@ -1,10 +1,11 @@
 // tenants.js — Mieterwahl, Neuvermietung, monatliches Mieterverhalten,
 // Mieterhöhung. Formeln: ECONOMY_MODEL §15–16. DOM-frei, RNG nur über state.js.
 
-import { rngFloat, rngNormal } from './state.js?v=36';
-import { vergleichsmiete } from './market.js?v=36';
-import { alleTenants, getTenant } from './content.js?v=36';
-import { meldeWartemoment } from './signals.js?v=36';
+import { rngFloat, rngNormal } from './state.js?v=41';
+import { vergleichsmiete } from './market.js?v=41';
+import { alleTenants, getTenant } from './content.js?v=41';
+import { meldeWartemoment } from './signals.js?v=41';
+import { protokolliereWirkung } from './gameplay.js?v=41';
 
 // Erzielbare Marktmiete (kalt) für ein Objekt: Vergleichsmiete × Zustandsfaktor.
 export function marktmiete(state, objekt) {
@@ -113,6 +114,13 @@ export function waehleBewerber(state, objekt, tenantId) {
     monat: state.monat,
     text: `${objekt.titel}: ${t.name} eingezogen (${suche.miete.toLocaleString('de-DE')} € kalt).`,
   });
+  protokolliereWirkung(state, {
+    typ: 'vermietet',
+    titel: 'Vermietung abgeschlossen',
+    text: `${objekt.titel}: Leerstand → ${t.name}, ${suche.miete.toLocaleString('de-DE')} € Kaltmiete pro Monat.`,
+    ziel: objekt.listingId,
+    route: 'objekt',
+  });
 }
 
 // --- Mieterhöhung (Kappungsgrenze abstrahiert) ------------------------------
@@ -155,6 +163,13 @@ export function erhoeheMiete(state, objekt) {
   state.log.push({
     monat: state.monat,
     text: `${objekt.titel}: Miete erhöht ${Math.round(alt).toLocaleString('de-DE')} → ${neu.toLocaleString('de-DE')} €.`,
+  });
+  protokolliereWirkung(state, {
+    typ: 'mietpruefung',
+    titel: 'Mietprüfung umgesetzt',
+    text: `${objekt.titel}: Kaltmiete ${Math.round(alt).toLocaleString('de-DE')} → ${neu.toLocaleString('de-DE')} €/Monat; Objekt-Cashflow verbessert sich um ${Math.round(neu - alt).toLocaleString('de-DE')} €/Monat, Mieterzufriedenheit sinkt.`,
+    ziel: objekt.listingId,
+    route: 'objekt',
   });
   return true;
 }
