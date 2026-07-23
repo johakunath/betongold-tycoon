@@ -222,10 +222,11 @@ der direkteste Interaktionsbenchmark.
 
 ## K. Archiviertes Konzept — Einzelaktien-Sandbox
 
-**Status 17.07.2026:** vom Owner aus dem Kernspiel und dem aktuellen Zielbild
-entfernt. ETF-Kauf, ETF-Verkauf, Sparplan und ETF-Vergleichslinie bleiben. Bei
-der nächsten Implementierung des Claude-Designs soll kein Einzelaktien-Screen
-mehr übernommen werden; die spätere Codebereinigung steht in `ROADMAP.md`.
+**Status 23.07.2026:** vollständig entfernt. Seit UI v32/v36 war die Sandbox aus
+der sichtbaren UI verschwunden; mit Save v21 (23.07.2026) wurden auch Engine,
+State, Save-Vertrag, `data/stocks.json`, `config.aktien` und die Tests entfernt
+(Roadmap-Punkt B2 abgeschlossen). ETF-Kauf, ETF-Verkauf, Sparplan und
+ETF-Vergleichslinie bleiben. Eine Wiederaufnahme startet auf grüner Wiese.
 
 Der Entwurf wird nur konzeptionell bewahrt, damit er bei Bedarf neu und sauber
 gebaut werden kann. Sein ursprüngliches Lernziel war der Unterschied zwischen

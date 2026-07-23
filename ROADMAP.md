@@ -31,13 +31,11 @@ die verbindliche Basis; ein weiterer Vollumbau ist nicht geplant.
 
 Aktuelle Reihenfolge:
 
-1. **P1 — Einzelaktien-Code aus dem Kernstate entfernen (B2):** Die UI ist
-   scopekonform; Engine-, Save- und Testreste folgen als eigener Fachpass.
-2. **P2 — Eventdichte vor dem ersten Kauf (E2):** `eventChanceBasis` liegt bei
-   0,035/Monat und skaliert erst mit Portfolio-Exposure. Ohne Objekt passiert
-   damit rund 60 Monate lang fast nichts. Bewusst nicht im UI-Pass geändert,
-   weil es RNG-Verbrauch und Balance verschiebt; eigener Block mit vollen
-   300-Seed-Gates oder alternativ ein paar gescriptete Anfangsmomente.
+1. **P1 — Einzelaktien-Code aus dem Kernstate entfernen (B2): erledigt
+   (23.07.2026, Save v21).** Siehe `DONE.md`.
+2. **P2 — Eventdichte vor dem ersten Kauf (E2): erledigt (23.07.2026, UI v52).**
+   Drei terminierte, RNG- und ökonomisch neutrale Auftaktmomente (Monate 2/5/9)
+   statt einer Basiswert-Anhebung. Siehe `DONE.md`.
 3. **P3 — Kapitel/Kampagnenrhythmus (I):** erst nach einem abwechslungsreichen
    und befriedigenden Monatskern.
 
@@ -89,15 +87,13 @@ SVG-/WebP-Doppelung und die generischen Messbalken.
 - Keine kollidierenden Karten oder Zeilen, keine abgeschnittene Hauptaktion und
   höchstens eine primäre Scrollrichtung pro Screen.
 
-### B2. Verbliebenen Einzelaktien-Code aus dem Kern entfernen
+### B2. Verbliebenen Einzelaktien-Code aus dem Kern entfernen — erledigt
 
-- Einzelaktien-Screens und -Navigation sind seit UI v32 entfernt.
-- Orders, Kurspfade, Depotstate, Content-Fetches und aktienspezifische Tests in
-  einem getrennten State-/Save-Pass entfernen.
-- ETF-Depot, Sparplan, Kauf/Verkauf, Opportunitätskosten und vereinfachte
-  Kapitalertragsteuer vollständig erhalten.
-- Das alte Konzept bleibt nur in `IDEEN.md` als möglicher, klar abtrennbarer
-  Value-Investing-Ableger archiviert.
+Am 23.07.2026 mit Save v21 abgeschlossen (`DONE.md`). `js/aktien.js` und
+`data/stocks.json` gelöscht; Depotstate, `aktienRngState`, Kurspfad, Dividenden,
+Content-Loader und aktienspezifische Tests entfernt. ETF-Depot, Sparplan,
+Tagesgeld und der gemeinsame Kapitalsteuer-Freibetrag bleiben erhalten. Das alte
+Konzept bleibt nur in `IDEEN.md` als abtrennbarer Value-Investing-Ableger.
 
 ## Arbeitspaket I — Kampagnenrhythmus und Kapitel (P3)
 

@@ -33,7 +33,7 @@ zielAlter        = clamp(basisAlter − stressMalus, minAlter, maxAlter)
 ```
 
 `lebensZufall` wird einmalig aus `lebensRngState` gezogen. Der separate Strom
-verändert keine Markt-, ETF-, Aktien- oder Eventfolge. Default: 90–100 Jahre,
+verändert keine Markt-, ETF- oder Eventfolge. Default: 90–100 Jahre,
 höchstens vier Jahre Stressmalus und nie ein Ende vor 90.
 
 ## 2. Haushalt (Phase 1)
@@ -228,8 +228,8 @@ verfügbare Liquidität nach realisierter Steuer.
 
 ### 4a. Gemeinsamer Kapitalsteuervertrag
 
-Tagesgeldzinsen, realisierte ETF-Gewinne, Aktiengewinne nach Verlusttopf und
-Aktien-Dividenden teilen sich einen gespeicherten Jahresfreibetrag:
+Tagesgeldzinsen und realisierte ETF-Gewinne teilen sich einen gespeicherten
+Jahresfreibetrag:
 
 ```
 pauschbetrag = personen · 1.000 € pro Kalenderjahr
@@ -240,58 +240,19 @@ steuer       = max(0, steuerbasis − freibetrag) · 26,375 %
 
 Familienprofile starten mit zwei Personen und damit 2.000 €, der alleinige
 Handwerker-Azubi mit 1.000 €. Für einen Welt-Aktien-ETF gelten 30 %
-Teilfreistellung; für Tagesgeld und die fiktiven Einzelaktien 0 %. Rechtsanker
+Teilfreistellung; für Tagesgeld 0 %. Rechtsanker
 sind [§ 20 Abs. 9 EStG](https://www.gesetze-im-internet.de/estg/__20.html) und
 [§ 20 InvStG](https://www.gesetze-im-internet.de/invstg_2018/__20.html).
 Kirchensteuer und ETF-Vorabpauschale bleiben ausdrücklich außerhalb des
 Modells. Die Buchung ist eine transparente Spielabstraktion, keine Steuerberatung.
 
-### 4b. Fiktive Einzelaktien-Sandbox
+### 4b. Fiktive Einzelaktien-Sandbox — entfernt (Save v21)
 
-`state.aktienDepot` ist reales Spielervermögen, aber wirtschaftlich und
-technisch strikt vom Welt-ETF und dessen Benchmark getrennt. Es gibt fünf
-fiktive Unternehmen aus `data/stocks.json`; keine Livekurse und keine
-Kaufempfehlung. Gehandelt werden nur ganze Stücke gegen Tagesgeld. Maximal fünf
-verschiedene Positionen sind gleichzeitig erlaubt.
-
-```
-handelswert = stueck · kurs
-orderkosten = min(49,90 €, 4,90 € + 0,15 % · handelswert)
-kaufabfluss = handelswert + orderkosten
-verkaufsgewinn = handelswert − orderkosten − anteiligerEinstand
-steuerbasis = max(0, verkaufsgewinn − vorhandenerVerlusttopf)
-steuer = kapitalsteuer(steuerbasis, 0 % teilfreistellung)
-verkaufszufluss = handelswert − orderkosten − steuer
-```
-
-Der Einstand enthält die Kaufkosten und wird bei Zukäufen gewichtet
-fortgeschrieben. Realisierte Verluste erhöhen einen vereinfachten
-Aktien-Verlusttopf; positive realisierte Gewinne verrechnen ihn zuerst. Danach
-greift derselbe Pauschbetrag wie bei Tagesgeld und ETF. Kirchensteuer bleibt
-Modellgrenze.
-
-Jede Aktie definiert erwartete nominale Kursrendite, Volatilität, Beta und
-Dividendenrendite. Der Monatskurs kombiniert einen gemeinsamen Marktimpuls mit
-einem Unternehmensimpuls. Die Korrelation ist 0,45; Schwierigkeit skaliert die
-Volatilität. Die versteckte Marktphase verändert die Jahresdrift um +0,8 %
-(Boom), 0 % (seitwärts) oder −1,2 % (Crash). Zusätzlich wird pro Aktie und Monat
-mit 0,6 % Wahrscheinlichkeit eines von zwei gewichteten Firmenereignissen
-ausgelöst. Der Kurs hat eine technische Untergrenze von 0,50 €.
-
-```
-sigmaMarkt = volatilitaet · korrelation · beta · schwierigkeitsFaktor / √12
-sigmaFirma = volatilitaet · √(1 − korrelation²) · schwierigkeitsFaktor / √12
-mu = ln(1 + kursRendite + phasenMod) / 12
-r = exp(mu − (sigmaMarkt² + sigmaFirma²)/2
-        + sigmaMarkt · Z_markt + sigmaFirma · Z_firma) − 1
-kursNeu = max(0,50 €, kursAlt · (1+r) · (1+eventEffekt))
-```
-
-Dividenden werden in März, Juni, September und Dezember anteilig auf Basis des
-aktuellen Kurses ausgezahlt und nach verbleibendem Pauschbetrag mit 26,375 %
-besteuert. Nur Netto-Dividenden fließen in Tagesgeld und Monatscashflow. Kursbewegungen und
-Orders selbst sind kein Cashflow. Gebühren und Steuern mindern das
-Nettovermögen genau dann, wenn sie anfallen.
+Die Einzelaktien-Sandbox (`state.aktienDepot`, `state.aktienRngState`,
+`data/stocks.json`, `config.aktien`) wurde am 23.07.2026 vollständig entfernt.
+Der verbleibende Kapitalmarkt besteht aus Tagesgeld und dem Welt-ETF nebst
+Benchmark (§4, §4a). Das Aktienkonzept bleibt nur in `IDEEN.md` als möglicher,
+klar abtrennbarer Value-Investing-Ableger archiviert.
 
 ## 5. Marktphase
 
@@ -304,11 +265,10 @@ in der UI erst bei der Endauswertung aufgedeckt. Ab Phase 2 treibt sie zusätzli
 mulberry32; der allgemeine Spielstrom liegt in `state.rngState`. Der exogene
 ETF-Pfad besitzt zusätzlich `state.etfRngState`, damit Due Diligence,
 Verhandlungen und andere Spieleraktionen die ETF-Renditen desselben Seeds nicht
-verschieben. Einzelaktien besitzen analog `state.aktienRngState`; jeder Monat
-verbraucht unabhängig von gehaltenen Positionen dieselben Markt-, Firmen- und
-Eventziehungen. Deshalb ändern Orders weder spätere Aktienkurse noch ETF oder
-Benchmark. Alle drei Zustände werden gespeichert. Normalziehungen laufen per
-Box-Muller mit fixem Verbrauch (immer 2 Uniforms). **Regel:** Jede neue
+verschieben. `state.lebensRngState` zieht einmalig den Lebenshorizont. Alle
+Zustände werden gespeichert. Normalziehungen laufen per
+Box-Muller mit fixem Verbrauch (immer 2 Uniforms). Terminierte Auftaktmomente
+(§18) verbrauchen bewusst keinen RNG und laufen nach dem Event-Roll. **Regel:** Jede neue
 Zufallsquelle zieht über die State-RNG-Funktionen, nie über `Math.random()`.
 
 ## 7. Segment-Preisindizes (Phase 2)
@@ -523,7 +483,7 @@ keine umlagefähigen Betriebskosten; die zusätzliche Objektrücklage steht im
 Spiel für Sondereigentum und Reparaturschocks und dupliziert nicht die
 umlagefähigen Betriebskosten. Die Hauspauschale bleibt unter dem pauschalen
 36-€/m²-Jahresansatz aus § 13 WoGV.
-Nettovermögen = Cash + echtes ETF-Depot + Aktiendepot + Σ fairerWert(Objekt) − Σ Restschuld
+Nettovermögen = Cash + echtes ETF-Depot + Σ fairerWert(Objekt) − Σ Restschuld
 + Σ Rücklage. Der ETF-Spiegel
 bleibt unverändert (§4): Immobilien-Cashflows und Kaufabflüsse sind interne
 Umschichtung bzw. Anlageertrag, keine externen Zuflüsse.
@@ -697,6 +657,16 @@ Ist das Objekt vorher verkauft, endet die Geschichte ohne Wirkung. Neben den
 üblichen Effekten darf eine Arc-Folge `sondertilgung` verwenden: Betrag sofort
 aus Cash und Restschuld abziehen, laufende Rate nur bei Volltilgung auf null
 setzen. Arc-Auflösung selbst zieht weiterhin keinen Zufall.
+
+**Auftaktmomente (E2).** Weil `eventChanceBasis` ohne Portfolio-Exposure niedrig
+ist und die meisten Events ein Objekt brauchen, wäre der Beginn vor dem ersten
+Kauf sonst ereignisarm. `rolleAuftakt()` setzt daher drei terminierte Momente
+(`kategorie: "auftakt"`, `bedingung.auftaktMonat` 2/5/9), solange `portfolio`
+leer ist und kein Eigenheim besteht. Sie sind aus dem Zufallspool ausgeschlossen
+(`istErfuellbar` lehnt `kategorie === "auftakt"` ab), laufen im Tick **nach**
+`rolleEvent`, ziehen **keinen** seeded RNG und tragen leere Effekte — damit ist
+der gesamte Zufalls- und Ökonomiepfad eines Seeds unverändert (empirisch
+bestätigt: `rngState`/`etfRngState`/`cash` mit und ohne Auftakt identisch).
 
 ## 19. Rücklage, Hausverwaltung, Zeit & Familie (Phase 3)
 

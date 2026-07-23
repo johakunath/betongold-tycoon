@@ -33,7 +33,7 @@ arcs.js      terminierte Objektgeschichten
 finance.js   Kredit/Objekt  bewerber.js     Mieterauswahl
 immobilie.js Objektart/Kosten karte.js      drei getrennte Stadtkarten
 etf.js       Depotbuchung   bildzoom.js     Bild-Lightbox
-aktien.js    Aktienorders/-tick finanzen.js Tagesgeld/ETF/Aktien
+                            finanzen.js     Tagesgeld/ETF
 tenants.js   Mieter         objekt.js       Objekt-/Eigenheim-Nabe
 renovation.js Renovierung   event.js        Dilemma-Modal
 events.js    Dilemmas       verkaufen.js    Verkaufsdialog
@@ -61,9 +61,9 @@ Navigation, Rendering, Autosave, Ticksteuerung und Toasts. Neue Screens werden
 keine Array-Indizes über einen Feed-Rerender hinweg speichern.
 
 **Initialisierungsreihenfolge:** Nach Content-Load und `newGame()`/Import laufen
-`initialisiereMarkt()`, `initialisiereAktienmarkt()` und danach
-`initialisiereStartbestand()`. `starter.js` darf damit stabile Listingdaten und
-faire Startwerte verwenden. Alle drei Schritte sind idempotent. Endgame-
+`initialisiereMarkt()` und danach `initialisiereStartbestand()`. `starter.js`
+darf damit stabile Listingdaten und faire Startwerte verwenden. Beide Schritte
+sind idempotent. Endgame-
 Kontrafaktuale verwenden dieselbe Reihenfolge, damit Sonderstarts dieselbe
 Ausgangsbilanz erhalten.
 
@@ -79,12 +79,10 @@ abgeleitet und nie als unabhängige zweite Wahrheit editiert.
 
 Der allgemeine RNG-Zustand liegt als `uint32` in `state.rngState`. Der
 ETF-Vergleich besitzt mit `state.etfRngState` einen eigenen exogenen Strom;
-Einzelaktien verwenden analog `state.aktienRngState`. `state.lebensRngState`
-zieht einmalig den Basis-Lebenshorizont.
+`state.lebensRngState` zieht einmalig den Basis-Lebenshorizont.
 Dadurch verändern Gutachten, Gebote oder Mieterentscheidungen nicht die
-ETF-Renditen desselben Seeds. Aktienorders verschieben weder ihren eigenen
-Kurspfad noch den ETF. Lebensdauer verschiebt keinen dieser Pfade. Alle vier
-Ströme sind Teil des Saves. Zufälligkeit
+ETF-Renditen desselben Seeds. Lebensdauer verschiebt keinen dieser Pfade. Alle
+drei Ströme sind Teil des Saves. Zufälligkeit
 läuft über die RNG-Funktionen aus `state.js` — niemals über `Math.random()`.
 
 `engine.tick()` hält diese Reihenfolge ein:
@@ -98,16 +96,16 @@ läuft über die RNG-Funktionen aus `state.js` — niemals über `Math.random()`
 4. Mietobjekte in stabiler Portfolio-Reihenfolge ticken.
 5. Eigenheim ticken, danach Steuerkonto/Dezember-Bescheid aktualisieren.
 6. Cash, Tagesgeld/Dispo, echtes ETF-Depot und ETF-Spiegel verbuchen.
-7. Aktienkurse/Firmenereignisse ticken und gegebenenfalls Netto-Dividenden
-   verbuchen.
-8. Zeitbudget einschließlich Arbeit/Eigenleistung und Familienzufriedenheit
+7. Zeitbudget einschließlich Arbeit/Eigenleistung und Familienzufriedenheit
    einschließlich des Arbeitsmodellziels aktualisieren.
-9. `monat++`, dann fällige Immobilienverkäufe abschließen.
-10. Statistik und Monatshistorie schreiben.
-11. Den gespeicherten Lebenshorizont aus Seed und kumuliertem Langzeitstress
+8. `monat++`, dann fällige Immobilienverkäufe abschließen.
+9. Statistik und Monatshistorie schreiben.
+10. Den gespeicherten Lebenshorizont aus Seed und kumuliertem Langzeitstress
     aktualisieren, gegebenenfalls Lebensende setzen; sonst zuerst einen fälligen
-    Objekt-Arc aktivieren und nur ohne fällige Folge den allgemeinen Event-Roll
-    ausführen.
+    Objekt-Arc aktivieren, dann den allgemeinen Event-Roll (`rolleEvent`, feste
+    RNG-Position) und danach `rolleAuftakt` ausführen. `rolleAuftakt` setzt vor
+    dem ersten Kauf terminierte Auftaktmomente (Monate 2/5/9), läuft bewusst
+    NACH dem RNG-Roll und verbraucht selbst keinen seeded RNG.
 
 Renovierungsabschluss, abgeschlossener Verkauf, Mieterauszug,
 Zinsbindungsende und vollständig getilgter Kredit melden einen transienten
@@ -126,10 +124,8 @@ Version nicht. Änderungen im Entscheidungslog dokumentieren.
 - `state.etfDepot` ist echtes, verkaufbares Vermögen; `state.etfVergleich` ist
   ausschließlich die Kontrafaktual-Linie.
 - `state.kapitalsteuer` hält den gemeinsam verbrauchten Pauschbetrag und die
-  kumulierte Kapitalsteuer. Tagesgeld, ETF und Aktien greifen ausschließlich
-  über `kapitalsteuer.js` darauf zu.
-- `state.aktienDepot` enthält echte Sandbox-Positionen und Kurse; es ist weder
-  Teil des Welt-ETF noch des ETF-Benchmarks.
+  kumulierte Kapitalsteuer. Tagesgeld und ETF greifen ausschließlich über
+  `kapitalsteuer.js` darauf zu.
 - `state.dealEntscheidungen` hält je Listing nur die aktuelle Wahl
   „beobachtet“/„verworfen“; `state.entscheidungsHistorie` hält kurze,
   strukturierte Abschlusswirkungen. `gameplay.js` leitet Prüfstand und
@@ -146,7 +142,7 @@ Version nicht. Änderungen im Entscheidungslog dokumentieren.
 - `state.objektArcs` hält terminierte, objektbezogene Folgen mit stabiler
   Listing-ID. `arcs.js` aktiviert sie bei Fälligkeit über den normalen
   Eventvertrag und beendet sie sauber, wenn das Objekt nicht mehr existiert.
-- Nettovermögen ist Cash plus echtes ETF-Depot plus Aktiendepot plus faire
+- Nettovermögen ist Cash plus echtes ETF-Depot plus faire
   Immobilienwerte minus Restschulden plus objektspezifische Rücklagen. Das
   Eigenheim wird identisch bewertet.
 - `tickObjekt` liefert genau eine liquide Cash-Änderung. `engine.tick` addiert
@@ -174,10 +170,6 @@ Version nicht. Änderungen im Entscheidungslog dokumentieren.
   verbrauchen 30-%-Teilfreistellung und Pauschbetrag, aber keinen Zufall;
   sie verändern den letzten Monatscashflow nicht und werden über `main.js`
   sofort gespeichert. `ui/finanzen.js` enthält ausschließlich DOM und Vorschauen.
-- `aktien.js` bucht Käufe/Verkäufe gegen Cash, führt Einstand, Kosten, Steuer
-  und Verlusttopf und liefert quartalsweise Netto-Dividenden. Orders verwenden
-  keinen Zufall; der monatliche Kurstick verbraucht immer dieselbe eigene
-  RNG-Sequenz, unabhängig vom Depotbestand.
 
 ## 4. Phase-4-Systeme
 
@@ -251,7 +243,7 @@ Einkommenswechsel auf `rentenNettoFaktor`.
   verständlicher Fehlermeldung abgelehnt; es gibt keinen Migrationspfad.
 - Import prüft die tragende Struktur und lehnt auch formal aktuelle, aber
   beschädigte Saves ab.
-- Markt-, Aktien- und Startbestandinitialisierung bleiben idempotent und laufen
+- Markt- und Startbestandinitialisierung bleiben idempotent und laufen
   in dieser Reihenfolge nach Neu/Laden/Import.
 - Bei jeder weiteren State-Strukturänderung: Version erhöhen und Ablehnungs-
   sowie Current-Save-Roundtrip testen. Migration nur nach ausdrücklichem
@@ -259,7 +251,7 @@ Einkommenswechsel auf `rentenNettoFaktor`.
 
 ## 7. Content und Assets
 
-`content.js` hält Listings, Mieter, Events und Aktienprofile, lädt sie aber nicht selbst:
+`content.js` hält Listings, Mieter und Events, lädt sie aber nicht selbst:
 
 - Browser: `main.js` lädt `data/*.json` per `fetch`.
 - Node: `test/simtest.mjs` liest dieselben Dateien direkt.
@@ -335,10 +327,10 @@ außerdem soll der Origin für `localStorage` stabil bei `127.0.0.1:4173` bleibe
 - Die sticky Ressourcenleiste zeigt genau drei laufende Werte: Cash,
   farbcodierten letzten Cashflow und echtes ETF-Depot. Nettovermögen ist kein
   permanenter Header-KPI; es bleibt in Zentrale, Finanzscreen und Endbilanz.
-- Der Finanzscreen zeigt Tagesgeld, Immobilienportfolio und ETF; die
-  Einzelaktien-UI bleibt aus dem sichtbaren Kern entfernt. Tagesgeld→ETF bleibt
-  vermögensneutral; ETF-Verkäufe zeigen mögliche Steuer vor Bestätigung und
-  verändern das Nettovermögen nur um diese Reibung.
+- Der Finanzscreen zeigt Tagesgeld, Immobilienportfolio und ETF; eine
+  Einzelaktien-Sandbox existiert nicht mehr (vollständig entfernt, Save v21).
+  Tagesgeld→ETF bleibt vermögensneutral; ETF-Verkäufe zeigen mögliche Steuer vor
+  Bestätigung und verändern das Nettovermögen nur um diese Reibung.
 - `ui/karte.js` rendert drei getrennte, schematische Karten für Berlin,
   Leipzig und Meißen + Umland sowie eine gleichwertige Liste aus denselben 19
   Listings. Marker öffnen ausschließlich vorhandene
@@ -358,7 +350,7 @@ außerdem soll der Origin für `localStorage` stabil bei `127.0.0.1:4173` bleibe
 
 - `node test/simtest.mjs`: mehr als 90 Checks, einschließlich kompletter
   Kampagnenläufe aller vier Startprofile, Save-Determinismus, Versionsablehnung, exakter Renovierungs- und
-  Verkaufsdauer, Eigenheim, Jahressteuer, Aktienorders/-pfad, fünf Endscores und vier Linien.
+  Verkaufsdauer, Eigenheim, Jahressteuer, fünf Endscores und vier Linien.
 - `node test/b0-economy.mjs`: vollständige 40-Listing-Matrix bei 80 % LTV,
   2 % Tilgung und zehn Jahren Zinsbindung; prüft Rohökonomie, State-/RNG-
   Reinheit, zustandsabhängige Miete und positive Pfade je Segment mit höchstens
@@ -372,7 +364,7 @@ außerdem soll der Origin für `localStorage` stabil bei `127.0.0.1:4173` bleibe
 - `node test/gh-development.mjs`: freiwillige Ziele, Schimmel-/Nachbarschafts-/
   Finanzierungs-Arcs, Arbeitsmodelle, Lebensphasen, Eigenleistung und
   Save-Roundtrip.
-- `node test/chat-contracts.mjs`: statische Querschnittsprüfung der 27
+- `node test/chat-contracts.mjs`: statische Querschnittsprüfung der 32
   Owner-Verträge aus dem Arbeitschat, darunter Presets, Zeitsteuerung,
   Header-/Menüstruktur, Hilfen, Karten, Vermietungswege, Eigenbedarf,
   Steuern, Launcher und explizit vertagte Ideen.
@@ -388,8 +380,7 @@ außerdem soll der Origin für `localStorage` stabil bei `127.0.0.1:4173` bleibe
   bleiben absichtlich getrennt vom breiten Kampagnen-Harness.
 - `node test/browser-smoke.mjs`: startet Edge/Chrome ohne Zusatzpakete headless
   und bedient Dashboard → Finanzen → Markt → Exposé → Finanzierung → Kauf →
-  Portfolio. Zusätzlich prüft er beidseitige ETF-Umschichtung, Sparplan, eine
-  echte Aktienkauforder mit Gebühren,
+  Portfolio. Zusätzlich prüft er beidseitige ETF-Umschichtung, Sparplan,
   Owner-UI-Verträge, Tutorial, Admin-Hilfen, Stadtkarte, Chartlabel ≥14 px und
   Responsive/A11y für Dashboard, Finanzen und Karte bei 1024/700/390 px. Nach jeder
   Navigation muss genau ein Hauptscreen sichtbar sein.
@@ -397,8 +388,8 @@ außerdem soll der Origin für `localStorage` stabil bei `127.0.0.1:4173` bleibe
   einem freien Port und prüft Launcher-Marker, HTML-Injektion, Keepalive sowie
   korrekte MIME-Typen.
 - `node test/release-check.mjs`: lokale HTML-/Modulreferenzen, JSON und eindeutige
-  Content-IDs, derzeit 188 Modulimporte, 30 Events, 5 Aktien und 159 Runtime-Assets, 15-MB-Budget,
-  Merge-Marker, Cachebuster und
+  Content-IDs, den vollständigen versionierten Modulgraph, 33 Events und die
+  Runtime-Assets unter 15-MB-Budget, Merge-Marker, Cachebuster und
   `.nojekyll`.
 - `node --check` über alle JS-Dateien für Syntaxfehler.
 - Betroffene Abläufe zusätzlich über einen lokalen HTTP-Server im Browser

@@ -180,45 +180,10 @@ Solche Folgeevents sind vom zufälligen Pool ausgeschlossen und werden nur im
 gespeicherten Fälligkeitsmonat aktiviert. Arc-IDs, Folgeevent-IDs und
 Listing-IDs bleiben save-stabil.
 
-## data/stocks.json (Wertpapier-Sandbox)
+## data/stocks.json — entfernt (Save v21, 23.07.2026)
 
-Genau fünf klar fiktive Unternehmen. Die Daten beschreiben eine tunbare
-Lernsimulation, keine Prognose und keine Empfehlung. IDs bleiben nach
-Veröffentlichung stabil, weil Positionen und Kurse sie im Save verwenden.
-
-```jsonc
-{
-  "id": "moertel-mehr",             // eindeutig, stabil, ASCII
-  "ticker": "MUM",                  // kurzer fiktiver Anzeigecode
-  "name": "Mörtel & Mehr AG",
-  "branche": "Baustoffe",
-  "beschreibung": "Regionaler Baustoffhersteller …",
-  "lernfrage": "Wie viel Zyklik verträgt …?",
-  "startKurs": 54,                   // € je ganzem Stück
-  "kursRendite": 0.03,               // erwartete nominale Kursdrift p.a.
-  "volatilitaet": 0.23,              // Standardabweichung p.a.
-  "beta": 1.15,                      // Sensitivität auf gemeinsamen Impuls
-  "dividendenRendite": 0.042,        // Bruttorendite p.a., quartalsweise
-  "farbe": "#a76534",               // redundante Kartenakzentfarbe
-  "events": [
-    {
-      "titel": "Infrastruktur-Auftrag",
-      "text": "Ein mehrjähriger Liefervertrag …",
-      "gewicht": 1,
-      "returnEffekt": 0.12           // einmaliger Multiplikator im Treffermonat
-    }
-  ]
-}
-```
-
-Content-Regeln:
-
-- Keine echten Marken, Livekurse, Analystenziele oder garantierte
-  Outperformance.
-- Jedes Profil braucht eine andere Sektor-/Einzelwertrisiko-Lernfrage,
-  mindestens ein positives und ein negatives plausibles Firmenereignis.
-- `startKurs > 0`, `volatilitaet > 0`, `beta > 0`, Renditen und Eventeffekte
-  bleiben als Dezimalwerte gespeichert. `farbe` darf nie allein Information
-  tragen.
-- Gebühren, Steuer, Dividendenrhythmus, Positionsgrenze und Korrelation gehören
-  ausschließlich in `DEFAULT_CONFIG.aktien`, nicht in einzelne Profile.
+Die fiktive Einzelaktien-Sandbox wurde vollständig entfernt (`js/aktien.js` und
+`data/stocks.json` gelöscht). Es gibt kein Wertpapier-Profilschema mehr. Das
+Konzept bleibt nur in `IDEEN.md` als möglicher, klar abtrennbarer
+Value-Investing-Ableger archiviert; ETF, Sparplan und Tagesgeld sind der
+verbleibende Kapitalmarkt.

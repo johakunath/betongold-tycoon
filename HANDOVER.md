@@ -1,10 +1,31 @@
 # HANDOVER.md — aktueller Projektstand
 
-**Stand:** 22.07.2026, Codex (Desktop-Lesbarkeit abgeschlossen)
+**Stand:** 23.07.2026 (E2 Auftaktmomente + B2 Aktien-Entfernung)
 
-**Versionen:** SAVE_VERSION = 20, UI_VERSION = 51
+**Versionen:** SAVE_VERSION = 21, UI_VERSION = 52
 
-UI v51 hebt auf breiten Desktops kompakte Haushalts-, Steuer-, Objekt-, Markt-
+Save v21 / UI v52 schließt zwei offene Roadmap-Punkte:
+
+- **E2 — Auftaktmomente gegen den toten Spielbeginn.** Drei terminierte Momente
+  (Monate 2/5/9, `kategorie: "auftakt"` in `data/events.json`) füllen den vor
+  dem ersten Kauf ereignisarmen Beginn. `rolleAuftakt()` in `js/events.js` läuft
+  im Tick **nach** `rolleEvent()`, damit dessen RNG-Roll an fester Position
+  bleibt; es verbraucht selbst keinen seeded RNG und hat leere Effekte. Die
+  Momente feuern nur, solange `portfolio` leer ist und kein Eigenheim besteht,
+  und sind aus dem Zufallspool (`istErfuellbar`) ausgeschlossen. Empirisch
+  neutral: `rngState`/`etfRngState`/`cash` mit und ohne Auftakt byte-identisch.
+- **B2 — Einzelaktien-Code aus dem Kern entfernt.** `js/aktien.js` und
+  `data/stocks.json` gelöscht; `aktienDepot`, `aktienRngState`, Kurspfad,
+  Dividenden, `config.aktien`, Content-Loader und aktienspezifische Tests
+  entfernt. ETF, Sparplan, Tagesgeld und `kapitalsteuer.js` (gemeinsamer
+  Freibetrag für Tagesgeld + ETF) bleiben erhalten. `SAVE_VERSION` 20→21; alte
+  Saves werden ohne Migration abgelehnt.
+
+Achtung nächster Agent: `browser-smoke.mjs` lief zuvor real nie vollständig
+durch (fehlender `#nav-karte`-Klick vor dem Stadtpost-Legendencheck, jetzt
+gefixt). Vor „grün" behaupten immer den echten Chrome-Lauf abwarten.
+
+UI v51 hob auf breiten Desktops kompakte Haushalts-, Steuer-, Objekt-, Markt-
 und Erklärungstexte um rund 1–2 px an. Grüne Statusbadges verwenden nun eine
 kontrastreiche dunkle Schrift auf hellem Grün.
 
@@ -467,19 +488,18 @@ keine Konsolenfehler.
 
 ## Bewusst offen
 
-1. **Unmittelbar:** Owner testet den Save-v20/UI-v46-Stand manuell und hält
-   Unklarheiten oder unerwartete Zahlen in `PLAYTEST.md` fest. Besonders lohnend
-   sind Berliner Vermietung, regionale Eigenheimumzüge, Hintergrundsuche,
-   Sondertilgung und die verschobene Zentrale-Navigation.
+1. **Unmittelbar (Owner-only-Gate, Arbeitspaket A):** vollständiger
+   menschlicher Normal-/Schwer-Lauf nach dem Ablauf in `PLAYTEST.md`; die
+   automatischen Gates ersetzen den Verständlichkeitsnachweis nicht. Neu
+   abzunehmen: fühlen sich die drei Auftaktmomente (Monate 2/5/9) wie ein
+   belebter Einstieg an oder wie Klickarbeit? Besonders lohnend bleiben Berliner
+   Vermietung, regionale Eigenheimumzüge, Hintergrundsuche und Sondertilgung.
 2. **Rest B1.3:** Bildzoom als nativer `<button>`, `aria-hidden` für den
    SVG-Fallback bei vorhandenem WebP, echte `<meter>` statt Div-Messbalken. Der
    Elementvertrag gilt weiterhin sofort für neue UI.
-3. **P1 B2:** Einzelaktien-Engine, Depotstate, Content-Fetch und Tests separat
-   im Save-/State-Pass entfernen; die UI ist scopekonform und frei von totem
-   Aktien-Code.
-4. **P2 E2 — Eventdichte vor dem ersten Kauf.** `eventChanceBasis` = 0,035/Monat
-   ohne Portfolio-Exposure; gemessen kam in ~78 Monaten ohne Objekt ein einziges
-   Event. Bewusst nicht im UI-Pass geändert (RNG-Verbrauch/Balance). Entweder
-   Basiswert anheben mit vollen 300-Seed-Gates oder gescriptete Anfangsmomente.
-5. Danach erst Kapitel/Kampagnenrhythmus; reale Geräte und manueller
-   Screenreadercheck bleiben ein separates Owner-Gate.
+3. **~~P1 B2~~ — erledigt (Save v21):** Einzelaktien-Engine, Depotstate,
+   Content-Fetch und Tests entfernt. Siehe `DONE.md`.
+4. **~~P2 E2~~ — erledigt (UI v52):** drei terminierte, RNG- und ökonomisch
+   neutrale Auftaktmomente statt Basiswert-Anhebung. Siehe `DONE.md`.
+5. Danach erst Kapitel/Kampagnenrhythmus (Arbeitspaket I); reale Geräte und
+   manueller Screenreadercheck bleiben ein separates Owner-Gate.

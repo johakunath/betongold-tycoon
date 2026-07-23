@@ -3,6 +3,33 @@
 Kompaktes, chronologisches Log. Details älterer Sessions bleiben in
 `DECISIONS.md` und den Fachdocs nachvollziehbar.
 
+## 2026-07-23
+
+- **Auftaktmomente gegen den toten Spielbeginn (E2, UI v52):** Drei terminierte
+  Momente in den Monaten 2/5/9 (`kategorie: "auftakt"` in `data/events.json`)
+  füllen den vor dem ersten Kauf sonst ereignisarmen Beginn mit Orientierung
+  und leichten Abwägungen. `rolleAuftakt()` in `js/events.js` läuft im Tick
+  NACH `rolleEvent()`, verbraucht keinen seeded RNG und hat neutrale (leere)
+  Effekte — empirisch bestätigt (`rngState`/`etfRngState`/`cash` mit und ohne
+  Auftakt byte-identisch), alle 300-Seed-Balancegates unverändert grün. Die
+  Momente feuern nur solange `portfolio` leer ist und kein Eigenheim besteht.
+
+- **Einzelaktien-Code vollständig aus dem Kern entfernt (B2, Save v21):**
+  `js/aktien.js` und `data/stocks.json` gelöscht. Depotstate, `aktienRngState`,
+  Kurspfad, Dividenden, Order-/Gebührenlogik, Content-Loader
+  (`alleAktien`/`getAktie`), der `config.aktien`-Block, der `initialisiereAktienmarkt`-
+  Aufruf im Tick, die Save-Validierung und die aktienspezifischen Tests
+  (simtest-Sandbox, release-check-Profilcheck) sind entfernt. ETF-Depot,
+  Sparplan, Tagesgeld und der gemeinsame Kapitalsteuer-Freibetrag bleiben
+  vollständig erhalten. `SAVE_VERSION` 20→21 (alte Saves werden ohne Migration
+  abgelehnt). Der Value-Investing-Ableger bleibt nur in `IDEEN.md` archiviert.
+
+- **Browser-Smoke real vollständig durchgelaufen:** Ein seit dem CSS-/UI-Pass
+  fehlender `#nav-karte`-Klick vor dem Stadtpost-Legendencheck brach den Lauf
+  ab; die frühere „grün"-Meldung war nie ein vollständiger Realbrowserlauf. Mit
+  dem Fix läuft `browser-smoke.mjs` im echten Chrome komplett durch. Cachebuster
+  global auf `?v=52`.
+
 ## 2026-07-22
 
 - **Breite Desktop-Typografie als UI v51 lesbarer gemacht** (`SAVE_VERSION`

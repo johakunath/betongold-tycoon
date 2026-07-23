@@ -13,8 +13,9 @@ beschönigen. Der Spaß entsteht aus verständlichen Konsequenzen und sichtbarem
 Fortschritt, nicht aus Marketingversprechen. Die Kampagne ist vollständig
 spielbar; Meißen + Umland, Familienhäuser, zentrale Karte, Quartalsbericht und Tutorial
 sind integriert. Der eigene Finanzbereich bündelt Tagesgeld, Immobilienportfolio,
-echtes ETF-Depot, beidseitige Umschichtungen und Sparplan. Einzelaktien sind aus
-der sichtbaren Kern-UI entfernt. Eine atmosphärische Stadtbühne mit vier Segmenten,
+echtes ETF-Depot, beidseitige Umschichtungen und Sparplan. Einzelaktien sind
+vollständig aus UI, Engine, State und Save entfernt; `data/stocks.json` und
+`js/aktien.js` existieren nicht mehr. Eine atmosphärische Stadtbühne mit vier Segmenten,
 regional unterschiedliche Vermietungswege, Eigenbedarf, ein Meldungsarchiv und
 ein optionaler Ratgeber machen langfristige Konsequenzen besser sichtbar. Vier
 bebilderte Startprofile decken Familienstrategie, klassischen Aufbau, hoch
@@ -71,7 +72,10 @@ UI v49 reduziert dekoratives Gold zugunsten neutraler Strukturfarben und
 erzwingt im deckenden Bottom-Dock genau einen aktiven Bereich. UI v50 hält die
 drei Finanzwerte auch im zweizeiligen mittleren Desktop-HUD kompakt. UI v51
 hebt auf breiten Desktops erklärende Kleinsttexte und Statuskontraste an.
-Aktuell: `SAVE_VERSION = 20`, `UI_VERSION = 51`.
+UI v52 / Save v21: Drei terminierte, RNG- und ökonomisch neutrale Auftaktmomente
+(Monate 2/5/9) beleben den Spielbeginn vor dem ersten Kauf (E2); der verbliebene
+Einzelaktien-Code ist vollständig aus Engine, State, Save und Tests entfernt (B2).
+Aktuell: `SAVE_VERSION = 21`, `UI_VERSION = 52`.
 
 Unter Windows startet `BETONGOLD_STARTEN.cmd` das unveränderte statische Spiel
 per Doppelklick über einen unsichtbaren Loopback-HTTP-Server. `file://` bleibt
@@ -101,7 +105,7 @@ protokolliert.
   kontrolliert ablehnen. Keine neue Migration ohne ausdrücklichen Owner-Auftrag.
   Reines UI/CSS erhöht nur `UI_VERSION`; Cachebuster in HTML und allen lokalen
   Imports angleichen.
-- Listings, Mieter, Events und Aktienprofile bleiben Daten unter `data/`; IDs und Assetnamen
+- Listings, Mieter und Events bleiben Daten unter `data/`; IDs und Assetnamen
   sind stabil. `assets/` folgt `ASSET_MANIFEST.md` und bleibt insgesamt < 15 MB.
 - Kernzustände und Hauptaktionen müssen sichtbar, tastaturzugänglich und in
   höchstens zwei sinnvollen Klicks erreichbar sein. Responsive und Reduced
