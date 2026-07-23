@@ -1,9 +1,9 @@
 // events.js — Dilemma-Events: monatlicher Roll (feste RNG-Position im Tick)
 // und Auflösung ohne RNG. Formeln: ECONOMY_MODEL §18. DOM-frei.
 
-import { rngFloat, zahleReparatur } from './state.js?v=51';
-import { alleEvents, getEvent } from './content.js?v=51';
-import { planeObjektArc, schliesseAktivenArc } from './arcs.js?v=51';
+import { rngFloat, zahleReparatur } from './state.js?v=52';
+import { alleEvents, getEvent } from './content.js?v=52';
+import { planeObjektArc, schliesseAktivenArc } from './arcs.js?v=52';
 
 function kalendermonat(state) {
   return ((state.config.zeit.startMonat - 1 + state.monat) % 12) + 1;
@@ -29,6 +29,7 @@ function passendeObjekte(state, ev) {
 function istErfuellbar(state, ev) {
   const b = ev.bedingung || {};
   if (b.nurArc) return false;
+  if (ev.kategorie === 'auftakt') return false; // deterministische Auftaktmomente, kein Zufallspool
   const hist = state.eventHistorie[ev.id];
   if (b.einmalig && hist !== undefined) return false;
   if (b.cooldownMonate && hist !== undefined && state.monat - hist < b.cooldownMonate) return false;
@@ -92,6 +93,26 @@ export function rolleEvent(state) {
   state.eventHistorie[ev.id] = state.monat;
   state.statistik.eventsGesamt = (state.statistik.eventsGesamt || 0) + 1;
   if (ev.kategorie === 'kind') state.kinderEventsGezeigt += 1;
+}
+
+// Deterministische Auftaktmomente: Der sonst ereignisarme Spielbeginn vor dem
+// ersten Objektkauf (eventChanceBasis ist bewusst niedrig) bekommt drei
+// terminierte, wirkungslose Orientierungsmomente. Sie verbrauchen KEINEN
+// seeded RNG und verändern weder Cash noch State — deshalb bleiben alle
+// 300-Seed-Balancegates identisch. Läuft NACH rolleEvent, damit dessen
+// RNG-Roll unverändert an seiner festen Tick-Position bleibt.
+export function rolleAuftakt(state) {
+  if (state.aktivesEvent || state.beendet) return;
+  if (state.portfolio.length > 0 || state.eigenheim) return; // nur bis zum ersten eigenen Objekt
+  const faellig = alleEvents()
+    .filter((e) => e.kategorie === 'auftakt'
+      && state.eventHistorie[e.id] === undefined
+      && state.monat >= (e.bedingung?.auftaktMonat ?? 0))
+    .sort((a, b) => (a.bedingung?.auftaktMonat ?? 0) - (b.bedingung?.auftaktMonat ?? 0));
+  const ev = faellig[0];
+  if (!ev) return;
+  state.aktivesEvent = { eventId: ev.id, objektIndex: -1, monat: state.monat };
+  state.eventHistorie[ev.id] = state.monat;
 }
 
 // Auflösung einer Option (ohne RNG → reproduzierbar bei fixer Optionsfolge).

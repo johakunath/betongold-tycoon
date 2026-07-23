@@ -3,10 +3,10 @@
 // Änderungen greifen zum nächsten Tick. Werte sind plausible Defaults, keine Fakten —
 // vor Release gegen reale Daten prüfen (siehe PLAN.md §4).
 
-export const SAVE_VERSION = 20;
+export const SAVE_VERSION = 21;
 // UI-/Cache-Version ist unabhängig vom Save-Format. Bei reinen CSS-/UI-Reworks
 // erhöhen, ohne unnötig Spielstände zu migrieren.
-export const UI_VERSION = 51;
+export const UI_VERSION = 52;
 
 // Startlage und Schwierigkeit sind bewusst getrennt. Das Preset beschreibt
 // Haushalt, Vermögensaufteilung und optionale besondere Startbedingungen;
@@ -239,18 +239,6 @@ export const DEFAULT_CONFIG = {
 
   // Wertpapier-Sandbox: bewusst vereinfachter deutscher Brokervertrag.
   // Ganze Stücke, quartalsweise Dividenden und sofort einbehaltene Steuer.
-  // Der gemeinsame Pauschbetrag liegt in config.kapitalsteuer.
-  aktien: {
-    orderGebuehrFix: 4.90,
-    orderGebuehrProzent: 0.0015,
-    orderGebuehrMax: 49.90,
-    dividendenMonate: [3, 6, 9, 12],
-    maxPositionen: 5,
-    eventChanceMonat: 0.006,
-    marktKorrelation: 0.45,
-    marktDriftMod: { boom: 0.008, seitwaerts: 0, crash: -0.012 },
-  },
-
   // Versteckte Marktphase, pro Seed einmal gewürfelt, erst in der Endauswertung
   // aufgedeckt (Lektion: Markt-Timing ist Glück). Ab Phase 2 treibt sie auch
   // die Immobilien-Segmente; in Phase 1 moduliert sie nur die ETF-Drift.

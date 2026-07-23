@@ -358,5 +358,38 @@
       { "text": "5.000 € sondertilgen", "effekt": { "sondertilgung": 5000 }, "folge": "Tagesgeld und Restschuld sinken um denselben Betrag; die laufende Rate bleibt bis zur Anschlussfinanzierung gleich." },
       { "text": "Liquidität als Zinsreserve behalten", "effekt": { "familie": 1 }, "folge": "Die Restschuld bleibt, aber der Puffer steht für die spätere Rate bereit." }
     ]
+  },
+  {
+    "id": "auftakt-erste-schritte",
+    "titel": "Der erste Monat ist vorbei",
+    "text": "Noch gehört dir keine Wohnung. Das Tagesgeld liegt bereit, der Markt zeigt Angebote in mehreren Städten. Wie willst du anfangen?",
+    "kategorie": "auftakt",
+    "bedingung": { "auftaktMonat": 2, "einmalig": true },
+    "optionen": [
+      { "text": "Erst in Ruhe den Markt sichten", "effekt": {}, "folge": "Angebote zu vergleichen kostet nichts und schärft den Blick für einen fairen Preis." },
+      { "text": "Gezielt die eigene Region prüfen", "effekt": {}, "folge": "In vertrauter Lage lassen sich Miete und Nachfrage leichter einschätzen." }
+    ]
+  },
+  {
+    "id": "auftakt-puffer",
+    "titel": "Wie viel Sicherheit willst du behalten?",
+    "text": "Ein Kauf bindet Eigenkapital und Zeit. Zu wenig Puffer macht jeden Rückschlag teuer; zu viel Puffer lässt Kapital ungenutzt auf dem Tagesgeld liegen.",
+    "kategorie": "auftakt",
+    "bedingung": { "auftaktMonat": 5, "einmalig": true },
+    "optionen": [
+      { "text": "Erst einen soliden Puffer aufbauen", "effekt": {}, "folge": "Liquidität trägt durch Leerstand und Reparaturen — dafür wächst Tagesgeld kaum." },
+      { "text": "Bald investieren, sobald etwas passt", "effekt": {}, "folge": "Ein früher Einstieg nutzt Zeit — dafür bleibt weniger Reserve für Überraschungen." }
+    ]
+  },
+  {
+    "id": "auftakt-entscheidung",
+    "titel": "Noch keine Wohnung gekauft",
+    "text": "Beobachten ist Teil der Strategie. Aber ob sich eine Rechnung trägt, zeigt am Ende nur ein echtes Angebot. Ein Exposé führt Prüfschritte, Finanzierung und laufende Kosten vor dem Gebot zusammen.",
+    "kategorie": "auftakt",
+    "bedingung": { "auftaktMonat": 9, "einmalig": true },
+    "optionen": [
+      { "text": "Ein konkretes Angebot ernsthaft prüfen", "effekt": {}, "folge": "Anlass, Prüfung, Entscheidung, Wirkung: Due Diligence senkt das Risiko — nie auf null." },
+      { "text": "Weiter sparen und beobachten", "effekt": {}, "folge": "Auch bewusst zu warten ist eine Entscheidung; der Markt öffnet regelmäßig neue Chancen." }
+    ]
   }
 ]

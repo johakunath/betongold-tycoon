@@ -1,8 +1,7 @@
 // ui/endgame.js — Screen 9: fünf Scores, Seed-Benchmarks und Timeline.
 
-import { berechneEndauswertung } from '../endgame.js?v=51';
-import { fmtEUR, fmtEURSigniert, fmtDatum } from './util.js?v=51';
-import { aktienDepotWert } from '../aktien.js?v=51';
+import { berechneEndauswertung } from '../endgame.js?v=52';
+import { fmtEUR, fmtEURSigniert, fmtDatum } from './util.js?v=52';
 
 const PHASEN_LABEL = {
   boom: 'Boom — Rückenwind für Märkte',
@@ -37,7 +36,7 @@ export function zeigeEnde(state) {
 function renderEndgame(state, a) {
   const objekte = [...state.portfolio, ...(state.eigenheim ? [state.eigenheim] : [])];
   const schulden = objekte.reduce((summe, o) => summe + (o.darlehen?.restschuld || 0), 0);
-  const liquideMittel = Math.max(0, state.cash) + state.etfDepot.wert + aktienDepotWert(state);
+  const liquideMittel = Math.max(0, state.cash) + state.etfDepot.wert;
   const benchmarkSpanne = Math.max(a.endwerte.etf, a.endwerte.eigenheim, a.endwerte.invest) -
     Math.min(a.endwerte.etf, a.endwerte.eigenheim, a.endwerte.invest);
   document.getElementById('endgame-zusammenfassung').innerHTML =

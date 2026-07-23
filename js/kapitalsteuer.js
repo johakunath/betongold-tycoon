@@ -1,5 +1,5 @@
-// kapitalsteuer.js — gemeinsamer, DOM-freier Jahresfreibetrag für Tagesgeld,
-// ETF und Einzelaktien. Das Modell bildet Abgeltungsteuer + Soli ab, aber keine
+// kapitalsteuer.js — gemeinsamer, DOM-freier Jahresfreibetrag für Tagesgeld
+// und ETF. Das Modell bildet Abgeltungsteuer + Soli ab, aber keine
 // Kirchensteuer oder ETF-Vorabpauschale.
 
 export function kalenderJahr(state) {

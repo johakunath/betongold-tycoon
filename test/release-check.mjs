@@ -5,7 +5,7 @@ import { readFile, readdir, stat } from 'node:fs/promises';
 import { extname, join, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
-import { DEFAULT_CONFIG, SAVE_VERSION, UI_VERSION, START_PRESETS } from '../js/config.js?v=51';
+import { DEFAULT_CONFIG, SAVE_VERSION, UI_VERSION, START_PRESETS } from '../js/config.js?v=52';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 let fehler = 0;
@@ -71,7 +71,7 @@ check(versionierteImports === importAnzahl,
   `gesamter Modulgraph verwendet UI-Version ${UI_VERSION}`);
 
 const daten = {};
-for (const name of ['listings', 'tenants', 'events', 'stocks']) {
+for (const name of ['listings', 'tenants', 'events']) {
   try {
     daten[name] = JSON.parse(await readFile(join(root, 'data', `${name}.json`), 'utf8'));
     const ids = daten[name].map((eintrag) => eintrag.id);
@@ -80,12 +80,6 @@ for (const name of ['listings', 'tenants', 'events', 'stocks']) {
     check(false, `${name}.json lesbar: ${error.message}`);
   }
 }
-
-check((daten.stocks || []).length >= 5 && daten.stocks.every((stock) =>
-  stock.ticker && Number.isFinite(stock.startKurs) && Number.isFinite(stock.kursRendite)
-  && Number.isFinite(stock.volatilitaet) && Number.isFinite(stock.dividendenRendite)
-  && Array.isArray(stock.events) && stock.events.length >= 2),
-'stocks.json: Firmenprofile, Kursannahmen und Ereignisse vollständig');
 
 const presetIds = Object.keys(START_PRESETS);
 const listingIds = new Set((daten.listings || []).map((listing) => listing.id));
@@ -99,13 +93,13 @@ for (const [id, preset] of Object.entries(START_PRESETS)) {
   check(typeof preset.bild === 'string' && await existiert(join(root, preset.bild)),
     `Startpreset-Bild existiert: ${id}`);
 }
-check(SAVE_VERSION === 20
+check(SAVE_VERSION === 21
   && DEFAULT_CONFIG.kapitalsteuer.pauschbetragProPerson === 1000
   && DEFAULT_CONFIG.kapitalsteuer.personen === 2
   && DEFAULT_CONFIG.kapitalsteuer.etfTeilfreistellung === 0.30
   && Object.keys(DEFAULT_CONFIG.mieter.vermietungsmodelle).length === 3
   && DEFAULT_CONFIG.bewirtschaftung.cashflowNaheNullMonat === 100,
-'Save v20, Kapitalsteuer, Cashflow-Korridor und drei Vermietungswege vollständig');
+'Save v21, Kapitalsteuer, Cashflow-Korridor und drei Vermietungswege vollständig');
 check((daten.listings || []).some((listing) => listing.segment === 'meissen-umland')
   && !(daten.listings || []).some((listing) => /rostock/i.test(`${listing.segment} ${listing.adresse} ${listing.titel}`))
   && ['me-01', 'me-02', 'me-03'].every((id) => listingIds.has(id)),

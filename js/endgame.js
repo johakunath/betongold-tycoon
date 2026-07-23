@@ -1,16 +1,16 @@
 // endgame.js — fünf Endscores und deterministische Vergleichsstrategien.
 // DOM-frei; die UI rendert das Ergebnis in ui/endgame.js.
 
-import { newGame } from './state.js?v=51';
-import { initialisiereMarkt, sichtbareListings } from './market.js?v=51';
-import { nebenkostenFuer, kreditAngebot, kaufeObjekt } from './finance.js?v=51';
-import { gebotAbgeben, fairerWert } from './market.js?v=51';
-import { kaufeEigenheim } from './eigenheim.js?v=51';
-import { starteVermietung, neueBewerber, waehleBewerber } from './tenants.js?v=51';
-import { resolveEvent } from './events.js?v=51';
-import { advanceMonths, alterGenau, lebensstressIndex, nettovermoegen } from './engine.js?v=51';
-import { eigenheimEignung, fixkostenMonat, instandhaltungMonat } from './immobilie.js?v=51';
-import { initialisiereStartbestand } from './starter.js?v=51';
+import { newGame } from './state.js?v=52';
+import { initialisiereMarkt, sichtbareListings } from './market.js?v=52';
+import { nebenkostenFuer, kreditAngebot, kaufeObjekt } from './finance.js?v=52';
+import { gebotAbgeben, fairerWert } from './market.js?v=52';
+import { kaufeEigenheim } from './eigenheim.js?v=52';
+import { starteVermietung, neueBewerber, waehleBewerber } from './tenants.js?v=52';
+import { resolveEvent } from './events.js?v=52';
+import { advanceMonths, alterGenau, lebensstressIndex, nettovermoegen } from './engine.js?v=52';
+import { eigenheimEignung, fixkostenMonat, instandhaltungMonat } from './immobilie.js?v=52';
+import { initialisiereStartbestand } from './starter.js?v=52';
 
 const clamp = (n, min = 0, max = 100) => Math.max(min, Math.min(max, n));
 

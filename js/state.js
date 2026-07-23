@@ -1,12 +1,11 @@
 // state.js — Spielzustand, Save-Slots (localStorage), JSON-Export/-Import, seeded RNG.
 // Kein DOM-Zugriff auf Top-Level: das Modul läuft auch unter Node (Simulationstests).
 
-import { DEFAULT_CONFIG, SAVE_VERSION, START_PRESETS } from './config.js?v=51';
+import { DEFAULT_CONFIG, SAVE_VERSION, START_PRESETS } from './config.js?v=52';
 
 // ---------------------------------------------------------------------------
 // Seeded RNG (mulberry32). state.rngState treibt die allgemeine Spielwelt;
 // state.etfRngState hält den exogenen ETF-Pfad von Spieleraktionen getrennt;
-// state.aktienRngState treibt nur die fiktiven Einzelaktien;
 // state.lebensRngState würfelt einmalig den Lebenshorizont. Alle Ströme werden
 // gespeichert, damit ein geladener Stand exakt weiterläuft.
 // ---------------------------------------------------------------------------
@@ -151,7 +150,6 @@ export function newGame({
     seed,
     rngState: seed,
     etfRngState: hashSeed(`etf:${seed}`),
-    aktienRngState: hashSeed(`aktien:${seed}`),
     lebensRngState: hashSeed(`leben:${seed}`),
 
     monat: 0,            // gelebte Monate seit Start
@@ -168,25 +166,12 @@ export function newGame({
     // werden. Einstand und realisierte Gewinne werden für die Steuer getrennt.
     etfDepot: { wert: profil.etf, einstandGesamt: profil.etf },
 
-    // Ein gemeinsamer Kalenderjahres-Freibetrag für Tagesgeld, ETF und Aktien.
+    // Ein gemeinsamer Kalenderjahres-Freibetrag für Tagesgeld und ETF.
     kapitalsteuer: {
       jahr: config.zeit.startJahr,
       freibetragGenutzt: 0,
       steuernGesamt: 0,
       ertraegeBruttoGesamt: 0,
-    },
-
-    // Fiktive Einzelaktien mit eigenen Kursen, Positionen und Steuer-/Kosten-
-    // Summen. aktien.js ergänzt die Startkurse nach dem Content-Load.
-    aktienDepot: {
-      positionen: {},
-      kurse: {},
-      letzteRenditen: {},
-      letzteEvents: [],
-      verlusttopf: 0,
-      gebuehrenGesamt: 0,
-      steuernGesamt: 0,
-      dividendenNettoGesamt: 0,
     },
 
     // Kontrafaktisches Depot: gleiches Startvermögen, gleiche monatliche
@@ -269,8 +254,8 @@ export function newGame({
     historie: [],
   };
 
-  // Ein eigener Strom hält Lebensdauer, Markt, ETF und Aktien voneinander
-  // unabhängig. Der eine gezogene Wert bleibt Teil des Save-Vertrags.
+  // Ein eigener Strom hält Lebensdauer, Markt und ETF voneinander unabhängig.
+  // Der eine gezogene Wert bleibt Teil des Save-Vertrags.
   state.lebensende.zufallswert = rngFloatStrom(state, 'lebensRngState');
   state.lebensende.basisAlter = config.zeit.lebensendeMinAlter +
     state.lebensende.zufallswert * (config.zeit.lebensendeMaxAlter - config.zeit.lebensendeMinAlter);
@@ -283,7 +268,6 @@ export function newGame({
     monat: 0,
     cash: state.cash,
     etfDepot: state.etfDepot.wert,
-    aktienDepot: 0,
     nettovermoegen: state.cash + state.etfDepot.wert,
     etf: state.etfVergleich.wert,
     cashflow: 0,
@@ -409,7 +393,7 @@ function requireCurrentSave(huelle) {
 // ein beschädigter Import kontrolliert hier statt später mitten im UI-Render.
 function validiereState(state) {
   if (!state || typeof state !== 'object') throw new Error('Spielzustand fehlt.');
-  const zahlen = ['monat', 'cash', 'rngState', 'etfRngState', 'aktienRngState', 'lebensRngState', 'familienzufriedenheit', 'einkommensRegionalfaktor'];
+  const zahlen = ['monat', 'cash', 'rngState', 'etfRngState', 'lebensRngState', 'familienzufriedenheit', 'einkommensRegionalfaktor'];
   for (const feld of zahlen) {
     if (!Number.isFinite(state[feld])) throw new Error(`Ungültiger Spielstand: ${feld} fehlt oder ist keine Zahl.`);
   }
@@ -436,10 +420,6 @@ function validiereState(state) {
   }
   if (typeof state.startbestandInitialisiert !== 'boolean') {
     throw new Error('Ungültiger Spielstand: Startbestand-Status fehlt.');
-  }
-  if (!state.aktienDepot || typeof state.aktienDepot !== 'object'
-      || !state.aktienDepot.positionen || !state.aktienDepot.kurse) {
-    throw new Error('Ungültiger Spielstand: Aktiendepot fehlt.');
   }
   if (!state.startProfil || !Number.isFinite(state.startProfil.cash) ||
       !Number.isFinite(state.startProfil.etf) || !Array.isArray(state.startProfil.kinder)) {

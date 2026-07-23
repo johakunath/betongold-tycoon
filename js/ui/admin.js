@@ -4,7 +4,7 @@
 import {
   ADMIN_FELDER, ADMIN_GRUPPEN, aktuelleAdminWerte, standardAdminWerte,
   planeAdminWerte,
-} from '../admin.js?v=51';
+} from '../admin.js?v=52';
 
 let ctx = null;
 let formularWerte = null;

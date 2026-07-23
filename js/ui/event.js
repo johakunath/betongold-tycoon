@@ -1,7 +1,7 @@
 // event.js — Screen 8: Event-Modal. Zeigt das Dilemma mit 2–3 Optionen; nach
 // der Wahl die Folge, dann weiter. Blockiert (die Zeit ist ohnehin pausiert).
 
-import { aktivesEventInfo, resolveEvent } from '../events.js?v=51';
+import { aktivesEventInfo, resolveEvent } from '../events.js?v=52';
 
 let ctx = null;
 
@@ -10,6 +10,7 @@ const KATEGORIE_META = {
   mieter: { label: 'Mieter', icon: '●' },
   haushalt: { label: 'Haushalt', icon: '€' },
   kind: { label: 'Familie', icon: '♥' },
+  auftakt: { label: 'Auftakt', icon: '◆' },
 };
 
 export function initEvent(context) {

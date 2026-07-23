@@ -2,18 +2,17 @@
 // Segment-/Zins-Drift, Feed-Lifecycle, ETF-Benchmark. Formeln in
 // ECONOMY_MODEL.md. Kein DOM-Zugriff (Node-testbar). Ab Phase 3: Event-Rolls.
 
-import { rngNormalStrom } from './state.js?v=51';
-import { tickMarkt, fairerWert } from './market.js?v=51';
-import { sondertilgungRahmen, tickBasiszins, tickObjekt } from './finance.js?v=51';
-import { rolleEvent } from './events.js?v=51';
-import { tickSteuer } from './tax.js?v=51';
-import { tickVerkaeufe } from './verkauf.js?v=51';
-import { wendeAdminPendingAn } from './admin.js?v=51';
-import { hatWartemoment, verwerfeWartemomente } from './signals.js?v=51';
-import { aktienDepotWert, tickAktienmarkt } from './aktien.js?v=51';
-import { verbucheKapitalertrag } from './kapitalsteuer.js?v=51';
-import { arbeitsmodell, aktualisiereLebensphasen, zeitbudgetMonat } from './life.js?v=51';
-import { tickObjektArcs } from './arcs.js?v=51';
+import { rngNormalStrom } from './state.js?v=52';
+import { tickMarkt, fairerWert } from './market.js?v=52';
+import { sondertilgungRahmen, tickBasiszins, tickObjekt } from './finance.js?v=52';
+import { rolleAuftakt, rolleEvent } from './events.js?v=52';
+import { tickSteuer } from './tax.js?v=52';
+import { tickVerkaeufe } from './verkauf.js?v=52';
+import { wendeAdminPendingAn } from './admin.js?v=52';
+import { hatWartemoment, verwerfeWartemomente } from './signals.js?v=52';
+import { verbucheKapitalertrag } from './kapitalsteuer.js?v=52';
+import { arbeitsmodell, aktualisiereLebensphasen, zeitbudgetMonat } from './life.js?v=52';
+import { tickObjektArcs } from './arcs.js?v=52';
 
 const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
 
@@ -186,7 +185,7 @@ export function nettovermoegen(state) {
     const o = state.eigenheim;
     immo += fairerWert(state, o) - o.darlehen.restschuld + (o.ruecklage || 0);
   }
-  return state.cash + (state.etfDepot?.wert || 0) + aktienDepotWert(state) + immo;
+  return state.cash + (state.etfDepot?.wert || 0) + immo;
 }
 
 // Monatlicher Zeitverbrauch: Selbstverwaltung je Objekt, Renovierung teurer,
@@ -300,16 +299,6 @@ export function tick(state) {
   const etf = state.etfVergleich;
   etf.wert = Math.max(0, etf.wert * (1 + etfRendite) + w.etfSparrate);
 
-  // Die fiktiven Einzelaktien besitzen einen getrennten RNG-Strom. Nur
-  // tatsächlich gehaltene Positionen zahlen quartalsweise Netto-Dividenden
-  // ins Tagesgeld; reine Kursbewegungen verändern keinen Cashflow.
-  const aktienErgebnis = tickAktienmarkt(state);
-  state.letzterAktienCashflow = aktienErgebnis.dividendenNetto;
-  state.letzteKapitalsteuerzahlung += aktienErgebnis.steuer;
-  if (aktienErgebnis.dividendenNetto) {
-    state.letzterCashflow += aktienErgebnis.dividendenNetto;
-  }
-
   // Zeitbudget monatlich frisch; Überzug erzeugt Familien-Stress (§19).
   state.zeitbudget.verfuegbar = zeitbudgetMonat(state);
   state.zeitbudget.verbraucht = zeitVerbrauch(state);
@@ -362,7 +351,6 @@ export function tick(state) {
     etfRendite,
     cash: state.cash,
     etfDepot: state.etfDepot.wert,
-    aktienDepot: aktienDepotWert(state),
     nettovermoegen: nettovermoegen(state),
     etf: etf.wert,
     cashflow: state.letzterCashflow,
@@ -382,6 +370,9 @@ export function tick(state) {
     tickObjektArcs(state);
     // Dilemma-Event-Roll an fixer RNG-Position (§18); setzt ggf. state.aktivesEvent.
     rolleEvent(state);
+    // Terminierte Auftaktmomente NACH dem RNG-Roll: füllen nur einen sonst
+    // leeren Monat vor dem ersten Kauf, ohne RNG oder Ökonomie zu berühren.
+    rolleAuftakt(state);
   }
 }
 

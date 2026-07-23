@@ -3,46 +3,44 @@
 
 import {
   newGame, saveGame, loadGame, deleteSave, exportString, importString, AUTOSAVE_SLOT,
-} from './state.js?v=51';
-import { advanceMonths } from './engine.js?v=51';
-import { setzeInhalte } from './content.js?v=51';
-import { initialisiereMarkt } from './market.js?v=51';
-import { initDashboard, renderDashboard } from './ui/dashboard.js?v=51';
+} from './state.js?v=52';
+import { advanceMonths } from './engine.js?v=52';
+import { setzeInhalte } from './content.js?v=52';
+import { initialisiereMarkt } from './market.js?v=52';
+import { initDashboard, renderDashboard } from './ui/dashboard.js?v=52';
 import {
   initShell, updateHud, zeigeNeuesSpiel, zeigeScreen, aktiverScreen, toast,
   zeigePortfolio,
-} from './ui/shell.js?v=51';
-import { initMarktplatz, renderMarktplatz } from './ui/marktplatz.js?v=51';
-import { initExpose, renderExpose, oeffneExpose } from './ui/expose.js?v=51';
-import { initFinanzierung } from './ui/finanzierung.js?v=51';
-import { initObjekt, renderObjekt, oeffneObjekt } from './ui/objekt.js?v=51';
-import { initBewerber, oeffneBewerber } from './ui/bewerber.js?v=51';
-import { initRenovieren } from './ui/renovieren.js?v=51';
-import { initEvent, initEventWeiter, zeigeEvent } from './ui/event.js?v=51';
-import { initVerkaufen } from './ui/verkaufen.js?v=51';
-import { initEndgame, zeigeEnde } from './ui/endgame.js?v=51';
-import { initAdmin } from './ui/admin.js?v=51';
-import { initBildzoom } from './ui/bildzoom.js?v=51';
-import { initTurnaround } from './ui/turnaround.js?v=51';
-import { initStrategy } from './ui/strategy.js?v=51';
-import { initKarte, renderKarte } from './ui/karte.js?v=51';
-import { initTutorial } from './ui/tutorial.js?v=51';
-import { initFinanzen, renderFinanzen } from './ui/finanzen.js?v=51';
-import { kaufeEtf, setzeSparplanEtfAnteil, verkaufeEtf } from './etf.js?v=51';
-import { zieheWartemomente } from './signals.js?v=51';
-import { initialisiereAktienmarkt } from './aktien.js?v=51';
-import { initialisiereStartbestand } from './starter.js?v=51';
-import { pruefeRatgeber } from './ratgeber.js?v=51';
-import { UI_VERSION } from './config.js?v=51';
+} from './ui/shell.js?v=52';
+import { initMarktplatz, renderMarktplatz } from './ui/marktplatz.js?v=52';
+import { initExpose, renderExpose, oeffneExpose } from './ui/expose.js?v=52';
+import { initFinanzierung } from './ui/finanzierung.js?v=52';
+import { initObjekt, renderObjekt, oeffneObjekt } from './ui/objekt.js?v=52';
+import { initBewerber, oeffneBewerber } from './ui/bewerber.js?v=52';
+import { initRenovieren } from './ui/renovieren.js?v=52';
+import { initEvent, initEventWeiter, zeigeEvent } from './ui/event.js?v=52';
+import { initVerkaufen } from './ui/verkaufen.js?v=52';
+import { initEndgame, zeigeEnde } from './ui/endgame.js?v=52';
+import { initAdmin } from './ui/admin.js?v=52';
+import { initBildzoom } from './ui/bildzoom.js?v=52';
+import { initTurnaround } from './ui/turnaround.js?v=52';
+import { initStrategy } from './ui/strategy.js?v=52';
+import { initKarte, renderKarte } from './ui/karte.js?v=52';
+import { initTutorial } from './ui/tutorial.js?v=52';
+import { initFinanzen, renderFinanzen } from './ui/finanzen.js?v=52';
+import { kaufeEtf, setzeSparplanEtfAnteil, verkaufeEtf } from './etf.js?v=52';
+import { zieheWartemomente } from './signals.js?v=52';
+import { initialisiereStartbestand } from './starter.js?v=52';
+import { pruefeRatgeber } from './ratgeber.js?v=52';
+import { UI_VERSION } from './config.js?v=52';
 
 // Inhalte laden, bevor irgendein State angefasst wird (Markt/Mieter/Events).
-const [listings, tenants, events, stocks] = await Promise.all([
+const [listings, tenants, events] = await Promise.all([
   fetch(`data/listings.json?v=${UI_VERSION}`).then((r) => r.json()),
   fetch(`data/tenants.json?v=${UI_VERSION}`).then((r) => r.json()),
   fetch(`data/events.json?v=${UI_VERSION}`).then((r) => r.json()),
-  fetch(`data/stocks.json?v=${UI_VERSION}`).then((r) => r.json()),
 ]);
-setzeInhalte({ listings, tenants, events, stocks });
+setzeInhalte({ listings, tenants, events });
 
 let state = null;
 let speed = 0;           // Monate pro Sekunde (0 = Pause)
@@ -155,7 +153,6 @@ const app = {
   neuesSpiel({ schwierigkeit, startPreset, startAnpassung, seedText }) {
     state = newGame({ schwierigkeit, startPreset, startAnpassung, seedText });
     initialisiereMarkt(state);
-    initialisiereAktienmarkt(state);
     const startbestand = initialisiereStartbestand(state);
     endeGezeigt = false;
     setSpeed(0);
@@ -219,7 +216,6 @@ const app = {
     }
     state = geladen;
     initialisiereMarkt(state); // migrierte v1-Spielstände starten den Feed hier
-    initialisiereAktienmarkt(state);
     initialisiereStartbestand(state);
     endeGezeigt = false;
     setSpeed(0);
@@ -252,7 +248,6 @@ const app = {
     try {
       state = importString(await datei.text());
       initialisiereMarkt(state);
-      initialisiereAktienmarkt(state);
       initialisiereStartbestand(state);
       endeGezeigt = state.beendet;
       setSpeed(0);
@@ -319,7 +314,6 @@ document.addEventListener('visibilitychange', () => {
 state = loadGame(AUTOSAVE_SLOT);
 if (state) {
   initialisiereMarkt(state); // no-op, falls schon initialisiert (v2-Save)
-  initialisiereAktienmarkt(state);
   initialisiereStartbestand(state);
   endeGezeigt = state.beendet;
   if (state.beendet) zeigeEnde(state);

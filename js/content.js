@@ -2,18 +2,16 @@
 // Der Loader ist umgebungsneutral: der Browser (main.js) lädt per fetch,
 // der Simtest (Node) per fs.readFile — beide rufen setzeInhalte().
 
-let inhalte = { listings: [], tenants: [], events: [], stocks: [] };
+let inhalte = { listings: [], tenants: [], events: [] };
 let listingIndex = new Map();
 let tenantIndex = new Map();
 let eventIndex = new Map();
-let stockIndex = new Map();
 
 export function setzeInhalte(neu) {
   inhalte = { ...inhalte, ...neu };
   listingIndex = new Map(inhalte.listings.map((l) => [l.id, l]));
   tenantIndex = new Map(inhalte.tenants.map((t) => [t.id, t]));
   eventIndex = new Map(inhalte.events.map((e) => [e.id, e]));
-  stockIndex = new Map(inhalte.stocks.map((stock) => [stock.id, stock]));
 }
 
 export function alleListings() {
@@ -44,12 +42,3 @@ export function getEvent(id) {
   return e;
 }
 
-export function alleAktien() {
-  return inhalte.stocks;
-}
-
-export function getAktie(id) {
-  const aktie = stockIndex.get(id);
-  if (!aktie) throw new Error(`Unbekannte Aktie: ${id}`);
-  return aktie;
-}

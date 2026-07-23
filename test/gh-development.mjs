@@ -3,25 +3,25 @@
 
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { newGame, exportString, importString } from '../js/state.js?v=51';
-import { setzeInhalte } from '../js/content.js?v=51';
-import { initialisiereMarkt } from '../js/market.js?v=51';
-import { initialisiereStartbestand } from '../js/starter.js?v=51';
-import { advanceMonths, monatsWerte, zeitVerbrauch } from '../js/engine.js?v=51';
-import { resolveEvent } from '../js/events.js?v=51';
-import { objektArcsFuerObjekt } from '../js/arcs.js?v=51';
-import { setzeEntwicklungsziel, zielStatus } from '../js/goals.js?v=51';
+import { newGame, exportString, importString } from '../js/state.js?v=52';
+import { setzeInhalte } from '../js/content.js?v=52';
+import { initialisiereMarkt } from '../js/market.js?v=52';
+import { initialisiereStartbestand } from '../js/starter.js?v=52';
+import { advanceMonths, monatsWerte, zeitVerbrauch } from '../js/engine.js?v=52';
+import { resolveEvent } from '../js/events.js?v=52';
+import { objektArcsFuerObjekt } from '../js/arcs.js?v=52';
+import { setzeEntwicklungsziel, zielStatus } from '../js/goals.js?v=52';
 import {
   aktualisiereLebensphasen, arbeitsmodellRestbindung, naechsteLebensphase,
   setzeArbeitsmodell, zeitbudgetMonat,
-} from '../js/life.js?v=51';
-import { monatsAnlass } from '../js/gameplay.js?v=51';
-import { renovierungsOptionen, starteRenovierung } from '../js/renovation.js?v=51';
+} from '../js/life.js?v=52';
+import { monatsAnlass } from '../js/gameplay.js?v=52';
+import { renovierungsOptionen, starteRenovierung } from '../js/renovation.js?v=52';
 
 const lade = async (name) => JSON.parse(await readFile(new URL(`../data/${name}`, import.meta.url), 'utf8'));
 setzeInhalte({
   listings: await lade('listings.json'), tenants: await lade('tenants.json'),
-  events: await lade('events.json'), stocks: await lade('stocks.json'),
+  events: await lade('events.json'),
 });
 
 function start(seed = 'gh-entwicklung') {

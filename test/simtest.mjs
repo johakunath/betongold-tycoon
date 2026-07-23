@@ -5,51 +5,46 @@
 // Bei neuen Systemen (Phase 2+) hier Checks ergänzen.
 
 import { readFile } from 'node:fs/promises';
-import { SAVE_VERSION, DEFAULT_CONFIG } from '../js/config.js?v=51';
-import { newGame, exportString, importString, rngFloat } from '../js/state.js?v=51';
+import { SAVE_VERSION, DEFAULT_CONFIG } from '../js/config.js?v=52';
+import { newGame, exportString, importString, rngFloat } from '../js/state.js?v=52';
 import {
   advanceMonths, alterGenau, gesamtMonate, istImRuhestand,
   lebensendeVorschau, monatsWerte, nettovermoegen,
-} from '../js/engine.js?v=51';
-import { setzeInhalte, getListing } from '../js/content.js?v=51';
+} from '../js/engine.js?v=52';
+import { setzeInhalte, getListing } from '../js/content.js?v=52';
 import {
   initialisiereMarkt, sichtbareListings, gebotAbgeben, fairerWert,
   besichtigen, dokumenteAnfordern, gutachterBeauftragen,
-} from '../js/market.js?v=51';
+} from '../js/market.js?v=52';
 import {
   finanzierungsCashflowVorschau, kreditAngebot, kaufeObjekt, restschuldNach, nebenkostenFuer,
   sondertilgen, sondertilgungRahmen, sondertilgungVorschau,
-} from '../js/finance.js?v=51';
+} from '../js/finance.js?v=52';
 import {
   starteVermietung, neueBewerber, waehleBewerber, kannErhoehen, erhoeheMiete, marktmiete,
   mietrechtFuer, angesetzteMiete, vermietungsmodell, starteEigenbedarf,
   zahleEigenbedarfAbfindung,
-} from '../js/tenants.js?v=51';
-import { etfVerkaufVorschau, kaufeEtf, setzeSparplanEtfAnteil, verkaufeEtf } from '../js/etf.js?v=51';
-import {
-  initialisiereAktienmarkt, aktienDepotWert, aktienKaufVorschau,
-  kaufeAktie, verkaufeAktie,
-} from '../js/aktien.js?v=51';
-import { renovierungsOptionen, starteRenovierung } from '../js/renovation.js?v=51';
-import { resolveEvent } from '../js/events.js?v=51';
-import { kaufeEigenheim, wohnortWechselVorschau } from '../js/eigenheim.js?v=51';
-import { starteVerkauf } from '../js/verkauf.js?v=51';
-import { zieheWartemomente } from '../js/signals.js?v=51';
-import { leerstandsKosten } from '../js/ui/bewerber.js?v=51';
-import { berechneEndauswertung } from '../js/endgame.js?v=51';
-import { initialisiereStartbestand } from '../js/starter.js?v=51';
+} from '../js/tenants.js?v=52';
+import { etfVerkaufVorschau, kaufeEtf, setzeSparplanEtfAnteil, verkaufeEtf } from '../js/etf.js?v=52';
+import { renovierungsOptionen, starteRenovierung } from '../js/renovation.js?v=52';
+import { resolveEvent } from '../js/events.js?v=52';
+import { kaufeEigenheim, wohnortWechselVorschau } from '../js/eigenheim.js?v=52';
+import { starteVerkauf } from '../js/verkauf.js?v=52';
+import { zieheWartemomente } from '../js/signals.js?v=52';
+import { leerstandsKosten } from '../js/ui/bewerber.js?v=52';
+import { berechneEndauswertung } from '../js/endgame.js?v=52';
+import { initialisiereStartbestand } from '../js/starter.js?v=52';
 import {
   aktuelleAdminWerte, standardAdminWerte, wendeAdminWerteAn, planeAdminWerte,
-} from '../js/admin.js?v=51';
-import { kapitalertragVorschau, kapitalsteuerStatus } from '../js/kapitalsteuer.js?v=51';
+} from '../js/admin.js?v=52';
+import { kapitalertragVorschau, kapitalsteuerStatus } from '../js/kapitalsteuer.js?v=52';
 
 const lade = async (name) =>
   JSON.parse(await readFile(new URL(`../data/${name}`, import.meta.url), 'utf8'));
 const listings = await lade('listings.json');
 const tenants = await lade('tenants.json');
 const events = await lade('events.json');
-const stocks = await lade('stocks.json');
-setzeInhalte({ listings, tenants, events, stocks });
+setzeInhalte({ listings, tenants, events });
 
 // Auto-Resolver: löst Dilemma-Events mit Option 0 auf → kopfloser Durchlauf.
 const auto = (st) => resolveEvent(st, 0);
@@ -315,48 +310,6 @@ check(monatsWerte(klassisch).einkommen === 3200 && monatsWerte(klassisch).etfEin
   check(Math.abs(rendite.etfDepot.wert - (depotStart * faktor + werte.etfEinzahlung)) < 0.0001
     && Math.abs(rendite.etfVergleich.wert - (benchmarkStart * faktor + werte.etfSparrate)) < 0.0001,
   'Echtes Depot und Benchmark erleben dieselbe Monatsrendite; Sparraten bleiben getrennt');
-}
-
-// --- Wertpapier-Sandbox: Kosten, Steuern, eigener RNG und Dividenden -------
-{
-  const aktien = newGame({ seedText: 'aktien-order' });
-  initialisiereAktienmarkt(aktien);
-  check(stocks.length === 5 && stocks.every((stock) => aktien.aktienDepot.kurse[stock.id] === stock.startKurs),
-    'Aktien-Sandbox initialisiert fünf fiktive Unternehmen zu stabilen Startkursen');
-  const nettoVor = nettovermoegen(aktien);
-  const kaufVorschau = aktienKaufVorschau(aktien, 'moertel-mehr', 10);
-  const kauf = kaufeAktie(aktien, 'moertel-mehr', 10);
-  check(kauf.ok && aktien.aktienDepot.positionen['moertel-mehr'].stueck === 10
-    && Math.abs(nettovermoegen(aktien) - (nettoVor - kaufVorschau.gebuehr)) < 0.001,
-    'Aktienkauf bucht ganze Stücke gegen Tagesgeld und vernichtet nur transparente Orderkosten');
-  aktien.aktienDepot.kurse['moertel-mehr'] = 70;
-  aktien.kapitalsteuer.freibetragGenutzt = 2000;
-  const verkauf = verkaufeAktie(aktien, 'moertel-mehr', 5);
-  check(verkauf.ok && verkauf.steuer > 0 && aktien.aktienDepot.positionen['moertel-mehr'].stueck === 5
-    && aktien.aktienDepot.steuernGesamt === verkauf.steuer,
-    'Aktienverkauf besteuert positive realisierte Gewinne und reduziert die Position');
-  check(!kaufeAktie(aktien, 'moertel-mehr', 0).ok && !verkaufeAktie(aktien, 'moertel-mehr', 99).ok,
-    'Ungültige Aktienorders werden ohne Mutation abgelehnt');
-
-  const dividende = newGame({ seedText: 'aktien-dividende' });
-  initialisiereAktienmarkt(dividende);
-  kaufeAktie(dividende, 'kaffeekasse-konsum', 100);
-  advanceMonths(dividende, 3, auto);
-  check(dividende.aktienDepot.dividendenNettoGesamt > 0 && dividende.letzterAktienCashflow > 0,
-    'Quartalsdividende fließt nach gemeinsamem Pauschbetrag ins Tagesgeld und den Monatscashflow');
-
-  const pfadA = newGame({ seedText: 'aktien-strom' });
-  const pfadB = newGame({ seedText: 'aktien-strom' });
-  initialisiereAktienmarkt(pfadA);
-  initialisiereAktienmarkt(pfadB);
-  kaufeAktie(pfadB, 'waermepumpe-soehne', 20);
-  advanceMonths(pfadA, 36, auto);
-  advanceMonths(pfadB, 36, auto);
-  check(JSON.stringify(pfadA.aktienDepot.kurse) === JSON.stringify(pfadB.aktienDepot.kurse)
-    && pfadA.aktienRngState === pfadB.aktienRngState,
-    'Aktienkurs-Pfad bleibt bei gleichem Seed unabhängig von Orders');
-  check(aktienDepotWert(pfadB) > 0 && pfadA.etfVergleich.wert === pfadB.etfVergleich.wert,
-    'Aktiendepot zählt zum Vermögen, ohne den Welt-ETF-Benchmark zu verschieben');
 }
 
 {
