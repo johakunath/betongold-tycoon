@@ -542,6 +542,7 @@ async function main() {
     ]);
     await auswerten(`document.querySelector('#btn-meldungen-schliessen').click()`);
 
+    await auswerten(`document.querySelector('#nav-karte').click()`);
     await screen('karte');
     const meldungsLegende = await auswerten(`(() => {
       document.querySelector('#btn-meldungen').click();
