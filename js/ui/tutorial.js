@@ -3,20 +3,20 @@
 
 const SCHRITTE = [
   {
-    screen: 'dashboard', selector: '#tile-cash', titel: 'Verfügbares Tagesgeld',
+    screen: 'dashboard', tab: 'vermoegen', selector: '#tile-cash', titel: 'Verfügbares Tagesgeld',
     text: 'Hier steht euer sofort einsetzbarer Puffer. Käufe, Prüfungen, Reparaturen und ein negativer Monats-Cashflow gehen direkt davon ab.',
   },
   {
-    screen: 'dashboard', selector: '#tile-cashflow', titel: 'Haushaltsüberschuss',
-    text: 'Diese Kennzahl normalisiert Einkommen, Lebenshaltung und Objekt-Cashflows vor der freiwilligen ETF-Umschichtung. Die echte Tagesgeld-Veränderung steht separat in der Haushaltsrechnung.',
+    screen: 'dashboard', tab: 'vermoegen', selector: '#tile-cashflow', titel: 'Haushaltsüberschuss',
+    text: 'Diese Kennzahl zeigt einen typischen Planungsmonat mit Einkommen, Lebenshaltung und Objekt-Cashflows vor der freiwilligen ETF-Umschichtung. Die echte Tagesgeld-Veränderung steht separat in der Haushaltsrechnung.',
   },
   {
-    screen: 'dashboard', selector: '.haushalt-karte', titel: 'Haushalt und Sparplan',
+    screen: 'dashboard', tab: 'haushalt', selector: '.haushalt-karte', titel: 'Haushalt und Sparplan',
     text: 'Die Haushaltsrechnung erklärt den Cashflow Posten für Posten. Kinder werden als direkte Zusatzkosten gezeigt; Grundbedarf steckt bereits in der Lebenshaltung.',
   },
   {
-    screen: 'dashboard', selector: '.chart-karte', titel: 'Strategie im Vergleich',
-    text: 'Die blaue Linie ist euer Nettovermögen, die gelbe der Gegenfall mit denselben externen Sparraten im Welt-ETF. Darunter seht ihr Mix, LTV und Liquiditätspuffer.',
+    screen: 'dashboard', tab: 'vermoegen', selector: '.chart-karte', titel: 'Strategie im Vergleich',
+    text: 'Die blaue Linie ist euer Nettovermögen, die gelbe der Gegenfall mit denselben externen Sparraten im Welt-ETF. Darunter seht ihr Mix, Finanzierungsquote und Liquiditätspuffer.',
   },
   {
     screen: 'karte', selector: '.stadtkarte', titel: 'Märkte auf der Stadtkarte',
@@ -31,7 +31,7 @@ const SCHRITTE = [
     text: 'Für die erste Partie ist +1 Monat der sicherste Takt. Laufende Zeit pausiert automatisch bei Entscheidungen, die nicht unbemerkt vorbeiziehen sollen.',
   },
   {
-    screen: 'dashboard', selector: '#btn-saves', titel: 'Speichern und ausprobieren',
+    screen: 'dashboard', tab: 'vermoegen', menu: true, selector: '#btn-saves', titel: 'Speichern und ausprobieren',
     text: 'Autosave schützt den laufenden Stand. Benannte Spielstände und JSON-Export helfen euch, verschiedene Finanzierungen oder Familienwege bewusst zu vergleichen.',
   },
 ];
@@ -68,13 +68,17 @@ function zeigen(neuerIndex) {
   fokus?.classList.remove('tutorial-fokus');
   fokus = null;
   const schritt = SCHRITTE[index];
+  const menue = document.getElementById('btn-menue');
+  if (menue.getAttribute('aria-expanded') === 'true') menue.click();
   api.zeigeScreen(schritt.screen);
+  if (schritt.tab) document.querySelector(`[data-zentrale-tab="${schritt.tab}"]`)?.click();
   document.getElementById('tour-fortschritt').textContent = `Schritt ${index + 1} von ${SCHRITTE.length}`;
   document.getElementById('tour-titel').textContent = schritt.titel;
   document.getElementById('tour-text').textContent = schritt.text;
   document.getElementById('btn-tour-zurueck').disabled = index === 0;
   document.getElementById('btn-tour-weiter').textContent = index === SCHRITTE.length - 1 ? 'Tour beenden' : 'Weiter';
   requestAnimationFrame(() => requestAnimationFrame(() => {
+    if (schritt.menu && menue.getAttribute('aria-expanded') !== 'true') menue.click();
     fokus = document.querySelector(schritt.selector);
     fokus?.classList.add('tutorial-fokus');
     fokus?.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });

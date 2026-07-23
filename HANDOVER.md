@@ -1,8 +1,96 @@
 # HANDOVER.md — aktueller Projektstand
 
-**Stand:** 20.07.2026, Claude (B1-Vereinfachungspass abgeschlossen)
+**Stand:** 22.07.2026, Codex (Desktop-Lesbarkeit abgeschlossen)
 
-**Versionen:** SAVE_VERSION = 19, UI_VERSION = 41
+**Versionen:** SAVE_VERSION = 20, UI_VERSION = 51
+
+UI v51 hebt auf breiten Desktops kompakte Haushalts-, Steuer-, Objekt-, Markt-
+und Erklärungstexte um rund 1–2 px an. Grüne Statusbadges verwenden nun eine
+kontrastreiche dunkle Schrift auf hellem Grün.
+
+UI v50 ergänzt die Akzentdisziplin aus UI v49 um eine feste 44-px-Höhe der
+drei Finanzwerte ab 701 px. Damit streckt die zweizeilige Topbar bei etwa
+1081–1180 px die Finanzbuttons nicht mehr auf die volle Grid-Zeile. Stadtpost
+und Glockenarchiv beziehen Kategorie, Symbol und Farbe aus derselben Funktion;
+das Dock ist auf Desktop nicht mehr als unnötiger horizontaler Scroller aktiv.
+
+UI v49 beruhigt die visuelle Hierarchie: gewöhnliche Überschriften, Icons,
+Rahmen und Trennlinien verwenden neutrale kühle Strukturfarben; Gold bleibt
+dem aktiven Dockziel, Primäraktionen und einzelnen Schlüsselwerten vorbehalten.
+Die drei Finanzwerte im Desktop-HUD sind niedriger. Das Bottom-Dock zeigt seine
+Zentrale-Unterseiten deckend, aber markiert auch nach einem Wechsel zu Stadt,
+Marktplatz oder Finanzen nur genau ein Ziel als aktiv. Browser- und
+Chat-Verträge sichern Kartenhöhe, Deckkraft und Exklusivität des Aktivzustands.
+
+UI v48 schließt alle offenen Punkte des vorangegangenen Code-Inspector-Berichts.
+`css/style.css` ist nur noch der geordnete Entrypoint für sieben thematische
+CSS-Schichten; der vollständige visuelle Inhalt und seine Reihenfolge blieben
+beim Split unverändert. `test/contrast-utils.mjs` prüft im echten Browser
+berechnete Text-/Hintergrundfarben nach WCAG. `browser-smoke.mjs` deckt damit
+die annotierten dynamischen Kontrastzustände ab und besitzt nun zusätzlich den
+fehlenden Langchart-Vertrag: nur `.chart-wrap` darf horizontal wachsen, nicht
+Panel, Screen oder Dokument.
+
+UI v47 ergänzt den Save-v20-Stand um den vollständig abgeglichenen jüngsten
+Browser-Annotationssatz. Tagesgeld und ETF sind als gemeinsames Finanzziel
+gruppiert; die Zentrale-Unterseiten ersetzen den redundanten Bottom-Nav-Alias.
+Exposé, Vergleich, Finanzierung und Mietrechtshinweise sind kompakter und
+lesbarer, Besichtigungsbefunde semantisch markiert, und der breite Bildzoom
+vermeidet unnötiges Querscrollen. Ein bebilderter Notartermin mit zurückhaltender
+Kaufanimation stärkt den Abschlussmoment. Das Glockenarchiv kategorisiert alle
+Meldungen farbig und verlinkt sie kontextuell; jährliche Sondertilgungs-Hinweise
+erscheinen dort ebenfalls. Bewerberkarten besitzen größere Porträts und
+illustrierte Steckbriefkategorien. Das Desktop-Dashboard nutzt seine Höhe besser,
+ohne die beabsichtigte interne Chartnavigation für lange Runs zu verlieren.
+
+Save v20/UI v46 setzt den priorisierten P0-Block aus `BACKLOG.md` vollständig
+um. Berlin nutzt recherchierte Angebotsmieten und eine deutlich angespanntere
+Bewerberlage. Jedes Profil besitzt einen Wohnort; ein Eigenheimkauf in einer
+anderen Region warnt vor der modellierten Einkommensänderung und wendet sie im
+Folgemonat einmalig an. Jahresverluste aus Vermietung erzeugen im vereinfachten
+Modell eine Steuergutschrift, Kredite erlauben jährlich bis zu 5 %
+Sondertilgung, und erfolglose Mietersuchen laufen im Hintergrund mit monatlicher
+Benachrichtigung weiter. Der Bankdialog hat einen synchronen ETF-Slider; die
+Zentrale-Untertabs liegen bei der Bottom-Navigation, das Vermögensdiagramm ist
+intern horizontal navigierbar und das Glockenpanel bleibt das einzige
+vollständige Ereignisarchiv. HUD-Haushalt, Bewerberkontrast und negatives
+Tagesgeld wurden ebenfalls vereinheitlicht.
+
+UI v45 schließt den zweiten gesammelten Owner-Annotationspass ab. Der
+Familienstart nutzt 900 € Reisen und 300 € direkte Kleinkindkosten; die
+Kinderstaffel steigt zu Schule und Ausbildung/Studium. „Finanzierungsquote“ und
+„typischer Planungsmonat“ ersetzen unnötige Fachsprache. Der Bankdialog besitzt
+nur noch Nutzung sowie Finanzierung & Urteil: Eigenkapital und Tilgung bleiben
+oben sichtbar, Rechnung und Cashflow-Vorschau scrollen darunter. Vergleichswerte
+zeigen farbige Abweichungen zur Basisspalte; technische Erklärtexte liegen in
+unclippbaren Tooltips. Außerdem: dunkle Kontrastflächen, ruhige Favoritensterne,
+Benachrichtigungsbadge am Marktplatz, Titelstatus am Objekt, Maus-Panning im
+Bildzoom, korrigierte Tourziele, ausführlichere Vermietungshilfe und klar
+gerahmte Mietniveaukarten.
+
+UI v44 setzt den gebündelten Browser-Annotationspass um. Dialoge schließen per
+Hintergrundklick oder Esc; geänderte Formulare fragen vor dem Verwerfen nach,
+erzwungene Spielstarts und offene Ereignisentscheidungen bleiben geschützt.
+Schriftgrößen, Dashboardkontrast, Iconzentrierung, Tababstände, Range-Regler und
+unclippbare Viewport-Tooltips teilen sich nun zentrale Regeln. Die Stadtbühne
+zeigt ihr Motiv scharf und in normaler Helligkeit, Marker bleiben beim Fokus
+ortsfixiert und der rechte Index besitzt kompakte Bildvorschauen. Im Exposé ist
+die Ablehnungsaktion idiomatisch beschriftet; der Bankdialog zeigt den Sollzins
+sichtbar als Markt-Basiszins plus Aufschlag für Finanzierungsquote und Bindung. Browser-Smoke
+sichert Dialogwarnung, Kartenbilder/-stabilität, Zinsaufschlüsselung und
+begrenzte Sliderbreite.
+
+UI v43 verbreitert den Startdialog ab 1100 px auf bis zu 1160 px und ordnet
+alle vier Startlagen in einer Reihe an. Bei 1305 × 979 px ist der Dialog damit
+breiter als hoch, vollständig sichtbar und ohne horizontalen Überlauf. Der
+Browser-Smoke sichert Breite, Seitenverhältnis und die gemeinsame Kartenzeile.
+
+UI v42 ordnet die zuvor in vier Auto-Spalten zerfallende Startvorschau neu:
+eine kleine Überschrift, zwei gleich breite Vermögenswerte und volle Zeilen
+für Monatsbild, Langfristannahmen und Presetbesonderheit. Der Browser-Smoke
+misst diese Hierarchie jetzt zusätzlich. Bei der annotierten Größe 1305 ×
+979 px ist der Block 413 px breit, ohne horizontalen Overflow; 390 px bleibt
+über das bestehende Responsive-Gate abgedeckt.
 
 UI v41 ist ein reiner UI-/CSS-Pass: kein Save-, State-, Engine- oder
 Datenformat wurde angefasst, `SAVE_VERSION` bleibt deshalb bei 19. Grundlage war
@@ -154,8 +242,8 @@ State-/RNG-Mutation:
 - laufende Bestandsmiete und regional gekappte Mietprüfung;
 - reguläre, möblierte und Zeitvermietung freier Objekte;
 - kosmetische Renovierung vor jedem dieser Vermietungswege;
-- Einmalkosten, Umbauzeit, Wechsel-/Rechtsrisiko und vereinfachte
-  Steuerrückstellung ohne Erstattung oder Verlustvortrag.
+- Einmalkosten, Umbauzeit, Wechsel-/Rechtsrisiko und vereinfachte signed
+  Steuerschätzung inklusive Gutschrift auf verrechenbare Verluste.
 
 Die Finanzierung rendert den risikoärmsten ausreichenden Weg als natives
 `<output>`: positiver Pfad, nahe Break-even bis −100 €/Monat oder „auch
@@ -258,7 +346,7 @@ Filterleisten, nicht Diagramme.
 
 ## Zahlen- und Interaktionsverträge
 
-js/ui/kennzahlen.js liefert gemeinsame normalisierte Ableitungen:
+js/ui/kennzahlen.js liefert gemeinsame Planungs-Ableitungen:
 
 - Haushaltsüberschuss vor freiwilliger ETF-Umschichtung;
 - Objekt-Cashflow nach Owner-Kosten, Rücklage, Verwaltung und Kreditrate;
@@ -266,7 +354,7 @@ js/ui/kennzahlen.js liefert gemeinsame normalisierte Ableitungen:
 - Liquiditätspuffer in Haushaltsmonaten;
 - Empfehlung „Nächster kluger Zug" (Liquidität → Leerstand → Marktangebot).
 
-Der HUD zeigt den normalisierten Haushaltsüberschuss. Die tatsächliche
+Der HUD zeigt den Überschuss eines typischen Planungsmonats. Die tatsächliche
 Tagesgeld-Veränderung des letzten Monats steht als Summenzeile in der
 Haushaltsrechnung und im Cashflow-Popover. Das Cashflow-Popover öffnet auf
 Hover/Fokus flüchtig, bleibt nach Klick gepinnt und schließt per zweitem
@@ -274,7 +362,7 @@ Klick, Außenklick oder Escape.
 
 Die Finanzierung zeigt bei Leerstand „Bis zur Vermietung" und „Nach geplanter
 Vermietung". Wohnungen erklären die WEG-Kosten aufklappbar. Eine Steuerwirkung
-von null erscheint genau einmal mit Grund. LTV bleibt als sekundäre
+von null erscheint genau einmal mit Grund. Die Finanzierungsquote bleibt als sekundäre
 „Finanzierungsquote" erhalten; Kauf, Kredit, Objektmonat und Haushaltswirkung
 sind getrennt. Darunter bewertet ein natives `<output>` den risikoärmsten
 ausreichenden aktiven Pfad nach vereinfachter Steuerschätzung.
@@ -286,11 +374,41 @@ ausreichenden aktiven Pfad nach vereinfachter Steuerschätzung.
   Außenansicht und zwei Zustands-Cutaways.
 - 159 Assets, 14,27 MB; Assetbudget unter 15 MB. Cormorant Garamond und
   Alegreya Sans lokal als WOFF2 inklusive OFL-Lizenztexten.
-- B0-Config und Pfadbewertung bleiben unverändert; G/H ergänzen Save v19/UI v40.
+- Der 40er-Katalog und die B0-Pfadlogik bleiben erhalten; Berliner Mietbasen,
+  Nachfrage und signed Steuerschätzung sind mit Save v20 neu kalibriert.
 - Lokaler Start über BETONGOLD_STARTEN.cmd beziehungsweise
   node tools/start-game.mjs; niemals file://.
 
-## Verifikation 20.07.2026 (Save v19 / UI v41)
+## Verifikation 21.07.2026 (Save v20 / UI v48)
+
+Grün: `simtest`, `b0-economy`, `chat-contracts` (31 Verträge), `e-gameplay`,
+`f-turnaround`, `gh-development`, `catalog-market`, `launcher-smoke`,
+`family-market --seeds=300`, `balance --seeds=300 --check`,
+`balance-regressions --seeds=300`, `browser-smoke` und `release-check`.
+Der Browser-Smoke prüft zusätzlich 41 dynamische Textzustände auf WCAG-Kontrast
+sowie den erzwungen breiten Vermögens-Chart auf internen Horizontal-Scroll ohne
+Seiten-Overflow. Der Release-Check validiert die sieben geordneten CSS-Schichten.
+
+## Frühere Verifikation 21.07.2026 (Save v20 / UI v46)
+
+Grün: `simtest`, `b0-economy`, `chat-contracts` (29 Verträge), `e-gameplay`,
+`f-turnaround`, `gh-development`, `catalog-market`, `launcher-smoke`,
+`family-market 300`, `balance --seeds=300 --check`,
+`balance-regressions 300` und `release-check`. `browser-smoke.mjs` ist
+syntaktisch gültig und auf die neuen Verträge erweitert; sein tatsächlicher
+Browserlauf war in dieser Sitzung nicht möglich, weil die In-App-Browser-
+Sicherheitsrichtlinie den lokalen `127.0.0.1`-Aufruf blockiert hat. Es wurde
+keine alternative Browsersteuerung zur Umgehung verwendet.
+
+## Frühere Verifikation 20.07.2026 (Save v19 / UI v43)
+
+Nach den Owner-Annotationen grün: `simtest`, `chat-contracts` (27 Verträge),
+`browser-smoke` und `release-check`. Der Browser-Smoke misst bei 1280 px den
+breiten, einzeiligen Presetbereich und die geordnete Startvorschau sowie den
+einspaltigen, überlauffreien 390-px-Zustand. Im In-App-Browser wurde der
+annotierte Desktop-Zustand zusätzlich direkt geprüft.
+
+### Frühere Vollverifikation (Save v19 / UI v41)
 
 Alle zwölf Testskripte grün — vollständiger Lauf nach dem B1-Pass:
 `simtest`, `b0-economy`, `chat-contracts` (27 Verträge), `e-gameplay`,
@@ -349,9 +467,10 @@ keine Konsolenfehler.
 
 ## Bewusst offen
 
-1. **Unmittelbar:** Owner testet den Save-v19/UI-v41-Stand manuell und hält
+1. **Unmittelbar:** Owner testet den Save-v20/UI-v46-Stand manuell und hält
    Unklarheiten oder unerwartete Zahlen in `PLAYTEST.md` fest. Besonders lohnend
-   sind die geänderte Exposé-Reihenfolge und das Meldungsarchiv.
+   sind Berliner Vermietung, regionale Eigenheimumzüge, Hintergrundsuche,
+   Sondertilgung und die verschobene Zentrale-Navigation.
 2. **Rest B1.3:** Bildzoom als nativer `<button>`, `aria-hidden` für den
    SVG-Fallback bei vorhandenem WebP, echte `<meter>` statt Div-Messbalken. Der
    Elementvertrag gilt weiterhin sofort für neue UI.

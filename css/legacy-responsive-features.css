@@ -1,0 +1,406 @@
+/* --- Admin-Panel (Phase 5) ----------------------------------------------------------- */
+
+#dlg-admin { width: min(1040px, 96vw); max-height: 92vh; }
+#dlg-admin form { display: flex; flex-direction: column; max-height: calc(92vh - 40px); }
+#dlg-admin .admin-einleitung { margin: 2px 0 14px; }
+.admin-gruppen {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  overflow-y: auto;
+  padding: 2px 5px 4px 2px;
+}
+.admin-gruppe {
+  min-width: 0;
+  margin: 0;
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  padding: 10px 12px 12px;
+}
+.admin-gruppe legend { padding: 0 5px; font-weight: 750; }
+.admin-gruppe > p { margin: 0 0 10px; color: var(--gedimmt); font-size: 12px; }
+.admin-felder { display: flex; flex-direction: column; gap: 8px; }
+.admin-feld {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2px 8px;
+  align-items: center;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--grid);
+  font-size: 13px;
+}
+.admin-feld:last-child { border-bottom: 0; padding-bottom: 0; }
+.admin-feld > span:first-child { font-weight: 600; }
+.admin-feld small {
+  grid-column: 1 / -1;
+  color: var(--gedimmt);
+  font-size: 11px;
+  line-height: 1.3;
+}
+.admin-eingabe {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+  color: var(--gedimmt);
+  font-size: 11px;
+  white-space: nowrap;
+}
+.admin-eingabe input {
+  width: 86px;
+  padding: 5px 7px;
+  border: 1px solid var(--hairline);
+  border-radius: 7px;
+  font: inherit;
+  color: var(--tinte);
+  background: #fff;
+  font-variant-numeric: tabular-nums;
+}
+.admin-status {
+  min-height: 22px;
+  margin-top: 10px;
+  color: var(--tinte-2);
+  font-size: 12.5px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+  main:not([hidden]), dialog[open], .wert.wert-update { animation: none !important; }
+  .owned-card:hover, .markt-karte:hover, .event-option:hover { transform: none; }
+}
+
+@media (min-width: 1440px) {
+  .dashboard, .marktplatz, .expose, .endgame { max-width: 1420px; }
+  .dashboard { grid-template-columns: minmax(0, 2.45fr) minmax(330px, 0.9fr); }
+}
+
+/* --- Tablet ------------------------------------------------------------------------------ */
+
+@media (max-width: 1320px) {
+  .topbar { grid-template-columns: auto 135px minmax(350px, 1fr) auto; gap: 8px 12px; }
+  .kacheln { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .menue button { min-width: 34px; justify-content: center; padding-inline: 8px; }
+  .menue button span { display: none; }
+}
+
+@media (max-width: 1080px) {
+  .kacheln { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .dashboard { grid-template-columns: 1fr; }
+  .topbar { grid-template-columns: auto 1fr auto; gap: 8px 12px; }
+  .brand { grid-column: 1; grid-row: 1; }
+  .hud { grid-column: 2; grid-row: 1; }
+  .speed-group { grid-column: 3; grid-row: 1; }
+  .ressourcenleiste { grid-column: 1 / -1; grid-row: 2; }
+  .screens-nav { grid-column: 1; grid-row: 3; }
+  .menue { grid-column: 2 / -1; grid-row: 3; }
+  .menue { margin-left: 0; }
+  .expose-oben, .expose-unten { grid-template-columns: 1fr; }
+  .objekt-oben { grid-template-columns: 1fr; }
+  .niveau-optionen, .modell-optionen { grid-template-columns: 1fr; }
+  .score-raster { grid-template-columns: repeat(2, 1fr); }
+  .endgame-details, .endgame-vergleich { grid-template-columns: repeat(2, 1fr); }
+  .endgame-hero { align-items: flex-start; flex-direction: column; }
+  .endgame-hauptwert { text-align: left; }
+  .admin-gruppen { grid-template-columns: 1fr; }
+  .objekt-visual .expose-bild { min-height: 0; }
+}
+
+@media (max-width: 700px) {
+  .topbar { grid-template-columns: 1fr 1fr; padding: 9px 12px; }
+  .brand { grid-column: 1; grid-row: 1; width: auto; }
+  .hud { grid-column: 2; grid-row: 1; text-align: right; }
+  .ressourcenleiste { grid-column: 1 / -1; grid-row: 2; }
+  .screens-nav { grid-column: 1 / -1; grid-row: 3; }
+  .speed-group { grid-column: 1 / -1; grid-row: 4; max-width: 100%; overflow-x: auto; }
+  .menue { grid-column: 1 / -1; grid-row: 5; width: 100%; overflow-x: auto; justify-content: flex-start; }
+  .dashboard, .marktplatz, .expose, .endgame { padding-left: 12px; padding-right: 12px; }
+  .screen-heading { align-items: flex-start; flex-direction: column; gap: 4px; }
+  .screen-heading--dashboard, .screen-heading--market {
+    min-height: 166px;
+    padding: 20px;
+    background-position: 62% center;
+  }
+  .screen-heading--dashboard p, .screen-heading--market p { max-width: min(88%, 420px); }
+  .screen-heading p { text-align: left; }
+  .kacheln { grid-template-columns: 1fr; }
+  .filter-zeile { align-items: stretch; }
+  .filter-zeile label, .filter-zeile select { width: 100%; }
+  .filter-zeile button { margin-left: 0; }
+  .diff-optionen, .preset-optionen, .hilfe-raster, .tutorial-ablauf, .score-raster, .endgame-details, .endgame-vergleich { grid-template-columns: 1fr; }
+  .start-vorschau { grid-template-columns: 1fr; gap: 3px; }
+  .start-vorschau .start-besonderheit { grid-column: 1; }
+  .start-einstellungen { grid-template-columns: 1fr; }
+  .gebot-zeile, .speichern-zeile { flex-direction: column; }
+  .timeline-eintrag { grid-template-columns: 1fr; gap: 2px; }
+  .admin-feld { grid-template-columns: 1fr; }
+  .admin-feld small { grid-column: 1; }
+  .admin-eingabe { justify-content: flex-start; }
+  .portfolio-empty { grid-template-columns: auto 1fr; }
+  .portfolio-empty button { grid-column: 1 / -1; width: 100%; }
+  .flow-zeile, .objekt-flow-zeile { grid-template-columns: minmax(90px, 1fr) minmax(54px, 0.8fr) auto; gap: 6px; }
+  .bewerber-liste { grid-template-columns: 1fr; }
+  .bewerber-suche-kopf { align-items: flex-start; }
+  .leerstand-kosten { grid-template-columns: 1fr; }
+  .leerstand-kosten p { grid-column: auto; }
+  dialog { padding: 17px; }
+  #dlg-event::before { margin: -17px -17px 14px; }
+  .chart-zusatz { grid-template-columns: 1fr; }
+  .tutorial-kopf { align-items: flex-start; flex-direction: column; }
+  .tutorial-kopf button { width: 100%; }
+  .tutorial-tour { right: 14px; bottom: 14px; }
+}
+
+@media (max-width: 480px) {
+  html, body { font-size: 14px; }
+  .topbar { gap: 7px; }
+  .hud { min-width: 0; }
+  .ressourcenleiste { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .ressourcenleiste > :is(div, button) { border-bottom: 0; }
+  .screens-nav { width: 100%; gap: 2px; overflow-x: auto; scrollbar-width: thin; }
+  .screens-nav button { flex: 1; min-width: max-content; min-height: 30px; gap: 4px; padding: 5px 4px; font-size: 12px; }
+  .speed-group, .menue { scrollbar-width: thin; }
+  .menue button { padding-inline: 10px; }
+  .kacheln { gap: 8px; }
+  .kpi-paar { gap: 6px; }
+  .fin-ek-panel { grid-template-columns: 1fr; }
+  .kachel { padding: 13px 10px 10px; }
+  .kachel .label { font-size: 10px; }
+  .kachel .wert { font-size: 17px; }
+  .portfolio-board, .karte { padding: 13px; }
+  .portfolio-grid { grid-template-columns: 1fr; }
+  .portfolio-empty { grid-template-columns: 1fr; text-align: center; }
+  .empty-illustration { margin: 0 auto; }
+  .legende { flex-direction: column; gap: 3px; }
+  .owned-body h3 { min-height: 0; }
+  .objekt-wert { grid-template-columns: 1fr; }
+  .objekt-visual-overlay { align-items: flex-start; flex-direction: column; }
+  .diff-optionen { grid-template-columns: 1fr; }
+  .filter-zeile select { min-width: 0; }
+  .flow-track, .objekt-flow-zeile > div { display: none; }
+  .flow-zeile, .objekt-flow-zeile { grid-template-columns: 1fr auto; }
+}
+
+/* --- Funktionale Anker: Quartalsbericht, Stadtkarte, Hauskosten ------------------------ */
+
+.karten-kopf-aktionen { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.quartalsbericht { grid-column: 1; }
+.quartalsbericht > #quartalsbericht-inhalt {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  gap: 14px;
+}
+.quartals-kpis { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 0; }
+.quartals-kpis > div { padding: 10px; border: 1px solid var(--hairline); border-radius: 10px; background: var(--sand-hell, #faf7f0); }
+.quartals-kpis dt { font-size: 11px; }
+.quartals-kpis dd { display: block; margin: 2px 0 0; font-weight: 700; font-variant-numeric: tabular-nums; }
+.quartals-rueckblick ul { margin: 8px 0 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.quartals-rueckblick li { display: grid; grid-template-columns: auto 1fr; gap: 8px; align-items: start; }
+.quartals-naechster { padding: 14px; border-radius: 12px; background: color-mix(in srgb, var(--petrol) 8%, white); }
+.quartals-naechster h3 { margin: 3px 0; }
+.log-eintrag { display: grid; gap: 2px; border-left: 3px solid var(--hairline); padding-left: 9px; }
+.log-eintrag.log-risiko { border-left-style: double; }
+.log-eintrag.log-entscheidung { border-left-color: var(--petrol); }
+
+.spielkarte { max-width: 1280px; margin: 0 auto; padding: 28px 24px 64px; }
+.karten-filter { display: flex; flex-wrap: wrap; gap: 7px; margin: 14px 0; }
+.karten-filter button {
+  transition: transform .12s ease, border-color .12s ease, box-shadow .12s ease;
+}
+.karten-filter button.aktiv { color: white; background: var(--petrol); border-color: var(--petrol); }
+.karten-staedte { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: -5px 0 14px; }
+.karten-staedte button { display: grid; gap: 2px; text-align: left; padding: 10px 13px; background: rgba(255,253,248,.82); }
+.karten-staedte button small { color: var(--gedimmt); font-size: 10px; }
+.karten-staedte button.aktiv { color: white; border-color: var(--petrol); background: var(--petrol); box-shadow: 0 5px 15px rgba(29,51,61,.18); }
+.karten-staedte button.aktiv small { color: rgba(255,255,255,.72); }
+.karten-layout { display: grid; grid-template-columns: minmax(0, 2.2fr) minmax(260px, .8fr); gap: 16px; align-items: start; }
+.stadtkarte, .karten-legende { border: 1px solid var(--hairline); border-radius: 16px; background: var(--karte, #fff); box-shadow: var(--shadow-klein); }
+.stadtkarte { min-width: 0; overflow: hidden; padding: 8px; }
+.stadtkarte svg { display: block; width: 100%; height: auto; min-height: 330px; }
+.karten-legende { padding: 16px; }
+.karten-legende h2 { margin-top: 0; }
+.karten-ebene rect { fill: #f3eee2; stroke: #cfc2aa; stroke-width: 1.5; }
+.karten-ebene > path:not(.karten-wasser) { fill: none; stroke: #d5c8b2; stroke-width: 8; stroke-linecap: round; opacity: .7; }
+.karten-ebene.ebene-meissen-umland rect { fill: #edf2e9; }
+.karten-wasser { fill: none; stroke: #7eafb8; stroke-width: 5; opacity: .75; }
+.ebene-titel { fill: var(--tinte); font: 700 17px system-ui, sans-serif; }
+.ebene-sub { fill: var(--gedimmt); font: 11px system-ui, sans-serif; }
+.karten-marker { cursor: pointer; outline: none; }
+.karten-marker > :first-child { fill: #fff; stroke: var(--petrol); stroke-width: 3; vector-effect: non-scaling-stroke; }
+.karten-marker.status-bestand > :first-child { fill: var(--petrol); }
+.karten-marker.status-eigenheim > :first-child { fill: var(--amber, #d9a441); stroke: #6f5020; }
+.karten-marker.status-reserviert > :first-child { fill: #fff4d5; stroke: #b07119; }
+.karten-marker.status-pausiert, .karten-marker.status-kommend { opacity: .52; }
+.karten-marker.favorit { filter: drop-shadow(0 0 4px #d9a441); }
+.karten-marker.is-focus > :first-child, .karten-marker:focus-visible > :first-child { stroke-width: 6; }
+.marker-strich { fill: none !important; stroke: var(--tinte) !important; stroke-width: 2 !important; }
+.status-legende { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 12px; font-size: 12px; }
+.status-legende span { display: flex; align-items: center; gap: 6px; }
+.marker-symbol { width: 13px; height: 13px; display: inline-block; flex: 0 0 auto; border: 2px solid var(--petrol); border-radius: 50%; background: #fff; }
+.marker-symbol.bestand { border-radius: 2px; background: var(--petrol); }
+.marker-symbol.eigenheim { transform: rotate(45deg); border-radius: 1px; background: var(--amber, #d9a441); }
+.marker-symbol.pausiert, .marker-symbol.kommend { opacity: .45; border-style: dashed; }
+.marker-symbol.reserviert { transform: rotate(45deg); border-radius: 1px; }
+.karten-liste { max-height: 430px; overflow: auto; display: grid; gap: 5px; margin-bottom: 12px; }
+.karten-listenpunkt { width: 100%; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 9px; align-items: center; text-align: left; background: transparent; }
+.karten-listenpunkt b, .karten-listenpunkt small { display: block; }
+.karten-listenpunkt small { color: var(--gedimmt); }
+.karten-listenpunkt.is-focus, .karten-listenpunkt:focus-visible { background: color-mix(in srgb, var(--petrol) 9%, white); }
+.stadt-grund { fill: #eee8db; }
+.stadt-leipzig .stadt-grund { fill: #eeeade; }
+.stadt-meissen .stadt-grund { fill: #edf0e7; }
+.stadt-park { fill: #cdddc1; opacity: .82; }
+.stadt-wasser { fill: none; stroke: #78aeba; stroke-width: 27; opacity: .88; }
+.stadt-wasser.breit { stroke-width: 42; }
+.stadt-wasser.schmal { stroke-width: 11; }
+.stadt-strassen path { fill: none; stroke: #fffdf6; stroke-width: 15; stroke-linecap: round; filter: drop-shadow(0 1px 0 rgba(92,76,50,.25)); }
+.stadt-strassen path:nth-child(3n) { stroke-width: 9; }
+.stadt-strassen path:nth-child(2n) { stroke-width: 11; }
+.stadt-orte text { fill: #665e50; font: 600 12px system-ui, sans-serif; paint-order: stroke; stroke: rgba(255,253,248,.9); stroke-width: 4px; stroke-linejoin: round; }
+.stadt-titel text:first-child { fill: var(--tinte); font: 800 21px system-ui, sans-serif; }
+.stadt-titel text:last-child { fill: var(--gedimmt); font: 11px system-ui, sans-serif; }
+
+.fin-etf-panel { display: grid; grid-template-columns: minmax(170px, 1fr) 130px auto; gap: 9px; align-items: end; padding: 10px; border: 1px solid var(--hairline); border-radius: 10px; }
+.fin-etf-panel b, .fin-etf-panel small { display: block; }
+.fin-etf-panel small { color: var(--gedimmt); margin-top: 2px; }
+.fin-etf-panel input { width: 100%; }
+.fin-monatsvergleich { margin-top: 10px; display: grid; gap: 5px; padding-top: 9px; border-top: 1px solid currentColor; }
+.fin-monatsvergleich > b { margin-bottom: 2px; }
+.fin-monatsvergleich > small { margin-top: 4px; color: currentColor; opacity: .78; line-height: 1.35; }
+.fin-cashflow-zeile, .fin-cashflow-summe { display: flex; justify-content: space-between; gap: 14px; align-items: baseline; }
+.fin-cashflow-zeile > span { display: inline-flex; gap: 7px; align-items: baseline; }
+.fin-cashflow-zeile i { width: 10px; color: currentColor; font-style: normal; text-align: center; opacity: .7; }
+.fin-cashflow-zeile b, .fin-cashflow-summe b { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.fin-cashflow-summe { margin-top: 3px; padding-top: 6px; border-top: 1px solid currentColor; }
+.fin-cashflow-summe.haupt { font-size: 15px; }
+.fin-monatsvergleich .positiv { color: var(--positiv); }
+.fin-monatsvergleich .negativ { color: var(--negativ); }
+.fin-monatsvergleich .neutral { color: currentColor; }
+.badge.familie { border-style: double; }
+.endgame-einordnung { grid-column: 1 / -1; margin: 4px 0 0; padding-top: 12px; border-top: 1px solid var(--hairline); }
+
+/* --- Finanzen: Tagesgeldkonto, Depot und Buchungen -------------------------- */
+
+.finanzen {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 28px 24px 64px;
+  display: grid;
+  gap: 16px;
+}
+.screen-heading--finanzen {
+  padding: 22px 24px;
+  align-items: center;
+  color: var(--kopf-tinte);
+  border-radius: var(--radius);
+  background:
+    radial-gradient(circle at 82% 35%, rgba(237,161,0,.22), transparent 18rem),
+    linear-gradient(135deg, #2a404b, var(--kopf));
+  box-shadow: var(--schatten);
+}
+.screen-heading--finanzen .eyebrow { color: #ffd269; }
+.screen-heading--finanzen .title-icon { color: var(--akzent); }
+.screen-heading--finanzen h1 { display: flex; align-items: center; gap: 9px; }
+.screen-heading--finanzen p { color: rgba(243,239,231,.76); }
+
+.finanz-ueberblick { padding: 20px 22px; }
+.finanz-ueberblick > .karten-kopf > b {
+  font-size: clamp(24px, 3vw, 34px);
+  font-variant-numeric: tabular-nums;
+}
+.finanz-kurzwerte {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.finanz-kurzwerte > div { padding: 11px 14px; border-right: 1px solid var(--hairline); }
+.finanz-kurzwerte > div:last-child { border-right: 0; }
+.finanz-kurzwerte dt, .finanz-kurzwerte dd { display: block; }
+.finanz-kurzwerte dt { color: var(--tinte-2); font-size: 11.5px; }
+.finanz-kurzwerte dd { margin: 2px 0 0; font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.finanz-kurzwerte .positiv, .konto-karte > strong.positiv { color: var(--positiv); }
+.finanz-kurzwerte .negativ, .konto-karte > strong.negativ { color: var(--negativ); }
+.finanz-mix { margin-top: 14px; }
+.finanz-mix-balken { display: flex; height: 14px; overflow: hidden; border-radius: 99px; background: var(--grid); }
+.finanz-mix-balken i { display: block; height: 100%; transition: width .2s ease; }
+#fin-mix-cash { background: #4f7763; }
+#fin-mix-etf { background: var(--serie-etf); }
+.finanz-mix p { margin: 6px 0 0; color: var(--tinte-2); font-size: 12px; }
+
+.finanz-konten, .transfer-raster, .finanz-unten { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.konto-karte { position: relative; overflow: hidden; padding: 20px 22px; }
+.konto-karte::after { content: ''; position: absolute; width: 130px; height: 130px; right: -55px; top: -62px; border-radius: 50%; background: rgba(237,161,0,.09); }
+.konto-karte > header { display: flex; align-items: center; gap: 11px; }
+.konto-karte h2 { margin: 0; font-size: 18px; }
+.konto-symbol { display: grid; place-items: center; width: 42px; height: 42px; flex: 0 0 42px; border-radius: 12px; background: var(--kopf); }
+.konto-symbol .section-icon { color: var(--akzent); }
+.konto-karte > strong { display: block; margin: 18px 0 14px; font-size: clamp(28px, 4vw, 40px); line-height: 1; font-variant-numeric: tabular-nums; }
+.konto-karte dl { margin: 0; }
+.konto-karte dl > div { display: flex; justify-content: space-between; gap: 16px; padding: 7px 0; border-top: 1px solid var(--hairline); }
+.konto-karte dt { color: var(--tinte-2); }
+.konto-karte dd { margin: 0; font-weight: 650; text-align: right; font-variant-numeric: tabular-nums; }
+
+.finanz-aktionen { padding: 20px 22px 22px; }
+.transfer-raster { margin-top: 13px; }
+.transfer-karte { display: grid; align-content: start; gap: 8px; padding: 16px; border: 1px solid var(--hairline); border-radius: 12px; background: var(--karte-weich); }
+.transfer-karte h3 { display: flex; align-items: center; gap: 7px; margin: 0; font-size: 16px; }
+.transfer-karte > p { min-height: 2.9em; margin: 0; color: var(--tinte-2); font-size: 13px; }
+.transfer-karte > label { margin-top: 3px; font-weight: 650; font-size: 12px; }
+.geld-eingabe { display: grid; grid-template-columns: 1fr auto; align-items: center; overflow: hidden; border: 1px solid var(--hairline); border-radius: 9px; background: var(--karte-stark); }
+.geld-eingabe:focus-within { outline: 3px solid color-mix(in srgb, var(--fokus) 24%, transparent); border-color: var(--fokus); }
+.geld-eingabe input { min-width: 0; width: 100%; padding: 9px 11px; border: 0; outline: 0; background: transparent; font: inherit; font-variant-numeric: tabular-nums; }
+.geld-eingabe span { padding: 0 11px; color: var(--tinte-2); }
+.transfer-schnellwahl { display: flex; gap: 6px; }
+.transfer-schnellwahl button { flex: 1; padding-block: 5px; }
+.transfer-karte .transfer-vorschau { min-height: 2.9em; padding: 8px 9px; border-radius: 8px; background: rgba(42,120,214,.07); color: var(--tinte-2); font-size: 12px; }
+.transfer-karte > button[type="submit"] { margin-top: 2px; }
+
+.sparplan-karte, .bewegungen-karte { min-width: 0; padding: 20px 22px; }
+.sparplan-karte form { display: grid; gap: 10px; }
+.sparplan-karte form > label { color: var(--tinte-2); font-size: 13px; }
+.sparplan-karte output { color: var(--tinte); font-weight: 700; }
+.sparplan-karte input[type="range"] { width: 100%; accent-color: var(--kopf); }
+.sparplan-aufteilung { display: flex; justify-content: space-between; gap: 12px; color: var(--tinte-2); font-size: 12px; }
+.sparplan-karte form > button { justify-self: start; }
+.finanz-bewegungen { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
+.finanz-bewegungen li { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 10px; padding: 8px 0; border-top: 1px solid var(--hairline); font-size: 12.5px; }
+.finanz-bewegungen li > span:first-child { color: var(--gedimmt); font-variant-numeric: tabular-nums; }
+.finanz-bewegungen .bewegung-leer { display: block; color: var(--gedimmt); }
+
+@media (min-width: 1440px) {
+  .spielkarte, .finanzen { max-width: 1420px; }
+}
+
+@media (max-width: 1080px) {
+  .karten-layout { grid-template-columns: 1fr; }
+  .karten-liste { max-height: 280px; }
+}
+
+@media (max-width: 700px) {
+  .spielkarte, .finanzen { padding: 18px 12px 48px; }
+  .screen-heading--finanzen { padding: 18px; }
+  .finanz-kurzwerte, .finanz-konten, .transfer-raster, .finanz-unten { grid-template-columns: 1fr; }
+  .finanz-kurzwerte > div { border-right: 0; border-bottom: 1px solid var(--hairline); }
+  .finanz-kurzwerte > div:last-child { border-bottom: 0; }
+  .transfer-karte > p { min-height: 0; }
+  .quartalsbericht > #quartalsbericht-inhalt { grid-template-columns: 1fr; }
+  .quartals-kpis { grid-template-columns: 1fr; }
+  .quartals-rueckblick, .quartals-naechster { grid-column: 1; }
+  .stadtkarte { overflow-x: auto; }
+  .stadtkarte svg { width: 760px; max-width: none; }
+  .fin-etf-panel { grid-template-columns: 1fr; align-items: stretch; }
+}
+
+@media (max-width: 480px) {
+  .karten-filter button { flex: 1 1 calc(50% - 7px); }
+  .finanz-ueberblick, .finanz-aktionen, .konto-karte, .sparplan-karte, .bewegungen-karte { padding: 14px; }
+  .sparplan-aufteilung { flex-direction: column; gap: 2px; }
+}
+

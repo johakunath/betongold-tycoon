@@ -19,8 +19,8 @@ die verbindliche Basis; ein weiterer Vollumbau ist nicht geplant.
 
 | Befund | Status nach v36 | Konsequenz |
 |---|---|---|
-| Cashflow nur per Hover verständlich | **gelöst:** Klick pinnt den normalisierten Detailblock | aus Gameplay-Backlog entfernen |
-| Vor-/Nach-Steuer und Cashflow-Begriffe redundant | **gelöst:** Haushalt, Objekt, Vermögensaufbau und echte Kontobewegung sind getrennt; 0 € Steuer wird begründet | B0 bestätigt konservativ: keine sofortige Erstattung und kein Verlustvortrag im MVP |
+| Cashflow nur per Hover verständlich | **gelöst:** Klick pinnt den erklärten typischen Planungsmonat | aus Gameplay-Backlog entfernen |
+| Vor-/Nach-Steuer und Cashflow-Begriffe redundant | **gelöst:** Haushalt, Objekt, Vermögensaufbau und echte Kontobewegung sind getrennt; Gewinne und verrechenbare Verluste werden erklärt | Save v20 ergänzt die signed Jahressteuer samt Verlustvortrag-Vertrag |
 | LTV zu dominant | **gelöst:** als sekundäre „Finanzierungsquote“ im Kredit-/Risikokontext | Modellwert behalten |
 | Zahlen ungeordnet und textlastig | **gelöst in B1 (UI v41):** Exposé folgt der Handlungskette, Faktentabelle aufklappbar, Finanzen-Mix rechnet netto wie seine Überschrift | erledigt |
 | Doppelte Wege und Meldungen | **gelöst in B1 (UI v41):** Meldungsarchiv liest `state.log`; Renovieren, Bestandsweg und Bühne/Liste haben je eine Stelle | erledigt |

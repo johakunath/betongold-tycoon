@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Betongold Tycoon</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23141b22'/%3E%3Cpath d='M14 45h36v8H14zM19 31h31v8H19zM25 17h25v8H25z' fill='%23e6c264'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="css/style.css?v=41">
+  <link rel="stylesheet" href="css/style.css?v=51">
 </head>
 <body>
 
@@ -54,22 +54,24 @@
   </div>
 
   <div class="ressourcenleiste" aria-label="Wichtige Spielwerte">
-    <button type="button" id="hud-cash-aktion" class="resource-cash" title="Tagesgeldkonto und Depot öffnen"><svg class="hud-icon"><use href="#icon-wallet"></use></svg><span class="resource-copy"><small>Tagesgeld</small><b id="hud-cash">—</b></span><span class="resource-action">Finanzen</span></button>
+    <div class="resource-finanzgruppe" role="group" aria-label="Tagesgeld und ETF-Depot – beide öffnen Finanzen">
+    <button type="button" id="hud-cash-aktion" class="resource-cash" title="Finanzen öffnen"><svg class="hud-icon"><use href="#icon-wallet"></use></svg><span class="resource-copy"><small>Tagesgeld</small><b id="hud-cash">—</b></span></button>
+    <button type="button" id="hud-etf-aktion" title="Finanzen öffnen"><svg class="hud-icon"><use href="#icon-chart"></use></svg><span class="resource-copy"><small>ETF-Depot</small><b id="hud-etf">—</b></span></button>
+    </div>
     <button type="button" class="resource-cashflow" id="hud-cashflow-aktion" aria-expanded="false" aria-controls="cashflow-popover"><svg class="hud-icon"><use href="#icon-trending"></use></svg><span class="resource-copy"><small>Haushaltsüberschuss</small><b id="hud-cashflow">—</b></span><span class="resource-action">Details</span></button>
-    <button type="button" id="hud-etf-aktion" title="Tagesgeldkonto und Depot öffnen"><svg class="hud-icon"><use href="#icon-chart"></use></svg><span class="resource-copy"><small>ETF-Depot</small><b id="hud-etf">—</b></span><span class="resource-action">Finanzen</span></button>
   </div>
 
   <div class="speed-group" id="speed-group" role="toolbar" aria-label="Zeitsteuerung">
+    <div class="speed-schritte" role="group" aria-label="Zeit schrittweise vorspulen">
+      <button type="button" id="btn-step-monat" title="Einen Monat weiter" aria-label="Einen Monat weiter"><span>+1 Monat</span></button>
+      <button type="button" id="btn-step-jahr" title="Ein Jahr weiter" aria-label="Ein Jahr weiter"><span>+1 Jahr</span></button>
+    </div>
+    <span class="trenner" aria-hidden="true"></span>
     <div class="speed-lauf" role="group" aria-label="Automatischer Zeitlauf">
       <button type="button" data-speed="0" class="aktiv" title="Zeit pausieren" aria-label="Zeit pausieren" aria-pressed="true"><svg class="speed-icon"><use href="#icon-pause"></use></svg><span>Pause</span></button>
       <button type="button" data-speed="0.5" title="Ruhig: 1 Monat in 2 Sekunden (30 Jahre in ca. 12 Minuten)" aria-label="Ruhige Geschwindigkeit: ein halber Monat pro Sekunde" aria-pressed="false"><svg class="speed-icon"><use href="#icon-play"></use></svg><span>0,5 M/s</span></button>
       <button type="button" data-speed="1" title="Normal: 1 Monat pro Sekunde (30 Jahre in ca. 6 Minuten)" aria-label="Normale Geschwindigkeit: 1 Monat pro Sekunde" aria-pressed="false"><svg class="speed-icon"><use href="#icon-fast"></use></svg><span>1 M/s</span></button>
       <button type="button" data-speed="3" title="Schnell: 3 Monate pro Sekunde (30 Jahre in ca. 2 Minuten)" aria-label="Schnell: 3 Monate pro Sekunde" aria-pressed="false"><svg class="speed-icon"><use href="#icon-turbo"></use></svg><span>3 M/s</span></button>
-    </div>
-    <span class="trenner" aria-hidden="true"></span>
-    <div class="speed-schritte" role="group" aria-label="Zeit schrittweise vorspulen">
-      <button type="button" id="btn-step-monat" title="Einen Monat weiter" aria-label="Einen Monat weiter"><span>+1 Monat</span></button>
-      <button type="button" id="btn-step-jahr" title="Ein Jahr weiter" aria-label="Ein Jahr weiter"><span>+1 Jahr</span></button>
     </div>
   </div>
 
@@ -86,24 +88,23 @@
 </header>
 <nav class="screens-nav" aria-label="Spielbereiche">
   <button type="button" id="nav-karte" class="aktiv" aria-current="page"><svg class="ui-icon"><use href="#icon-map"></use></svg><span>Stadt</span></button>
-  <button type="button" id="nav-dashboard"><svg class="ui-icon"><use href="#icon-landmark"></use></svg><span>Zentrale</span></button>
-  <button type="button" id="nav-marktplatz"><svg class="ui-icon"><use href="#icon-scale"></use></svg><span>Marktplatz <i id="markt-zaehler" class="zaehler" aria-hidden="true"></i></span></button>
+  <button type="button" id="nav-marktplatz"><svg class="ui-icon"><use href="#icon-scale"></use></svg><span>Marktplatz</span><i id="markt-zaehler" class="zaehler" aria-hidden="true"></i></button>
+  <div class="zentrale-tabs" role="tablist" aria-label="Bereich der Zentrale">
+    <button type="button" role="tab" id="zentrale-tab-vermoegen" data-zentrale-tab="vermoegen" class="aktiv" aria-selected="true" aria-controls="zentrale-panel-vermoegen"><svg class="ui-icon"><use href="#icon-trending"></use></svg>Vermögen</button>
+    <button type="button" role="tab" id="zentrale-tab-haushalt" data-zentrale-tab="haushalt" aria-selected="false" tabindex="-1" aria-controls="zentrale-panel-haushalt"><svg class="ui-icon"><use href="#icon-scale"></use></svg>Haushalt</button>
+    <button type="button" role="tab" id="zentrale-tab-objekte" data-zentrale-tab="objekte" aria-selected="false" tabindex="-1" aria-controls="zentrale-panel-objekte"><svg class="ui-icon"><use href="#icon-building"></use></svg>Objekte</button>
+  </div>
   <button type="button" id="nav-finanzen"><svg class="ui-icon"><use href="#icon-wallet"></use></svg><span>Finanzen</span></button>
 </nav>
 <aside id="cashflow-popover" class="cashflow-popover" aria-label="Cashflow-Aufschlüsselung" hidden></aside>
 <aside id="meldungen-panel" class="meldungen-panel" aria-labelledby="meldungen-titel" hidden>
-  <header><div><span class="eyebrow">Zuletzt passiert</span><h2 id="meldungen-titel">Benachrichtigungen</h2></div><button type="button" id="btn-meldungen-schliessen" aria-label="Benachrichtigungen schließen">✕</button></header>
+  <header><div><h2 id="meldungen-titel">Benachrichtigungen</h2></div><button type="button" id="btn-meldungen-schliessen" aria-label="Benachrichtigungen schließen">✕</button></header>
   <ol id="meldungen-liste"></ol>
 </aside>
 
 <main class="dashboard" id="screen-dashboard" tabindex="-1" aria-labelledby="dashboard-titel" hidden>
   <header class="screen-heading screen-heading--dashboard">
     <div><span class="eyebrow">Eure Bücher</span><h1 id="dashboard-titel"><svg class="title-icon"><use href="#icon-landmark"></use></svg>Zentrale</h1></div>
-    <div class="zentrale-tabs" role="tablist" aria-label="Bereich der Zentrale">
-      <button type="button" role="tab" id="zentrale-tab-vermoegen" data-zentrale-tab="vermoegen" class="aktiv" aria-selected="true" aria-controls="zentrale-panel-vermoegen"><svg class="ui-icon"><use href="#icon-trending"></use></svg>Vermögen</button>
-      <button type="button" role="tab" id="zentrale-tab-haushalt" data-zentrale-tab="haushalt" aria-selected="false" tabindex="-1" aria-controls="zentrale-panel-haushalt"><svg class="ui-icon"><use href="#icon-scale"></use></svg>Haushalt</button>
-      <button type="button" role="tab" id="zentrale-tab-objekte" data-zentrale-tab="objekte" aria-selected="false" tabindex="-1" aria-controls="zentrale-panel-objekte"><svg class="ui-icon"><use href="#icon-building"></use></svg>Objekte</button>
-    </div>
   </header>
   <!-- Ein Tab steuert genau ein Tabpanel. Die drei Vermögensblöcke liegen
        deshalb gemeinsam in diesem Panel statt als drei Einzelpanels. -->
@@ -168,7 +169,7 @@
 
     <section class="karte steuer-karte">
       <header class="karten-kopf"><h2><svg class="section-icon"><use href="#icon-tax"></use></svg>Steuern auf Vermietung</h2><span id="steuer-satz-wert" class="badge blau">35 %</span></header>
-      <p class="steuer-regel">Nur ein positiver Mietüberschuss wird im Dezember besteuert: <b>Miete − Eigentümerkosten − Kreditzinsen − AfA</b>. Euer Haushalts-Nettoeinkommen bleibt außen vor.</p>
+      <p class="steuer-regel">Im Dezember wird das Vermietungsergebnis verrechnet: <b>Miete − Eigentümerkosten − Kreditzinsen − AfA</b>. Gewinne kosten Steuer; Verluste erzeugen im vereinfachten Modell eine Gutschrift zum gewählten Grenzsteuersatz.</p>
       <label class="slider-zeile"><span>Persönlicher Grenzsteuersatz</span>
         <input type="range" id="steuer-slider" min="20" max="45" step="1" value="35">
       </label>
@@ -176,10 +177,6 @@
       <p id="steuer-letzter" class="hinweis"></p>
     </section>
 
-    <section class="karte log-karte">
-      <header class="karten-kopf"><h2><svg class="section-icon"><use href="#icon-log"></use></svg>Ereignisse</h2></header>
-      <div id="log-liste"></div>
-    </section>
   </div>
 </main>
 
@@ -362,7 +359,7 @@
 <main class="expose" id="screen-objekt" tabindex="-1" aria-labelledby="objekt-titel" hidden>
   <div class="expose-kopf">
     <button id="btn-objekt-zurueck">← Objekte</button>
-    <h1 id="objekt-titel"></h1>
+    <div class="objekt-titelzeile"><h1 id="objekt-titel"></h1><span id="objekt-kopf-status" class="objekt-kopf-status"></span></div>
     <div id="objekt-ansicht" class="ansicht-umschalter" role="group" aria-label="Gebäudeansicht">
       <button type="button" data-objekt-ansicht="innen" class="aktiv" aria-pressed="true">Innen</button>
       <button type="button" data-objekt-ansicht="aussen" aria-pressed="false">Außen</button>
@@ -467,7 +464,7 @@
       <li><b>Haushalt lesen</b><span>Einkommen minus Alltag, Kinder und Sparplan.</span></li>
       <li><b>Stadt wählen</b><span>Märkte, Angebote und Bestand auf der Karte.</span></li>
       <li><b>Angebot prüfen</b><span>Preis, Miete, Zustand und Risiken vergleichen.</span></li>
-      <li><b>Finanzierung testen</b><span>Rate, LTV, Reserve und Cashflow nach Kauf.</span></li>
+      <li><b>Finanzierung testen</b><span>Rate, Finanzierungsquote, Reserve und Cashflow nach Kauf.</span></li>
       <li><b>Objekt führen</b><span>Vermieten, Rücklage bilden, verwalten, renovieren.</span></li>
       <li><b>Zeit bewusst schalten</b><span>Für Entscheidungen bevorzugt +1 Monat nutzen.</span></li>
       <li><b>Wirkung beobachten</b><span>Cashflow, Schulden, Familie und Vermögen verfolgen.</span></li>
@@ -476,8 +473,8 @@
   <div class="hilfe-raster">
     <section class="hilfe-abschnitt"><h3>Ziel &amp; Zeit</h3><ul><li><b>Altersphasen:</b> Arbeitsnetto, Alltag, Reisen und Auto ändern ihre Faktoren sichtbar und werden vorab angekündigt; Details stehen in den Einstellungen.</li><li><b>Ruhestand:</b> Einkommen sinkt ab 67 zusätzlich auf 55 %.</li><li><b>Familienpreset:</b> heute kein Auto; 600 € all-in ab Monat 5, wenn Kind 2 ein Jahr alt ist.</li><li><b>Lebensende:</b> je Seed 90–100, Stress kann verkürzen.</li><li><b>Ziel:</b> Wähle freiwillig einen 3–8-Jahres-Horizont oder spiele ohne Ziel; Fortschritt kommt ohne Questprämie aus Bestand, Cashflow, Familie und Reserve.</li></ul></section>
     <section class="hilfe-abschnitt"><h3>Markt &amp; Prüfung</h3><ul><li><b>Bruttorendite:</b> Jahreskaltmiete ÷ Kaufpreis.</li><li>Notiz und Grundriss kosten Zeit.</li><li>Gutachten kostet Geld und senkt Mängelrisiko.</li></ul></section>
-    <section class="hilfe-abschnitt"><h3>Finanzierung &amp; LTV</h3><ul><li><b>LTV:</b> Restschuld ÷ Immobilienwert.</li><li>Mehr Eigenkapital senkt Rate und Risiko.</li><li>Eigenleistung spart bei Renovierungen gedeckelt Geld, kostet aber Zeit und erhöht das Überziehungsrisiko.</li></ul></section>
-    <section class="hilfe-abschnitt"><h3>Vermietung &amp; Cashflow</h3><ul><li>Rate plus Eigentümerkosten können die Miete übersteigen; manche Entscheidungen wirken in mehrmonatigen Objektgeschichten nach.</li><li>Höheres Eigenkapital, Kaufpreis und Vermietungsweg verändern das Ergebnis.</li><li>Möbliert und Wohnen auf Zeit bringen Aufwand, Wechsel und Rechtsrisiko.</li></ul></section>
+    <section class="hilfe-abschnitt"><h3>Finanzierung &amp; Schulden</h3><ul><li><b>Finanzierungsquote:</b> Anteil des Immobilienwerts, der noch durch die Restschuld finanziert ist.</li><li>Mehr Eigenkapital senkt Rate und Risiko.</li><li>Eigenleistung spart bei Renovierungen gedeckelt Geld, kostet aber Zeit und erhöht das Überziehungsrisiko.</li></ul></section>
+    <section class="hilfe-abschnitt"><h3>Vermietung &amp; Cashflow</h3><ul><li>Rate plus Eigentümerkosten können die Miete übersteigen; manche Entscheidungen wirken in mehrmonatigen Objektgeschichten nach.</li><li>Höheres Eigenkapital, Kaufpreis und Vermietungsweg verändern das Ergebnis.</li><li><b>Möbliert, längerfristig:</b> reguläres Mietverhältnis mit Einrichtung und moderatem Aufschlag; weniger Wechsel, aber Möbelverschleiß und übliche Mietrechtsrisiken.</li><li><b>Wohnen auf Zeit:</b> befristete Nutzung mit höherem Mietansatz; mehr Wechsel, Leerstand und Verwaltungsaufwand. Befristungsgrund und Zuschläge können rechtlich geprüft werden.</li></ul></section>
     <section class="hilfe-abschnitt"><h3>Eigenheim, Steuer &amp; Verkauf</h3><ul><li>Eigenheim ersetzt Miete, bindet aber Kapital.</li><li>AfA, Zins und Kosten mindern den Mietüberschuss.</li><li>Verkauf dauert; Steuer hängt von der Haltedauer ab.</li></ul></section>
     <section class="hilfe-abschnitt"><h3>Finanzen &amp; ETF</h3><ul><li>ETF kann als Eigenkapital verkauft werden.</li><li>Realisierte ETF-Gewinne nutzen den jährlichen Freibetrag.</li><li>Benchmark und Renditen sind keine Zusage.</li></ul></section>
   </div>
@@ -511,8 +508,7 @@
     <header class="bank-kopf"><img src="assets/avatar/t-01.webp" alt="Bankberaterin"><div><span class="eyebrow">Bankhaus Krause &amp; Töchter</span><h2 id="fin-titel">Finanzierung</h2></div><button type="button" data-schliessen aria-label="Schließen">✕</button></header>
     <nav class="fin-schritte" aria-label="Schritte der Finanzierung">
       <button type="button" data-fin-step="1" class="aktiv" aria-current="step"><b>1</b><span>Nutzung</span></button>
-      <button type="button" data-fin-step="2"><b>2</b><span>Eigenkapital</span></button>
-      <button type="button" data-fin-step="3"><b>3</b><span>Rate &amp; Urteil</span></button>
+      <button type="button" data-fin-step="2"><b>2</b><span>Finanzierung &amp; Urteil</span></button>
     </nav>
     <div class="fin-slider fin-flow-step" data-fin-step-panel="1">
       <h3>Wie wollt ihr das Objekt nutzen?</h3>
@@ -522,7 +518,8 @@
       </div>
       <p id="fin-nutzung-hinweis" class="hinweis"></p>
     </div>
-    <div class="fin-slider fin-flow-step" data-fin-step-panel="2" hidden>
+    <div class="fin-slider fin-flow-step fin-flow-ergebnis" data-fin-step-panel="2" hidden>
+      <div class="fin-konditionen-fix">
       <div class="fin-ek-panel">
         <div class="fin-ek-quote"><small>Eigenkapital gesamt</small><strong id="fin-ek-quote">—</strong><span>inklusive Kaufnebenkosten</span></div>
         <div class="fin-ek-schnellwahl" role="group" aria-label="Eigenkapitalquote schnell wählen">
@@ -534,14 +531,12 @@
       </div>
       <div id="fin-etf-panel" class="fin-etf-panel">
         <div><b>ETF direkt als Eigenkapital nutzen</b><small id="fin-etf-stand"></small></div>
-        <label><span class="sr-only">ETF-Umschichtung</span><input type="number" id="fin-etf-betrag" min="0" step="100" inputmode="numeric"></label>
+        <label class="fin-etf-slider"><span>ETF-Verkauf brutto <output id="fin-etf-betrag-wert">0 €</output></span><input type="range" id="fin-etf-betrag" min="0" step="100" value="0"><input type="number" id="fin-etf-betrag-zahl" min="0" step="100" inputmode="numeric" aria-label="ETF-Verkaufsbetrag genau eingeben"><small id="fin-etf-vorschau">0 € netto · 0 € Steuer</small></label>
         <button type="button" id="btn-fin-etf">Ins Tagesgeld</button>
       </div>
       <label>Eigenkapital <button type="button" class="info-tooltip" aria-label="Info: Mehr Eigenkapital senkt Rate und Zinsrisiko, bindet aber liquide Reserven." data-tooltip="Mehr Eigenkapital senkt Rate und Zinsrisiko, bindet aber liquide Reserven.">?</button>
         <input type="range" name="eigenkapital" min="0" max="100000" step="100">
       </label>
-    </div>
-    <div class="fin-slider fin-flow-step" data-fin-step-panel="3" hidden>
       <label>Anfängliche Tilgung <button type="button" class="info-tooltip" aria-label="Info: Höhere Tilgung erhöht die Monatsrate, reduziert aber die Restschuld schneller." data-tooltip="Höhere Tilgung erhöht die Monatsrate, reduziert aber die Restschuld schneller.">?</button>
         <input type="range" name="tilgung" min="1" max="4" step="0.25" value="2">
       </label>
@@ -552,9 +547,12 @@
         <label><input type="radio" name="zinsbindung" value="10" checked> 10 J.</label>
         <label><input type="radio" name="zinsbindung" value="15"> 15 J.</label>
       </div>
+      </div>
+      <div class="fin-ergebnis-scroll" tabindex="0" aria-label="Kaufrechnung und Finanzierungsvorschau">
       <table class="haushalt fin-tabelle"><tbody id="fin-rechnung"></tbody></table>
       <div id="fin-verdikt" class="verdikt"></div>
       <p class="hinweis" id="fin-hinweis"></p>
+      </div>
     </div>
     <footer>
       <button type="button" id="btn-fin-zurueck" hidden>Zurück</button>
@@ -567,8 +565,11 @@
 
 <!-- Kaufabschluss: der "dieses Geld ist weg"-Moment -->
 <dialog id="dlg-kauf">
-  <header><h2>Notartermin</h2></header>
-  <div id="dlg-kauf-inhalt"></div>
+  <header><div><span class="eyebrow">Kauf abgeschlossen</span><h2>Notartermin</h2></div></header>
+  <div class="kaufabschluss-layout">
+    <figure class="kaufabschluss-bild"><img src="assets/ui/notartermin.jpg" alt="Notarvertrag, Füller und Wohnungsschlüssel auf einem Schreibtisch"><figcaption>Unterschrieben. Besiegelt. Euer Betongold.</figcaption></figure>
+    <div id="dlg-kauf-inhalt"></div>
+  </div>
   <footer class="dialog-fuss"><button id="dlg-kauf-ok" class="primaer">Objekt ansehen</button></footer>
 </dialog>
 
@@ -611,7 +612,7 @@
 </dialog>
 
 <!-- Screen 8: Event-Modal -->
-<dialog id="dlg-event">
+<dialog id="dlg-event" data-schliessen-gesperrt>
   <header><span id="event-kategorie" class="event-kat"></span><h2 id="event-titel"></h2></header>
   <p id="event-text" class="event-text"></p>
   <div id="event-optionen" class="event-optionen"></div>
@@ -635,6 +636,6 @@
 <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 <input type="file" id="import-datei" accept=".json,application/json" hidden>
 
-<script type="module" src="js/main.js?v=41"></script>
+<script type="module" src="js/main.js?v=51"></script>
 </body>
 </html>

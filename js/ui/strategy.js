@@ -1,8 +1,8 @@
 // ui/strategy.js — native Ziel- und Arbeitsmodellwahl für G/H.
 
-import { alleZielStatus, setzeEntwicklungsziel, zielStatus } from '../goals.js?v=41';
-import { arbeitsmodell, arbeitsmodellRestbindung, naechsteLebensphase, setzeArbeitsmodell } from '../life.js?v=41';
-import { fmtEUR, fmtEURSigniert } from './util.js?v=41';
+import { alleZielStatus, setzeEntwicklungsziel, zielStatus } from '../goals.js?v=51';
+import { arbeitsmodell, arbeitsmodellRestbindung, naechsteLebensphase, setzeArbeitsmodell } from '../life.js?v=51';
+import { fmtEUR, fmtEURSigniert } from './util.js?v=51';
 
 let ctx = null;
 
@@ -27,7 +27,7 @@ function renderZiele(state) {
       ? `<div class="ziel-aktiv"><div><b>${aktiv.label}</b><span>${aktiv.detail}</span></div>` +
         `<meter min="0" max="${aktiv.maximum}" value="${Math.min(aktiv.maximum, aktiv.wert)}">${aktiv.wert}</meter>` +
         `<small>${aktiv.erreicht ? 'Ziel aus vorhandenem Spielstand erreicht — ohne Bonuszahlung.' : aktiv.ueberfaellig ? 'Eigene Frist verstrichen; Ziel bleibt freiwillig aktiv.' : `Noch ${aktiv.restMonate} Monate im selbst gewählten Horizont.`}</small></div>`
-      : `<p class="muted">Kein Questzwang: Wählt einen Orientierungspunkt oder spielt ohne Ziel weiter.</p>`) +
+      : '') +
     `<div class="ziel-optionen">${optionen.map((option) => {
       const cfg = state.config.entwicklung.zielOptionen[option.id];
       const ausgewaehlt = aktiv?.id === option.id;

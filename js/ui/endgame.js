@@ -1,8 +1,8 @@
 // ui/endgame.js — Screen 9: fünf Scores, Seed-Benchmarks und Timeline.
 
-import { berechneEndauswertung } from '../endgame.js?v=41';
-import { fmtEUR, fmtEURSigniert, fmtDatum } from './util.js?v=41';
-import { aktienDepotWert } from '../aktien.js?v=41';
+import { berechneEndauswertung } from '../endgame.js?v=51';
+import { fmtEUR, fmtEURSigniert, fmtDatum } from './util.js?v=51';
+import { aktienDepotWert } from '../aktien.js?v=51';
 
 const PHASEN_LABEL = {
   boom: 'Boom — Rückenwind für Märkte',
@@ -59,7 +59,7 @@ function renderEndgame(state, a) {
     `<div><span>Liquide Mittel</span><b>${fmtEUR(liquideMittel)}</b></div>` +
     `<div><span>Restschulden</span><b>${fmtEUR(schulden)}</b></div>` +
     `<div><span>Nachhaltiger Cashflow</span><b>${fmtEURSigniert(a.cashflow)}/Mon.</b></div>` +
-    `<div><span>Gesamt-LTV</span><b>${Math.round(a.ltv * 100)} %</b></div>` +
+    `<div><span>Finanzierungsquote</span><b>${Math.round(a.ltv * 100)} %</b></div>` +
     `<div><span>Puffer</span><b>${a.deckungMonate.toFixed(1).replace('.', ',')} Monate</b></div>` +
     `<div><span>Ø Familie</span><b>${Math.round(a.familieSchnitt)}/100</b></div>` +
     `<div><span>Jahre im Ruhestand</span><b>${a.ruhestandsdauer.toFixed(1).replace('.', ',')}</b></div>` +

@@ -7,7 +7,8 @@ Der vollständige Batch ist der Owner-Style-Lock. Neue Bilder müssen dieselbe w
 hochwertige Brettspiel-/City-Builder-Isometrie, Kameralogik und Lichtstimmung
 fortführen. Produktion und Promptbasis werden je Batch hier protokolliert.
 
-**Bildformat:** WebP, sRGB. **Schriften:** WOFF2. Budget gesamt < 15 MB. Kein Text im Bild (auch keine
+**Bildformat:** WebP, sRGB; einzelne UI-Illustrationen dürfen als optimiertes
+JPEG vorliegen. **Schriften:** WOFF2. Budget gesamt < 15 MB. Kein Text im Bild (auch keine
 Hausnummern, Schilder mit Worten, Preise), keine Wasserzeichen. Listing-,
 Szenario- und Personenassets zeigen keine identifizierbaren realen Gebäude;
 die ausdrücklich ortsgebundenen Stadt-Hintergründe in §5 dürfen typische
@@ -186,7 +187,18 @@ Die vier Original-PNGs liegen im lokalen Imagegen-Ordner; die Live-WebPs wurden
 mit Qualität 84 und voller 16:9-Quellauflösung übernommen. Gesamtbestand danach:
 152 Assets, 14,13 MB und damit weiterhin unter dem 15-MB-Vertrag.
 
-## 6. Lokale UI-Schriften — `assets/fonts/` (7 Dateien)
+## 6. Kaufabschluss — `assets/ui/notartermin.jpg` (1 Datei)
+
+Warme, textfreie 16:9-Illustration eines deutschen Notartermins mit Kaufurkunde,
+Füller, Schlüsseln und zurückhaltendem Goldsiegel. Sie dient ausschließlich dem
+erfolgreichen Kaufabschluss und wird mit einer reduzierten UI-Celebration
+kombiniert; bei `prefers-reduced-motion` bleibt die Darstellung statisch.
+Generiert am 21.07.2026 im eingebauten Imagegen-Workflow, 1280×720, 135.040 B.
+
+Aktueller Gesamtbestand: 160 Assets, 14,40 MB und damit unter dem
+15-MB-Vertrag.
+
+## 7. Lokale UI-Schriften — `assets/fonts/` (7 Dateien)
 
 Die Handoff-Typografie ist vollständig selbst gehostet und benötigt kein CDN.
 Die Latin-WOFF2-Dateien decken deutsche Umlaute, ß, Eurozeichen und die in der

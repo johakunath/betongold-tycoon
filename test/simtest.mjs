@@ -5,42 +5,43 @@
 // Bei neuen Systemen (Phase 2+) hier Checks ergänzen.
 
 import { readFile } from 'node:fs/promises';
-import { SAVE_VERSION, DEFAULT_CONFIG } from '../js/config.js?v=41';
-import { newGame, exportString, importString, rngFloat } from '../js/state.js?v=41';
+import { SAVE_VERSION, DEFAULT_CONFIG } from '../js/config.js?v=51';
+import { newGame, exportString, importString, rngFloat } from '../js/state.js?v=51';
 import {
   advanceMonths, alterGenau, gesamtMonate, istImRuhestand,
   lebensendeVorschau, monatsWerte, nettovermoegen,
-} from '../js/engine.js?v=41';
-import { setzeInhalte, getListing } from '../js/content.js?v=41';
+} from '../js/engine.js?v=51';
+import { setzeInhalte, getListing } from '../js/content.js?v=51';
 import {
   initialisiereMarkt, sichtbareListings, gebotAbgeben, fairerWert,
   besichtigen, dokumenteAnfordern, gutachterBeauftragen,
-} from '../js/market.js?v=41';
+} from '../js/market.js?v=51';
 import {
   finanzierungsCashflowVorschau, kreditAngebot, kaufeObjekt, restschuldNach, nebenkostenFuer,
-} from '../js/finance.js?v=41';
+  sondertilgen, sondertilgungRahmen, sondertilgungVorschau,
+} from '../js/finance.js?v=51';
 import {
   starteVermietung, neueBewerber, waehleBewerber, kannErhoehen, erhoeheMiete, marktmiete,
   mietrechtFuer, angesetzteMiete, vermietungsmodell, starteEigenbedarf,
   zahleEigenbedarfAbfindung,
-} from '../js/tenants.js?v=41';
-import { etfVerkaufVorschau, kaufeEtf, setzeSparplanEtfAnteil, verkaufeEtf } from '../js/etf.js?v=41';
+} from '../js/tenants.js?v=51';
+import { etfVerkaufVorschau, kaufeEtf, setzeSparplanEtfAnteil, verkaufeEtf } from '../js/etf.js?v=51';
 import {
   initialisiereAktienmarkt, aktienDepotWert, aktienKaufVorschau,
   kaufeAktie, verkaufeAktie,
-} from '../js/aktien.js?v=41';
-import { renovierungsOptionen, starteRenovierung } from '../js/renovation.js?v=41';
-import { resolveEvent } from '../js/events.js?v=41';
-import { kaufeEigenheim } from '../js/eigenheim.js?v=41';
-import { starteVerkauf } from '../js/verkauf.js?v=41';
-import { zieheWartemomente } from '../js/signals.js?v=41';
-import { leerstandsKosten } from '../js/ui/bewerber.js?v=41';
-import { berechneEndauswertung } from '../js/endgame.js?v=41';
-import { initialisiereStartbestand } from '../js/starter.js?v=41';
+} from '../js/aktien.js?v=51';
+import { renovierungsOptionen, starteRenovierung } from '../js/renovation.js?v=51';
+import { resolveEvent } from '../js/events.js?v=51';
+import { kaufeEigenheim, wohnortWechselVorschau } from '../js/eigenheim.js?v=51';
+import { starteVerkauf } from '../js/verkauf.js?v=51';
+import { zieheWartemomente } from '../js/signals.js?v=51';
+import { leerstandsKosten } from '../js/ui/bewerber.js?v=51';
+import { berechneEndauswertung } from '../js/endgame.js?v=51';
+import { initialisiereStartbestand } from '../js/starter.js?v=51';
 import {
   aktuelleAdminWerte, standardAdminWerte, wendeAdminWerteAn, planeAdminWerte,
-} from '../js/admin.js?v=41';
-import { kapitalertragVorschau, kapitalsteuerStatus } from '../js/kapitalsteuer.js?v=41';
+} from '../js/admin.js?v=51';
+import { kapitalertragVorschau, kapitalsteuerStatus } from '../js/kapitalsteuer.js?v=51';
 
 const lade = async (name) =>
   JSON.parse(await readFile(new URL(`../data/${name}`, import.meta.url), 'utf8'));
@@ -69,12 +70,12 @@ check(['boom', 'seitwaerts', 'crash'].includes(s.marktphase), 'Marktphase gewür
 const w0 = monatsWerte(s);
 console.log(`     Monat 0: Einkommen ${eur(w0.einkommen)} + Kindergeld ${eur(w0.kindergeld)}, Miete ${eur(w0.miete)}, Leben ${eur(w0.lebenshaltung)}, Kinder ${eur(w0.kinder)} → Sparrate ${eur(w0.sparrate)}`);
 check(w0.einkommen === 8300 && w0.kindergeld === 520 && w0.gesamteinkommen === 8820
-  && w0.miete === 1970 && w0.lebenshaltung === 3640 && w0.reisen === 1950
-  && w0.auto === 0 && w0.kinder === 600 && w0.sparrate === 2610 && w0.etfEinzahlung === 1305
-  && s.config.haushalt.ausgabenGesamtStart === 6210
-  && s.config.haushalt.ausgabenOhneReisenStart === 4260
+  && w0.miete === 1970 && w0.lebenshaltung === 2590 && w0.reisen === 900
+  && w0.auto === 0 && w0.kinder === 300 && w0.sparrate === 3960 && w0.etfEinzahlung === 1980
+  && s.config.haushalt.ausgabenGesamtStart === 4860
+  && s.config.haushalt.ausgabenOhneReisenStart === 3960
   && s.config.kapital.tagesgeldZins === 0.02,
-  'Default-Haushalt: 8.300 Netto + 520 Kindergeld, 6.210 Ausgaben inkl. Reisen, 2.610 Sparrate 50/50');
+  'Default-Haushalt: 8.300 Netto + 520 Kindergeld, 4.860 Ausgaben inkl. 900 Reisen, 3.960 Sparrate 50/50');
 const autoProbe = newGame({ seedText: 'auto-mit-kind-zwei' });
 autoProbe.monat = 4;
 check(monatsWerte(autoProbe).auto === 0, 'Vor dem ersten Geburtstag von Kind 2 besteht noch kein Auto-Cashflow');
@@ -229,7 +230,7 @@ check(monatsWerte(klassisch).einkommen === 3200 && monatsWerte(klassisch).etfEin
   const ltvWerte = schuldenA.portfolio.map((objekt) => objekt.darlehen.restschuld / fairerWert(schuldenA, objekt));
   check(startA.angewendet && schuldenA.portfolio.length === 5 && restschuld > 1_000_000
     && ltvWerte.every((ltv) => ltv >= 0.9299 && ltv <= 0.9701),
-    'Schuldenberg-Preset startet mit fünf echten Mietobjekten und 93–97 % LTV');
+    'Schuldenberg-Preset startet mit fünf echten Mietobjekten und 93–97 % Finanzierungsquote');
   check(schuldenA.startbestandInitialisiert &&
     Math.abs(schuldenA.historie[0].nettovermoegen - nettovermoegen(schuldenA)) < 0.001 &&
     Math.abs(schuldenA.etfVergleich.wert - nettovermoegen(schuldenA)) < 0.001,
@@ -452,8 +453,9 @@ check(cashflowVorschau
     && Math.abs(cashflowVorschau.gesamtNachSteuer
       - (k.letzterCashflow + cashflowVorschau.aenderungNachSteuer)) < 0.001,
   'Finanzierungsvorschau verbindet aktuellen Gesamtcashflow mit der Wirkung nach Kauf');
-check(cashflowVorschau.steuerMonat >= 0
-    && cashflowVorschau.gesamtNachSteuer <= cashflowVorschau.gesamtVorSteuer + 0.001
+check(Number.isFinite(cashflowVorschau.steuerMonat)
+    && Math.abs(cashflowVorschau.gesamtNachSteuer
+      - (cashflowVorschau.gesamtVorSteuer - cashflowVorschau.steuerMonat)) < 0.001
     && cashflowVorschau.rate === angebot.rate
     && Math.abs(cashflowVorschau.gesamtVorSteuer - (
       cashflowVorschau.aktuellerGesamtcashflow + cashflowVorschau.mieteinnahmen
@@ -477,8 +479,28 @@ check(k.entscheidungsHistorie.at(-1)?.typ === 'gekauft' && k.entscheidungsHistor
 check(Math.abs(cashVorher - k.cash - angebot.eigenkapital) < 0.01, 'Kauf zieht genau das EK ab');
 check(k.markt.feed[ziel.listing.id].status === 'verkauft', 'Listing als verkauft markiert');
 
+{
+  const sonderState = structuredClone(k);
+  const sonderObjekt = sonderState.portfolio[0];
+  sonderState.cash = 100000;
+  const rahmen = sondertilgungRahmen(sonderState, sonderObjekt);
+  const zielBetrag = Math.floor(Math.min(rahmen.verbleibend, 5000));
+  const vorschau = sondertilgungVorschau(sonderState, sonderObjekt, zielBetrag);
+  const cashVorSonder = sonderState.cash;
+  const schuldVorSonder = sonderObjekt.darlehen.restschuld;
+  const gebucht = sondertilgen(sonderState, sonderObjekt, zielBetrag);
+  check(rahmen.max <= sonderObjekt.darlehen.ursprungsbetrag * 0.05 + 0.01
+      && gebucht === vorschau.zahlung
+      && sonderState.cash === cashVorSonder - gebucht
+      && sonderObjekt.darlehen.restschuld === schuldVorSonder - gebucht
+      && vorschau.laufzeitDanach < vorschau.laufzeitVorher,
+    'Sondertilgung ist auf 5 % des Ursprungskredits begrenzt und verkürzt bei gleicher Rate die Laufzeit');
+}
+
 const restschuldStart = k.portfolio[0].darlehen.restschuld;
 advanceMonths(k, 24, auto);
+check(k.log.some((l) => l.ziel === k.portfolio[0].listingId && l.text.includes('Sondertilgung') && l.text.includes('noch möglich')),
+  'Jahresbeginn erinnert je offenem Darlehen an die mögliche Sondertilgung');
 check(k.letzterImmoCashflow !== 0, `Immobilien-Cashflow läuft: ${Math.round(k.letzterImmoCashflow)} €/Monat`);
 check(k.portfolio[0].darlehen.restschuld < restschuldStart, 'Tilgung reduziert Restschuld');
 const o0 = k.portfolio[0];
@@ -665,6 +687,17 @@ check(vermietungsmodell(p3, 'wohnenAufZeit').rechtsrisiko.berlin
   'Prüf-/Rückzahlungsrisiko ist in Berlin höher als in Leipzig und Meißen');
 starteVermietung(p3, leer, 'unter', false);
 check(leer.suche && leer.suche.bewerber.length >= 3, `Bewerberpool: ${leer.suche?.bewerber.length}`);
+{
+  const hintergrund = structuredClone(p3);
+  const objekt = hintergrund.portfolio.find((eintrag) => eintrag.listingId === leer.listingId);
+  const rngVor = hintergrund.rngState;
+  advanceMonths(hintergrund, 2, auto);
+  const meldungen = hintergrund.log.filter((eintrag) => eintrag.aktion === 'bewerber');
+  check(objekt.suche.generiertMonat === hintergrund.monat - 1
+      && meldungen.length === 2
+      && hintergrund.rngState !== rngVor,
+    'Aktive Mietersuche erzeugt pro Monatszug genau eine neue Runde samt Benachrichtigung');
+}
 const marktM = marktmiete(p3, leer);
 check(leer.suche.miete < marktM, 'unter Marktmiete angesetzt');
 const leerstand = leerstandsKosten(p3, leer);
@@ -760,6 +793,16 @@ function kaufeGuenstigesEigenheim(state) {
   check(Math.abs(wohnen.etfSparrate - (wohnen.sparrate - wohnen.mieteVergleich)) < 1e-6,
     'ETF-Kontrafaktual rechnet trotz Eigenheim mit weiterlaufender Mietzahlung');
   check(p4.familienzufriedenheit > familieVor, 'Eigenheim hebt Familienzufriedenheit');
+  const heimListing = getListing(heim.listingId);
+  const regional = wohnortWechselVorschau(newGame({ startPreset: 'heute' }), heimListing);
+  if (heimListing.segment !== 'berlin-rand') {
+    check(p4.wohnort === heimListing.segment
+        && Number.isFinite(p4.ausstehenderEinkommensRegionalfaktor)
+        && p4.einkommensRegionalfaktor === 1,
+      'Eigenheimumzug speichert den Wohnort und stellt die regionale Einkommensänderung für den Folgemonat bereit');
+  } else {
+    check(!regional.wechsel, 'Eigenheim am bisherigen Wohnort verändert das regionale Einkommen nicht');
+  }
   const schuldVor = heim.darlehen.restschuld;
   advanceMonths(p4, 1, auto);
   check(heim.darlehen.restschuld < schuldVor && p4.letzterEigenheimCashflow < 0,
@@ -782,7 +825,9 @@ function kaufeGuenstigesEigenheim(state) {
   const bescheid = tax.steuer.bescheide.at(-1);
   check(objekt && bescheid && bescheid.miete > 0 && bescheid.afa > 0,
     'Jahressteuerbescheid enthält Miete und AfA');
-  check(Number.isFinite(bescheid.steuer) && bescheid.steuer >= 0, 'Steuerbetrag ist plausibel und nicht negativ');
+  check(Number.isFinite(bescheid.steuer)
+      && Math.abs(bescheid.steuer - bescheid.ergebnis * bescheid.grenzsatz) < 0.01,
+    'Jahressteuerbescheid besteuert Gewinne und schreibt verrechenbare Vermietungsverluste gut');
 }
 
 {

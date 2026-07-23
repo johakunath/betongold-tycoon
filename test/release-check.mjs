@@ -5,7 +5,7 @@ import { readFile, readdir, stat } from 'node:fs/promises';
 import { extname, join, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
-import { DEFAULT_CONFIG, SAVE_VERSION, UI_VERSION, START_PRESETS } from '../js/config.js?v=41';
+import { DEFAULT_CONFIG, SAVE_VERSION, UI_VERSION, START_PRESETS } from '../js/config.js?v=51';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 let fehler = 0;
@@ -44,6 +44,14 @@ for (const ref of refs) {
 const cacheVersionen = refs.map((ref) => ref.match(/[?&]v=(\d+)/)?.[1]).filter(Boolean);
 check(cacheVersionen.length >= 2 && cacheVersionen.every((v) => Number(v) === UI_VERSION),
   `Cachebuster entspricht UI-Version ${UI_VERSION}`);
+
+const cssEntrypoint = await readFile(join(root, 'css', 'style.css'), 'utf8');
+const cssImports = [...cssEntrypoint.matchAll(/@import url\("\.\/(.+?\.css)\?v=(\d+)"\);/g)];
+check(cssImports.length === 7, 'CSS-Entrypoint lädt sieben geordnete Wartungsschichten');
+for (const [, datei, version] of cssImports) {
+  check(Number(version) === UI_VERSION, `CSS-Import ${datei} verwendet UI-Version ${UI_VERSION}`);
+  check(await existiert(join(root, 'css', datei)), `CSS-Import existiert: ${datei}`);
+}
 
 const codeDateien = (await dateienUnter(join(root, 'js'))).filter((p) => ['.js', '.mjs'].includes(extname(p)));
 let importAnzahl = 0;
@@ -91,13 +99,13 @@ for (const [id, preset] of Object.entries(START_PRESETS)) {
   check(typeof preset.bild === 'string' && await existiert(join(root, preset.bild)),
     `Startpreset-Bild existiert: ${id}`);
 }
-check(SAVE_VERSION === 19
+check(SAVE_VERSION === 20
   && DEFAULT_CONFIG.kapitalsteuer.pauschbetragProPerson === 1000
   && DEFAULT_CONFIG.kapitalsteuer.personen === 2
   && DEFAULT_CONFIG.kapitalsteuer.etfTeilfreistellung === 0.30
   && Object.keys(DEFAULT_CONFIG.mieter.vermietungsmodelle).length === 3
   && DEFAULT_CONFIG.bewirtschaftung.cashflowNaheNullMonat === 100,
-'Save v19, Kapitalsteuer, Cashflow-Korridor und drei Vermietungswege vollständig');
+'Save v20, Kapitalsteuer, Cashflow-Korridor und drei Vermietungswege vollständig');
 check((daten.listings || []).some((listing) => listing.segment === 'meissen-umland')
   && !(daten.listings || []).some((listing) => /rostock/i.test(`${listing.segment} ${listing.adresse} ${listing.titel}`))
   && ['me-01', 'me-02', 'me-03'].every((id) => listingIds.has(id)),

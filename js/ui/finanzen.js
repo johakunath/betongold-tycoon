@@ -1,12 +1,12 @@
 // finanzen.js — UI für Tagesgeldkonto, echtes ETF-Depot und Sparplan.
 // Die vermögensneutralen Buchungen selbst bleiben DOM-frei in etf.js.
 
-import { monatsWerte, nettovermoegen } from '../engine.js?v=41';
-import { fmtEUR, fmtEURSigniert } from './util.js?v=41';
-import { etfVerkaufVorschau } from '../etf.js?v=41';
-import { kapitalertragVorschau, renditeNachSteuer } from '../kapitalsteuer.js?v=41';
-import { fairerWert } from '../market.js?v=41';
-import { haushaltsUeberschussMonat, liquiditaetsPufferMonate } from './kennzahlen.js?v=41';
+import { monatsWerte, nettovermoegen } from '../engine.js?v=51';
+import { fmtEUR, fmtEURSigniert } from './util.js?v=51';
+import { etfVerkaufVorschau } from '../etf.js?v=51';
+import { kapitalertragVorschau, renditeNachSteuer } from '../kapitalsteuer.js?v=51';
+import { fairerWert } from '../market.js?v=51';
+import { haushaltsUeberschussMonat, liquiditaetsPufferMonate } from './kennzahlen.js?v=51';
 
 let ctx;
 
@@ -159,6 +159,7 @@ function renderTransferVorschau(state) {
   text('fin-transfer-vorschau', info);
   signal(cashDelta, deltaCash);
   signal(etfDelta, deltaEtf);
+  signal(document.getElementById('fin-transfer-cash-nachher'), cashNachher);
   button.textContent = buttonText;
   button.disabled = betragSigniert === 0 || !gueltig;
   button.classList.toggle('primaer', betragSigniert > 0 && gueltig);

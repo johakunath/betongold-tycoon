@@ -1,17 +1,17 @@
 // expose.js — Screen 3: Exposé-Detail mit Due Diligence, Notizen,
 // Szenariorechner, Gebot / Weggehen.
 
-import { getListing } from '../content.js?v=41';
+import { getListing } from '../content.js?v=51';
 import {
   angebotsPreis, vergleichsmiete, gebotAbgeben, kaufAbbrechen,
   besichtigen, dokumenteAnfordern, gutachterBeauftragen,
   angebotBeobachten, angebotVerwerfen, angebotNeuPruefen,
-} from '../market.js?v=41';
-import { dealEntscheidung, pruefstand } from '../gameplay.js?v=41';
-import { bildHTML, cutawayHTML } from '../iso.js?v=41';
-import { fmtEUR } from './util.js?v=41';
-import { oeffneFinanzierung } from './finanzierung.js?v=41';
-import { eigenheimEignung, fixkostenAufschluesselung, instandhaltungMonat, objektartConfig } from '../immobilie.js?v=41';
+} from '../market.js?v=51';
+import { dealEntscheidung, pruefstand } from '../gameplay.js?v=51';
+import { bildHTML, cutawayHTML } from '../iso.js?v=51';
+import { fmtEUR } from './util.js?v=51';
+import { oeffneFinanzierung } from './finanzierung.js?v=51';
+import { eigenheimEignung, fixkostenAufschluesselung, instandhaltungMonat, objektartConfig } from '../immobilie.js?v=51';
 
 let ctx = null;
 let aktuelleId = null;
@@ -116,7 +116,7 @@ export function renderExpose(state, voll = false) {
 
     `<section class="expose-entscheidung karte" aria-label="Entscheidung zu diesem Angebot">` +
     `<div class="expose-aktionen">` +
-    `<button id="btn-szenario">Szenario rechnen</button>` +
+      `<button id="btn-szenario">Finanzierung prüfen</button>` +
     (reserviert
       ? `<button id="btn-finanzieren" class="primaer">Finanzierung anfragen</button>` +
         `<button id="btn-kauf-abbrechen" class="gefahr">Doch nicht kaufen</button>`
@@ -144,16 +144,28 @@ function handlungsketteHTML(state, listing, stand, entscheidung) {
 
 function entscheidungsHTML(entscheidung, reserviert) {
   if (entscheidung?.typ === 'verworfen') {
-    return `<section class="deal-entscheidung weg" aria-live="polite"><span class="eyebrow">Bewusst entschieden</span>` +
-      `<h3>Guter Weggang</h3><p>Kein Kapital gebunden. Eure Prüfkenntnis bleibt erhalten; bei einer neuen Marktrunde entsteht eine neue Chance.</p>` +
+    return `<section class="deal-entscheidung weg" aria-live="polite"><span class="eyebrow">Angebot abgelehnt</span>` +
+      `<h3>Bewusst nicht gekauft</h3><p>Kein Kapital gebunden. Eure Prüfkenntnis bleibt erhalten; bei einer neuen Marktrunde entsteht eine neue Chance.</p>` +
       `<button type="button" id="btn-neu-pruefen">Entscheidung neu öffnen</button></section>`;
   }
   return `<section class="deal-entscheidung"><span class="eyebrow">Entscheidung</span>` +
-    `<p>${entscheidung?.typ === 'beobachtet' ? 'Dieses Angebot wird bewusst beobachtet. Ihr könnt trotzdem bieten oder weggehen.' : 'Nach der Prüfung: bieten, beobachten oder bewusst weggehen.'}</p>` +
     `<div>` +
       `<button type="button" id="btn-beobachten" aria-pressed="${entscheidung?.typ === 'beobachtet'}" ${reserviert || entscheidung?.typ === 'beobachtet' ? 'disabled' : ''}>${entscheidung?.typ === 'beobachtet' ? 'Wird beobachtet' : 'Beobachten'}</button>` +
-      `<button type="button" id="btn-verwerfen" class="gefahr">Bewusst weggehen</button>` +
+      `<button type="button" id="btn-verwerfen" class="gefahr">Angebot ablehnen</button>` +
     `</div></section>`;
+}
+
+function befundDarstellung(text) {
+  if (/⚠|fehlt|gerissen|überholt|fällig|marode|sonderumlage|mangel|problem|nicht vorhanden/i.test(text)) {
+    return { klasse: 'schlecht', symbol: '!', label: 'Kritischer Befund' };
+  }
+  if (/gut|solide|unauffällig|keine verborgenen|ruhig|tadellos|gepflegt|funktional|erneuert|licht/i.test(text)) {
+    return { klasse: 'gut', symbol: '✓', label: 'Positiver Befund' };
+  }
+  if (/wirkt|scheint|unklar|vermutlich|könnte/i.test(text)) {
+    return { klasse: 'unklar', symbol: '?', label: 'Unklarer Befund' };
+  }
+  return { klasse: 'neutral', symbol: '•', label: 'Neutraler Befund' };
 }
 
 function mietstatusText(l) {
@@ -231,9 +243,12 @@ function ddHTML(state, l, dd) {
     `</div>` +
     (erkenntnisse.length
       ? `<ul class="dd-liste">${erkenntnisse
-          .map(([q, t]) => `<li><span class="dd-quelle">${q}</span>${t}</li>`)
+          .map(([q, t]) => {
+            const art = befundDarstellung(t);
+            return `<li class="dd-befund dd-${art.klasse}"><span class="dd-symbol" role="img" aria-label="${art.label}">${art.symbol}</span><span class="dd-quelle">${q}</span><span>${t}</span></li>`;
+          })
           .join('')}</ul>`
-      : '<p class="muted">Noch nichts geprüft. Vorbereitung reduziert Unsicherheit — sie beseitigt sie nie.</p>') +
+      : '') +
     `</div>`
   );
 }
@@ -309,7 +324,7 @@ function wireAktionen(state, l, eintrag) {
   });
   document.getElementById('btn-verwerfen')?.addEventListener('click', () => {
     const r = angebotVerwerfen(state, aktuelleId);
-    ctx.toast(r.grund || 'Guter Weggang: Wissen gewonnen, kein Kapital gebunden.');
+    ctx.toast(r.grund || 'Angebot abgelehnt: Wissen gewonnen, kein Kapital gebunden.');
     neu();
   });
   document.getElementById('btn-neu-pruefen')?.addEventListener('click', () => {

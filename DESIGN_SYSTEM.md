@@ -1,4 +1,4 @@
-# DESIGN_SYSTEM.md — Betongold Tycoon Designbasis v36 / aktuelle UI v40
+# DESIGN_SYSTEM.md — Betongold Tycoon Designbasis v36 / aktuelle UI v51
 
 Verbindliche UI-Richtung nach dem konsolidierten Design-Handoff. Die
 Handoff-HTML ist visuelle Referenz, keine zu kopierende Produktimplementierung.
@@ -25,7 +25,8 @@ Vermeiden:
 
 - Fester Top-HUD: Datum/Alter, Tagesgeld, Haushaltsüberschuss, ETF, Zeitsteuerung
   und kompaktes Menü.
-- Feste Bottom-Navigation: Stadt, Zentrale, Marktplatz, Objekte, Finanzen.
+- Feste Bottom-Navigation nach Priorität: Stadt, Marktplatz, die dauerhaft
+  sichtbaren Zentrale-Bereiche Vermögen/Haushalt/Objekte und Finanzen.
 - Genau ein Hauptscreen ist sichtbar.
 - Stadt ist der Einstieg und zeigt Situationen; Zentrale erklärt; Marktplatz
   sucht und vergleicht; Objekt prüft/bewirtschaftet; Finanzen steuert Liquidität
@@ -70,9 +71,10 @@ Vermeiden:
 | Seitenbasis | #0c141c bis #141b22 |
 | Panel oben | rgba(30, 38, 48, .76) |
 | Panel unten | rgba(19, 25, 33, .82) |
-| Primärtext | #efe7d5 |
-| Sekundärtext | #b9b09d |
-| Gedimmt | #8f8879 |
+| Primärtext | #ece9e1 |
+| Sekundärtext | #c7c9c5 |
+| Gedimmt | #9ca7ad |
+| Neutrale Struktur | #aebbc2 |
 | Gold primär | #e6c264 |
 | Gold dunkel | #c69a3f |
 | Gold hell | #f4dd9b |
@@ -81,8 +83,9 @@ Vermeiden:
 | Information | #7ea8d8 |
 | Unsicherheit | #d2a847 |
 
-Gold bedeutet Auswahl, Primäraktion oder wichtige Überschrift. Grün/Rot gilt
-nur für Ergebnisse und echte Verbesserung/Verschlechterung. Normale
+Gold bedeutet aktive Auswahl, Primäraktion oder einen einzelnen Schlüsselwert.
+Gewöhnliche Überschriften, Icons, Rahmen und Trennlinien sind neutral. Grün/Rot
+gilt nur für Ergebnisse und echte Verbesserung/Verschlechterung. Normale
 Einzelpositionen sind farbneutral.
 
 ### Typografie
@@ -100,7 +103,8 @@ Einzelpositionen sind farbneutral.
 ### Form und Tiefe
 
 - Hauptradius 14–17 px, Controls 8–12 px.
-- Goldene Hairlines mit geringer Deckkraft statt schwerer Rahmen.
+- Neutrale Hairlines mit geringer Deckkraft statt schwerer Rahmen; Goldkanten
+  nur am aktiven Ziel oder an einer Primäraktion.
 - Panel-Schatten 0 15px 48px rgba(0,0,0,.48).
 - Backdrop-Blur nur auf großen, stabilen Flächen.
 - Bewegung 120–180 ms; keine federnden oder spielzeughaften Animationen.

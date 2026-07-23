@@ -1,11 +1,11 @@
 // market.js — Feed-Lifecycle, Preisformel, Segment-Drift, Verhandlung,
 // Due Diligence. Formeln: ECONOMY_MODEL.md §7–8, §11, §13. DOM-frei.
 
-import { rngFloat, rngNormal } from './state.js?v=41';
-import { alleListings, getListing } from './content.js?v=41';
+import { rngFloat, rngNormal } from './state.js?v=51';
+import { alleListings, getListing } from './content.js?v=51';
 import {
   oeffneDealEntscheidung, setzeDealEntscheidung,
-} from './gameplay.js?v=41';
+} from './gameplay.js?v=51';
 
 // ---------------------------------------------------------------------------
 // Initialisierung: einmal pro Spielstand (nach newGame bzw. aktuellem Save-Import).
@@ -149,7 +149,12 @@ export function angebotsPreis(state, id) {
 
 // Vergleichsmiete (kalt, €/Monat) — Phase 2 statisch je Segment.
 export function vergleichsmiete(state, listing) {
-  return listing.flaeche * state.config.segmente[listing.segment].vergleichsmieteM2;
+  const segment = state.config.segmente[listing.segment];
+  const istNeubau = listing.stil === 'neubau' || Number(listing.baujahr) >= 2020;
+  const mieteM2 = istNeubau && Number.isFinite(segment.neubauMieteM2)
+    ? segment.neubauMieteM2
+    : segment.vergleichsmieteM2;
+  return listing.flaeche * mieteM2;
 }
 
 // Listings, die aktuell am Markt sind (für Feed-UI), inkl. Laufzeitdaten.

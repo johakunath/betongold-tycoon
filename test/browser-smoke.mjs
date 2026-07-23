@@ -14,6 +14,7 @@ import { access, mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { extname, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { contrastAuditExpression } from './contrast-utils.mjs';
 
 const root = resolve(fileURLToPath(new URL('../', import.meta.url)));
 const mime = {
@@ -202,6 +203,14 @@ async function main() {
       console.log(`OK   genau ein Hauptscreen sichtbar: ${expected}`);
     }
 
+    async function kontrastPruefen(label, targets) {
+      const bericht = await auswerten(contrastAuditExpression(targets));
+      if (bericht.missing.length || bericht.failures.length) {
+        throw new Error(`WCAG-Kontrast ${label}: ${JSON.stringify(bericht)}`);
+      }
+      console.log(`OK   WCAG-Kontrast ${label}: ${bericht.checked.length} dynamische Textzustände`);
+    }
+
     async function eventAufloesen() {
       const offen = await auswerten(`document.querySelector('#dlg-event')?.open || false`);
       if (!offen) return;
@@ -232,7 +241,7 @@ async function main() {
           .closest('label').textContent.includes('Familienstrategie mit Puffer'),
         schwierigkeit: document.querySelector('#form-neu input[name="schwierigkeit"]:checked')?.value,
         handwerker: handwerkerVorschau.includes('Handwerksbonus') && handwerkerVorschau.includes('Gesellenabschluss'),
-        schulden: schuldenVorschau.includes('5 Mietobjekte') && schuldenVorschau.includes('93–97 % LTV'),
+        schulden: schuldenVorschau.includes('5 Mietobjekte') && schuldenVorschau.includes('93–97 % finanziert'),
         lebensphasen: schuldenVorschau.includes('Ruhestand ab 67') && schuldenVorschau.includes('Lebensende 90–100'),
         startfelder: document.querySelectorAll('#start-anpassen input').length,
         startTrennung: document.querySelector('#start-anpassen').textContent.includes('Nur beim Spielstart') &&
@@ -242,6 +251,30 @@ async function main() {
           const text = karte.querySelector(':scope > span').getBoundingClientRect();
           return bild.width > 0 && bild.height > 0 && text.width > 0 && text.top >= bild.bottom - 1;
         }),
+        breitesDialogLayout: (() => {
+          const dialog = document.querySelector('#dlg-neu').getBoundingClientRect();
+          const ersteZeile = karten[0].getBoundingClientRect().top;
+          return dialog.width >= 1100 && dialog.width > dialog.height &&
+            karten.every((karte) => Math.abs(karte.getBoundingClientRect().top - ersteZeile) <= 1);
+        })(),
+        vorschauLayout: (() => {
+          const vorschau = document.querySelector('#start-vorschau');
+          const titel = vorschau.querySelector(':scope > span').getBoundingClientRect();
+          const liste = vorschau.querySelector('ul');
+          const werte = [...liste.children].map((eintrag) => eintrag.getBoundingClientRect());
+          const stil = getComputedStyle(liste);
+          const geordnet = stil.display === 'grid' && werte.length >= 4 &&
+            titel.bottom <= werte[0].top + 1 &&
+            Math.abs(werte[0].top - werte[1].top) <= 1 &&
+            werte[2].top >= Math.max(werte[0].bottom, werte[1].bottom) &&
+            werte.slice(2).every((wert) => wert.width >= liste.clientWidth - 20);
+          return {
+            geordnet,
+            titel: [Math.round(titel.top), Math.round(titel.bottom)],
+            listenbreite: liste.clientWidth,
+            werte: werte.map((wert) => [Math.round(wert.top), Math.round(wert.bottom), Math.round(wert.width)]),
+          };
+        })(),
         dialogOhneQuerScroll: document.querySelector('#dlg-neu').scrollWidth <= document.querySelector('#dlg-neu').clientWidth + 1,
       };
     })()`);
@@ -250,7 +283,8 @@ async function main() {
         presetVertrag.bilder !== 4 || !presetVertrag.neutralerName ||
         presetVertrag.schwierigkeit !== 'normal' || !presetVertrag.handwerker || !presetVertrag.schulden ||
         !presetVertrag.lebensphasen || presetVertrag.startfelder !== 17 || !presetVertrag.startTrennung ||
-        !presetVertrag.vertikalesLayout || !presetVertrag.dialogOhneQuerScroll) {
+        !presetVertrag.vertikalesLayout || !presetVertrag.breitesDialogLayout ||
+        !presetVertrag.vorschauLayout.geordnet || !presetVertrag.dialogOhneQuerScroll) {
       throw new Error(`Startpreset-Vertrag verletzt: ${JSON.stringify(presetVertrag)}`);
     }
     console.log('OK   Startdialog: vier Presets und 17 getrennte Start-/Laufzeit-Annahmen verständlich sichtbar');
@@ -260,7 +294,7 @@ async function main() {
       form.requestSubmit();
     })()`);
     await bis(`!document.querySelector('#dlg-neu').open`, 'Schuldenberg-Spielstart');
-    await auswerten(`(() => { document.querySelector('#nav-dashboard').click(); document.querySelector('[data-zentrale-tab=\"objekte\"]').click(); })()`);
+    await auswerten(`document.querySelector('[data-zentrale-tab=\"objekte\"]').click()`);
     await bis(`document.querySelector('#portfolio-liste').children.length === 5`, 'Schuldenberg-Portfolio');
     await screen('dashboard');
     const sonderstartVertrag = await auswerten(`(() => ({
@@ -300,7 +334,7 @@ async function main() {
     }
     await auswerten(`document.querySelector('#btn-bank-anpassen').click()`);
     await bis(`!document.querySelector('#dlg-bank').open`, 'Bankanpassung abgeschlossen');
-    await auswerten(`(() => { document.querySelector('#nav-dashboard').click(); document.querySelector('[data-zentrale-tab=\"objekte\"]').click(); })()`);
+    await auswerten(`document.querySelector('[data-zentrale-tab=\"objekte\"]').click()`);
     await bis(`document.querySelector('.turnaround-kpis').textContent.includes('1/3')`, 'Banktermin gezählt');
     console.log('OK   F-Turnaround: Triage, zwei Linien, Zwischenziele und kostenpflichtiger Bankhebel');
     await auswerten(`document.querySelector('#btn-neu').click()`);
@@ -323,21 +357,97 @@ async function main() {
         .filter((wert) => wert.scrollWidth > wert.clientWidth + 1)
         .map((wert) => ({ id: wert.id, text: wert.textContent, client: wert.clientWidth, scroll: wert.scrollWidth })),
       ressourcenBreite: document.querySelector('.ressourcenleiste').getBoundingClientRect().width,
-      ressourcenAnzahl: document.querySelector('.ressourcenleiste').children.length,
+      ressourcenAnzahl: document.querySelectorAll('.ressourcenleiste button').length,
+      ressourcenHoehe: Math.max(...[...document.querySelectorAll('.ressourcenleiste > :is(div, button)')]
+        .map((element) => element.getBoundingClientRect().height)),
       nettoImHeader: !!document.querySelector('#hud-netto'),
       zeitBreite: document.querySelector('#speed-group').getBoundingClientRect().width,
       breite: innerWidth,
     }))()`);
     if (!desktopHeader.zeitraum.includes('Jahr 1/') || !desktopHeader.zeitraum.includes('Alter 40') || desktopHeader.abgeschnitten.length ||
         desktopHeader.ressourcenBreite < 420 || desktopHeader.ressourcenAnzahl !== 3 ||
-        desktopHeader.nettoImHeader || desktopHeader.zeitBreite > 360) {
+        desktopHeader.ressourcenHoehe > 46 || desktopHeader.nettoImHeader || desktopHeader.zeitBreite > 360) {
       throw new Error(`Desktop-Header 1440 px verletzt: ${JSON.stringify(desktopHeader)}`);
     }
     await sende('Emulation.clearDeviceMetricsOverride');
     console.log('OK   Desktop-Header 1440px: drei laufende Finanzwerte, Spieljahr und Alter vollständig; Zeitsteuerung kompakt');
 
-    await auswerten(`document.querySelector('#nav-dashboard').click()`);
+    await sende('Emulation.setDeviceMetricsOverride', {
+      width: 1143, height: 979, deviceScaleFactor: 1, mobile: false,
+    });
+    const mittlererDesktopHeader = await auswerten(`(() => ({
+      ressourcenHoehen: [...document.querySelectorAll('.ressourcenleiste > :is(div, button)')]
+        .map((element) => Math.round(element.getBoundingClientRect().height)),
+      kopfHoehe: Math.round(document.querySelector('.topbar').getBoundingClientRect().height),
+      seitenOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    }))()`);
+    if (!mittlererDesktopHeader.ressourcenHoehen.length ||
+        Math.max(...mittlererDesktopHeader.ressourcenHoehen) > 44 ||
+        mittlererDesktopHeader.seitenOverflow > 1) {
+      throw new Error(`Desktop-Header 1143 px zu hoch oder überlaufend: ${JSON.stringify(mittlererDesktopHeader)}`);
+    }
+    await sende('Emulation.clearDeviceMetricsOverride');
+    console.log('OK   Desktop-Header 1143px: Finanzwerte bleiben in der zweizeiligen Topbar 44px hoch');
+
+    await auswerten(`document.querySelector('[data-zentrale-tab=\"vermoegen\"]').click()`);
     await screen('dashboard');
+
+    await kontrastPruefen('HUD und Zentrale', [
+      { name: 'HUD-Ressourcenlabel', selector: '.ressourcenleiste small', limit: 3 },
+      { name: 'HUD-Zeitraum', selector: '#hud-alter' },
+      { name: 'Mini-Chart-Titel', selector: '.mini-chart h3', limit: 2 },
+      { name: 'Mini-Chart-Kernwert', selector: '.mini-chart header b', limit: 2 },
+      { name: 'Mini-Chart-Legende', selector: '.mini-legende', limit: 2 },
+      { name: 'Quartals-KPI-Label', selector: '.quartals-kpis dt', limit: 3 },
+      { name: 'Quartals-KPI-Wert', selector: '.quartals-kpis dd', limit: 3 },
+    ]);
+    await auswerten(`(() => {
+      const fixture = document.createElement('article');
+      fixture.id = 'contrast-bewerber-fixture';
+      fixture.className = 'bewerber-karte';
+      fixture.style.cssText = 'position:fixed;left:-2000px;top:0;width:430px;display:block';
+      fixture.innerHTML = '<div class="bewerber-hinweise"><span class="hinweis-chip quote-ok">Einkommen mit Puffer</span></div>' +
+        '<blockquote class="bewerber-note">„organisiert, freundlich, achten auf die Wohnung“</blockquote>';
+      document.body.append(fixture);
+    })()`);
+    await kontrastPruefen('Bewerberdossier', [
+      { name: 'Bewerber-Einkommenschip', selector: '#contrast-bewerber-fixture .hinweis-chip' },
+      { name: 'Bewerber-Notiz', selector: '#contrast-bewerber-fixture .bewerber-note' },
+    ]);
+    await auswerten(`document.querySelector('#contrast-bewerber-fixture').remove()`);
+
+    await sende('Emulation.setDeviceMetricsOverride', {
+      width: 1383, height: 979, deviceScaleFactor: 1, mobile: false,
+    });
+    const dashboardDichte = await auswerten(`(() => new Promise((resolve) => {
+      const screen = document.querySelector('#screen-dashboard');
+      const bericht = document.querySelector('#zentrale-panel-quartal');
+      const panel = document.querySelector('#zentrale-panel-vermoegen');
+      const karte = document.querySelector('#zentrale-panel-chart');
+      const wrap = karte.querySelector('.chart-wrap');
+      const chart = document.querySelector('#chart');
+      const vorher = chart.style.width;
+      chart.style.width = '2400px';
+      requestAnimationFrame(() => {
+        const panelRect = panel.getBoundingClientRect();
+        const karteRect = karte.getBoundingClientRect();
+        const ergebnis = {
+          seitenScroll: screen.scrollHeight - screen.clientHeight,
+          breiteScroll: document.body.scrollWidth - document.body.clientWidth,
+          berichtIntern: bericht.scrollHeight > bericht.clientHeight,
+          chartIntern: wrap.scrollWidth > wrap.clientWidth + 1,
+          chartkarteImPanel: karteRect.left >= panelRect.left - 1 && karteRect.right <= panelRect.right + 1,
+        };
+        chart.style.width = vorher;
+        resolve(ergebnis);
+      });
+    }))()`);
+    await sende('Emulation.clearDeviceMetricsOverride');
+    if (dashboardDichte.seitenScroll > 1 || dashboardDichte.breiteScroll > 1 || !dashboardDichte.berichtIntern ||
+        !dashboardDichte.chartIntern || !dashboardDichte.chartkarteImPanel) {
+      throw new Error(`Zentrale 1383×979 nicht kompakt genug: ${JSON.stringify(dashboardDichte)}`);
+    }
+    console.log('OK   Zentrale 1383×979: kein Seiten-Overflow; Chart und Quartalsbericht scrollen nur intern');
 
     // Owner-Feedback-Verträge: zentrale Liquidität, kompakte KPI-Gruppen,
     // erklärte Steuer, Kindergeld, direkte Kinderkosten und hilfreiche Zusatzcharts.
@@ -347,7 +457,7 @@ async function main() {
       const kindergeldZeile = [...document.querySelectorAll('#cashflow-viz .flow-zeile')]
         .find((zeile) => zeile.textContent.includes('Kindergeld'));
       return {
-        hudReihenfolge: [...document.querySelector('.ressourcenleiste').children]
+        hudReihenfolge: [...document.querySelectorAll('.ressourcenleiste button')]
           .map((element) => element.querySelector('b')?.id),
         cashflowSignal: document.querySelector('.resource-cashflow').classList.contains('positiv') ||
           document.querySelector('.resource-cashflow').classList.contains('negativ'),
@@ -356,31 +466,31 @@ async function main() {
         kpiIcons: document.querySelectorAll('.kpi-gruppe .metric-icon').length,
         kinderText: kinderZeile?.textContent.replace(/\\s+/g, ' ').trim(),
         kindergeldText: kindergeldZeile?.textContent.replace(/\\s+/g, ' ').trim(),
-        steuerErklaert: document.querySelector('.steuer-regel').textContent.includes('Haushalts-Nettoeinkommen') &&
+        steuerErklaert: document.querySelector('.steuer-regel').textContent.includes('Vermietungsergebnis') &&
           document.querySelector('.steuer-regel').textContent.includes('Kreditzinsen'),
         steuerFormel: document.querySelector('#steuer-vorschau small').textContent.includes('AfA') &&
           document.querySelector('#steuer-vorschau small').textContent.includes('Ergebnis'),
         zusatzcharts: document.querySelectorAll('#chart-zusatz .mini-chart').length,
       };
     })()`);
-    const erwartetesHud = ['hud-cash', 'hud-cashflow', 'hud-etf'];
+    const erwartetesHud = ['hud-cash', 'hud-etf', 'hud-cashflow'];
     if (JSON.stringify(dashboardVertrag.hudReihenfolge) !== JSON.stringify(erwartetesHud) ||
         !dashboardVertrag.cashflowSignal || dashboardVertrag.kpiGruppen !== 3 ||
         dashboardVertrag.kpiPaare !== 3 || dashboardVertrag.kpiIcons !== 6 ||
         !dashboardVertrag.kinderText?.includes('direkte Kosten') ||
-        !dashboardVertrag.kinderText?.includes('600') ||
+        !dashboardVertrag.kinderText?.includes('300') ||
         !dashboardVertrag.kindergeldText?.includes('520') || !dashboardVertrag.steuerErklaert ||
         !dashboardVertrag.steuerFormel || dashboardVertrag.zusatzcharts !== 2) {
       throw new Error(`Dashboard-Owner-Vertrag verletzt: ${JSON.stringify(dashboardVertrag)}`);
     }
-    console.log('OK   Owner-Dashboard: Cashflow neben Tagesgeld, 520 € Kindergeld, 600 € Kinderkosten, Steuerformel und 2 Zusatzcharts');
+    console.log('OK   Owner-Dashboard: Cashflow neben Tagesgeld, 520 € Kindergeld, 300 € Kinderkosten, Steuerformel und 2 Zusatzcharts');
 
     const ghVertrag = await auswerten(`(() => ({
       zielButtons: document.querySelectorAll('#strategie-board [data-entwicklungsziel]').length,
       wechselOhneKosten: document.querySelector('#strategie-board').textContent.includes('Wechsel ohne Kosten'),
-      keinQuestzwang: document.querySelector('#strategie-board').textContent.includes('Kein Questzwang'),
+      notizEntfernt: !document.querySelector('#strategie-board').textContent.includes('Kein Questzwang'),
     }))()`);
-    if (ghVertrag.zielButtons !== 4 || !ghVertrag.wechselOhneKosten || !ghVertrag.keinQuestzwang) {
+    if (ghVertrag.zielButtons !== 4 || !ghVertrag.wechselOhneKosten || !ghVertrag.notizEntfernt) {
       throw new Error(`G-Zielvertrag fehlt: ${JSON.stringify(ghVertrag)}`);
     }
     await auswerten(`document.querySelector('[data-entwicklungsziel="erstesStabilesObjekt"]').click()`);
@@ -406,8 +516,8 @@ async function main() {
       const cashflow = document.querySelector('#hud-cashflow-aktion');
       cashflow.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
       const cashflowDetails = !document.querySelector('#cashflow-popover').hidden &&
-        document.querySelector('#cashflow-popover').textContent.includes('Nettoeinkommen') &&
-        document.querySelector('#cashflow-popover').textContent.includes('Vermietungssteuer');
+        document.querySelector('#cashflow-popover').textContent.includes('Einkommen inkl. Kindergeld') &&
+        document.querySelector('#cashflow-popover').textContent.includes('Immobilien-Cashflow');
       document.querySelector('#btn-menue').click();
       const menue = !document.querySelector('#spielmenue-popover').hidden &&
         [...document.querySelectorAll('#spielmenue-popover button b')].map((e) => e.textContent.trim()).join('|') ===
@@ -423,6 +533,31 @@ async function main() {
       throw new Error(`Globale UI-Verträge verletzt: ${JSON.stringify(globaleUi)}`);
     }
     console.log('OK   Globale UI: Cashflow-Details, kompaktes Spielmenü und wiederaufrufbare Meldungen');
+
+    await auswerten(`document.querySelector('#btn-meldungen').click()`);
+    await kontrastPruefen('Benachrichtigungen', [
+      { name: 'Meldungsüberschrift', selector: '#meldungen-panel > header h2' },
+      { name: 'Meldungstext', selector: '#meldungen-panel .meldung-copy > span', limit: 4 },
+      { name: 'Meldungszeit', selector: '#meldungen-panel .meldung-copy time', limit: 4 },
+    ]);
+    await auswerten(`document.querySelector('#btn-meldungen-schliessen').click()`);
+
+    await screen('karte');
+    const meldungsLegende = await auswerten(`(() => {
+      document.querySelector('#btn-meldungen').click();
+      const daten = (selector) => [...document.querySelectorAll(selector)].slice(0, 4).map((element) => ({
+        klasse: [...element.classList].find((name) => name.startsWith('meldung-')),
+        symbol: element.querySelector('.meldung-symbol')?.textContent,
+      }));
+      const post = daten('#stadt-post button');
+      const archiv = daten('#meldungen-liste li');
+      document.querySelector('#btn-meldungen-schliessen').click();
+      return { post, archiv };
+    })()`);
+    if (JSON.stringify(meldungsLegende.post) !== JSON.stringify(meldungsLegende.archiv)) {
+      throw new Error(`Stadtpost und Glockenarchiv verwenden verschiedene Kategorien: ${JSON.stringify(meldungsLegende)}`);
+    }
+    console.log('OK   Stadtpost und Glockenarchiv teilen Symbole und Kategoriefarben');
 
     const zeitVertrag = await auswerten(`(() => ({
       tempo: [...document.querySelectorAll('#speed-group [data-speed]')].map((b) => b.textContent.trim()),
@@ -470,16 +605,43 @@ async function main() {
         hilfeVertrag.schritte !== 8 || !hilfeVertrag.alleSichtbar || !hilfeVertrag.lebensphasen) {
       throw new Error(`Hilfe-Vertrag verletzt: ${JSON.stringify(hilfeVertrag)}`);
     }
+    const cleanBackdrop = await auswerten(`(() => {
+      const dialog = document.querySelector('#dlg-hilfe');
+      dialog.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: 0, clientY: 0 }));
+      return !dialog.open;
+    })()`);
+    if (!cleanBackdrop) throw new Error('Sauberer Dialog schließt bei Klick auf den Hintergrund nicht.');
+    await auswerten(`document.querySelector('#btn-hilfe').click()`);
+    await bis(`document.querySelector('#dlg-hilfe').open`, 'Spielhilfe erneut geöffnet');
     await auswerten(`document.querySelector('#btn-tour-start').click()`);
     await bis(`!document.querySelector('#tutorial-tour').hidden && document.querySelector('#tile-cash').classList.contains('tutorial-fokus')`, 'Tutorial Schritt 1');
     await auswerten(`document.querySelector('#btn-tour-weiter').click()`);
     await bis(`document.querySelector('#tour-fortschritt').textContent.includes('2 von 8') && document.querySelector('#tile-cashflow').classList.contains('tutorial-fokus')`, 'Tutorial Schritt 2');
+    const tourZiele = [
+      ['3 von 8', '.haushalt-karte', 'haushalt'],
+      ['4 von 8', '.chart-karte', 'vermoegen'],
+      ['5 von 8', '.stadtkarte', null],
+      ['6 von 8', '.filter-zeile', null],
+      ['7 von 8', '#speed-group', null],
+      ['8 von 8', '#btn-saves', null],
+    ];
+    for (const [fortschritt, selector, tab] of tourZiele) {
+      await auswerten(`document.querySelector('#btn-tour-weiter').click()`);
+      await bis(`document.querySelector('#tour-fortschritt').textContent.includes('${fortschritt}') &&
+        document.querySelector('${selector}')?.classList.contains('tutorial-fokus') &&
+        document.querySelector('${selector}')?.getBoundingClientRect().width > 0${tab ? ` && document.querySelector('[data-zentrale-tab="${tab}"]').getAttribute('aria-selected') === 'true'` : ''}`,
+        `Tutorial Schritt ${fortschritt}`);
+    }
     await auswerten(`document.querySelector('#btn-tour-schliessen').click()`);
     await bis(`document.querySelector('#tutorial-tour').hidden && !document.querySelector('.tutorial-fokus')`, 'Tutorial geschlossen');
     console.log('OK   Spielhilfe ohne Toggles: 6 offene Kapitel, 8 Schritte und funktionale Bildschirm-Tour');
 
     await auswerten(`document.querySelector('#btn-admin').click()`);
     await bis(`document.querySelector('#dlg-admin').open && document.querySelectorAll('.admin-feld').length > 0`, 'Admin-Panel');
+    await kontrastPruefen('Einstellungen', [
+      { name: 'Admin-Eingabewert', selector: '#dlg-admin .admin-eingabe input', limit: 6 },
+      { name: 'Admin-Feldhilfe', selector: '#dlg-admin .admin-feld small', limit: 6 },
+    ]);
     const adminVertrag = await auswerten(`(() => ({
       tooltips: document.querySelectorAll('#dlg-admin .info-tooltip').length,
       hilfen: document.querySelectorAll('#dlg-admin .admin-feld small').length,
@@ -494,8 +656,27 @@ async function main() {
         adminVertrag.lebensfelder !== 5 || !adminVertrag.gruppentext) {
       throw new Error(`Admin-Hilfe nicht konsolidiert: ${JSON.stringify(adminVertrag)}`);
     }
-    await auswerten(`document.querySelector('#dlg-admin [data-schliessen]').click()`);
+    const dirtyBackdrop = await auswerten(`(() => new Promise((resolve) => requestAnimationFrame(() => {
+      const dialog = document.querySelector('#dlg-admin');
+      const input = dialog.querySelector('input');
+      const vorher = window.confirm;
+      let fragen = 0;
+      window.confirm = () => { fragen += 1; return false; };
+      input.value = String((Number(input.value) || 0) + (Number(input.step) || 1));
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      dialog.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: 0, clientY: 0 }));
+      const bliebOffen = dialog.open && fragen === 1;
+      window.confirm = () => true;
+      dialog.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: 0, clientY: 0 }));
+      const danachGeschlossen = !dialog.open;
+      window.confirm = vorher;
+      resolve({ bliebOffen, danachGeschlossen });
+    })))()`);
+    if (!dirtyBackdrop.bliebOffen || !dirtyBackdrop.danachGeschlossen) {
+      throw new Error(`Dirty-Dialog-Warnung inkonsistent: ${JSON.stringify(dirtyBackdrop)}`);
+    }
     console.log('OK   Admin-Panel: Ruhestand und variables Lebensende mit fünf erklärten Stellschrauben sichtbar');
+    console.log('OK   Dialoge: sauberer Hintergrundklick schließt, ungespeicherte Änderung warnt zuerst');
 
     // Mehr Liquidität schafft einen stabilen Kaufpfad und prüft zugleich die
     // echte ETF→Tagesgeld-Umschichtung.
@@ -601,6 +782,19 @@ async function main() {
     await auswerten(`document.querySelector('#nav-marktplatz').click()`);
     await bis(`document.querySelectorAll('.markt-karte').length > 0`, 'Marktkarten');
     await screen('marktplatz');
+    await auswerten(`(() => {
+      const fixture = document.createElement('div');
+      fixture.id = 'contrast-markt-fixture';
+      fixture.style.cssText = 'position:absolute;left:-2000px;top:0';
+      fixture.innerHTML = '<span class="badge orange">4 Interessenten</span>' +
+        '<span class="badge gruen">vermietet · 4,4 % brutto</span>';
+      document.querySelector('.markt-karte').append(fixture);
+    })()`);
+    await kontrastPruefen('Marktplatz-Badges', [
+      { name: 'Interessenten-Badge', selector: '#contrast-markt-fixture .badge.orange' },
+      { name: 'Vermietet-Badge', selector: '#contrast-markt-fixture .badge.gruen' },
+    ]);
+    await auswerten(`document.querySelector('#contrast-markt-fixture').remove()`);
     const marktLayout = await auswerten(`(() => {
       const screen = document.querySelector('#screen-marktplatz');
       const header = screen.querySelector('.screen-heading');
@@ -709,17 +903,24 @@ async function main() {
         steuerZeilen: steuerZeilen.length,
         steuerErklaert: steuerZeilen.every((zeile) => zeile.textContent.includes('geschätzt') || zeile.textContent.includes('0 €')),
         pfadUrteil: pfad?.tagName === 'OUTPUT' && /Tragfähiger Pfad|Nahe Break-even|Auch stabilisiert untragfähig/.test(pfad.textContent) && pfad.textContent.includes('nach Steuer'),
+        zinsErklaert: document.querySelector('.fin-zins-erklaerung')?.textContent.includes('Markt-Basiszins') &&
+          document.querySelector('.fin-zins-erklaerung')?.textContent.includes('Aufschlag für Finanzierungsquote') &&
+          document.querySelector('.fin-zins-erklaerung')?.textContent.includes('Zinsbindungs-Aufschlag'),
+        sliderBegrenzt: [...document.querySelectorAll('#dlg-finanzierung input[type="range"]')]
+          .filter((input) => input.getBoundingClientRect().width > 0)
+          .every((input) => input.getBoundingClientRect().width <= 721),
         gruppen: [...document.querySelectorAll('#fin-rechnung .fin-gruppe')].map((zeile) => zeile.textContent.trim()),
       };
     })()`);
     if (!finanzierungsErklaerung.sperreErklaert) {
       throw new Error(`Gesperrte Eigenheimwahl bleibt unerklärt: ${JSON.stringify(finanzierungsErklaerung)}`);
     }
-    if (finanzierungsErklaerung.schritte !== 3 || finanzierungsErklaerung.szenarien < 1 ||
+    if (finanzierungsErklaerung.schritte !== 2 || finanzierungsErklaerung.szenarien < 1 ||
         finanzierungsErklaerung.objektSummen !== finanzierungsErklaerung.szenarien ||
         finanzierungsErklaerung.aktuell !== finanzierungsErklaerung.hud ||
-        finanzierungsErklaerung.steuerZeilen !== 1 || !finanzierungsErklaerung.steuerErklaert ||
-        !finanzierungsErklaerung.pfadUrteil ||
+        finanzierungsErklaerung.steuerZeilen > 1 || !finanzierungsErklaerung.steuerErklaert ||
+        !finanzierungsErklaerung.pfadUrteil || !finanzierungsErklaerung.zinsErklaert ||
+        !finanzierungsErklaerung.sliderBegrenzt ||
         JSON.stringify(finanzierungsErklaerung.gruppen) !== JSON.stringify(['Kauf', 'Kredit'])) {
       throw new Error(`Finanzierungs-Cashflow nicht vollständig erklärt: ${JSON.stringify(finanzierungsErklaerung)}`);
     }
@@ -746,8 +947,13 @@ async function main() {
     if (!(await auswerten(`!document.querySelector('#btn-kaufen').disabled`))) {
       throw new Error('Smoke-Test-Objekt bleibt trotz maximalem Eigenkapital nicht finanzierbar.');
     }
-    await auswerten(`document.querySelector('#btn-fin-weiter').click()`);
-    await bis(`!document.querySelector('[data-fin-step-panel="3"]').hidden && !document.querySelector('#btn-kaufen').hidden`, 'Finanzierung Schritt 3');
+    await bis(`!document.querySelector('[data-fin-step-panel="2"]').hidden && !document.querySelector('#btn-kaufen').hidden`, 'Finanzierung und Urteil');
+    await kontrastPruefen('Finanzierung', [
+      { name: 'Bankverdikt', selector: '#fin-verdikt' },
+      { name: 'Bankverdikt-Kernwert', selector: '#fin-verdikt > b', required: false },
+      { name: 'Eigenkapital-Hinweis', selector: '.fin-konditionen-fix .fin-slider-werte', limit: 3 },
+      { name: 'ETF-Eigenkapital-Hinweis', selector: '#fin-etf-panel small', limit: 2 },
+    ]);
     await auswerten(`document.querySelector('#btn-kaufen').click()`);
     await bis(`document.querySelector('#dlg-kauf').open`, 'Kaufabschluss');
     await screen('dashboard');
@@ -775,7 +981,7 @@ async function main() {
     await auswerten(`document.querySelector('#dlg-kauf-ok').click()`);
     await bis(`!document.querySelector('#screen-objekt').hidden`, 'Objektdetail');
     await screen('objekt');
-    await auswerten(`document.querySelector('#nav-dashboard').click()`);
+    await auswerten(`document.querySelector('[data-zentrale-tab=\"vermoegen\"]').click()`);
     await screen('dashboard');
     const portfolioAnzahl = await auswerten(`document.querySelector('#portfolio-liste').children.length`);
     if (portfolioAnzahl < 1) throw new Error('Gekauftes Objekt fehlt im Portfolio.');
@@ -791,6 +997,10 @@ async function main() {
         document.querySelector('#karten-staedte').getBoundingClientRect().bottom,
         document.querySelector('.karten-filter').getBoundingClientRect().bottom,
       );
+      const marker = document.querySelector('.karten-marker:not(:disabled)');
+      const vorher = marker?.getBoundingClientRect();
+      marker?.focus();
+      const nachher = marker?.getBoundingClientRect();
       return {
         buehneAbstand: document.querySelector('.stadtkarte').getBoundingClientRect().top - steuerungUnten,
         globalEbene: getComputedStyle(document.querySelector('.game-backdrop')).zIndex,
@@ -799,12 +1009,13 @@ async function main() {
         bild: getComputedStyle(document.querySelector('.stadt-buehne-bg')).backgroundImage,
         markerAnzahl: document.querySelectorAll('.karten-marker').length,
         kommendDeaktiviert: [...document.querySelectorAll('.karten-marker.is-kommend')].every((marker) => marker.disabled),
+        markerStabil: !marker || (Math.abs(vorher.left - nachher.left) <= 1 && Math.abs(vorher.top - nachher.top) <= 1),
       };
     })()`);
     if (stadtKulisse.buehneAbstand < 4 || stadtKulisse.globalEbene !== '0' ||
-        stadtKulisse.markerAnzahl < 4 || !stadtKulisse.kommendDeaktiviert ||
+        stadtKulisse.markerAnzahl < 4 || !stadtKulisse.kommendDeaktiviert || !stadtKulisse.markerStabil ||
         !stadtKulisse.globalFilter.includes('brightness(0.86)') ||
-        !stadtKulisse.buehneFilter.includes('brightness(0.84)') || !stadtKulisse.bild.includes('assets/ui/city-')) {
+        stadtKulisse.buehneFilter !== 'none' || !stadtKulisse.bild.includes('assets/ui/city-')) {
       throw new Error(`Stadtbild bleibt zu dunkel oder von Steuerungen überlagert: ${JSON.stringify(stadtKulisse)}`);
     }
     const filterKontrast = await auswerten(`(() => {
@@ -847,6 +1058,10 @@ async function main() {
           liste: document.querySelectorAll('.karten-listenpunkt').length,
           hintergrund: document.querySelector('.stadt-buehne-bg')?.style.getPropertyValue('--stadtbild') || '',
           alleBilderEcht: marker.every((e) => e.querySelector('img')?.getAttribute('src')?.startsWith('assets/expose/')),
+          listenbilder: [...document.querySelectorAll('.karten-listenpunkt .listenbild img')]
+            .every((bild) => bild.getAttribute('src')?.startsWith('assets/expose/')),
+          listenhoehe: Math.max(0, ...[...document.querySelectorAll('.karten-listenpunkt')]
+            .map((eintrag) => eintrag.getBoundingClientRect().height)),
         });
       }
       document.querySelector('#karten-staedte [data-stadt="berlin-innenstadt"]').click();
@@ -862,13 +1077,30 @@ async function main() {
     // räumlich inklusive „noch nicht erschienener" Vorschauen, die Liste ist der
     // handlungsfähige Index. Erwartet wird genau die Differenz dieser Vorschauen.
     if (kartenStand.tabs !== 4 || kartenStand.ids < 1 ||
-        kartenStand.staedte.some((s) => s.liste !== s.marker - s.kommend || !s.hintergrund.includes('assets/ui/city-') || !s.alleBilderEcht) ||
+        kartenStand.staedte.some((s) => s.liste !== s.marker - s.kommend || !s.hintergrund.includes('assets/ui/city-') || !s.alleBilderEcht || !s.listenbilder || s.listenhoehe > 80) ||
         !kartenStand.nativeButtons || !kartenStand.statusText) {
       throw new Error(`Kartenvertrag verletzt: ${JSON.stringify(kartenStand)}`);
     }
     await auswerten(`document.querySelector('#karten-staedte [data-stadt="leipzig"]').click()`);
     await auswerten(`document.querySelector('#nav-finanzen').click()`);
     await screen('finanzen');
+    const dockVertrag = await auswerten(`(() => {
+      const buttons = [...document.querySelectorAll('.screens-nav button')];
+      const aktive = buttons.filter((button) => button.classList.contains('aktiv'));
+      const unterseiten = [...document.querySelectorAll('.screens-nav .zentrale-tabs button')];
+      return {
+        aktive: aktive.map((button) => button.id),
+        unterseitenDeckend: unterseiten.every((button) => {
+          const stil = getComputedStyle(button);
+          return stil.opacity === '1' && stil.backgroundImage !== 'none';
+        }),
+      };
+    })()`);
+    if (dockVertrag.aktive.length !== 1 || dockVertrag.aktive[0] !== 'nav-finanzen' ||
+        !dockVertrag.unterseitenDeckend) {
+      throw new Error(`Dock-Aktivzustand oder Unterseitenflächen verletzt: ${JSON.stringify(dockVertrag)}`);
+    }
+    console.log('OK   Dock: genau ein aktiver Bereich; Zentrale-Unterseiten bleiben deckend');
     const globaleKulisse = await auswerten(`(() => ({
       gespeichert: localStorage.getItem('betongold-letzte-stadt'),
       hintergrund: getComputedStyle(document.querySelector('.game-backdrop')).backgroundImage,
@@ -918,7 +1150,7 @@ async function main() {
       if (finanzResponsive.overflow || finanzResponsive.unbeschriftet) {
         throw new Error(`Finanzen responsive ${breite}px: ${JSON.stringify(finanzResponsive)}`);
       }
-      await auswerten(`document.querySelector('#nav-dashboard').click()`);
+      await auswerten(`document.querySelector('[data-zentrale-tab=\"vermoegen\"]').click()`);
       await screen('dashboard');
       const dashboardResponsive = await auswerten(`(() => {
         const chart = document.querySelector('.chart-karte');
@@ -963,6 +1195,28 @@ async function main() {
       if (gate.overflow || gate.namenlos || gate.unbeschriftet || gate.bilderOhneAlt || gate.kleineNav || !gate.fokusSichtbar) {
         throw new Error(`Responsive/A11y ${breite}px: ${JSON.stringify(gate)}`);
       }
+      if (breite === 390) {
+        await auswerten(`(() => {
+          document.querySelector('#btn-menue').click();
+          document.querySelector('#btn-neu').click();
+        })()`);
+        await bis(`document.querySelector('#dlg-neu').open`, 'Startdialog bei 390px');
+        const startMobil = await auswerten(`(() => {
+          const dialog = document.querySelector('#dlg-neu');
+          const liste = document.querySelector('#start-vorschau ul');
+          const werte = [...liste.children].map((eintrag) => eintrag.getBoundingClientRect());
+          const ergebnis = {
+            overflow: dialog.scrollWidth > dialog.clientWidth + 1,
+            einspaltig: werte[1].top >= werte[0].bottom,
+            volleBreite: werte.every((wert) => wert.width >= liste.clientWidth - 8),
+          };
+          dialog.close();
+          return ergebnis;
+        })()`);
+        if (startMobil.overflow || !startMobil.einspaltig || !startMobil.volleBreite) {
+          throw new Error(`Startvorschau responsive 390px: ${JSON.stringify(startMobil)}`);
+        }
+      }
       console.log(`OK   Responsive/A11y ${breite}px: Dashboard, Finanzen und Karte ohne Seiten-Overflow; Namen/Labels/Alt/Fokus vorhanden`);
     }
     await sende('Emulation.clearDeviceMetricsOverride');
@@ -970,12 +1224,12 @@ async function main() {
     // Lebensphasen auch im echten Renderpfad: Ruhestands-HUD und private
     // Endbilanz werden mit einem isolierten deterministischen Teststate gezeigt.
     const lebensphasenUi = await auswerten(`(async () => {
-      const { newGame } = await import('/js/state.js?v=41');
-      const { initialisiereMarkt } = await import('/js/market.js?v=41');
-      const { advanceMonths } = await import('/js/engine.js?v=41');
-      const { resolveEvent } = await import('/js/events.js?v=41');
-      const { updateHud } = await import('/js/ui/shell.js?v=41');
-      const { zeigeEnde } = await import('/js/ui/endgame.js?v=41');
+      const { newGame } = await import('/js/state.js?v=51');
+      const { initialisiereMarkt } = await import('/js/market.js?v=51');
+      const { advanceMonths } = await import('/js/engine.js?v=51');
+      const { resolveEvent } = await import('/js/events.js?v=51');
+      const { updateHud } = await import('/js/ui/shell.js?v=51');
+      const { zeigeEnde } = await import('/js/ui/endgame.js?v=51');
       const rente = newGame({ seedText: 'browser-rente' });
       rente.monat = (rente.config.zeit.rentenAlter - rente.config.zeit.startAlter) * 12;
       updateHud(rente, 0);

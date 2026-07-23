@@ -2,18 +2,18 @@
 // Segment-/Zins-Drift, Feed-Lifecycle, ETF-Benchmark. Formeln in
 // ECONOMY_MODEL.md. Kein DOM-Zugriff (Node-testbar). Ab Phase 3: Event-Rolls.
 
-import { rngNormalStrom } from './state.js?v=41';
-import { tickMarkt, fairerWert } from './market.js?v=41';
-import { tickBasiszins, tickObjekt } from './finance.js?v=41';
-import { rolleEvent } from './events.js?v=41';
-import { tickSteuer } from './tax.js?v=41';
-import { tickVerkaeufe } from './verkauf.js?v=41';
-import { wendeAdminPendingAn } from './admin.js?v=41';
-import { hatWartemoment, verwerfeWartemomente } from './signals.js?v=41';
-import { aktienDepotWert, tickAktienmarkt } from './aktien.js?v=41';
-import { verbucheKapitalertrag } from './kapitalsteuer.js?v=41';
-import { arbeitsmodell, aktualisiereLebensphasen, zeitbudgetMonat } from './life.js?v=41';
-import { tickObjektArcs } from './arcs.js?v=41';
+import { rngNormalStrom } from './state.js?v=51';
+import { tickMarkt, fairerWert } from './market.js?v=51';
+import { sondertilgungRahmen, tickBasiszins, tickObjekt } from './finance.js?v=51';
+import { rolleEvent } from './events.js?v=51';
+import { tickSteuer } from './tax.js?v=51';
+import { tickVerkaeufe } from './verkauf.js?v=51';
+import { wendeAdminPendingAn } from './admin.js?v=51';
+import { hatWartemoment, verwerfeWartemomente } from './signals.js?v=51';
+import { aktienDepotWert, tickAktienmarkt } from './aktien.js?v=51';
+import { verbucheKapitalertrag } from './kapitalsteuer.js?v=51';
+import { arbeitsmodell, aktualisiereLebensphasen, zeitbudgetMonat } from './life.js?v=51';
+import { tickObjektArcs } from './arcs.js?v=51';
 
 const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
 
@@ -118,7 +118,7 @@ export function monatsWerte(state) {
     .reduce((faktor, sprung) => faktor * sprung.faktor, 1);
   const einkommensAltersFaktor = altersFaktor(elternAlter, h.einkommensAltersFaktoren);
   const einkommensFortschreibung = Math.pow(1 + h.einkommensWachstum, jahre)
-    * einkommensFaktor * einkommensAltersFaktor;
+    * einkommensFaktor * einkommensAltersFaktor * (state.einkommensRegionalfaktor || 1);
   const erwerbsEinkommenPerson1 = h.nettoEinkommenPerson1 * einkommensFortschreibung;
   const erwerbsEinkommenPerson2 = h.nettoEinkommenPerson2 * einkommensFortschreibung;
   const erwerbsEinkommen = erwerbsEinkommenPerson1 + erwerbsEinkommenPerson2;
@@ -221,6 +221,13 @@ function etfMonatsRendite(state) {
 export function tick(state) {
   if (state.beendet) return;
 
+  // Ein bestätigter Eigenheimumzug verändert das Erwerbseinkommen erst im
+  // folgenden Haushaltsmonat und genau einmal.
+  if (Number.isFinite(state.ausstehenderEinkommensRegionalfaktor)) {
+    state.einkommensRegionalfaktor = state.ausstehenderEinkommensRegionalfaktor;
+    state.ausstehenderEinkommensRegionalfaktor = null;
+  }
+
   const adminAenderungen = wendeAdminPendingAn(state);
   if (adminAenderungen > 0) {
     state.log.push({
@@ -317,6 +324,24 @@ export function tick(state) {
   state.familienzufriedenheit = Math.max(0, Math.min(100, fz));
 
   state.monat += 1;
+  // Zu Beginn jedes neuen Kalenderjahres erinnert die Bank einmal je offenem
+  // Darlehen an das vertragliche Sondertilgungsfenster. Die Meldung verlinkt
+  // direkt zum betreffenden Objekt und bleibt rein informativ.
+  const kalenderMonat = (state.config.zeit.startMonat - 1 + state.monat) % 12;
+  if (kalenderMonat === 0) {
+    const kredite = [...state.portfolio, ...(state.eigenheim ? [state.eigenheim] : [])];
+    for (const objekt of kredite) {
+      if (!(objekt.darlehen?.restschuld > 0)) continue;
+      const rahmen = sondertilgungRahmen(state, objekt);
+      if (rahmen.verbleibend < 1) continue;
+      state.log.push({
+        monat: state.monat,
+        ziel: objekt.listingId,
+        kategorie: 'Finanzen',
+        text: `${objekt.titel}: Bis zu ${Math.round(rahmen.verbleibend).toLocaleString('de-DE')} € Sondertilgung sind ${rahmen.jahr} noch möglich.`,
+      });
+    }
+  }
   const verkaeufe = tickVerkaeufe(state);
   state.letzterVerkaufsCashflow = verkaeufe.cashflow;
   if (verkaeufe.cashflow) {
@@ -331,6 +356,10 @@ export function tick(state) {
 
   state.historie.push({
     monat: state.monat,
+    // Der Marktpfad bleibt unabhängig von Spielerentscheidungen. Der
+    // Benchmarkwert darf sich dagegen bewusst unterscheiden, wenn ein Umzug
+    // das Einkommen und damit die gespiegelte Sparrate ändert.
+    etfRendite,
     cash: state.cash,
     etfDepot: state.etfDepot.wert,
     aktienDepot: aktienDepotWert(state),

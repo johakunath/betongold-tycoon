@@ -2,9 +2,39 @@
 // Die laufenden Kosten nutzt engine.tick über finance.tickObjekt; das Modul
 // kapselt den Nutzungswechsel und die Familienwirkung. DOM-frei.
 
-import { kaufeObjekt } from './finance.js?v=41';
-import { eigenheimEignung, fixkostenMonat, instandhaltungMonat } from './immobilie.js?v=41';
-import { getListing } from './content.js?v=41';
+import { kaufeObjekt } from './finance.js?v=51';
+import { eigenheimEignung, fixkostenMonat, instandhaltungMonat } from './immobilie.js?v=51';
+import { getListing } from './content.js?v=51';
+
+export function wohnortWechselVorschau(state, listing) {
+  const ziel = listing.segment;
+  const quelle = state.wohnort || state.startProfil.wohnort;
+  const faktoren = state.config.haushalt.regionalEinkommen || {};
+  const start = faktoren[state.startProfil.wohnort] || 1;
+  const zielFaktor = (faktoren[ziel] || 1) / start;
+  const aktuellFaktor = state.einkommensRegionalfaktor || 1;
+  const basisNetto = (state.config.haushalt.nettoEinkommenPerson1 || 0) + (state.config.haushalt.nettoEinkommenPerson2 || 0);
+  return {
+    quelle,
+    ziel,
+    wechsel: quelle !== ziel,
+    aktuell: Math.round(basisNetto * aktuellFaktor),
+    danach: Math.round(basisNetto * zielFaktor),
+    differenz: Math.round(basisNetto * (zielFaktor - aktuellFaktor)),
+    faktor: zielFaktor,
+    zielLabel: state.config.segmente[ziel]?.label || ziel,
+  };
+}
+
+function vollzieheWohnortwechsel(state, listing) {
+  const wechsel = wohnortWechselVorschau(state, listing);
+  state.wohnort = wechsel.ziel;
+  if (wechsel.wechsel) {
+    state.ausstehenderEinkommensRegionalfaktor = wechsel.faktor;
+    state.log.push({ monat: state.monat, text: `Umzug nach ${wechsel.zielLabel}: Ab dem nächsten Haushaltsmonat ändert sich das regionale Haushaltsnetto um ${wechsel.differenz >= 0 ? '+' : ''}${wechsel.differenz.toLocaleString('de-DE')} €/Monat.` });
+  }
+  return wechsel;
+}
 
 export function kaufeEigenheim(state, angebot) {
   if (state.eigenheim) throw new Error('Ihr besitzt bereits ein Eigenheim.');
@@ -20,6 +50,7 @@ export function kaufeEigenheim(state, angebot) {
   objekt.suche = null;
   objekt.hausverwaltung = false;
   state.eigenheim = objekt;
+  vollzieheWohnortwechsel(state, angebot.listing);
   state.familienzufriedenheit = Math.min(
     100,
     state.familienzufriedenheit + state.config.eigenheim.familieSofortBonus
@@ -55,6 +86,7 @@ export function bezieheBestandsobjekt(state, objekt) {
   objekt.familienNutzung = null;
   objekt.hausverwaltung = false;
   state.eigenheim = objekt;
+  vollzieheWohnortwechsel(state, listing);
   state.familienzufriedenheit = Math.min(100, state.familienzufriedenheit + state.config.eigenheim.familieSofortBonus);
   state.log.push({ monat: state.monat, text: `Eigenheim bezogen: ${objekt.titel}. Die bisherige Wohnmiete entfällt.` });
   return objekt;

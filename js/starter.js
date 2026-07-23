@@ -2,11 +2,11 @@
 // Läuft nach market.initialisiereMarkt(), damit Listingdaten, Mängel und
 // Feedstatus existieren. DOM-frei und vollständig im Save abbildbar.
 
-import { getListing } from './content.js?v=41';
-import { fairerWert } from './market.js?v=41';
-import { kaufeObjekt, nebenkostenFuer } from './finance.js?v=41';
-import { aktienDepotWert } from './aktien.js?v=41';
-import { initialisiereTurnaround } from './turnaround.js?v=41';
+import { getListing } from './content.js?v=51';
+import { fairerWert } from './market.js?v=51';
+import { kaufeObjekt, nebenkostenFuer } from './finance.js?v=51';
+import { aktienDepotWert } from './aktien.js?v=51';
+import { initialisiereTurnaround } from './turnaround.js?v=51';
 
 export function initialisiereStartbestand(state) {
   if (state.startbestandInitialisiert) return { angewendet: false, anzahl: 0 };
@@ -68,7 +68,7 @@ export function initialisiereStartbestand(state) {
     }
     const log = state.log.at(-1);
     if (log) {
-      log.text = `Startbestand: ${listing.titel}, ${Math.round(ltv * 100)} % LTV, ` +
+      log.text = `Startbestand: ${listing.titel}, ${Math.round(ltv * 100)} % finanziert, ` +
         `${Math.round(darlehen).toLocaleString('de-DE')} € Restschuld.`;
     }
     anzahl++;

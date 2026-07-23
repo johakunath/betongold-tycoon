@@ -1,0 +1,643 @@
+/* Annotation batch v44: shared readability and interaction repairs. */
+body { font-size: 16px; }
+small { font-size: .875em; }
+.eyebrow, .label, .resource-copy small, .konto-karte dt, .karte-preis small { font-size: 11px; }
+.kachel .label { color: #d3c8aa; font-size: 12px; }
+.kachel .sub { color: #c8bd9f; font-size: 13px; line-height: 1.35; }
+.stadt-post button, .naechster-zug p, .karte-fakten, .markt-zitat { font-size: 12px; }
+
+/* Die Stadtbuehne zeigt das Motiv unverfaelscht; die sehr leichte Farblasur
+   trennt Marker weiterhin vom Foto, ohne es abzudunkeln oder weichzuzeichnen. */
+.stadt-buehne-bg { filter: none; transform: none; }
+.stadt-wash { opacity: .12; }
+.karten-marker:hover, .karten-marker.is-focus {
+  transform: translate(-50%, -50%);
+  box-shadow: 0 13px 28px rgba(0,0,0,.55), 0 0 0 2px rgba(244,221,155,.2);
+}
+.marker-bild img { transform: none !important; }
+
+/* Der rechte Ortsindex ist eine kompakte Vorschau statt einer hohen Textzeile. */
+.karten-listenpunkt {
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 10px;
+  min-height: 62px;
+  padding: 6px 4px;
+}
+.karten-liste { align-content: start; grid-auto-rows: max-content; gap: 6px; }
+.karten-listenpunkt .listenbild {
+  position: relative;
+  display: block;
+  width: 72px;
+  height: 50px;
+  overflow: hidden;
+  border-radius: 7px;
+  background: #101820;
+}
+.karten-listenpunkt .listenbild img { width: 100%; height: 100%; object-fit: cover; }
+.karten-listenpunkt .listenbild .marker-symbol { position: absolute; top: 5px; left: 5px; }
+.karten-listenpunkt b { font-size: 13px; line-height: 1.2; }
+.karten-listenpunkt small { margin-top: 3px; font-size: 12px; }
+
+/* Icon-only controls and tabs share explicit centering/gaps. */
+.menue > button { display: grid; place-items: center; line-height: 0; }
+.menue > button .ui-icon { display: block; margin: 0; }
+.zentrale-tabs button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; white-space: nowrap; }
+.zentrale-tabs button .ui-icon { margin: 0; }
+
+/* Alte responsive Kurzlabels hatten neben dem echten Text ein zweites Label
+   erzeugt. Ein Button besitzt jetzt genau eine sichtbare Beschriftung. */
+#btn-step-monat::after, #btn-step-jahr::after { content: none !important; }
+.speed-schritte button { font-size: 11px !important; }
+
+/* Annotation batch 46: Zentrale-Unterseiten sitzen als zweiter Block im Dock. */
+.screens-nav .zentrale-tabs {
+  display: none;
+  align-items: stretch;
+  gap: 5px;
+  margin-left: 7px;
+  padding-left: 12px;
+  border-left: 1px solid rgba(238,205,133,.28);
+}
+body[data-screen="dashboard"] .screens-nav .zentrale-tabs { display: flex; }
+.screens-nav .zentrale-tabs button {
+  flex-basis: 82px;
+  min-width: 82px;
+  min-height: 60px;
+  padding: 7px 9px;
+  border: 1px solid rgba(238,205,133,.24);
+  border-radius: 12px;
+}
+
+.chart-wrap { overflow-x: auto; overflow-y: hidden; scrollbar-gutter: stable; }
+#chart { max-width: none; height: 340px; }
+
+.resource-cash #hud-cash.wert-negativ { color: #ff9187; }
+.fin-nutzung-hinweis.warnung { color: #ffd39b; border-color: rgba(255,145,135,.55); background: rgba(122,49,43,.22); }
+.fin-etf-slider { display: grid; gap: 5px; min-width: 190px; }
+.fin-etf-slider > span { display: flex; justify-content: space-between; gap: 10px; }
+.fin-etf-slider output { color: var(--akzent); font-weight: 800; }
+.fin-etf-slider small { color: var(--gedimmt); }
+.flow-gruppe { margin-top: 7px; padding-top: 8px; border-top: 1px solid var(--hairline); color: var(--akzent); font-size: .72rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.sondertilgung { display: grid; gap: 7px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--hairline); }
+.sondertilgung label > span { font-weight: 750; }
+.sondertilgung output { float: right; color: var(--akzent); font-weight: 800; }
+.sondertilgung small { color: var(--gedimmt); line-height: 1.4; }
+.sondertilgung button { justify-self: start; }
+
+/* Bewerberdossiers behalten auf der dunklen Bühne einen eindeutigen Kontrast. */
+.bewerber-karte {
+  color: #f3efe7;
+  border-color: rgba(238,205,133,.32);
+  background: linear-gradient(145deg, rgba(43,53,64,.98), rgba(27,35,44,.98));
+}
+.bewerber-karte :is(.bewerber-name span,.bewerber-fakten dt,.bewerber-fakten dd) { color: rgba(243,239,231,.82); }
+.bewerber-karte .hinweis-chip { color: #24303a; border-color: rgba(34,48,58,.2); background: #f3eee3; }
+.bewerber-karte .hinweis-chip.quote-gut { color: #174d31; background: #d9f1df; }
+.bewerber-karte .hinweis-chip.quote-ok { color: #59420c; background: #f5e5b8; }
+.bewerber-karte .hinweis-chip.quote-schlecht { color: #6c211b; background: #f4d2cc; }
+
+/* Slider bleiben auf lesbarer Bedienbreite und verwenden in allen Engines
+   denselben kontrastreichen Gold-/Petrol-Look. */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: min(720px, 100%);
+  max-width: 720px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  accent-color: #e6c264;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 8px;
+  border: 1px solid rgba(238,205,133,.42);
+  border-radius: 99px;
+  background: #344552;
+}
+input[type="range"]::-webkit-slider-thumb {
+  width: 20px;
+  height: 20px;
+  margin-top: -7px;
+  border: 2px solid #fff1c5;
+  border-radius: 50%;
+  background: #e6c264;
+  box-shadow: 0 0 0 3px rgba(230,194,100,.2), 0 2px 7px rgba(0,0,0,.55);
+  -webkit-appearance: none;
+}
+input[type="range"]::-moz-range-track {
+  height: 8px;
+  border: 1px solid rgba(238,205,133,.42);
+  border-radius: 99px;
+  background: #344552;
+}
+input[type="range"]::-moz-range-progress { height: 8px; border-radius: 99px; background: #e6c264; }
+input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #fff1c5;
+  border-radius: 50%;
+  background: #e6c264;
+  box-shadow: 0 0 0 3px rgba(230,194,100,.2), 0 2px 7px rgba(0,0,0,.55);
+}
+
+/* Annotation batch v45: clearer comparison, financing flow and shared contrast. */
+
+/* A favorite is quiet until selected; hover remains discoverable. */
+.fav {
+  color: rgba(230, 194, 100, .28);
+  -webkit-text-stroke: 1px rgba(230, 194, 100, .34);
+}
+.fav:hover, .fav:focus-visible { color: rgba(230, 194, 100, .72); }
+.fav.aktiv { color: #e6c264; -webkit-text-stroke-color: #e6c264; }
+
+/* The marketplace count behaves like a notification badge. */
+#nav-marktplatz { position: relative; }
+.screens-nav #markt-zaehler {
+  position: absolute;
+  top: 5px;
+  right: 7px;
+  display: grid;
+  min-width: 19px;
+  height: 19px;
+  margin: 0;
+  padding: 0 5px;
+  place-items: center;
+  border: 2px solid #17212a;
+  border-radius: 99px;
+  color: #fff;
+  background: #1879dd;
+  box-shadow: 0 2px 7px rgba(0,0,0,.4);
+  font: 700 10px/1 sans-serif;
+}
+.screens-nav #markt-zaehler:empty { display: none; }
+
+/* The object state belongs to the title, not the collapsed data block. */
+.objekt-titelzeile { display: flex; min-width: 0; align-items: center; gap: 10px; flex-wrap: wrap; }
+.objekt-titelzeile h1 { margin: 0; }
+.objekt-kopf-status, .objekt-kopf-status > .karte-badges { display: inline-flex; gap: 6px; align-items: center; }
+
+/* Dragging is the primary way to pan a zoomed image. */
+.bildzoom-buehne { cursor: grab; touch-action: none; user-select: none; }
+.bildzoom-buehne.zieht { cursor: grabbing; }
+.bildzoom-buehne.zieht .bildzoom-inhalt { transition: none; }
+
+/* Every rental level is visibly framed, including the selected middle card. */
+.niveau-option {
+  border: 1px solid rgba(238,205,133,.28);
+  background: rgba(255,255,255,.025);
+}
+.niveau-option:has(input:checked) {
+  border-color: #e6c264;
+  background: rgba(238,205,133,.1);
+  box-shadow: inset 0 0 0 1px rgba(238,205,133,.16);
+}
+
+/* Two-step financing: decisions remain fixed, results scroll independently. */
+.fin-schritte { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.fin-flow-ergebnis { display: grid; grid-template-rows: auto minmax(0, 1fr); padding: 0; overflow: hidden; }
+.fin-konditionen-fix {
+  display: grid;
+  gap: 8px;
+  padding: 11px 16px 10px;
+  border-bottom: 1px solid rgba(238,205,133,.22);
+  background: rgba(18,27,35,.98);
+}
+.fin-konditionen-fix > label { display: grid; gap: 2px; }
+.fin-konditionen-fix .fin-ek-panel { padding: 8px 10px; }
+.fin-konditionen-fix .fin-etf-panel { margin: 0; padding: 7px 10px; }
+.fin-konditionen-fix input[type="range"] { height: 20px; }
+.fin-konditionen-fix .fin-slider-werte { gap: 5px; font-size: 11px; }
+.fin-konditionen-fix .fin-ltv-viz { padding: 7px 9px; }
+.fin-konditionen-fix .fin-bindung { margin-top: 0; }
+.fin-ergebnis-scroll { min-height: 0; overflow: auto; padding: 0 16px 18px; scrollbar-gutter: stable; }
+.fin-ergebnis-scroll .fin-tabelle { margin-top: 0; }
+.fin-monatsvergleich > header { justify-content: flex-start; }
+.fin-pfad-urteil > .info-tooltip { justify-self: start; }
+.steuer-null .info-tooltip { margin-left: 4px; }
+
+/* Numeric comparison cells show direction relative to the first property. */
+.vergleich-tabelle { min-width: 700px; }
+.vergleich-tabelle th[scope="row"] { color: #c9bea0; white-space: nowrap; border-top: 1px solid rgba(238,205,133,.12); }
+.vergleich-tabelle td { min-width: 170px; vertical-align: top; }
+.vergleich-zahlenzeile td { border-left: 3px solid transparent; background: rgba(255,255,255,.018); }
+.vergleich-zahlenzeile td b { display: block; color: #efe7d5; font-variant-numeric: tabular-nums; }
+.vergleich-delta, .vergleich-basis { display: inline-block; margin-top: 3px; font: 700 11px/1.2 sans-serif; }
+.vergleich-basis { color: #9f967e; }
+.vergleich-besser { border-left-color: #70bd8d !important; background: rgba(112,189,141,.09) !important; }
+.vergleich-besser .vergleich-delta { color: #9ed19e; }
+.vergleich-schlechter { border-left-color: #d38270 !important; background: rgba(211,130,112,.08) !important; }
+.vergleich-schlechter .vergleich-delta { color: #efa58f; }
+.vergleich-gleich .vergleich-delta { color: #aaa088; }
+
+/* Remove surviving light islands from the dark interface. */
+:where(input:not([type="range"]):not([type="checkbox"]):not([type="radio"]), select, textarea) {
+  color: #efe7d5;
+  background: #111a22;
+  border-color: rgba(238,205,133,.3);
+  caret-color: #f4dd9b;
+  -webkit-text-fill-color: #efe7d5;
+}
+:where(input:not([type="range"]):not([type="checkbox"]):not([type="radio"]), textarea)::placeholder {
+  color: #a69d86;
+  -webkit-text-fill-color: #a69d86;
+  opacity: 1;
+}
+.admin-eingabe input { color: #efe7d5; background: #111a22; border-color: rgba(238,205,133,.3); }
+.quartals-kpis > div {
+  color: #efe7d5;
+  border-color: rgba(238,205,133,.2);
+  background: rgba(255,255,255,.035);
+}
+.quartals-kpis dt { color: #c8bd9f; }
+.quartals-kpis dd { color: #efe7d5; }
+.meldungen-panel > header {
+  color: #efe7d5;
+  border-color: rgba(238,205,133,.2);
+  background: #1c2731;
+}
+.meldungen-panel > header .eyebrow { color: #c8bd9f; }
+.meldungen-panel > header button { color: #d4cab0; }
+
+@media (max-width: 700px) {
+  .fin-konditionen-fix { padding-inline: 12px; }
+  .fin-ek-schnellwahl { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .fin-ergebnis-scroll { padding-inline: 12px; }
+  .objekt-titelzeile { align-items: flex-start; }
+}
+.gebot-zeile input[type="range"] { justify-self: start; }
+@media (max-width: 700px) {
+  input[type="range"] { width: 100%; max-width: none; }
+}
+
+/* Tooltips leben als Popover in der Top-Layer und werden per JS an den
+   Viewportrand geklemmt. Dadurch schneiden Dialoge und Scrollpanel sie nie ab. */
+.info-tooltip::after { display: none !important; }
+.floating-info-tooltip {
+  position: fixed;
+  width: min(290px, calc(100vw - 20px));
+  margin: 0;
+  padding: 9px 11px;
+  border: 1px solid rgba(238,205,133,.42);
+  border-radius: 8px;
+  color: #fff8e6;
+  background: #101820;
+  box-shadow: 0 12px 32px rgba(0,0,0,.58);
+  font: 500 13px/1.4 "Alegreya Sans", "Segoe UI", sans-serif;
+  pointer-events: none;
+}
+
+/* Spezifische Lesbarkeitskorrekturen in Expose und Bankdialog. */
+.notizen-karte h3 { font-family: "Alegreya Sans", "Segoe UI", system-ui, sans-serif; letter-spacing: 0; }
+#fin-nutzung-hinweis.gesperrt {
+  border-color: #e0a084;
+  color: #f2dfd5;
+  background: rgba(224,160,132,.13);
+}
+input:disabled, select:disabled, textarea:disabled {
+  color: #c8bd9f;
+  background: #1a232d;
+  -webkit-text-fill-color: #c8bd9f;
+  opacity: .78;
+}
+.verdikt.ok { color: #dcebd8; }
+.verdikt.ok > b { color: #c9edc4; }
+.verdikt.ok .positiv, .fin-monatsvergleich .positiv { color: #b8e8b3 !important; }
+.fin-zins-erklaerung td {
+  padding-top: 0;
+  color: #d3c8aa;
+  font-size: 12px;
+  line-height: 1.35;
+}
+.fin-ek-quote {
+  color: #efe7d5;
+  border-color: rgba(238,205,133,.3);
+  background: rgba(238,205,133,.07);
+  box-shadow: none;
+}
+.fin-ek-quote small, .fin-ek-quote span { color: #c8bd9f; }
+
+/* v45 cascade guard: the step buttons stay left of playback at every width. */
+@media (max-width: 900px) {
+  .speed-schritte { grid-column: 1; }
+  .speed-lauf { grid-column: 2; }
+}
+
+/* Annotation batch v47: klare Informationsgruppen, größere Typografie und
+   kompaktere Desktop-Flächen. */
+.ressourcenleiste { grid-template-columns: minmax(270px, 2fr) minmax(145px, 1fr); }
+.ressourcenleiste > .resource-finanzgruppe {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0; padding: 0; overflow: hidden;
+}
+.resource-finanzgruppe > button {
+  min-width: 0; min-height: 48px; padding: 6px 10px; border: 0;
+  border-right: 1px solid rgba(238,205,133,.2); border-radius: 0;
+  color: var(--tinte); background: transparent; box-shadow: none;
+}
+.resource-finanzgruppe > button:last-child { border-right: 0; }
+.resource-finanzgruppe > button:hover { background: rgba(255,255,255,.08); }
+
+.screens-nav .zentrale-tabs {
+  display: flex !important; align-items: stretch; gap: 5px; margin-left: 7px;
+  padding-left: 12px; border-left: 1px solid rgba(238,205,133,.28);
+}
+.screens-nav .zentrale-tabs button { font-size: 13px; }
+
+.chart-karte, .chart-wrap { min-width: 0; width: 100%; max-width: 100%; }
+.chart-wrap { min-height: 280px; }
+#chart { height: clamp(270px, 31vh, 340px); }
+@media (min-width: 1180px) and (min-height: 780px) {
+  #zentrale-panel-vermoegen { grid-template-columns: minmax(0, 1.65fr) minmax(330px, .75fr); gap: 12px; }
+  #zentrale-panel-kacheln { grid-column: 1 / -1; }
+  #zentrale-panel-chart { grid-column: 1; align-self: start; }
+  #zentrale-panel-quartal {
+    grid-column: 2; align-self: start;
+    max-height: clamp(420px, calc(31vh + 180px), 520px);
+    overflow-y: auto;
+  }
+  .quartalsbericht > #quartalsbericht-inhalt { grid-template-columns: 1fr; }
+}
+.mini-chart { padding: 12px 13px; }
+.mini-chart h3 { font-size: 14px; }
+.mini-chart header b { font-size: 13.5px; }
+.mini-legende, .risiko-zeile { font-size: 12.5px; }
+.hud .sub, .topbar .sub { color: #c7bda5; font-size: 12px; }
+#hud-datum { font-size: 17px; }
+
+.markt-karte .badge.orange { color: #352409; background: #f2ce79; border-color: #ffe4a6; font-weight: 750; }
+.badge.gruen {
+  color: #12351f !important;
+  background: #bde4c3;
+  border-color: #d9f2dc;
+  font-size: 12.5px;
+  font-weight: 750;
+}
+
+.vergleich-tabelle { width: 100%; min-width: 720px; table-layout: fixed; }
+.vergleich-tabelle col.vergleich-merkmal { width: 24%; }
+.vergleich-tabelle col.vergleich-objekt { width: 38%; }
+.vergleich-tabelle td { min-width: 0; }
+.vergleich-zahlenzeile td b { display: inline; }
+.vergleich-delta { display: inline; margin: 0 0 0 7px; font: 500 12px/1.3 "Alegreya Sans", "Segoe UI", sans-serif; }
+.vergleich-basis { display: none; }
+
+/* On normal desktop widths the comparison uses the available dialog width instead of
+   forcing a horizontal scrollbar. Narrow phones keep the intentionally scrollable table. */
+@media (min-width: 701px) {
+  #dlg-vergleich { width: min(1040px, calc(100vw - 48px)); }
+  #dlg-vergleich .vergleich-wrap { overflow-x: clip; }
+  #dlg-vergleich .vergleich-tabelle { min-width: 0; }
+  #dlg-vergleich .vergleich-tabelle :is(th, td) {
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+  #dlg-vergleich .vergleich-tabelle th[scope="row"] { white-space: normal; }
+}
+
+/* The pills already provide their own contrast; a full-width dark wash only looked
+   like an accidental black line across the bottom of the property image. */
+.objekt-visual-overlay { background: transparent; }
+
+/* Wide desktop readability floor: prose and compact accounting labels were still
+   rendered at 10.5–11.5 px despite ample room. This pass deliberately leaves
+   mobile and the compact two-row header untouched. */
+@media (min-width: 1201px) {
+  html, body { font-size: 16px; }
+
+  .flow-zeile,
+  .objekt-flow-zeile,
+  .steuer-regel,
+  .steuer-karte .slider-zeile,
+  .mietrecht-hinweis,
+  .mietmodell-recht,
+  .modell-option small,
+  .objekt-wert small,
+  .objekt-wert-legende,
+  .reserve-status :is(span, small),
+  .eigenbedarf-status p,
+  .owned-primary span,
+  .owned-split small,
+  .owned-open,
+  .karte-ort,
+  .karte-fakten,
+  .markt-zitat,
+  .stadt-post button,
+  .naechster-zug p,
+  .cashflow-popover > p,
+  .cashflow-details,
+  .menue-popover button small,
+  .bewerber-fakten dd,
+  .bewerber-note,
+  .leerstand-kosten :is(dt, p),
+  .reno-fakten { font-size: 13px; line-height: 1.45; }
+
+  .flow-summe,
+  .steuer-vorschau span { font-size: 13.5px; }
+
+  .flow-gruppe,
+  .steuer-vorschau small,
+  .steuer-karte #steuer-letzter,
+  .meldungen-panel li :is(small, time) { font-size: 12px; }
+}
+
+.pruefstand label { font-size: 13.5px; }
+.pruefstand label b { font-size: 14px; }
+.pruefstand p { font-size: 13px; }
+.dd-liste li.dd-befund {
+  display: grid; grid-template-columns: 24px 92px minmax(0, 1fr); gap: 8px;
+  align-items: start; font-size: 14px;
+}
+.dd-symbol {
+  display: grid; width: 21px; height: 21px; place-items: center; border-radius: 50%;
+  color: #101820; background: #a9c9ee; font: 800 13px/1 sans-serif;
+}
+.dd-gut .dd-symbol { background: #9ed19e; }
+.dd-schlecht .dd-symbol { background: #efa58f; }
+.dd-unklar .dd-symbol { background: #f0ca75; }
+.dd-neutral .dd-symbol { background: #a9c9ee; }
+
+.fin-ek-quote small { color: #e2d6b5; font-size: 12.5px; }
+.fin-ek-quote span { color: #c8bd9f; font-size: 12.5px; }
+.fin-ek-schnellwahl button { font-size: 13px; }
+.fin-konditionen-fix > label, .fin-etf-panel, .fin-bindung { font-size: 14px; }
+.fin-konditionen-fix .fin-slider-werte { color: #ddd2b5; font-size: 13px; }
+.fin-etf-panel small, .fin-etf-slider small { font-size: 12.5px; }
+.fin-ltv-viz small { font-size: 12px; }
+
+.mietrecht-hinweis { color: #e2d9c5; border: 1px solid rgba(126,168,216,.42); background: rgba(39,64,86,.42); font-size: 13.5px; }
+.mietrecht-hinweis b { color: #f4dd9b; }
+.bewerber-liste { grid-template-columns: repeat(auto-fit, minmax(390px, 1fr)); }
+.bewerber-kopf { gap: 17px; }
+.bewerber-avatar { width: 96px; height: 96px; flex: 0 0 96px; }
+.bewerber-name b { font-size: 19px; }
+.bewerber-fakten dt { display: flex; align-items: center; gap: 6px; color: #ded4bd !important; font-size: 12px; }
+.bewerber-fakten dd { color: #f0ebe0 !important; font-size: 14px; }
+.steckbrief-icon { width: 15px; height: 15px; color: #e6c264; }
+.bewerber-note { color: #fff4d7; background: rgba(8,15,21,.62); border-left-color: #e6c264; font-size: 14px; }
+
+.bildzoom-dialog { width: min(1320px, calc(100vw - 28px)); max-width: none; }
+.bildzoom-buehne { width: 100%; height: min(76vh, 760px); }
+.bildzoom-inhalt { width: 100%; height: 100%; aspect-ratio: auto; }
+
+#dlg-kauf { width: min(900px, calc(100vw - 32px)); max-width: none; overflow: hidden; }
+#dlg-kauf > header { padding-bottom: 12px; }
+.kaufabschluss-layout { display: grid; grid-template-columns: minmax(300px, 1.05fr) minmax(300px, .95fr); gap: 22px; align-items: center; }
+.kaufabschluss-bild { position: relative; margin: 0; overflow: hidden; border: 1px solid rgba(238,205,133,.38); border-radius: 13px; box-shadow: 0 14px 34px rgba(0,0,0,.36); }
+.kaufabschluss-bild img { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; }
+.kaufabschluss-bild figcaption { position: absolute; inset: auto 0 0; padding: 13px 15px; color: #fff8e6; background: linear-gradient(transparent, rgba(5,9,12,.92)); font-size: 15px; font-weight: 750; }
+#dlg-kauf.kauf-feier { animation: kaufAuftritt .55s cubic-bezier(.2,.9,.2,1); }
+#dlg-kauf.kauf-feier::before {
+  content: "✦   ◆   ✦   ◆   ✦"; position: absolute; z-index: 3; top: 10px; right: 78px;
+  color: #f4dd9b; letter-spacing: 12px; text-shadow: 0 0 12px rgba(244,221,155,.85);
+  animation: kaufFunkeln 1.5s ease-in-out infinite alternate; pointer-events: none;
+}
+@keyframes kaufAuftritt { from { opacity: 0; transform: translateY(22px) scale(.96); } to { opacity: 1; transform: none; } }
+@keyframes kaufFunkeln { from { opacity: .35; transform: translateY(2px); } to { opacity: 1; transform: translateY(-2px); } }
+
+.meldungen-panel li { padding: 0; }
+.meldung-link {
+  display: grid; grid-template-columns: 34px minmax(0,1fr) 18px; gap: 10px;
+  align-items: start; width: 100%; min-height: 0; padding: 12px 14px; border: 0;
+  border-radius: 0; color: var(--tinte); background: transparent; box-shadow: none; text-align: left;
+}
+.meldung-link:hover { background: rgba(255,255,255,.06); }
+.meldung-symbol { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 9px; color: #101820; background: #a9c9ee; font: 800 15px/1 sans-serif; }
+.meldung-copy { display: grid; gap: 4px; line-height: 1.3; }
+.meldung-copy time { color: #b7ad94 !important; font-size: 11px !important; }
+.meldung-pfeil { align-self: center; color: #d8c275; font-size: 17px; }
+.meldung-aktion .meldung-symbol, .meldung-arbeit .meldung-symbol { background: #f0ca75; }
+.meldung-mieter .meldung-symbol, .meldung-objekt .meldung-symbol { background: #9ed19e; }
+.meldung-finanzen .meldung-symbol { background: #d9b464; }
+.meldung-haushalt .meldung-symbol { background: #c6a9df; }
+.meldung-markt .meldung-symbol { background: #a9c9ee; }
+.meldung-info .meldung-symbol { color: #e9e2d3; background: #516171; }
+.meldungen-panel li.ist-aktion { box-shadow: inset 3px 0 #e6c264; }
+
+/* Stadtpost und Glockenarchiv teilen sich dieselbe Kategorie-Legende. */
+.stadt-post button {
+  grid-template-columns: 30px minmax(0, 1fr);
+  align-items: start;
+}
+.stadt-post .meldung-symbol { width: 30px; height: 30px; }
+.stadt-post button.ist-aktion { box-shadow: inset 3px 0 #e6c264; }
+
+@media (max-width: 850px) {
+  .kaufabschluss-layout { grid-template-columns: 1fr; }
+  .kaufabschluss-bild img { max-height: 230px; }
+  .bewerber-liste { grid-template-columns: 1fr; }
+  .bildzoom-dialog { width: calc(100vw - 16px); }
+}
+@media (max-width: 700px) {
+  .ressourcenleiste { display: flex; }
+  .ressourcenleiste > .resource-finanzgruppe { flex: 2 0 252px; }
+  .ressourcenleiste > .resource-cashflow { flex: 1 0 126px; }
+  .dd-liste li.dd-befund { grid-template-columns: 24px minmax(0,1fr); }
+  .dd-liste li.dd-befund .dd-quelle { grid-column: 2; }
+  .bewerber-avatar { width: 78px; height: 78px; flex-basis: 78px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #dlg-kauf.kauf-feier, #dlg-kauf.kauf-feier::before { animation: none; }
+}
+
+/* UI v49: Akzentdisziplin. Gold markiert Entscheidungen, aktive Zustände und
+   wenige Schlüsselwerte; Struktur, Überschriften und Rahmen bleiben neutral. */
+:root {
+  --tinte: #ece9e1;
+  --tinte-2: #c7c9c5;
+  --gedimmt: #9ca7ad;
+  --hairline: rgba(154, 173, 184, .25);
+  --grid: rgba(154, 173, 184, .12);
+  --struktur: #aebbc2;
+  --struktur-hell: #e2e5e3;
+}
+
+h1, h2, h3, h4,
+.brand, .brand span, #hud-datum,
+.expose-kopf h1,
+.karten-kopf h2, .karte h2, .karte h3,
+.familie-panel h2, .post-panel h2, .karten-legende h2,
+.mini-chart h3, .owned-body h3, .konto-karte h2,
+.transfer-karte h3, dialog h2, dialog h3,
+.fin-szenario h4, .naechster-zug h3 {
+  color: var(--struktur-hell);
+}
+
+.title-icon, .section-icon,
+.screen-heading .title-icon,
+.karte :is(.title-icon, .section-icon),
+.steckbrief-icon {
+  color: var(--struktur);
+}
+
+.flow-gruppe,
+.fin-tabelle .fin-gruppe th,
+.cashflow-details tr.gruppe td,
+.konto-karte .eyebrow,
+.screen-heading .eyebrow {
+  color: var(--struktur);
+}
+
+.topbar,
+.screen-heading,
+.karte,
+.kpi-gruppe,
+.mini-chart,
+dialog,
+input, select, textarea,
+.badge,
+.screens-nav button {
+  border-color: var(--hairline);
+}
+
+/* Unterseiten sind eigenständige Dockziele: deckend wie die übrigen Buttons,
+   aber nur der wirklich sichtbare Bereich erhält den goldenen Aktivzustand. */
+.screens-nav .zentrale-tabs button {
+  color: var(--tinte-2);
+  opacity: 1;
+  border-color: var(--hairline);
+  background: linear-gradient(180deg, #252f3a, #151d25);
+  box-shadow: 0 9px 24px rgba(0,0,0,.35);
+  backdrop-filter: none;
+}
+.screens-nav .zentrale-tabs button:hover:not(:disabled) {
+  color: #fff;
+  border-color: rgba(174,187,194,.5);
+  background: linear-gradient(180deg, #303c48, #1c2630);
+}
+.screens-nav .zentrale-tabs button.aktiv {
+  color: #241d10;
+  border-color: #f4dd9b;
+  background: linear-gradient(180deg, #f0d58a, #c99c3e);
+  box-shadow: 0 3px 0 #8a6a24, 0 10px 25px rgba(0,0,0,.4);
+}
+
+/* Die drei Finanzwerte bleiben im Blick, ohne den Desktop-Kopf optisch zu
+   dominieren. Gold ist hier kein Strukturfarbton, sondern bleibt Aktionen und
+   dem jeweils aktiven Navigationsziel vorbehalten. */
+.ressourcenleiste .hud-icon { color: var(--struktur); }
+
+@media (min-width: 701px) {
+  .screens-nav {
+    overflow-x: visible;
+    scrollbar-width: none;
+  }
+  .screens-nav::-webkit-scrollbar { display: none; }
+  .screens-nav button:active:not(:disabled) { transform: none; }
+  .ressourcenleiste {
+    align-self: center;
+    height: 44px;
+    max-height: 44px;
+  }
+  .ressourcenleiste > :is(div, button) {
+    height: 44px;
+    min-height: 44px;
+    max-height: 44px;
+    padding-block: 4px;
+  }
+  .resource-finanzgruppe > button {
+    height: 42px;
+    min-height: 42px;
+    max-height: 42px;
+    padding-block: 4px;
+  }
+}

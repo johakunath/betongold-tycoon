@@ -1,11 +1,11 @@
 // tenants.js — Mieterwahl, Neuvermietung, monatliches Mieterverhalten,
 // Mieterhöhung. Formeln: ECONOMY_MODEL §15–16. DOM-frei, RNG nur über state.js.
 
-import { rngFloat, rngNormal } from './state.js?v=41';
-import { vergleichsmiete } from './market.js?v=41';
-import { alleTenants, getTenant } from './content.js?v=41';
-import { meldeWartemoment } from './signals.js?v=41';
-import { protokolliereWirkung } from './gameplay.js?v=41';
+import { rngFloat, rngNormal } from './state.js?v=51';
+import { vergleichsmiete } from './market.js?v=51';
+import { alleTenants, getTenant } from './content.js?v=51';
+import { meldeWartemoment } from './signals.js?v=51';
+import { protokolliereWirkung } from './gameplay.js?v=51';
 
 // Erzielbare Marktmiete (kalt) für ein Objekt: Vergleichsmiete × Zustandsfaktor.
 export function marktmiete(state, objekt) {
@@ -56,11 +56,14 @@ export function neueBewerber(state, objekt) {
   suche.generiertMonat = state.monat;
 
   const modell = vermietungsmodell(state, suche.modell || suche.moebliert);
-  if (rngFloat(state) < Math.min(.9, niveau.leerstandsRisiko + modell.leerstandsRisiko)) {
+  const stadt = state.config.segmente[objekt.segment]?.stadt || 'meissen';
+  const nachfrageFaktor = stadt === 'berlin' ? .35 : stadt === 'leipzig' ? .75 : 1.15;
+  if (rngFloat(state) < Math.min(.9, (niveau.leerstandsRisiko + modell.leerstandsRisiko) * nachfrageFaktor)) {
     suche.bewerber = [];
     return suche;
   }
-  let n = niveau.poolBasis + (Math.floor(rngFloat(state) * 3) - 1); // ±1
+  let n = niveau.poolBasis + (stadt === 'berlin' ? 2 : stadt === 'leipzig' ? 1 : 0) +
+    (Math.floor(rngFloat(state) * 3) - 1); // ±1
   n = Math.max(m.poolMin, Math.min(m.poolMax, n));
 
   // Bewerber nach versteckter Qualität + Seed-Rauschen + Niveau-Skew sortieren.

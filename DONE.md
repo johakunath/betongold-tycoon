@@ -3,7 +3,116 @@
 Kompaktes, chronologisches Log. Details älterer Sessions bleiben in
 `DECISIONS.md` und den Fachdocs nachvollziehbar.
 
+## 2026-07-22
+
+- **Breite Desktop-Typografie als UI v51 lesbarer gemacht** (`SAVE_VERSION`
+  bleibt 20): Grüne Statusbadges nutzen nun dunkle Schrift auf hellem Grün.
+  Ab 1201 px wachsen Haushalts-, Steuer-, Objekt-, Markt-, Dialog- und
+  Erklärungstexte gezielt um rund 1–2 px; mobile Ansichten und der kompakte
+  zweizeilige Header behalten ihre bisherige Dichte.
+
+- **Mittleren Desktop-HUD als UI v50 verdichtet** (`SAVE_VERSION` bleibt 20):
+  Die drei Finanzbuttons besitzen nun ab 701 px eine feste kompakte Höhe statt
+  im zweizeiligen 1081–1180-px-Header auf die gesamte Grid-Zeile zu wachsen.
+  Der 1143-px-Zustand ist als Browser- und Querschnittsvertrag ergänzt. Die
+  Stadtpost verwendet dieselbe zentrale Kategorie-, Symbol- und Farbzuordnung
+  wie das Glockenarchiv. Das Desktop-Dock erzeugt bei langem Drücken keine
+  unnötige horizontale Scrollsteuerung mehr; kleine Viewports bleiben scrollbar.
+  Der Objektvergleich nutzt ab 701 px die verfügbare Dialogbreite ohne
+  Querleiste. Der irreführende dunkle Flächenverlauf unter Objektbildern ist
+  entfernt; die einzelnen Status-Pills behalten ihren eigenen Kontrast.
+
+- **Akzentdisziplin und Shell-Klarheit als UI v49 abgeschlossen**
+  (`SAVE_VERSION` bleibt 20): Gold ist aus gewöhnlichen Überschriften, Icons,
+  Rahmen und Trennlinien entfernt und bleibt Primäraktionen, dem aktiven
+  Navigationsziel sowie wenigen Schlüsselwerten vorbehalten. Die drei
+  Finanzwerte im Desktop-HUD sind kompakter. Zentrale-Unterseiten besitzen im
+  Bottom-Dock deckende Flächen; außerhalb der Zentrale verliert der zuletzt
+  gewählte Unterbereich seinen visuellen Aktivzustand, sodass stets genau ein
+  Dockziel hervorgehoben ist. Browser- und Vertragschecks sichern die Änderung.
+
+## 2026-07-21
+
+- **Offene Code-Inspector-Befunde als UI v48 geschlossen** (`SAVE_VERSION`
+  bleibt 20): Der CSS-Entrypoint lädt jetzt sieben geordnete Schichten für
+  Grundlage, Legacy-Shell, Gameplay, responsive Ergänzungen, Warm-Theme,
+  aktuelle App-Shell und Annotation-Fixes; keine Einzeldatei überschreitet
+  1.300 Zeilen. Der dependency-freie Browser-Smoke berechnet WCAG-Kontrast für
+  HUD/Zentrale, Bewerber, Benachrichtigungen, Einstellungen, Marktbadges und
+  Finanzierung. Ein eigener Langchart-Test erzwingt, dass `.chart-wrap` intern
+  scrollt, die Chartkarte im Zentrale-Panel bleibt und der Screen keinen
+  horizontalen Overflow erhält.
+
+- **23 ergänzende Owner-Annotationen als UI v47 abgeschlossen**
+  (`SAVE_VERSION` bleibt 20), geordnet in fünf zusammenhängende Blöcke:
+  - **Navigation und Dichte:** Tagesgeld und ETF bilden einen gemeinsamen
+    Finanz-Linkverbund; die drei Zentrale-Bereiche bleiben in der priorisierten
+    Bottom-Navigation sichtbar, der redundante Zentrale-Knopf entfällt. Datum,
+    Diagrammzusatz und KPI-Texte sind größer; der Desktop der Zentrale nutzt den
+    Platz ohne unnötiges Seitenscrolling, während das Vermögensdiagramm nur mit
+    tatsächlich gespielter Historie horizontal wächst.
+  - **Exposé und Vergleich:** Marktbadges haben höheren Kontrast, die beiden
+    Vergleichsspalten sind gleich breit und zeigen unaufdringliche Inline-Deltas
+    ohne „Basis“. Redundante Hilfstexte entfallen; Besichtigungsbefunde besitzen
+    gute, schlechte, unklare oder neutrale Symbole und der Prüfstand ist größer.
+  - **Finanzierung und Bilder:** Eigenkapital-/Tilgungsbeschriftungen sind
+    lesbarer, der Mietrechtshinweis kontrastreicher und der Bildzoom nutzt auf
+    breiten Viewports den verfügbaren Raum statt einer unnötigen Querleiste.
+  - **Kauf und Kredit:** Der Notartermin ist ein großer bebilderter
+    Kaufabschluss mit reduzierter Celebration-Animation. Zu Jahresbeginn erinnert
+    das Meldungsarchiv für jeden offenen Kredit an den verfügbaren
+    Sondertilgungsrahmen.
+  - **Meldungen und Bewerber:** Meldungen tragen farbige Kategorie-Symbole,
+    unterscheiden Aktion und Information und führen zum passenden Objekt-,
+    Finanz-, Haushalts- oder Marktbereich. „Zuletzt passiert“ entfällt;
+    Bewerberkarten nutzen größere Porträts, Steckbrief-Icons und lesbare Zitate.
+  Neue Vertrags-, Simulations- und Browser-Smoke-Prüfungen sichern die Änderungen.
+
+- **Priorisierten Owner-Annotationsblock als Save v20/UI v46 abgeschlossen:**
+  Berliner Angebotsmieten, Vermietungswege und Bewerbernachfrage sind anhand
+  aktueller Quellen neu kalibriert. Wohnort und regionale Einkommenswirkung,
+  signed Jahressteuer auf Vermietung, 5-%-Sondertilgung und fortlaufende
+  Hintergrund-Mietersuche erweitern den persistenten State. Im Bankdialog
+  synchronisiert ein ETF-Range-Regler die präzise Eingabe und Steuerwirkung.
+  Die Zentrale-Unterseiten sitzen bei der Bottom-Navigation, das Chart scrollt
+  intern horizontal, redundante Ereignislisten entfallen zugunsten der Glocke,
+  und HUD-/Kontrast-/Negativzustände sind vereinheitlicht. Sim-, Vertrags-,
+  Economy-, Familienmarkt- und Balance-Gates decken die neuen Pfade ab.
+
 ## 2026-07-20
+
+- **Zweiten gesammelten Owner-Annotationspass als UI v45 abgeschlossen**
+  (`SAVE_VERSION` bleibt 19): Familienpreset mit 900 € Reisen, 300 € direkten
+  Kleinkindkosten und steigender Altersstaffel; verständliche Begriffe statt
+  LTV/„normalisiert“; zwei statt drei Finanzierungsschritte mit festem
+  Eigenkapital-/Tilgungsblock und scrollender Rechnung; visuelle +/-‑Vergleiche
+  und Tooltip-Erklärungen; globale dunkle Kontrastflächen; Favoriten- und
+  Marktplatzbadges; Bild-Panning, Objektstatus am Titel, Zeit-Schritte links,
+  entfernte Zielnotiz, korrigierte achtstufige Tour, erweiterte Vermietungshilfe
+  und gerahmte Mietniveauwahl.
+
+- **Gesammelten 19-Punkte-Annotationspass als UI v44 abgeschlossen**
+  (`SAVE_VERSION` bleibt 19): geschützte Hintergrund-/Esc-Schließung für
+  Dialoge mit Dirty-Warnung; größere und kontrastreichere Typografie;
+  zentrierte Header-Icons und entzerrte Zentrale-Tabs; eindeutige Zeitlabels;
+  global begrenzte, goldfarbene Range-Regler; Viewport-Tooltips ohne Clipping;
+  scharfe helle Stadtbühne, ortsfeste Marker und kompakte Listenbilder;
+  Sans-Serif für Notizen, idiomatische Angebotsablehnung sowie kontrastreiche
+  Finanzierungshinweise und Sollzinsaufschlüsselung. Engine, RNG und
+  Wirtschaftsformeln bleiben unverändert.
+
+- **Desktop-Startdialog als UI v43 verbreitert und verkürzt**
+  (Owner-Annotation, `SAVE_VERSION` bleibt 19). Ab 1100 px nutzt der Dialog bis
+  zu 1160 px Breite; alle vier Startlagen stehen in einer Reihe. Bei 1305 ×
+  979 px ist der Dialog breiter als hoch, vollständig sichtbar und ohne
+  horizontalen Überlauf. Schmalere Breakpoints behalten das bisherige Raster.
+
+- **Startvorschau im Startdialog als UI v42 bereinigt** (Owner-Annotation,
+  `SAVE_VERSION` bleibt 19). Die vier konkurrierenden Auto-Spalten sind durch
+  eine klare Zusammenfassung ersetzt: Überschrift, zwei gleich breite
+  Vermögenswerte sowie volle Zeilen für Monatsbild, Langfristannahmen und
+  Presetbesonderheit. Bei 1305 × 979 px liegen alle Werte ohne Querüberlauf in
+  stabilen Zeilen; bis 420 px fällt auch das Vermögenspaar untereinander.
 
 - **B1-Vereinfachungspass als UI v41 abgeschlossen** (reines UI/CSS,
   `SAVE_VERSION` bleibt 19). Ausgangspunkt war ein vollständiger Spiel- und
@@ -221,10 +330,11 @@ Kompaktes, chronologisches Log. Details älterer Sessions bleiben in
   Paare, `me-03` eine echte sanierte Variante. Der Release-Check vergleicht
   jetzt die Dateiinhalte aller 120 Listingbilder und lehnt Duplikate ab.
 - **Reales Familienbudget und editierbare Lebensphasen:** Die beiden 24-Monats-Auswertungen
-  plus persönliche Kosten beider Eltern ergeben gerundet 6.210 € Ausgaben
-  inklusive bzw. 4.260 € ohne Reisen. Das Preset startet mit Kindern 3,5/0,6,
+  lieferten den ursprünglichen Alltagsblock; der aktuelle Owner-Playtest
+  kalibriert auf 4.860 € Ausgaben inklusive 900 € Reisen bzw. 3.960 € ohne
+  Reisen. Das Preset startet mit Kindern 3,5/0,6,
   520 € separat sichtbarem Kindergeld bis 27, 8.300 € Arbeitsnetto,
-  je 90.000 € Tagesgeld/ETF, 2.610 € Sparrate und 50/50-Sparplan. Ab Monat 5
+  je 90.000 € Tagesgeld/ETF, 3.960 € Sparrate und 50/50-Sparplan. Ab Monat 5
   greift eine editierbare 600-€-Autopauschale. Arbeitsnetto, Alltag, Reisen und
   Auto besitzen sichtbare Alters-/Rentenfaktoren; der Startdialog trennt 17
   Start- und Laufzeitfelder. Save v15, UI v30.

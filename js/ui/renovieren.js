@@ -2,8 +2,8 @@
 // Zustandsziel und Überziehungsrisiko. Start nur bei leerem Objekt (Umbau =
 // Leerstand). Formeln: ECONOMY_MODEL §17.
 
-import { renovierungsOptionen, starteRenovierung } from '../renovation.js?v=41';
-import { fmtEUR } from './util.js?v=41';
+import { renovierungsOptionen, starteRenovierung } from '../renovation.js?v=51';
+import { fmtEUR } from './util.js?v=51';
 
 let ctx = null;
 let index = -1;
@@ -11,8 +11,6 @@ let eigenleistung = false;
 
 export function initRenovieren(context) {
   ctx = context;
-  document.getElementById('dlg-renovieren').querySelector('[data-schliessen]')
-    .addEventListener('click', () => document.getElementById('dlg-renovieren').close());
 }
 
 export function oeffneRenovieren(objektIndex) {

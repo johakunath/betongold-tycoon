@@ -3,7 +3,7 @@
 Wer den Code übernimmt, liest zuerst `CLAUDE.md`, dann `ROADMAP.md` und
 `HANDOVER.md`. Dieses Dokument wird nur für technische Details benötigt.
 
-**Stand: Arbeitspakete G/H abgeschlossen (20.07.2026).** Kampagne, vier Märkte,
+**Stand: Owner-Annotationspass v46 abgeschlossen (21.07.2026).** Kampagne, vier Märkte,
 Familienhäuser, freiwillige Ziele, Objekt-Arcs, Arbeitsmodelle, Lebensphasen,
 Admin-Panel, Tutorial, 13 breite Balance-Gates, eigener Familienmarkt-Harness,
 Accessibility-Basis und statischer Release-Check sind vorhanden. Die wichtigsten
@@ -193,10 +193,12 @@ dämpft negative Kinderevents. Weitere Immobilien bleiben im `portfolio`.
 
 ### Steuern
 
-`tax.js` sammelt pro Kalenderjahr Mieteinnahmen, abzugsfähige Kosten, Zinsen
-und lineare AfA. Im Dezember wird der positive Überschuss mit dem einstellbaren
-Grenzsteuersatz belastet. Das System ist bewusst stark vereinfacht; Vorschau,
-Satz und letzter Bescheid sind auf dem Dashboard sichtbar.
+`tax.js` sammelt pro Kalenderjahr Mieteinnahmen, abzugsfähige Kosten inklusive
+tatsächlich gebuchter Instandhaltung, Zinsen und lineare AfA. Im Dezember wird
+das signed Ergebnis mit dem einstellbaren Grenzsteuersatz verrechnet: Gewinn
+ist Zahlung, Verlust bei vorhandenem Erwerbseinkommen Gutschrift. Ohne
+Erwerbseinkommen bleibt ein persistenter Verlustvortrag. Das System ist bewusst
+stark vereinfacht; Vorschau, Satz und letzter Bescheid sind sichtbar.
 
 `kapitalsteuer.js` ist davon getrennt: Es besteuert positive Kapitalerträge mit
 einem gemeinsamen Kalenderjahres-Pauschbetrag, 26,375 % Satz und beim Welt-ETF
@@ -243,7 +245,7 @@ Einkommenswechsel auf `rentenNettoFaktor`.
 
 ## 6. Save-Format und Vorab-Release-Kompatibilität
 
-- Aktuelle `SAVE_VERSION`: **19**.
+- Aktuelle `SAVE_VERSION`: **20**.
 - Vor dem ausdrücklich erklärten Release akzeptiert `state.js` nur exakt die
   aktuelle Version in Hülle und State. Ältere und neuere Versionen werden mit
   verständlicher Fehlermeldung abgelehnt; es gibt keinen Migrationspfad.
@@ -315,6 +317,15 @@ außerdem soll der Origin für `localStorage` stabil bei `127.0.0.1:4173` bleibe
   UI-Polish erhöht `UI_VERSION`; CSS- und alle lokalen Modulimporte folgen
   dieser separaten Version und lösen keine unnötige Save-Migration aus. Beim
   Versionssprung den vollständigen Importgraphen gemeinsam aktualisieren.
+- `css/style.css` ist ausschließlich der geordnete Entrypoint. Die Kaskade
+  verläuft über `foundation.css`, drei klar begrenzte Legacy-/Feature-Schichten,
+  `warm-theme.css`, `app-shell.css` und zuletzt `annotation-fixes.css`. Neue
+  Overrides gehören in die fachlich passende Schicht; keine CSS-Datei darf
+  wieder zum ungeteilten Mehrgenerationen-Monolithen anwachsen.
+- Der Browser-Smoke prüft dynamische Textzustände über berechnete Farben und
+  WCAG-Kontrastverhältnisse. Für breite Zeitreihen muss `.chart-wrap` der
+  einzige horizontale Scrollcontainer bleiben; Panel, Screen und Dokument
+  dürfen dadurch nicht wachsen.
 - Portfolio-, Cashflow-, LTV-, Eigenkapital- und Rücklagenbalken sind nur
   abgeleitete DOM-Darstellungen. Die exakten Tabellen-/Enginewerte bleiben die
   Quelle; Visualisierungen dürfen den State nie mutieren.
@@ -334,7 +345,8 @@ außerdem soll der Origin für `localStorage` stabil bei `127.0.0.1:4173` bleibe
   Exposé-/Objektwege; es existiert keine zweite Objektdatenhaltung.
 - Das kompakte Spielmenü bündelt Hilfe, Einstellungen, Spielstände und Neustart.
   Meldungen erscheinen rechts unten, verblassen und bleiben im wiederöffnbaren
-  Archiv erhalten. Der Header-Cashflow öffnet eine vollständige Ein-/Ausgabenbox.
+  Archiv erhalten. Der Header-Cashflow zeigt bei Hover/Fokus vier Kategorien;
+  Klick öffnet die vollständige Haushaltsseite in der Zentrale.
 - Mietobjekte wählen explizit zwischen regulärer, möblierter und befristeter
   Vermietung; Stadtregulierung, Ertrag, Aufwand und Rechtsrisiko werden aus
   derselben Objektkonfiguration abgeleitet. Eigenbedarf ist ein zeitgebundener,

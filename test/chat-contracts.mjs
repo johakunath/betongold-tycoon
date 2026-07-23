@@ -6,16 +6,25 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { DEFAULT_CONFIG, SAVE_VERSION, START_PRESETS, UI_VERSION } from '../js/config.js?v=41';
+import { DEFAULT_CONFIG, SAVE_VERSION, START_PRESETS, UI_VERSION } from '../js/config.js?v=51';
+import { meldungMeta } from '../js/ui/meldungen.js?v=51';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const lies = (datei) => fs.readFileSync(path.join(root, datei), 'utf8');
 const html = lies('index.html');
-const css = lies('css/style.css');
+const cssEntrypoint = lies('css/style.css');
+const cssDateien = [...cssEntrypoint.matchAll(/@import url\("\.\/(.+?\.css)\?v=\d+"\);/g)]
+  .map((treffer) => `css/${treffer[1]}`);
+const css = cssDateien.map(lies).join('\n');
 const shell = lies('js/ui/shell.js');
 const karte = lies('js/ui/karte.js');
+const meldungen = lies('js/ui/meldungen.js');
 const objektUi = lies('js/ui/objekt.js');
 const finanzierungUi = lies('js/ui/finanzierung.js');
+const finance = lies('js/finance.js');
+const eigenheim = lies('js/eigenheim.js');
+const tax = lies('js/tax.js');
+const dashboard = lies('js/ui/dashboard.js');
 const finanzenUi = lies('js/ui/finanzen.js');
 const tenants = lies('js/tenants.js');
 const ratgeber = lies('js/ratgeber.js');
@@ -29,6 +38,8 @@ const arcs = lies('js/arcs.js');
 const strategyUi = lies('js/ui/strategy.js');
 const renovation = lies('js/renovation.js');
 const expose = lies('js/ui/expose.js');
+const marktplatz = lies('js/ui/marktplatz.js');
+const bildzoom = lies('js/ui/bildzoom.js');
 const market = lies('js/market.js');
 const roadmap = lies('ROADMAP.md');
 const ideen = lies('IDEEN.md');
@@ -46,12 +57,31 @@ function vertrag(name, pruefung) {
 }
 
 vertrag('Versionen und Wegwerf-Saves', () => {
-  assert.equal(SAVE_VERSION, 19);
-  assert.equal(UI_VERSION, 41);
+  assert.equal(SAVE_VERSION, 20);
+  assert.equal(UI_VERSION, 51);
   assert.match(state, /Versionskonflikt|Version/);
   assert.doesNotMatch(state, /(?:export\s+)?function\s+migrier/i);
   assert.match(state, /statt Migrationscode mitzuschleppen/);
   assert.match(architektur, /es gibt keinen Migrationspfad/);
+});
+
+vertrag('CSS ist in geordnete, begrenzte Wartungsschichten zerlegt', () => {
+  assert.deepEqual(cssDateien, [
+    'css/foundation.css',
+    'css/legacy-shell-dashboard.css',
+    'css/legacy-gameplay.css',
+    'css/legacy-responsive-features.css',
+    'css/warm-theme.css',
+    'css/app-shell.css',
+    'css/annotation-fixes.css',
+  ]);
+  assert.ok(cssDateien.every((datei) => lies(datei).split(/\r?\n/).length <= 1300));
+});
+
+vertrag('Desktop-Texte und grüne Statusbadges bleiben gut lesbar', () => {
+  assert.match(css, /\.badge\.gruen\s*\{[\s\S]*?color:\s*#12351f !important;[\s\S]*?font-size:\s*12\.5px;[\s\S]*?font-weight:\s*750;/);
+  assert.match(css, /@media \(min-width:\s*1201px\)[\s\S]*?\.flow-zeile,[\s\S]*?\.steuer-regel,[\s\S]*?font-size:\s*13px;/);
+  assert.match(css, /@media \(min-width:\s*1201px\)[\s\S]*?\.steuer-vorschau small,[\s\S]*?#steuer-letzter[\s\S]*?font-size:\s*12px;/);
 });
 
 vertrag('Handlungskette belohnt Prüfung, Beobachten und guten Weggang', () => {
@@ -65,7 +95,7 @@ vertrag('Handlungskette belohnt Prüfung, Beobachten und guten Weggang', () => {
   assert.match(market, /angebotVerwerfen/);
   assert.match(expose, /<progress/);
   assert.match(expose, /<meter/);
-  assert.match(expose, /Bewusst weggehen/);
+  assert.match(expose, /Angebot ablehnen/);
 });
 
 vertrag('Vier getrennte Startlagen mit neutralem Familiennamen', () => {
@@ -79,8 +109,9 @@ vertrag('Vier getrennte Startlagen mit neutralem Familiennamen', () => {
   assert.equal(START_PRESETS.heute.haushalt.nettoEinkommen, 8300);
   assert.equal(START_PRESETS.heute.haushalt.sparplanEtfAnteil, 0.5);
   assert.deepEqual(START_PRESETS.heute.kinder, [{ alter: 3.5 }, { alter: 0.6 }]);
-  assert.equal(START_PRESETS.heute.haushalt.ausgabenGesamtStart, 6210);
-  assert.equal(START_PRESETS.heute.haushalt.ausgabenOhneReisenStart, 4260);
+  assert.equal(START_PRESETS.heute.haushalt.ausgabenGesamtStart, 4860);
+  assert.equal(START_PRESETS.heute.haushalt.ausgabenOhneReisenStart, 3960);
+  assert.equal(START_PRESETS.heute.haushalt.reisen, 900);
   assert.equal(DEFAULT_CONFIG.haushalt.kindergeldProKind, 260);
   assert.equal(DEFAULT_CONFIG.haushalt.kindergeldBisAlter, 27);
   assert.equal(START_PRESETS.heute.haushalt.autoAbMonat, 5);
@@ -112,7 +143,7 @@ vertrag('Vier echte Presetbilder und Normal als Standardschwierigkeit', () => {
 });
 
 vertrag('Plausible Familienkosten und transparente Lebensphasen', () => {
-  assert.equal(DEFAULT_CONFIG.haushalt.kinderKosten[0].kosten, 300);
+  assert.deepEqual(DEFAULT_CONFIG.haushalt.kinderKosten.map((stufe) => stufe.kosten), [150, 250, 300, 400]);
   assert.equal(DEFAULT_CONFIG.zeit.rentenAlter, 67);
   assert.equal(DEFAULT_CONFIG.zeit.lebensendeMinAlter, 90);
   assert.equal(DEFAULT_CONFIG.zeit.lebensendeMaxAlter, 100);
@@ -125,7 +156,7 @@ vertrag('Bewusst langsame und vollständig erreichbare Zeitsteuerung', () => {
   assert.deepEqual(speeds, [0, 0.5, 1, 3]);
   assert.match(html, /Einen Monat weiter/);
   assert.match(html, /Ein Jahr weiter/);
-  assert.match(css, /@media \(max-width: 480px\)[\s\S]*?#btn-step-monat::after/);
+  assert.match(css, /#btn-step-monat::after, #btn-step-jahr::after \{ content: none !important; \}/);
 });
 
 vertrag('Header priorisiert Tagesgeld, Cashflow und ETF statt Nettovermögen', () => {
@@ -142,17 +173,50 @@ vertrag('Cashflow-Details, Benachrichtigungen und kompaktes Spielmenü', () => {
   assert.match(shell, /renderCashflowDetails/);
   // Das Meldungsarchiv hat genau eine Quelle: die gespeicherte Spielhistorie
   // state.log (begrenzt und mit Spielmonat), nicht die flüchtigen Toasts.
-  assert.match(shell, /log\.slice\(-40\)/);
+  assert.match(shell, /Math\.max\(0, log\.length - 40\)/);
   assert.match(shell, /<time datetime=/);
+  assert.match(shell, /meldungMeta/);
+  assert.match(shell, /from '\.\/meldungen\.js\?v=51'/);
+  assert.match(karte, /from '\.\/meldungen\.js\?v=51'/);
+  assert.match(karte, /meldung-\$\{meta\.klasse\}[\s\S]*meldung-symbol[\s\S]*meta\.symbol/);
+  assert.match(meldungen, /export function meldungMeta/);
+  assert.match(shell, /data-meldung-index/);
   assert.doesNotMatch(shell, /meldungen\.unshift/);
   assert.match(shell, /dauer = 5200/);
   assert.match(html, /<b>Einstellungen<\/b>/);
+  assert.match(shell, /initDialogVerhalten/);
+  assert.match(shell, /Ungespeicherte Änderungen/);
+  assert.match(shell, /event\.clientX < rect\.left/);
+  assert.match(shell, /initInfoTooltips/);
+  assert.match(shell, /showPopover/);
+});
+
+vertrag('Dock, Finanzgruppe und neue Annotationen bleiben strukturell erhalten', () => {
+  assert.match(html, /class="resource-finanzgruppe"[\s\S]*id="hud-cash-aktion"[\s\S]*id="hud-etf-aktion"/);
+  assert.doesNotMatch(html, /id="nav-dashboard"/);
+  assert.match(css, /\.screens-nav \.zentrale-tabs \{[\s\S]*display: flex !important/);
+  assert.match(css, /\.screens-nav \.zentrale-tabs button \{[\s\S]*background: linear-gradient/);
+  assert.match(css, /@media \(min-width: 701px\)[\s\S]*\.ressourcenleiste \{[\s\S]*height: 44px[\s\S]*\.ressourcenleiste > :is\(div, button\)[\s\S]*max-height: 44px/);
+  assert.match(css, /@media \(min-width: 701px\)[\s\S]*\.screens-nav \{[\s\S]*overflow-x: visible[\s\S]*scrollbar-width: none/);
+  assert.match(css, /#dlg-vergleich \.vergleich-wrap \{ overflow-x: clip; \}/);
+  assert.match(css, /#dlg-vergleich \.vergleich-tabelle \{ min-width: 0; \}/);
+  assert.match(css, /#dlg-vergleich \.vergleich-tabelle th\[scope="row"\] \{ white-space: normal; \}/);
+  assert.match(css, /\.objekt-visual-overlay \{ background: transparent; \}/);
+  assert.match(css, /\.screens-nav button:active:not\(:disabled\) \{ transform: none; \}/);
+  assert.equal(meldungMeta({ text: 'Steuerbescheid: Gutschrift aus Vermietungsverlusten.' }, {}).klasse, 'finanzen');
+  assert.equal(meldungMeta({ text: 'Lebensphase: neue Kostenphase.' }, {}).klasse, 'haushalt');
+  assert.match(shell, /screen === 'dashboard'[\s\S]*aria-selected/);
+  assert.match(css, /\.bildzoom-dialog \{ width: min\(1320px/);
+  assert.match(html, /assets\/ui\/notartermin\.jpg/);
+  assert.doesNotMatch(html, /Zuletzt passiert/);
+  assert.match(expose, /befundDarstellung/);
+  assert.doesNotMatch(expose, /Noch nichts geprüft\. Vorbereitung reduziert Unsicherheit/);
 });
 
 vertrag('Spielhilfe ist kurz, offen und besitzt Tour plus acht Schritte', () => {
   const hilfe = html.slice(html.indexOf('<dialog id="dlg-hilfe"'), html.indexOf('<aside id="tutorial-tour"'));
   assert.doesNotMatch(hilfe, /<details|<summary/);
-  assert.equal((hilfe.match(/<li>/g) || []).length, 28);
+  assert.equal((hilfe.match(/<li>/g) || []).length, 29);
   assert.equal((hilfe.match(/<ol class="tutorial-ablauf">[\s\S]*?<\/ol>/)?.[0].match(/<li>/g) || []).length, 8);
   assert.match(hilfe, /Bildschirm-Tour starten/);
 });
@@ -207,9 +271,55 @@ vertrag('Finanzierung trennt Objekt-, Steuer- und Haushaltswirkung', () => {
   assert.match(finanzierungUi, /fin-nutzung-hinweis/);
   assert.match(finanzierungUi, /Bis zur Vermietung/);
   assert.match(finanzierungUi, /Nach geplanter Vermietung/);
-  assert.match(finanzierungUi, /Steuerwirkung im aktuellen Modell/);
+  assert.match(finanzierungUi, /Steuergutschrift|steuerMonat/);
   assert.match(finanzierungUi, /Haushaltsüberschuss heute/);
   assert.match(finanzierungUi, /WEG-Kosten aufteilen/);
+  assert.match(finanzierungUi, /Markt-Basiszins/);
+  assert.match(finanzierungUi, /Aufschlag für Finanzierungsquote/);
+  assert.match(finanzierungUi, /Zinsbindungs-Aufschlag/);
+  assert.equal((html.match(/data-fin-step="/g) || []).length, 2);
+  assert.match(html, /class="fin-konditionen-fix"/);
+  assert.match(html, /class="fin-ergebnis-scroll"/);
+  assert.doesNotMatch(strategyUi, /Kein Questzwang/);
+  assert.match(marktplatz, /vergleich-delta/);
+  assert.match(bildzoom, /pointerdown/);
+});
+
+vertrag('UI v47 bündelt Vergleich, Kontrast, Status und verständliche Begriffe', () => {
+  assert.match(dashboard, /typischer Planungsmonat/i);
+  assert.match(dashboard, /Sparen &amp; Investieren im letzten Monat/);
+  assert.doesNotMatch([html, shell, finanzierungUi, objektUi].join('\n'), />LTV<|LTV-Aufschlag|Normalisierter Haushaltsmonat/);
+  assert.match(css, /\.vergleich-besser[\s\S]*?\.vergleich-schlechter/);
+  assert.match(css, /\.fav\s*\{[\s\S]*?rgba\(230, 194, 100, \.28\)/);
+  assert.match(css, /\.quartals-kpis > div[\s\S]*?background:\s*rgba\(255,255,255,\.035\)/);
+  assert.match(css, /\.meldungen-panel > header[\s\S]*?background:\s*#1c2731/);
+  assert.match(html, /id="objekt-kopf-status"/);
+  assert.match(objektUi, /objektStatusBadges/);
+  assert.ok(html.indexOf('class="speed-schritte"') < html.indexOf('class="speed-lauf"'));
+  assert.match(html, /Möbliert, längerfristig:[\s\S]*?Wohnen auf Zeit:/);
+  assert.match(css, /\.niveau-option:has\(input:checked\)[\s\S]*?border-color:\s*#e6c264/);
+});
+
+vertrag('Annotationspass v46 verbindet neue Spielsysteme und entwirrt die Zentrale', () => {
+  assert.equal(START_PRESETS.heute.wohnort, 'berlin-rand');
+  assert.equal(DEFAULT_CONFIG.segmente['berlin-innenstadt'].vergleichsmieteM2, 19.22);
+  assert.equal(DEFAULT_CONFIG.segmente['berlin-rand'].vergleichsmieteM2, 13.01);
+  assert.equal(DEFAULT_CONFIG.segmente['berlin-rand'].neubauMieteM2, 19.97);
+  assert.equal(DEFAULT_CONFIG.kredit.sondertilgungMaxAnteil, 0.05);
+  assert.match(finance, /sondertilgungRahmen/);
+  assert.match(finance, /aktion:\s*'bewerber'/);
+  assert.match(eigenheim, /ausstehenderEinkommensRegionalfaktor/);
+  assert.match(tax, /verlustvortrag/);
+  assert.match(html, /<input type="range" id="fin-etf-betrag"/);
+  assert.match(finanzierungUi, /fin-etf-vorschau/);
+  assert.match(expose, /Finanzierung prüfen/);
+  assert.match(shell, /zeigeScreen\('dashboard'\)[\s\S]*zentrale-tab="haushalt"/);
+  assert.ok(html.indexOf('class="zentrale-tabs"') < html.indexOf('id="cashflow-popover"'));
+  assert.match(dashboard, /svg\.style\.width/);
+  assert.doesNotMatch(html, /id="log-liste"/);
+  assert.doesNotMatch(dashboard, /function renderLog|quartals-rueckblick/);
+  assert.match(css, /\.resource-cash #hud-cash\.wert-negativ/);
+  assert.match(css, /\.bewerber-karte \.hinweis-chip\.quote-ok/);
 });
 
 vertrag('Vier eigenständige Stadtsegmente und vollständiger 40er-Katalog', () => {

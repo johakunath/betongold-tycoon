@@ -1,25 +1,26 @@
 // objekt.js — Screen 7: Objekt-Detail. Cutaway, Monats-P&L, Mieter/Leerstand,
 // Rücklage, Hausverwaltung, Mieterhöhung, Renovieren. Nabe der Phase-3-Loop.
 
-import { getListing } from '../content.js?v=41';
-import { fairerWert } from '../market.js?v=41';
+import { getListing } from '../content.js?v=51';
+import { fairerWert } from '../market.js?v=51';
 import {
   marktmiete, kannErhoehen, maxMiete, erhoeheMiete, mietrechtFuer, vermietungsmodell,
   starteEigenbedarf, zieheEigenbedarfZurueck, zahleEigenbedarfAbfindung,
-} from '../tenants.js?v=41';
-import { bildHTML, cutawayHTML } from '../iso.js?v=41';
-import { faktenLabel, fmtEUR, fmtEURSigniert } from './util.js?v=41';
-import { oeffneBewerber } from './bewerber.js?v=41';
-import { oeffneRenovieren } from './renovieren.js?v=41';
-import { oeffneVerkauf } from './verkaufen.js?v=41';
+} from '../tenants.js?v=51';
+import { bildHTML, cutawayHTML } from '../iso.js?v=51';
+import { faktenLabel, fmtEUR, fmtEURSigniert } from './util.js?v=51';
+import { oeffneBewerber } from './bewerber.js?v=51';
+import { oeffneRenovieren } from './renovieren.js?v=51';
+import { oeffneVerkauf } from './verkaufen.js?v=51';
 import {
   fixkostenMonat, instandhaltungMonat, objektartConfig, fixkostenAufschluesselung,
-} from '../immobilie.js?v=41';
-import { bezieheBestandsobjekt } from '../eigenheim.js?v=41';
-import { protokolliereWirkung } from '../gameplay.js?v=41';
-import { bankAnpassungVorschau, turnaroundAktiv } from '../turnaround.js?v=41';
-import { oeffneBankAnpassung } from './turnaround.js?v=41';
-import { objektArcsFuerObjekt } from '../arcs.js?v=41';
+} from '../immobilie.js?v=51';
+import { bezieheBestandsobjekt } from '../eigenheim.js?v=51';
+import { protokolliereWirkung } from '../gameplay.js?v=51';
+import { bankAnpassungVorschau, turnaroundAktiv } from '../turnaround.js?v=51';
+import { oeffneBankAnpassung } from './turnaround.js?v=51';
+import { objektArcsFuerObjekt } from '../arcs.js?v=51';
+import { sondertilgen, sondertilgungRahmen, sondertilgungVorschau } from '../finance.js?v=51';
 
 let ctx = null;
 let auswahl = null; // stabile listingId oder 'eigenheim'
@@ -71,6 +72,7 @@ export function renderObjekt(state) {
   const arcs = objektArcsFuerObjekt(state, objekt).slice(-3).reverse();
 
   document.getElementById('objekt-titel').textContent = objekt.titel;
+  document.getElementById('objekt-kopf-status').innerHTML = objektStatusBadges(state, objekt, istEigenheim);
 
   // Laufende Monats-Rechnung (Vorschau, ohne den Tick zu mutieren)
   const imUmbau = !!objekt.renovierung;
@@ -90,6 +92,7 @@ export function renderObjekt(state) {
     ? netto
     : mieteNachVermietung - kostenNachVermietung - verwaltungNachVermietung - ruecklageBeitrag - rate;
   const kostenLabel = objekt.objektart === 'haus' ? 'Haus-Fixkosten' : 'WEG-Hausgeld';
+  const sonder = sondertilgungRahmen(state, objekt);
 
   document.querySelectorAll('[data-objekt-ansicht]').forEach((button) => {
     const aktiv = button.dataset.objektAnsicht === ansicht;
@@ -138,6 +141,11 @@ export function renderObjekt(state) {
     cashflowBars(pl) +
     (imUmbau || istEigenheim ? '' : `<p class="hinweis">Marktmiete für diesen Zustand: ${fmtEUR(Math.round(markt))} kalt.</p>`) +
     (!istEigenheim && !imUmbau && netto < 0 ? cashflowErklaerung(miete, netto, laufendeKosten, hausverwaltung, ruecklageBeitrag, rate) : '') +
+    (sonder.verbleibend >= 1 ? `<div class="sondertilgung"><label><span>Sondertilgung ${sonder.jahr}</span><output id="sondertilgung-wert">${fmtEUR(0)}</output>` +
+      `<input id="sondertilgung-slider" type="range" min="0" max="${Math.floor(Math.min(sonder.verbleibend, Math.max(0, state.cash)))}" step="100" value="0"></label>` +
+      `<small>Bis zu 5 % des ursprünglichen Darlehens pro Jahr; die Monatsrate bleibt gleich, die Laufzeit sinkt.</small>` +
+      `<output id="sondertilgung-vorschau" class="hinweis">Betrag wählen, um Restschuld und Laufzeit zu vergleichen.</output>` +
+      `<button type="button" id="btn-sondertilgung" disabled>Sondertilgung leisten</button></div>` : '') +
     `</div>` +
     // Mieter / Vermietung
     `<div class="karte">${mieterHTML(state, objekt, istEigenheim)}</div>` +
@@ -174,6 +182,26 @@ function statusHTML(state, objekt, wert, markt, istEigenheim) {
   const eigenkapital = Math.max(0, wert - schuld);
   const ekQuote = wert > 0 ? Math.max(0, Math.min(100, eigenkapital / wert * 100)) : 0;
   const ltv = wert > 0 ? schuld / wert * 100 : 0;
+  return (
+    `<div class="objekt-wert"><span><small>Marktwert</small><b>${fmtEUR(Math.round(wert))}</b></span>` +
+    `<span><small>Eigenkapital</small><b>${fmtEUR(Math.round(eigenkapital))}</b></span></div>` +
+    `<div class="ownership-meter gross" aria-label="Eigenkapitalquote ${Math.round(ekQuote)} Prozent, Finanzierungsquote ${Math.round(ltv)} Prozent"><i style="width:${ekQuote.toFixed(1)}%"></i></div>` +
+    `<div class="objekt-wert-legende"><span>Eigenkapital ${Math.round(ekQuote)} %</span><span>Finanzierungsquote ${Math.round(ltv)} %</span></div>` +
+    `<table class="fakten">` +
+    `<tr><td>${faktenLabel('Lage', 'Teilmarkt und Lagequalität. Beides beeinflusst Preis, Miete, Nachfrage und Wertentwicklung.')}</td><td>${seg.label} · ${objekt.lageScore}/10</td></tr>` +
+    `<tr><td>${faktenLabel('Objekt / Eigentum', 'Objektart und Eigentumsform bestimmen laufende Kosten, Entscheidungsfreiheit und Instandhaltungsrisiko.')}</td><td>${objektartConfig(state, objekt).label} · ${objekt.eigentumsform === 'weg' ? 'WEG' : 'Alleineigentum'}</td></tr>` +
+    `<tr><td>${faktenLabel('Fläche', 'Wohnfläche; sie beeinflusst Miete, Kaufpreis und laufende Instandhaltung.')}</td><td>${objekt.flaeche} m²</td></tr>` +
+    (objekt.objektart === 'haus' ? `<tr><td>${faktenLabel('Grundstück / Außenraum', 'Grundstücksgröße und nutzbarer Außenraum; relevant für Wert und Familien-Eignung.')}</td><td>${objekt.grundstueck} / ${objekt.aussenflaeche} m²</td></tr>` : '') +
+    fixkostenAufschluesselung(objekt).map((k) => `<tr><td>${faktenLabel(k.label, 'Monatlicher Eigentümeranteil an nicht auf den Mieter umlegbaren Objektkosten.')}</td><td>${fmtEUR(k.betrag)}/Monat</td></tr>`).join('') +
+    `<tr><td>${faktenLabel('Zustand', 'Technischer und optischer Zustand von 1 bis 5. Wirkt auf Miete, Wert und Reparaturbedarf.')}</td><td>${objekt.zustand}/5</td></tr>` +
+    `<tr><td>${faktenLabel('Energieklasse', 'Vereinfachter Effizienzindikator. Schlechtere Klassen erhöhen das Risiko künftiger Maßnahmen.')}</td><td>${objekt.energieklasse}</td></tr>` +
+    `<tr><td>${faktenLabel('Restschuld', 'Noch offener Darlehensbetrag. Er sinkt durch den Tilgungsanteil der Kreditrate.')}</td><td>${fmtEUR(Math.round(objekt.darlehen.restschuld))}</td></tr>` +
+    `<tr><td>${faktenLabel('Rücklage', 'Objektbezogener Geldpuffer für Reparaturen. Er gehört zum Vermögen, ist aber für das Objekt reserviert.')}</td><td>${fmtEUR(Math.round(objekt.ruecklage))}</td></tr>` +
+    `</table>`
+  );
+}
+
+function objektStatusBadges(state, objekt, istEigenheim) {
   let status;
   if (istEigenheim) {
     status = '<span class="badge blau">Eigenheim · selbst genutzt</span>';
@@ -186,24 +214,9 @@ function statusHTML(state, objekt, wert, markt, istEigenheim) {
     status = `<span class="badge orange">leer</span>`;
   }
   return (
-    `<div class="karte-badges">${status}` +
+    `<span class="karte-badges">${status}` +
     (objekt.verkauf ? `<span class="badge orange">Verkauf · noch ${Math.max(0, objekt.verkauf.abschlussMonat - state.monat)} Mon.</span>` : '') +
-    `</div>` +
-    `<div class="objekt-wert"><span><small>Marktwert</small><b>${fmtEUR(Math.round(wert))}</b></span>` +
-    `<span><small>Eigenkapital</small><b>${fmtEUR(Math.round(eigenkapital))}</b></span></div>` +
-    `<div class="ownership-meter gross" aria-label="Eigenkapitalquote ${Math.round(ekQuote)} Prozent, LTV ${Math.round(ltv)} Prozent"><i style="width:${ekQuote.toFixed(1)}%"></i></div>` +
-    `<div class="objekt-wert-legende"><span>Eigenkapital ${Math.round(ekQuote)} %</span><span>LTV ${Math.round(ltv)} %</span></div>` +
-    `<table class="fakten">` +
-    `<tr><td>${faktenLabel('Lage', 'Teilmarkt und Lagequalität. Beides beeinflusst Preis, Miete, Nachfrage und Wertentwicklung.')}</td><td>${seg.label} · ${objekt.lageScore}/10</td></tr>` +
-    `<tr><td>${faktenLabel('Objekt / Eigentum', 'Objektart und Eigentumsform bestimmen laufende Kosten, Entscheidungsfreiheit und Instandhaltungsrisiko.')}</td><td>${objektartConfig(state, objekt).label} · ${objekt.eigentumsform === 'weg' ? 'WEG' : 'Alleineigentum'}</td></tr>` +
-    `<tr><td>${faktenLabel('Fläche', 'Wohnfläche; sie beeinflusst Miete, Kaufpreis und laufende Instandhaltung.')}</td><td>${objekt.flaeche} m²</td></tr>` +
-    (objekt.objektart === 'haus' ? `<tr><td>${faktenLabel('Grundstück / Außenraum', 'Grundstücksgröße und nutzbarer Außenraum; relevant für Wert und Familien-Eignung.')}</td><td>${objekt.grundstueck} / ${objekt.aussenflaeche} m²</td></tr>` : '') +
-    fixkostenAufschluesselung(objekt).map((k) => `<tr><td>${faktenLabel(k.label, 'Monatlicher Eigentümeranteil an nicht auf den Mieter umlegbaren Objektkosten.')}</td><td>${fmtEUR(k.betrag)}/Monat</td></tr>`).join('') +
-    `<tr><td>${faktenLabel('Zustand', 'Technischer und optischer Zustand von 1 bis 5. Wirkt auf Miete, Wert und Reparaturbedarf.')}</td><td>${objekt.zustand}/5</td></tr>` +
-    `<tr><td>${faktenLabel('Energieklasse', 'Vereinfachter Effizienzindikator. Schlechtere Klassen erhöhen das Risiko künftiger Maßnahmen.')}</td><td>${objekt.energieklasse}</td></tr>` +
-    `<tr><td>${faktenLabel('Restschuld', 'Noch offener Darlehensbetrag. Er sinkt durch den Tilgungsanteil der Kreditrate.')}</td><td>${fmtEUR(Math.round(objekt.darlehen.restschuld))}</td></tr>` +
-    `<tr><td>${faktenLabel('Rücklage', 'Objektbezogener Geldpuffer für Reparaturen. Er gehört zum Vermögen, ist aber für das Objekt reserviert.')}</td><td>${fmtEUR(Math.round(objekt.ruecklage))}</td></tr>` +
-    `</table>`
+    `</span>`
   );
 }
 
@@ -325,6 +338,25 @@ function wire(state, objekt, index, istEigenheim) {
   document.getElementById('btn-vermieten')?.addEventListener('click', () => oeffneBewerber(index));
   document.getElementById('btn-renovieren')?.addEventListener('click', () => oeffneRenovieren(index));
   document.getElementById('btn-verkaufen')?.addEventListener('click', () => oeffneVerkauf(objekt));
+  const sonderSlider = document.getElementById('sondertilgung-slider');
+  sonderSlider?.addEventListener('input', () => {
+    const vorschau = sondertilgungVorschau(state, objekt, Number(sonderSlider.value));
+    document.getElementById('sondertilgung-wert').textContent = fmtEUR(vorschau.zahlung);
+    document.getElementById('sondertilgung-vorschau').textContent = vorschau.zahlung
+      ? `Tagesgeld danach ${fmtEUR(vorschau.cashDanach)} · Restschuld ${fmtEUR(vorschau.restschuldDanach)} · Laufzeit etwa ${Math.max(0, vorschau.laufzeitVorher - vorschau.laufzeitDanach)} Monate kürzer.`
+      : 'Betrag wählen, um Restschuld und Laufzeit zu vergleichen.';
+    document.getElementById('btn-sondertilgung').disabled = vorschau.zahlung < 1;
+  });
+  document.getElementById('btn-sondertilgung')?.addEventListener('click', () => {
+    try {
+      const vorschau = sondertilgungVorschau(state, objekt, Number(sonderSlider?.value));
+      if (!window.confirm(`${fmtEUR(vorschau.zahlung)} sondertilgen? Danach bleiben ${fmtEUR(vorschau.cashDanach)} Tagesgeld und ${fmtEUR(vorschau.restschuldDanach)} Restschuld.`)) return;
+      const betrag = sondertilgen(state, objekt, vorschau.zahlung);
+      ctx.toast(`${fmtEUR(betrag)} sondergetilgt.`);
+      ctx.autosave();
+      renderObjekt(state);
+    } catch (fehler) { ctx.toast(fehler.message); }
+  });
   document.getElementById('btn-banktermin')?.addEventListener('click', () => oeffneBankAnpassung(objekt));
 
   document.getElementById('btn-erhoehen')?.addEventListener('click', () => {

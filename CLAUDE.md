@@ -44,12 +44,34 @@ Restschuld-/Exitfolgen ersetzen passiven Pufferabbau. Arbeitspakete G und H
 ergänzen freiwillige, aus echtem State abgeleitete 3–8-Jahres-Ziele,
 mehrmonatige Objektgeschichten sowie drei für jeweils zwölf Monate gebundene
 Arbeitsmodelle. Lebensphasen werden rechtzeitig angekündigt; Eigenleistung
-tauscht begrenzte Kostenersparnis gegen Zeit und zusätzliches Risiko. UI v41
-zieht den B1-Vereinfachungspass: Das Exposé folgt der Handlungskette
+tauscht begrenzte Kostenersparnis gegen Zeit und zusätzliches Risiko. UI v45
+ergänzt zum B1-Vereinfachungspass eine klar gegliederte Startvorschau, einen
+breiten, kurzen Desktop-Startdialog sowie den gebündelten Owner-Annotationspass:
+Dialogschutz bei ungespeicherten Änderungen, lesbarere Typografie/Kontraste,
+stabile Stadtmarker mit Bildindex, begrenzte Range-Regler, unclippbare Tooltips
+und eine sichtbare Sollzinsaufschlüsselung. Der Folgepass macht Vergleiche
+visuell, vereint Eigenkapital und Tilgung in einem festen Finanzierungskopf,
+vereinfacht Finanzbegriffe und ergänzt Bild-Panning sowie konsistente dunkle
+Formularflächen. Das Exposé folgt der Handlungskette
 Anlass → Prüfung → Entscheidung auch im Layout, jede Zahl und jede Aktion hat
 genau eine Stelle, das Meldungsarchiv genau eine Quelle, und breite Viewports
-bekommen eine Lesebreite statt Vollbildstreckung. Aktuell:
-`SAVE_VERSION = 19`, `UI_VERSION = 41`.
+bekommen eine Lesebreite statt Vollbildstreckung. Save v20/UI v46 ergänzt den
+darauffolgenden Owner-Pass: aktuelle Berliner Angebotsmieten und Nachfrage,
+gespeicherter Wohnort mit regionaler Einkommenswirkung, verrechenbare
+Vermietungsverluste, Sondertilgung, nicht blockierende Mietersuche sowie eine
+entwirrte Zentrale mit kompakter HUD-Erklärung. UI v47 schließt den anschließenden
+23-Punkte-Annotationspass: Finanz-HUD und Bottom-Navigation sind gebündelt,
+Exposé/Objektvergleich/Finanzierung lesbarer, Bildzoom und Kaufabschluss deutlich
+visueller, und das Glockenpanel ist ein kategorisiertes, verlinktes Aktionsarchiv.
+UI v48 schließt die offenen Befunde des Code-Inspector-Berichts: Die unveränderte
+CSS-Kaskade ist in sieben geordnete Wartungsschichten zerlegt, der reale
+Browser-Smoke misst nun die relevanten dynamischen Textkontraste nach WCAG und
+erzwingt Chart-Containment samt internem Scrollen. Aktuell:
+UI v49 reduziert dekoratives Gold zugunsten neutraler Strukturfarben und
+erzwingt im deckenden Bottom-Dock genau einen aktiven Bereich. UI v50 hält die
+drei Finanzwerte auch im zweizeiligen mittleren Desktop-HUD kompakt. UI v51
+hebt auf breiten Desktops erklärende Kleinsttexte und Statuskontraste an.
+Aktuell: `SAVE_VERSION = 20`, `UI_VERSION = 51`.
 
 Unter Windows startet `BETONGOLD_STARTEN.cmd` das unveränderte statische Spiel
 per Doppelklick über einen unsichtbaren Loopback-HTTP-Server. `file://` bleibt

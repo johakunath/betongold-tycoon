@@ -1,0 +1,1203 @@
+/* --- Konsolidiertes UI-Redesign · UI v35 ---------------------------------
+   Dunkle Stadtbühne, gläserne Spielpanels und goldene Interaktionshierarchie.
+   Bestehende DOM-/Engine-Verträge bleiben erhalten; dieser Block ist der
+   visuelle Style-Lock des Handoffs. */
+
+:root {
+  --flaeche: #141b22;
+  --karte: rgba(30, 38, 48, 0.94);
+  --karte-stark: rgba(35, 44, 55, 0.97);
+  --karte-weich: rgba(255, 255, 255, 0.035);
+  --tinte: #efe7d5;
+  --tinte-2: #c8bd9f;
+  --gedimmt: #a89c7f;
+  --hairline: rgba(238, 205, 133, 0.24);
+  --grid: rgba(238, 205, 133, 0.1);
+  --kopf: #101820;
+  --petrol: #17242d;
+  --kopf-tinte: #efe7d5;
+  --akzent: #e6c264;
+  --akzent-dunkel: #c69a3f;
+  --positiv: #9ed19e;
+  --negativ: #e0a084;
+  --warnung: #e6c264;
+  --fokus: #7ea8d8;
+  --serie-netto: #e6c264;
+  --serie-etf: #7ea8d8;
+  --radius: 16px;
+  --radius-klein: 9px;
+  --radius-gross: 20px;
+  --schatten: 0 12px 34px rgba(0, 0, 0, 0.44);
+  --schatten-hover: 0 16px 42px rgba(0, 0, 0, 0.56);
+}
+
+html, body {
+  width: 100%;
+  min-height: 100%;
+  background: #141b22;
+  color: var(--tinte);
+  font-family: "Alegreya Sans", "Segoe UI", system-ui, sans-serif;
+  font-feature-settings: "tnum" 1, "kern" 1;
+}
+
+body {
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+body::before {
+  opacity: .1;
+  mix-blend-mode: soft-light;
+}
+
+.game-backdrop {
+  inset: -4%;
+  z-index: 0;
+  background:
+    linear-gradient(180deg, rgba(12, 21, 29, .05), rgba(7, 12, 17, .18)),
+    var(--app-stadtbild, url("../assets/ui/city-berlin-innenstadt-v1.webp")) center / cover no-repeat;
+  filter: saturate(.82) brightness(.86) blur(2px);
+  transform: scale(1.05);
+}
+
+.game-backdrop::before {
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(12, 21, 29, .18), rgba(9, 15, 21, .3)),
+    radial-gradient(circle at 50% 35%, transparent 35%, rgba(5, 9, 13, .24));
+}
+
+.game-backdrop::after { display: none; }
+
+h1, h2, h3, h4, .brand, .preis-gross, .karte-preis, .konto-karte > strong,
+.endgame-hero strong, #gebot-live {
+  color: #f4dd9b;
+  font-family: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  font-weight: 700;
+  letter-spacing: -.015em;
+}
+
+p, small, dt, .muted, .hinweis { color: var(--tinte-2); }
+a { color: #a9c9ee; }
+::selection { color: #17130a; background: #e6c264; }
+
+button, input, select, textarea, output { font: inherit; }
+button {
+  min-height: 38px;
+  border: 1px solid rgba(238, 205, 133, .24);
+  border-radius: 9px;
+  color: var(--tinte);
+  background: linear-gradient(180deg, rgba(41, 51, 63, .9), rgba(25, 33, 42, .92));
+  box-shadow: none;
+  font-weight: 700;
+  transition: transform 120ms ease, border-color 120ms ease, background 120ms ease, box-shadow 120ms ease;
+}
+button:hover:not(:disabled) {
+  border-color: rgba(238, 205, 133, .54);
+  color: #fff8e6;
+  background: linear-gradient(180deg, rgba(53, 64, 76, .96), rgba(30, 39, 49, .96));
+  transform: translateY(-1px);
+}
+button:active:not(:disabled) { transform: translateY(1px); }
+button.primaer {
+  color: #241d10;
+  border-color: #eecd85;
+  background: linear-gradient(180deg, #eecd85, #c69a3f);
+  box-shadow: 0 3px 0 #8a6a24, 0 9px 20px rgba(0, 0, 0, .28);
+}
+button.primaer:hover:not(:disabled) {
+  color: #171108;
+  background: linear-gradient(180deg, #f6dda0, #d5aa4d);
+  box-shadow: 0 3px 0 #8a6a24, 0 12px 26px rgba(0, 0, 0, .34);
+}
+button.gefahr { color: #e7ad96; border-color: rgba(224, 160, 132, .45); }
+button:disabled { opacity: .42; }
+
+input, select, textarea {
+  color: var(--tinte);
+  border: 1px solid rgba(238, 205, 133, .24);
+  border-radius: 9px;
+  background: rgba(8, 13, 18, .56);
+}
+select option { color: #efe7d5; background: #1d2630; }
+input[type="range"] { accent-color: #d9b464; }
+
+:focus-visible {
+  outline: 3px solid var(--fokus) !important;
+  outline-offset: 3px !important;
+}
+
+.eyebrow, .label, .resource-copy small, .konto-karte dt, .karte-preis small {
+  color: var(--gedimmt);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+
+.badge {
+  color: var(--tinte-2);
+  border-color: rgba(238, 205, 133, .22);
+  background: rgba(255, 255, 255, .045);
+}
+.badge.gruen, .positiv, .plus-text { color: #9ed19e !important; }
+.badge.orange, .badge.warnung { color: #f0ca75; }
+.badge.blau { color: #a9c9ee; }
+.badge.blau { border-color:rgba(126,168,216,.32); background:rgba(126,168,216,.1); }
+.negativ, .minus-text { color: #e0a084 !important; }
+
+/* Persistente Shell -------------------------------------------------------- */
+
+.topbar {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 30;
+  display: grid;
+  grid-template-columns: max-content minmax(320px, 1fr) max-content max-content max-content;
+  grid-template-areas: "brand resources date speed menu";
+  align-items: center;
+  gap: 10px 14px;
+  min-height: 72px;
+  padding: 9px 20px;
+  color: var(--tinte);
+  border: 0;
+  border-bottom: 1px solid rgba(238, 205, 133, .18);
+  background: linear-gradient(180deg, rgba(12, 20, 28, .96), rgba(13, 21, 29, .88));
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .24);
+  backdrop-filter: blur(12px);
+}
+
+.brand {
+  grid-area: brand;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  color: #f4dd9b;
+  font-size: 21px;
+  white-space: nowrap;
+}
+.brand::before { display: none; }
+.brand svg { width: 28px; height: 28px; fill: #e6c264; filter: drop-shadow(0 2px 5px rgba(0,0,0,.42)); }
+.hud { grid-area: date; min-width: 116px; text-align: center; }
+#hud-datum { color: #f4dd9b; font-family: "Cormorant Garamond", Georgia, serif; font-size: 15px; font-weight: 700; }
+.hud .sub, .topbar .sub { color: #a89c7f; font-size: 10px; opacity: 1; }
+
+.ressourcenleiste {
+  grid-area: resources;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(126px, 1fr));
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  overflow: visible;
+}
+.ressourcenleiste > :is(div, button) {
+  min-width: 0;
+  min-height: 50px;
+  margin-inline: 3px;
+  padding: 6px 10px;
+  border: 1px solid rgba(238, 205, 133, .23);
+  border-radius: 10px;
+  color: var(--tinte);
+  background: linear-gradient(180deg, rgba(39, 49, 61, .8), rgba(21, 29, 38, .82));
+  box-shadow: inset 0 1px rgba(255,255,255,.04), 0 5px 16px rgba(0,0,0,.18);
+}
+.ressourcenleiste > :is(div, button)::after { display: none; }
+.ressourcenleiste .hud-icon { color: #e6c264; }
+.ressourcenleiste b { color: #efe7d5; font-size: 14px; font-variant-numeric: tabular-nums; }
+.ressourcenleiste .resource-cashflow.positiv b { color: #9ed19e; }
+.ressourcenleiste .resource-cashflow.negativ b { color: #e0a084; }
+.resource-action { display: none; }
+
+.speed-group {
+  grid-area: speed;
+  display: flex;
+  gap: 6px;
+  min-width: 0;
+}
+.speed-lauf, .speed-schritte {
+  display: flex;
+  border: 1px solid rgba(238, 205, 133, .23);
+  border-radius: 10px;
+  background: rgba(12, 18, 25, .42);
+  overflow: hidden;
+}
+.speed-group .trenner { display: none; }
+.speed-group button {
+  min-width: 38px;
+  min-height: 40px;
+  padding: 5px 8px;
+  border: 0;
+  border-right: 1px solid rgba(238, 205, 133, .16);
+  border-radius: 0;
+  font-size: 10px;
+  background: transparent;
+  box-shadow: none;
+}
+.speed-group button:last-child { border-right: 0; }
+.speed-group button.aktiv {
+  color: #251d0e;
+  background: linear-gradient(180deg, #eecd85, #c69a3f);
+  box-shadow: inset 0 1px rgba(255,255,255,.45);
+}
+.speed-icon { width: 14px; height: 14px; }
+.speed-schritte button { min-width: 70px; }
+
+.menue { grid-area: menu; display: flex; gap: 7px; }
+.menue > button { width: 42px; min-width: 42px; height: 42px; padding: 0; border-radius: 11px; }
+.menue > button span { display: none; }
+.menue-popover {
+  top: calc(100% + 10px);
+  right: 0;
+  color: var(--tinte);
+  border: 1px solid rgba(238,205,133,.3);
+  background: linear-gradient(180deg, rgba(31,40,50,.98), rgba(18,25,33,.99));
+  box-shadow: 0 16px 46px rgba(0,0,0,.55);
+  backdrop-filter: blur(10px);
+}
+.menue-popover button { color: var(--tinte); background: transparent; }
+.menue-popover small { color: var(--gedimmt); }
+
+.screens-nav {
+  position: fixed;
+  z-index: 25;
+  left: 20px;
+  bottom: 14px;
+  display: flex;
+  width: auto;
+  max-width: calc(100vw - 40px);
+  gap: 7px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+.screens-nav button {
+  display: flex;
+  flex: 0 0 86px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-width: 86px;
+  min-height: 60px;
+  padding: 7px 10px;
+  color: #efe7d5;
+  border: 1px solid rgba(238,205,133,.24);
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(37,47,58,.94), rgba(19,26,34,.96));
+  box-shadow: 0 9px 24px rgba(0,0,0,.35);
+  backdrop-filter: blur(8px);
+}
+.screens-nav button .ui-icon { width: 19px; height: 19px; flex-basis: 19px; }
+.screens-nav button span { color: inherit; font-size: 12px; font-weight: 800; font-style: normal; }
+.screens-nav button.aktiv {
+  color: #241d10;
+  border-color: #f4dd9b;
+  background: linear-gradient(180deg, #f0d58a, #c99c3e);
+  box-shadow: 0 3px 0 #8a6a24, 0 10px 25px rgba(0,0,0,.4);
+}
+.screens-nav .zaehler {
+  position: static;
+  display: inline;
+  width: auto;
+  height: auto;
+  margin-left: 2px;
+  color: inherit;
+  background: transparent;
+  font-size: inherit;
+  font-style: normal;
+}
+
+.cashflow-popover, .meldungen-panel {
+  position: fixed;
+  z-index: 44;
+  top: 78px;
+  color: var(--tinte);
+  border: 1px solid rgba(238,205,133,.32);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(31,40,50,.98), rgba(17,24,32,.99));
+  box-shadow: 0 18px 52px rgba(0,0,0,.58);
+  backdrop-filter: blur(10px);
+}
+.cashflow-popover { left: clamp(220px, 28vw, 470px); width: min(500px, calc(100vw - 24px)); max-height: calc(100vh - 174px); overflow: auto; }
+.cashflow-popover.gepinnt { border-color: rgba(238,205,133,.62); }
+.cashflow-popover-kopf { padding-bottom: 10px; border-bottom: 1px solid rgba(238,205,133,.14); }
+.cashflow-popover h2 { margin: 2px 0; }
+.cashflow-details td { color: var(--tinte-2); border-color: rgba(238,205,133,.1); }
+.cashflow-details td:last-child { color: var(--tinte); font-variant-numeric: tabular-nums; }
+.cashflow-details tr.gruppe td { color: #e6c264; background: rgba(238,205,133,.06); }
+.cashflow-details tr.summe td { color: #efe7d5; }
+.cashflow-details tr.tagesgeld td { border-top: 1px solid rgba(238,205,133,.35); }
+.meldungen-panel { right: 20px; }
+.meldungen-panel header, .meldungen-panel li { border-color: rgba(238,205,133,.13); }
+
+/* Screen-Flächen ----------------------------------------------------------- */
+
+.dashboard, .marktplatz, .expose, .endgame, .finanzen, .spielkarte {
+  position: fixed;
+  z-index: 5;
+  inset: 84px 20px 88px;
+  width: auto;
+  max-width: none;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  color: var(--tinte);
+  border: 1px solid rgba(238,205,133,.24);
+  border-radius: 17px;
+  background: linear-gradient(180deg, rgba(30,38,48,.76), rgba(19,25,33,.82));
+  box-shadow: 0 15px 48px rgba(0,0,0,.48);
+  backdrop-filter: blur(6px);
+  overflow: auto;
+}
+
+.dashboard, .finanzen, .marktplatz, .expose, .endgame {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  gap: 14px;
+  padding: 18px 20px 24px;
+}
+
+.screen-heading, .screen-heading--dashboard, .screen-heading--market,
+.screen-heading--finanzen, .screen-heading--map {
+  position: sticky;
+  z-index: 8;
+  top: -18px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 58px;
+  margin: -18px -20px 0;
+  padding: 13px 20px;
+  color: var(--tinte);
+  border: 0;
+  border-bottom: 1px solid rgba(238,205,133,.2);
+  border-radius: 16px 16px 0 0;
+  background: #1b232c;
+  box-shadow: 0 9px 18px rgba(5, 9, 13, .34);
+  isolation: auto;
+  overflow: visible;
+  backdrop-filter: blur(8px);
+}
+.screen-heading::before, .screen-heading::after,
+.screen-heading--dashboard::before, .screen-heading--dashboard::after,
+.screen-heading--market::before, .screen-heading--market::after { display: none; }
+.screen-heading h1, .screen-heading--dashboard h1, .screen-heading--market h1,
+.screen-heading--finanzen h1, .screen-heading--map h1 {
+  margin: 0;
+  color: #f4dd9b;
+  font-size: 23px;
+}
+.screen-heading p { max-width: 42rem; margin: 0; color: var(--gedimmt); text-align: right; }
+.title-icon, .section-icon { color: #e6c264; }
+
+.karte, .kpi-gruppe, .kachel, .konto-karte, .transfer-karte,
+.mini-chart, .finanz-kurzwerte > div, .expose-preisbox {
+  color: var(--tinte);
+  border-color: rgba(238,205,133,.2);
+  background: rgba(255,255,255,.035);
+  box-shadow: inset 0 1px rgba(255,255,255,.025);
+}
+.karte:hover { box-shadow: inset 0 1px rgba(255,255,255,.025); }
+.karten-kopf { border-color: rgba(238,205,133,.14); }
+.karten-kopf > div > .eyebrow { display:block; margin-bottom:3px; }
+.karten-kopf h2, .karte h2, .karte h3 { color: #f0d995; }
+.haushalt td, .fakten td, .ende-tabelle td, .vergleich-tabelle td,
+.vergleich-tabelle th { color: var(--tinte-2); border-color: rgba(238,205,133,.1); }
+.haushalt td:last-child, .fakten td:last-child, .ende-tabelle td:last-child { color: var(--tinte); }
+.balken, .flow-track, .objekt-flow-zeile > div, .risiko-track,
+.ownership-meter, .finanz-mix-balken { background: rgba(3,7,10,.55); }
+
+/* Stadt -------------------------------------------------------------------- */
+
+#screen-karte {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  overflow: hidden;
+}
+.karten-staedte {
+  position: absolute;
+  z-index: 12;
+  top: 4px;
+  left: 50%;
+  display: flex;
+  max-width: min(720px, calc(100% - 360px));
+  padding: 5px;
+  border: 1px solid rgba(238,205,133,.22);
+  border-radius: 13px;
+  background: rgba(17,24,32,.82);
+  box-shadow: 0 10px 30px rgba(0,0,0,.35);
+  transform: translateX(-50%);
+  backdrop-filter: blur(9px);
+  overflow-x: auto;
+}
+.karten-staedte button {
+  min-width: 122px;
+  padding: 7px 12px;
+  border: 1px solid transparent;
+  background: transparent;
+}
+.karten-staedte button b, .karten-staedte button small { display: block; color: inherit; text-align: left; }
+.karten-staedte button small { font-size: 10px; font-weight: 500; }
+.karten-staedte button.aktiv { color: #f4dd9b; border-color: rgba(238,205,133,.55); background: rgba(238,205,133,.13); }
+.karten-filter {
+  position: absolute;
+  z-index: 13;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  max-width: 320px;
+  padding: 4px;
+  border: 1px solid rgba(238,205,133,.2);
+  border-radius: 11px;
+  background: rgba(17,24,32,.8);
+  overflow-x: auto;
+}
+.karten-filter button { min-width: auto; min-height: 34px; padding: 5px 9px; border: 0; background: transparent; font-size: 11px; }
+.karten-filter button.aktiv { color: #21190b; background: linear-gradient(180deg,#eecd85,#c69a3f); }
+
+.karten-layout {
+  display: grid;
+  grid-template-columns: minmax(250px, 300px) minmax(360px, 1fr) minmax(250px, 300px);
+  align-items: stretch;
+  gap: 12px;
+  height: 100%;
+  padding-top: 76px;
+}
+.stadt-links, .karten-legende { display: grid; min-height: 0; gap: 12px; }
+.stadt-links { grid-template-rows: auto minmax(0, 1fr); }
+.stadt-panel, .karten-legende {
+  min-width: 0;
+  padding: 15px;
+  border: 1px solid rgba(238,205,133,.25);
+  border-radius: 15px;
+  background: linear-gradient(180deg, rgba(34,43,54,.93), rgba(23,30,39,.94));
+  box-shadow: 0 13px 35px rgba(0,0,0,.38);
+  backdrop-filter: blur(8px);
+}
+.familie-panel header { display: flex; align-items: center; gap: 11px; margin-bottom: 13px; }
+.familie-panel header img { width: 52px; height: 52px; border: 2px solid #d8b866; border-radius: 50%; object-fit: cover; }
+.familie-panel h2, .post-panel h2, .karten-legende h2 { margin: 0; color: #f4dd9b; font-size: 18px; }
+.familie-panel p { margin: 1px 0 0; font-size: 11px; }
+.sims-zeile { display: grid; grid-template-columns: 27px 56px minmax(50px,1fr) 43px; align-items: center; gap: 7px; margin-top: 9px; color: var(--tinte-2); font-size: 12px; }
+.sims-icon { display: grid; width: 25px; height: 25px; place-items: center; border-radius: 50%; color: white; }
+.sims-icon svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; }
+.sims-icon.familie { background: #b86d55; }
+.sims-icon.zeit { background: #806aa1; }
+.sims-icon.nerven { background: #c79531; }
+.sims-icon.puffer { background: #58886e; }
+.sims-zeile > div { height: 8px; border-radius: 99px; background: rgba(3,7,10,.66); overflow: hidden; }
+.sims-zeile > div i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg,#e0a084,#e6c264); }
+.sims-zeile:nth-of-type(2) > div i { background: linear-gradient(90deg,#806aa1,#b79bd6); }
+.sims-zeile:nth-of-type(4) > div i { background: linear-gradient(90deg,#6fae7f,#9ed19e); }
+.sims-zeile b { color: #efe7d5; font-size: 11px; text-align: right; font-variant-numeric: tabular-nums; }
+
+.post-panel { min-height: 0; overflow: hidden; }
+.post-panel header, .karten-legende > header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 9px; }
+.post-panel h2 { display: flex; align-items: center; gap: 7px; }
+.post-panel > header small, .karten-legende > header small { color: var(--gedimmt); }
+.stadt-post { display: grid; gap: 6px; max-height: 100%; overflow: auto; }
+.stadt-post button { display: grid; grid-template-columns: 18px 1fr; align-items: start; gap: 8px; min-height: 0; padding: 9px; color: var(--tinte-2); background: rgba(255,255,255,.04); font-size: 11px; font-weight: 500; text-align: left; }
+.stadt-post .ui-icon { color: #e6c264; }
+
+.stadtkarte { position: relative; min-width: 0; min-height: 0; padding: 0; border-radius: 16px; overflow: hidden; }
+.stadt-buehne-bg, .stadt-wash, .stadt-markerfeld { position: absolute; inset: 0; }
+.stadt-buehne-bg { background: var(--stadtbild) center / cover no-repeat; filter: saturate(.82) brightness(.84) blur(2px); transform: scale(1.03); }
+.stadt-wash { pointer-events: none; }
+.stadt-wash.stadt-berlin-innen { background: linear-gradient(180deg,rgba(34,60,74,.26),rgba(18,30,40,.14) 55%,rgba(12,20,28,.28)); }
+.stadt-wash.stadt-berlin-aussen { background: linear-gradient(180deg,rgba(44,64,52,.26),rgba(22,36,28,.14) 55%,rgba(14,24,18,.28)); }
+.stadt-wash.stadt-leipzig { background: linear-gradient(180deg,rgba(80,60,34,.26),rgba(44,32,20,.14) 55%,rgba(28,20,12,.28)); }
+.stadt-wash.stadt-meissen { background: linear-gradient(180deg,rgba(78,52,60,.25),rgba(42,28,34,.14) 55%,rgba(24,18,22,.28)); }
+.stadt-markerfeld { overflow: hidden; }
+.karten-marker {
+  position: absolute;
+  width: 154px;
+  min-height: 116px;
+  padding: 0;
+  border-color: rgba(230,194,100,.62);
+  border-radius: 13px;
+  background: #121a22;
+  box-shadow: 0 10px 24px rgba(0,0,0,.48);
+  transform: translate(-50%,-50%);
+  overflow: visible;
+}
+.karten-marker:hover, .karten-marker.is-focus { z-index: 10; border-color: #f4dd9b; transform: translate(-50%,-52%) scale(1.03); }
+.marker-bild { position: relative; display: block; width: 100%; height: 72px; overflow: hidden; border-radius: 12px 12px 0 0; }
+.marker-bild img { width: 100%; height: 100%; object-fit: cover; }
+.status-pausiert .marker-bild img { filter: grayscale(.62) brightness(.72); }
+.karten-marker.is-kommend { opacity:.72; cursor:default; border-style:dashed; }
+.karten-marker.is-kommend:hover { transform:translate(-50%,-50%); }
+.karten-marker.is-kommend .marker-status { color:#d9dfe3; background:#596570; }
+.marker-status { position: absolute; top: 6px; left: 6px; display: grid; width: 25px; height: 25px; place-items: center; color: #111820; border-radius: 7px; background: #e6c264; }
+.status-reserviert .marker-status { background: #7ea8d8; }
+.status-bestand .marker-status, .status-eigenheim .marker-status { background: #6fae7f; }
+.status-pausiert .marker-status { background: #8d979e; }
+.marker-copy { display: block; padding: 7px 8px 8px; text-align: left; }
+.marker-copy b, .marker-copy small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.marker-copy b { color: #efe7d5; font-size: 11px; }
+.marker-copy small { color: var(--gedimmt); font-size: 9.5px; }
+.marker-stiel { position: absolute; top: 100%; left: 50%; width: 2px; height: 14px; background: currentColor; }
+.marker-stiel::after { content:''; position:absolute; bottom:-4px; left:-3px; width:8px; height:8px; border-radius:50%; background: currentColor; }
+
+.karten-legende { grid-template-rows: auto auto minmax(0,1fr) auto; overflow: hidden; }
+.status-legende { display: flex; flex-wrap: wrap; gap: 5px 10px; color: var(--gedimmt); font-size: 9px; }
+.marker-symbol { width: 9px; height: 9px; background: #e6c264; }
+.marker-symbol.reserviert { background: #7ea8d8; }
+.marker-symbol.bestand, .marker-symbol.eigenheim { background: #6fae7f; }
+.marker-symbol.pausiert { background: #8d979e; }
+.karten-liste { min-height: 0; overflow: auto; }
+.karten-listenpunkt { min-height: 0; padding: 8px 4px; border: 0; border-bottom: 1px solid rgba(238,205,133,.09); border-radius: 0; background: transparent; }
+.karten-listenpunkt:hover { background: rgba(238,205,133,.06); }
+.karten-listenpunkt.is-kommend { opacity:.68; cursor:default; }
+.karten-listenpunkt.is-kommend:hover { background:transparent; }
+.karten-listenpunkt b { color: var(--tinte); }
+.karten-listenpunkt small { color: var(--gedimmt); }
+.naechster-zug { padding: 13px; border: 1px solid rgba(238,205,133,.3); border-radius: 12px; background: linear-gradient(145deg,rgba(238,205,133,.13),rgba(126,93,38,.08)); }
+.naechster-zug h3 { margin: 4px 0; color: #f4dd9b; font-size: 15px; }
+.naechster-zug p { margin: 0 0 10px; font-size: 11px; }
+.naechster-zug button { width: 100%; }
+
+/* Zentrale ----------------------------------------------------------------- */
+
+.zentrale-tabs { display: flex; align-self: center; gap: 4px; }
+.zentrale-tabs button { min-height: 44px; padding: 6px 14px; border: 0; border-bottom: 2px solid transparent; border-radius: 0; color: var(--gedimmt); background: transparent; }
+.zentrale-tabs button.aktiv { color: #f4dd9b; border-bottom-color: #e6c264; }
+.dashboard > [data-zentrale-panel] { min-width: 0; }
+.dashboard .kacheln { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 10px; }
+.kpi-gruppe { padding: 12px; border-radius: 13px; }
+.kpi-gruppe h2 { color: var(--gedimmt); font-size: 10px; letter-spacing: .09em; text-transform: uppercase; }
+.kpi-paar { gap: 7px; }
+.kachel { min-height: 95px; padding: 11px; }
+.kachel .wert { color: #f4dd9b; font-family: "Cormorant Garamond", Georgia, serif; font-size: 22px; }
+.kachel .sub { color: var(--gedimmt); }
+.chart-karte, .portfolio-board, .quartalsbericht, .seiten-spalte { grid-column: 1; }
+/* Sammelpanel des Vermögen-Tabs: übernimmt Spalte und Abstände der Zentrale,
+   damit die drei Blöcke unverändert untereinander stehen. */
+#zentrale-panel-vermoegen { display: grid; grid-column: 1 / -1; gap: 14px; align-content: start; }
+.chart-karte { padding: 16px; }
+.chart-wrap { min-height: 330px; border-radius: 12px; background: rgba(2,6,9,.2); }
+#chart .grid { stroke: rgba(238,205,133,.1); }
+#chart .axis { fill: #8b8069; }
+.chart-zusatz { grid-template-columns: 1fr 1fr; }
+.mini-chart h3 { color: #f0d995; }
+.mix-cash { background: #6fae7f !important; }
+.mix-etf { background: #c69a3f !important; }
+.mix-immo { background: #7ea8d8 !important; }
+.mix-ruecklage { background: #b79bd6 !important; }
+.seiten-spalte { grid-template-columns: minmax(0,1.25fr) minmax(280px,.75fr); align-items: start; }
+.log-karte { grid-column: 1 / -1; }
+.portfolio-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+.owned-card { border-color: rgba(238,205,133,.22); background: rgba(255,255,255,.035); }
+.owned-body h3 { color: #f0d995; }
+.portfolio-empty { color: var(--tinte); border-color: rgba(238,205,133,.2); background: rgba(255,255,255,.025); }
+.quartals-naechster { border-color: rgba(238,205,133,.25); background: rgba(238,205,133,.07); }
+.log-eintrag { border-color: rgba(238,205,133,.12); background: rgba(255,255,255,.025); }
+
+/* Marktplatz --------------------------------------------------------------- */
+
+.marktplatz { grid-template-rows: auto auto 1fr; }
+.filter-zeile {
+  position: sticky;
+  z-index: 7;
+  top: 52px;
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 0 4px;
+  padding: 9px 10px;
+  border: 1px solid rgba(238,205,133,.18);
+  border-radius: 11px;
+  background: #151c24;
+  box-shadow: 0 8px 16px rgba(5,9,13,.3);
+}
+.filter-zeile select {
+  min-height: 37px;
+  color: #efe7d5;
+  border-color: rgba(238,205,133,.24);
+  background: #19232e;
+  color-scheme: dark;
+}
+.filter-zeile input[type="checkbox"] { accent-color:#d2a847; }
+.filter-check { color: var(--tinte-2); }
+.filter-zeile #btn-vergleich { flex: 0 0 auto; margin-left: auto; }
+.markt-liste { display: grid; grid-template-columns: 1fr; gap: 10px; }
+.markt-karte {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(330px, 392px) minmax(260px,1fr) minmax(190px,216px);
+  gap: 0;
+  min-height: 184px;
+  padding: 0;
+  color: var(--tinte);
+  border: 1px solid rgba(238,205,133,.2);
+  border-radius: 14px;
+  background: rgba(255,255,255,.035);
+  box-shadow: none;
+  overflow: hidden;
+}
+.markt-karte:hover { border-color: rgba(238,205,133,.48); box-shadow: 0 12px 32px rgba(0,0,0,.28); transform: translateY(-1px); }
+.markt-gallery { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 0; min-width: 0; }
+.markt-ansicht { position: relative; min-width: 0; border-right: 1px solid rgba(238,205,133,.12); }
+.markt-ansicht > span { position: absolute; left: 8px; bottom: 7px; z-index: 2; padding: 2px 6px; color: #efe7d5; border-radius: 6px; background: rgba(7,11,15,.78); font-size: 9px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.markt-gallery .expose-bild { width: 100%; height: 100%; min-height: 184px; border: 0; border-radius: 0; }
+.markt-gallery .expose-bild img, .markt-gallery .expose-bild svg { width: 100%; height: 100%; object-fit: cover; }
+.markt-karte .karte-inhalt { display: flex; min-width: 0; flex-direction: column; gap: 7px; padding: 13px 15px; }
+.karte-kopfzeile h3 { margin: 0; color: #efe7d5; font-family: inherit; font-size: 15px; }
+/* Kartentitel sind echte Buttons: der Tastaturweg ins Exposé bzw. Objekt.
+   Der restliche Kartenklick bleibt reiner Zeigegeräte-Komfort. */
+.karte-titel {
+  display: inline;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.karte-titel:hover:not(:disabled) { border: 0; background: none; box-shadow: none; transform: none; text-decoration: underline; }
+.karte-ort { color: var(--gedimmt); font-size: 10.5px; }
+.karte-fakten { display: flex; flex-wrap: wrap; gap: 6px 13px; color: var(--tinte-2); font-size: 11px; }
+.karte-fakten > span { display: inline-flex; align-items: center; gap: 4px; }
+.karte-fakten .ui-icon { width: 13px; height: 13px; color: #e6c264; }
+.karte-badges { gap: 5px; }
+.markt-zitat { display: -webkit-box; margin: auto 0 0; padding-left: 10px; color: #9e947d; border-left: 2px solid rgba(238,205,133,.3); font-size: 10.5px; font-style: italic; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.markt-deal { display: flex; min-width: 0; flex-direction: column; justify-content: center; gap: 9px; padding: 14px 15px; border-left: 1px solid rgba(238,205,133,.13); }
+.karte-preis { color: #f4dd9b; font-size: 25px; }
+.karte-preis small { display: block; margin-top: 2px; font-family: inherit; font-size: 10px; }
+.markt-aktionen { display: grid; grid-template-columns: 1fr; gap: 7px; }
+.markt-aktionen button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.vergleich-check { color: var(--gedimmt); font-size: 10px; }
+.fav { color: #e6c264; background: rgba(14,20,27,.76); }
+
+/* Exposé und Objekt -------------------------------------------------------- */
+
+.expose-kopf {
+  position: sticky;
+  z-index: 8;
+  top: -18px;
+  display: grid;
+  grid-template-columns: auto minmax(0,1fr) auto;
+  align-items: center;
+  gap: 12px;
+  margin: -18px -20px 0;
+  padding: 12px 20px;
+  border-bottom: 1px solid rgba(238,205,133,.2);
+  background: #1b232c;
+  box-shadow: 0 9px 18px rgba(5,9,13,.34);
+  backdrop-filter: blur(8px);
+}
+.expose-kopf h1 { margin: 0; color: #f4dd9b; font-size: 22px; }
+.expose-oben, .objekt-oben { grid-template-columns: minmax(0,1.65fr) minmax(320px,.75fr); gap: 13px; }
+.expose-gallery { gap: 10px; }
+.expose-bild { border-color: rgba(238,205,133,.2); background: rgba(3,7,10,.4); }
+.expose-bild img { object-fit: cover; }
+.expose-preisbox, .objekt-status { background: rgba(255,255,255,.035); }
+.preis-gross { color: #f4dd9b; font-size: 34px; }
+.maklertext { color: var(--tinte-2); border-color: rgba(238,205,133,.35); background: rgba(238,205,133,.055); }
+.expose-unten { grid-template-columns: 1.25fr .75fr; }
+/* Entscheidung schließt die Handlungskette ab und steht deshalb hinter der
+   Prüfung — nicht mehr oben in der Preisbox. */
+.expose-entscheidung { padding: 14px 16px 16px; background: rgba(255,255,255,.035); }
+.expose-entscheidung .gebot-zeile { margin-top: 4px; }
+.expose-entscheidung .deal-entscheidung { margin-top: 12px; }
+.dd-buttons button { color: var(--tinte); background: rgba(255,255,255,.035); }
+.dd-liste li { color: var(--tinte-2); border-color: rgba(238,205,133,.12); }
+.notizen-karte textarea { background: rgba(3,7,10,.35); }
+
+.ansicht-umschalter { display: flex; padding: 3px; border: 1px solid rgba(238,205,133,.2); border-radius: 10px; }
+.ansicht-umschalter button { min-height: 32px; padding: 4px 13px; border: 0; background: transparent; }
+.ansicht-umschalter button.aktiv { color: #21190b; background: linear-gradient(180deg,#eecd85,#c69a3f); }
+.objekt-visual { min-height: 390px; border: 1px solid rgba(238,205,133,.2); border-radius: 13px; background: rgba(3,7,10,.35); overflow: hidden; }
+.objekt-visual .expose-bild { height: 100%; min-height: 390px; border: 0; }
+.objekt-visual .expose-bild img, .objekt-visual .expose-bild svg { width:100%; height:100%; object-fit:cover; }
+.objekt-visual-overlay { color: var(--tinte-2); background: linear-gradient(transparent,rgba(4,8,12,.8)); }
+.objekt-kennzahlen { display: grid; gap: 0; margin: 0; border: 1px solid rgba(238,205,133,.14); border-radius: 11px; background: rgba(2,6,9,.18); overflow: hidden; }
+.objekt-kennzahlen > div { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 13px; border-bottom: 1px solid rgba(238,205,133,.09); }
+.objekt-kennzahlen > div:last-child { border-bottom: 0; }
+.objekt-kennzahlen dt { color: var(--tinte-2); font-weight: 500; }
+.objekt-kennzahlen dd { margin: 0; padding: 5px 9px; border-radius: 8px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.wert-gold { color: #f4dd9b; background: rgba(238,205,133,.12); }
+.wert-positiv { color: #b6ddb3; background: rgba(143,188,143,.13); }
+.wert-negativ { color: #efb49b; background: rgba(224,160,132,.14); }
+.objekt-daten { margin-top: 11px; }
+.objekt-daten summary { color: #e6c264; cursor: pointer; font-weight: 700; }
+.objekt-daten .objekt-wert { margin-top: 10px; }
+.objekt-spalten { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; }
+.objekt-flow-zeile { color: var(--tinte-2); }
+.mietrecht-hinweis { border-color: rgba(126,168,216,.38); background: rgba(126,168,216,.08); }
+
+/* Gebot */
+.gebot-zeile { display: grid; gap: 9px; margin-top: 12px; padding: 14px; border: 1px solid rgba(238,205,133,.22); border-radius: 12px; background: rgba(2,6,9,.2); }
+#gebot-live { color: #f4dd9b; font-size: 38px; line-height: 1; }
+#gebot-delta { margin: -3px 0 0; color: var(--gedimmt); font-size: 11px; }
+.gebot-chance { display: grid; gap: 5px; }
+.gebot-chance > span { display:flex; justify-content:space-between; color: var(--tinte-2); font-size:11px; }
+.gebot-chance > div { height: 8px; border-radius: 99px; background: rgba(3,7,10,.6); overflow:hidden; }
+.gebot-chance i { display:block; height:100%; border-radius:inherit; background:#e0a084; transition:width 120ms ease; }
+.gebot-chance i[data-stufe="mittel"] { background:#e6c264; }
+.gebot-chance i[data-stufe="hoch"] { background:#9ed19e; }
+.gebot-chance small { color: var(--gedimmt); }
+
+/* Finanzen ----------------------------------------------------------------- */
+
+.finanz-ueberblick { order: 1; }
+.finanz-konten { order: 2; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 10px; }
+.finanz-aktionen { order: 3; }
+.finanz-unten { order: 4; }
+.konto-karte { position: relative; min-height: 220px; padding: 15px 15px 14px 18px; overflow: hidden; }
+.konto-karte::before { content:''; position:absolute; inset:0 auto 0 0; width:3px; background:#6fae7f; }
+#fin-konto-immo::before { background:#7ea8d8; }
+#fin-konto-etf::before { background:#c69a3f; }
+.konto-karte header { border-color: rgba(238,205,133,.12); }
+.konto-symbol { color: #e6c264; background: rgba(238,205,133,.08); }
+.konto-karte h2 { color: #efe7d5; font-family: inherit; }
+.konto-karte > strong { color: #f4dd9b; font-size: 28px; }
+.konto-karte dl div { border-color: rgba(238,205,133,.09); }
+.konto-karte dd { color: var(--tinte); }
+.finanz-kurzwerte { grid-template-columns: repeat(3,1fr); }
+.finanz-kurzwerte dd { color: #f4dd9b; }
+.finanz-mix-balken { border-color: rgba(238,205,133,.18); }
+#fin-mix-cash { background:#6fae7f; }
+#fin-mix-etf { background:#c69a3f; }
+.transfer-raster { grid-template-columns: repeat(2,minmax(0,1fr)); }
+.transfer-karte { border-color: rgba(238,205,133,.18); background: rgba(2,6,9,.2); }
+.transfer-karte h3 { color:#f0d995; }
+.transfer-vorschau { color:var(--tinte-2); background:rgba(255,255,255,.035); }
+.transfer-regler { display:grid; gap:12px; margin-top:14px; }
+.transfer-slider-label { display:flex; align-items:end; justify-content:space-between; gap:12px; color:var(--tinte-2); font-size:12px; }
+.transfer-slider-label output { color:#f4dd9b; font-family:"Cormorant Garamond",Georgia,serif; font-size:20px; font-weight:700; font-variant-numeric:tabular-nums; }
+.transfer-slider-wrap { position:relative; padding:3px 0; }
+.transfer-slider-wrap::after { content:''; position:absolute; z-index:0; top:0; bottom:0; left:50%; width:1px; background:rgba(238,205,133,.52); pointer-events:none; }
+#fin-transfer { position:relative; z-index:1; width:100%; accent-color:#d9b464; }
+.transfer-skala { display:grid; grid-template-columns:1fr auto 1fr; gap:10px; margin-top:-7px; color:var(--gedimmt); font-size:10px; }
+.transfer-skala b { color:var(--tinte-2); font-weight:500; text-align:center; }
+.transfer-skala span:last-child { text-align:right; }
+.transfer-konten { display:grid; grid-template-columns:minmax(0,1fr) 48px minmax(0,1fr); align-items:stretch; gap:10px; }
+.transfer-konto { display:flex; align-items:center; gap:12px; min-width:0; padding:13px; border:1px solid rgba(238,205,133,.18); border-radius:12px; background:rgba(2,6,9,.24); }
+.transfer-konto > div { display:grid; min-width:0; }
+.transfer-konto small { color:var(--gedimmt); font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; }
+.transfer-konto strong { color:#f4dd9b; font-family:"Cormorant Garamond",Georgia,serif; font-size:25px; line-height:1.1; font-variant-numeric:tabular-nums; }
+.transfer-konto div > span { color:var(--gedimmt); font-size:12px; font-weight:700; font-variant-numeric:tabular-nums; }
+.transfer-konto div > span.positiv { color:var(--positiv); }
+.transfer-konto div > span.negativ { color:var(--negativ); }
+.transfer-pfeil { display:grid; place-items:center; color:#e6c264; font-family:"Cormorant Garamond",Georgia,serif; font-size:30px; }
+.transfer-regler .transfer-vorschau { min-height:44px; margin:0; padding:10px 12px; border:1px solid rgba(238,205,133,.12); border-radius:9px; }
+.transfer-regler.is-anlage .transfer-vorschau { background:rgba(143,188,143,.07); }
+.transfer-regler.is-verkauf .transfer-vorschau { background:rgba(224,160,132,.07); }
+.transfer-regler > button { justify-self:end; min-width:min(100%,260px); }
+.transfer-regler > button.transfer-verkaufen { color:#24150f; border-color:#e0a084; background:linear-gradient(180deg,#e5b096,#bd7357); box-shadow:0 3px 0 #824b38,0 9px 20px rgba(0,0,0,.28); }
+.transfer-regler > button.transfer-neutral { color:var(--gedimmt); background:rgba(255,255,255,.025); }
+.sparplan-karte, .bewegungen-karte { background:rgba(255,255,255,.035); }
+.finanz-bewegungen li { color:var(--tinte-2); border-color:rgba(238,205,133,.11); }
+
+/* Referenzhierarchie: Konten zuerst, Umschichten und Vermögensmix gemeinsam. */
+.finanzen { grid-template-columns:minmax(0,1fr) minmax(280px,340px); }
+.finanzen > .screen-heading { grid-column:1/-1; grid-row:1; }
+.finanz-konten { grid-column:1/-1; grid-row:2; order:initial; }
+.finanz-aktionen { grid-column:1; grid-row:3; order:initial; padding:14px 16px 16px; }
+.finanz-ueberblick {
+  grid-column:2;
+  grid-row:3;
+  order:initial;
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+  padding:14px 16px 16px;
+}
+.finanz-unten { grid-column:1/-1; grid-row:4; order:initial; grid-template-columns:1fr; }
+.finanz-ueberblick > .karten-kopf > b { color:#f4dd9b; font-size:21px; font-variant-numeric:tabular-nums; }
+.finanz-liquid { display:flex; justify-content:space-between; gap:12px; margin:12px 0 0; color:var(--tinte-2); }
+.finanz-liquid b { color:#efe7d5; font-variant-numeric:tabular-nums; }
+.finanz-ueberblick .finanz-mix { margin-top:13px; }
+.finanz-mix-balken { height:16px; border:1px solid rgba(238,205,133,.18); }
+#fin-mix-immo { background:#7ea8d8; }
+.finanz-mix-legende { display:grid; gap:7px; margin:13px 0 0; padding:0; list-style:none; }
+.finanz-mix-legende li { display:grid; grid-template-columns:10px minmax(0,1fr) auto; align-items:center; gap:8px; color:var(--tinte-2); }
+.finanz-mix-legende li::before { content:''; width:9px; height:9px; border-radius:2px; background:#6fae7f; }
+.finanz-mix-legende li.fin-mix-etf-row::before { background:#c69a3f; }
+.finanz-mix-legende li.fin-mix-immo-row::before { background:#7ea8d8; }
+.finanz-mix-legende b { color:#efe7d5; font-variant-numeric:tabular-nums; }
+.finanz-ueberblick .finanz-kurzwerte { grid-template-columns:1fr; margin-top:auto; }
+.finanz-ueberblick .finanz-kurzwerte > div { display:flex; align-items:baseline; justify-content:space-between; gap:12px; border-right:0; border-bottom:1px solid rgba(238,205,133,.12); }
+.finanz-ueberblick .finanz-kurzwerte > div:last-child { border-bottom:0; }
+
+.konto-karte { min-height:144px; padding:13px 15px 12px 18px; }
+.konto-karte::after { width:100px; height:100px; right:-48px; top:-52px; }
+.konto-karte header { gap:9px; }
+.konto-karte .konto-symbol { width:34px; height:34px; flex-basis:34px; border-radius:9px; }
+.konto-karte h2 { font-size:15px; }
+.konto-karte > strong { margin:9px 0 7px; font-size:25px; }
+.konto-karte dl { display:flex; flex-wrap:wrap; gap:4px 13px; }
+.konto-karte dl > div { display:inline-flex; justify-content:flex-start; gap:4px; padding:0; border:0; font-size:10.5px; }
+.konto-karte dt { font-size:9px; }
+.konto-karte dd { color:var(--tinte-2); font-weight:600; }
+.konto-karte > .hinweis { display:none; }
+
+.finanz-aktionen > .karten-kopf { margin-bottom:0; }
+.finanz-aktionen .transfer-regler { gap:9px; margin-top:10px; }
+.finanz-aktionen .transfer-konto { padding:10px 12px; }
+.finanz-aktionen .transfer-konto .konto-symbol { width:34px; height:34px; flex-basis:34px; }
+.finanz-aktionen .transfer-konto strong { font-size:21px; }
+.finanz-aktionen .transfer-regler .transfer-vorschau { min-height:40px; padding:8px 10px; }
+.finanz-aktionen .transfer-regler > button { justify-self:stretch; width:100%; }
+.finanz-aktionen > .sparplan-karte { margin-top:14px; padding:12px 0 0; border-top:1px solid rgba(238,205,133,.16); background:transparent; }
+.finanz-aktionen > .sparplan-karte .karten-kopf { align-items:baseline; margin-bottom:7px; }
+.finanz-aktionen > .sparplan-karte h2 { font-size:15px; }
+.finanz-aktionen > .sparplan-karte form { grid-template-columns:minmax(0,1fr) auto; gap:5px 12px; }
+.finanz-aktionen > .sparplan-karte form > label,
+.finanz-aktionen > .sparplan-karte form > input,
+.finanz-aktionen > .sparplan-karte .sparplan-aufteilung { grid-column:1; }
+.finanz-aktionen > .sparplan-karte form > button { grid-column:2; grid-row:1/4; align-self:end; justify-self:end; }
+.finanz-aktionen > .sparplan-karte > .hinweis { display:none; }
+
+/* Dialoge und Finanzierung ------------------------------------------------ */
+
+dialog {
+  max-width: min(720px, calc(100vw - 24px));
+  max-height: calc(100vh - 24px);
+  color: var(--tinte);
+  border: 1px solid rgba(238,205,133,.32);
+  border-radius: 16px;
+  background: linear-gradient(180deg,rgba(31,40,50,.99),rgba(18,25,33,.99));
+  box-shadow: 0 20px 70px rgba(0,0,0,.68);
+  backdrop-filter: blur(10px);
+}
+dialog::backdrop { background: rgba(4,8,12,.7); backdrop-filter: blur(3px); }
+dialog > header, dialog form > header { border-color: rgba(238,205,133,.16); }
+dialog h2, dialog h3 { color:#f4dd9b; }
+dialog footer { border-color:rgba(238,205,133,.15); background:rgba(7,12,17,.2); }
+#dlg-neu { max-width: min(940px,calc(100vw - 24px)); }
+.preset-option, .diff-option { color:var(--tinte); border-color:rgba(238,205,133,.18); background:rgba(255,255,255,.035); }
+.preset-option:has(input:checked), .diff-option:has(input:checked) { border-color:#e6c264; background:rgba(238,205,133,.1); }
+.start-vorschau, .start-anpassen { color:var(--tinte-2); border-color:rgba(238,205,133,.17); background:rgba(2,6,9,.2); }
+.start-einstellungen fieldset { border-color:rgba(238,205,133,.17); }
+.hilfe-abschnitt, .tutorial-ablauf li, .admin-gruppe { color:var(--tinte-2); border-color:rgba(238,205,133,.15); background:rgba(255,255,255,.03); }
+.event-option { color:var(--tinte); border-color:rgba(238,205,133,.2); background:rgba(255,255,255,.035); }
+
+#dlg-finanzierung {
+  width: min(580px,100vw);
+  max-width: 100vw;
+  height: 100vh;
+  max-height: 100vh;
+  margin: 0 0 0 auto;
+  padding: 0;
+  border-radius: 16px 0 0 16px;
+}
+#dlg-finanzierung[open] { animation: fin-panel-in 220ms ease-out; }
+#form-finanzierung { display:grid; grid-template-rows:auto auto minmax(0,1fr) auto; height:100%; min-height:0; }
+.bank-kopf { display:grid; grid-template-columns:48px minmax(0,1fr) auto; align-items:center; gap:11px; padding:13px 16px; }
+.bank-kopf img { width:46px; height:46px; border:2px solid #d8b866; border-radius:50%; object-fit:cover; }
+.bank-kopf h2 { margin:1px 0 0; font-size:18px; }
+.bank-kopf > button { width:38px; padding:0; }
+.fin-schritte { display:grid; grid-template-columns:repeat(3,1fr); border-bottom:1px solid rgba(238,205,133,.16); }
+.fin-schritte button { display:flex; align-items:center; justify-content:center; gap:6px; min-height:48px; border:0; border-bottom:2px solid transparent; border-radius:0; color:var(--gedimmt); background:transparent; }
+.fin-schritte button b { display:grid; width:20px; height:20px; place-items:center; border:1px solid currentColor; border-radius:50%; font-size:10px; }
+.fin-schritte button.aktiv { color:#f4dd9b; border-bottom-color:#e6c264; }
+.fin-flow-step { min-height:0; padding:16px 18px; overflow:auto; }
+.fin-flow-step > h3 { margin-top:0; }
+.nutzungs-karten { display:grid; grid-template-columns:repeat(2,1fr); gap:9px; }
+.nutzungs-karten > label { position:relative; min-width:0; }
+.nutzungs-karten input { position:absolute; opacity:0; }
+.nutzungs-karten label > span { display:grid; gap:6px; min-height:132px; padding:14px; color:var(--tinte-2); border:1px solid rgba(238,205,133,.2); border-radius:12px; background:rgba(255,255,255,.035); cursor:pointer; }
+.nutzungs-karten input:checked + span { color:var(--tinte); border-color:#e6c264; background:rgba(238,205,133,.1); }
+.nutzungs-karten .ui-icon { width:25px; height:25px; color:#e6c264; }
+.nutzungs-karten b { color:#efe7d5; }
+.nutzungs-karten small { color:var(--gedimmt); }
+.nutzungs-karten .gesperrt, .nutzungs-karten label.gesperrt > span { opacity:.52; }
+.fin-ek-panel, .fin-etf-panel { border-color:rgba(238,205,133,.18); background:rgba(255,255,255,.035); }
+.fin-ek-quote strong { color:#f4dd9b; }
+.fin-ek-schnellwahl { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.fin-ek-schnellwahl button { min-height:44px; font-size:11px; }
+.fin-ek-schnellwahl button.aktiv { color:#241d10; border-color:#eecd85; background:linear-gradient(180deg,#eecd85,#c69a3f); }
+.fin-slider-werte { grid-template-columns:1fr; color:var(--tinte-2); }
+.fin-ltv-viz { border-color:rgba(238,205,133,.18); background:rgba(2,6,9,.2); }
+.ltv-track { background:rgba(3,7,10,.6); }
+.fin-tabelle { margin-top:12px; }
+.fin-tabelle .fin-gruppe th { padding:11px 8px 5px; color:#e6c264; font-size:10px; letter-spacing:.08em; text-align:left; text-transform:uppercase; }
+.verdikt { border-color:rgba(238,205,133,.18); background:rgba(255,255,255,.03); }
+.verdikt.ok { border-color:rgba(158,209,158,.35); background:rgba(143,188,143,.07); }
+.verdikt.abgelehnt { border-color:rgba(224,160,132,.36); background:rgba(224,160,132,.07); }
+.fin-monatsvergleich { margin-top:13px; padding:12px; border:1px solid rgba(238,205,133,.16); border-radius:11px; background:rgba(2,6,9,.2); }
+.fin-monatsvergleich > header { display:flex; justify-content:space-between; gap:10px; margin-bottom:9px; }
+.fin-monatsvergleich > header small { color:var(--gedimmt); text-align:right; }
+.fin-szenarien { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+.fin-szenario { padding:10px; border:1px solid rgba(238,205,133,.12); border-radius:9px; background:rgba(255,255,255,.025); }
+.fin-szenario.geplant { border-color:rgba(158,209,158,.28); background:rgba(143,188,143,.045); }
+.fin-szenario h4 { margin:0 0 6px; color:#f0d995; font-family:inherit; font-size:11px; text-transform:uppercase; letter-spacing:.06em; }
+.fin-pfad-urteil { display:grid; gap:3px; margin-top:8px; padding:10px; border:1px solid rgba(238,205,133,.2); border-radius:9px; background:rgba(238,205,133,.045); color:var(--tinte); }
+.fin-pfad-urteil b { color:inherit; }
+.fin-pfad-urteil span, .fin-pfad-urteil small { color:var(--tinte-2); line-height:1.35; }
+.fin-pfad-urteil small { color:var(--gedimmt); }
+.fin-pfad-urteil.positiv { border-color:rgba(158,209,158,.38); background:rgba(143,188,143,.08); color:var(--positiv); }
+.fin-pfad-urteil.nahe-null { border-color:rgba(238,205,133,.34); }
+.fin-pfad-urteil.negativ { border-color:rgba(224,160,132,.4); background:rgba(224,160,132,.07); color:var(--negativ); }
+.fin-cashflow-zeile { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:8px; color:var(--tinte-2); }
+.fin-cashflow-zeile b { font-variant-numeric:tabular-nums; }
+.fin-cashflow-zeile.steuer-null { grid-template-columns:1fr auto; margin-top:8px; padding:9px; border-radius:8px; background:rgba(255,255,255,.03); }
+.fin-cashflow-zeile.steuer-null small { grid-column:1/-1; color:var(--gedimmt); }
+.fin-cashflow-summe { border-color:rgba(238,205,133,.18); }
+.weg-aufteilung { margin-top:8px; }
+.weg-aufteilung summary { color:#e6c264; cursor:pointer; font-size:11px; font-weight:700; }
+.weg-aufteilung small { display:block; margin-top:6px; color:var(--gedimmt); }
+.fin-haushalt-wirkung { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:9px; margin:10px 0; padding:10px; border:1px solid rgba(238,205,133,.18); border-radius:9px; background:rgba(238,205,133,.045); }
+.fin-haushalt-wirkung span { display:grid; }
+.fin-haushalt-wirkung small { color:var(--gedimmt); }
+.fin-haushalt-wirkung b { color:#efe7d5; font-size:17px; font-variant-numeric:tabular-nums; }
+#form-finanzierung > footer { display:flex; justify-content:flex-end; gap:8px; padding:12px 16px 15px; }
+
+@keyframes fin-panel-in { from { opacity:0; transform:translateX(28px); } to { opacity:1; transform:none; } }
+
+/* Responsive Gates --------------------------------------------------------- */
+
+@media (max-width: 1180px) {
+  .topbar {
+    grid-template-columns:max-content minmax(0,1fr) max-content;
+    grid-template-areas:"brand date menu" "resources speed speed";
+    min-height:128px;
+    padding:8px 14px;
+  }
+  .ressourcenleiste { grid-template-columns:repeat(3,minmax(130px,1fr)); }
+  .speed-group { justify-self:end; }
+  .dashboard, .marktplatz, .expose, .endgame, .finanzen, .spielkarte { inset:140px 14px 88px; }
+  .karten-layout { grid-template-columns:250px minmax(320px,1fr) 250px; }
+  .stadt-panel, .karten-legende { padding:12px; }
+  .karten-staedte { max-width:calc(100% - 360px); }
+  .markt-karte { grid-template-columns:minmax(280px,34%) minmax(240px,1fr) 190px; }
+  .markt-gallery .expose-bild { min-height:174px; }
+}
+
+@media (max-width: 920px) {
+  .finanzen { grid-template-columns:1fr; }
+  .finanzen > .screen-heading { grid-column:1; grid-row:auto; order:0; }
+  .finanz-konten { grid-column:1; grid-row:auto; order:1; }
+  .finanz-aktionen { grid-column:1; grid-row:auto; order:2; }
+  .finanz-ueberblick { grid-column:1; grid-row:auto; order:3; min-height:300px; }
+  .finanz-unten { grid-column:1; grid-row:auto; order:4; }
+  .karten-filter { top:58px; right:auto; left:50%; max-width:calc(100% - 24px); transform:translateX(-50%); }
+  .karten-staedte { max-width:calc(100% - 24px); }
+  .karten-layout { grid-template-columns:220px minmax(300px,1fr); padding-top:108px; }
+  .karten-legende { display:none; }
+  .markt-karte { grid-template-columns:minmax(250px,42%) minmax(250px,1fr); }
+  .markt-deal { grid-column:1/-1; display:grid; grid-template-columns:1fr 2fr auto; align-items:center; border-top:1px solid rgba(238,205,133,.13); border-left:0; }
+  .markt-aktionen { grid-template-columns:1fr; }
+  .objekt-oben, .expose-oben { grid-template-columns:1fr; }
+  .objekt-spalten { grid-template-columns:1fr 1fr; }
+  .pnl-karte { grid-column:1/-1; }
+  .finanz-konten { grid-template-columns:1fr 1fr; }
+  .konto-karte:last-child { grid-column:1/-1; }
+}
+
+@media (max-width: 700px) {
+  body { overflow:hidden; }
+  .topbar {
+    grid-template-columns:minmax(0,1fr) auto;
+    grid-template-areas:"brand menu" "date date" "resources resources" "speed speed";
+    min-height:190px;
+    gap:5px 8px;
+    padding:7px 10px;
+    overflow:hidden;
+  }
+  .brand { font-size:18px; }
+  .brand svg { width:24px; height:24px; }
+  .hud { display:flex; justify-content:center; gap:8px; min-width:0; }
+  #hud-datum { font-size:13px; }
+  .hud .sub { align-self:center; }
+  /* Die drei Werte teilen sich die Breite, statt bei 136 px Mindestbreite eine
+     horizontale Scrollleiste zu erzwingen (3 x 126 + Ränder > 370 px bei 390). */
+  .ressourcenleiste { display:flex; width:100%; }
+  .ressourcenleiste > :is(div,button) { flex:1 1 0; min-width:0; min-height:45px; }
+  .speed-group { justify-self:stretch; justify-content:center; width:100%; overflow-x:auto; }
+  .speed-group button { min-width:36px; }
+  .speed-lauf button span { display:none; }
+  .dashboard, .marktplatz, .expose, .endgame, .finanzen, .spielkarte { inset:198px 8px 82px; }
+  .dashboard, .finanzen, .marktplatz, .expose, .endgame { padding:14px 12px 20px; }
+  .screen-heading, .screen-heading--dashboard, .screen-heading--market, .screen-heading--finanzen { top:-14px; margin:-14px -12px 0; padding:11px 12px; }
+  .screen-heading p { display:none; }
+  .screen-heading h1, .screen-heading--dashboard h1, .screen-heading--market h1, .screen-heading--finanzen h1 { font-size:20px; }
+  .screen-heading--dashboard { flex-direction:column; align-items:flex-start; }
+  .screen-heading--dashboard .zentrale-tabs { align-self:stretch; width:100%; }
+  .screens-nav { left:8px; bottom:8px; max-width:calc(100vw - 16px); gap:5px; }
+  .screens-nav button { flex-basis:76px; min-width:76px; min-height:57px; padding:6px 8px; }
+  .cashflow-popover { top:196px; left:8px; width:calc(100vw - 16px); max-height:calc(100vh - 292px); }
+  .meldungen-panel { top:196px; right:8px; width:calc(100vw - 16px); max-height:calc(100vh - 292px); }
+
+  #screen-karte { overflow:auto; }
+  /* Vier Stadtfilter teilen sich die Zeile; ohne Shrink erzwingen 4 x 122 px
+     Mindestbreite sonst eine horizontale Scrollleiste bei 390 px. */
+  .karten-staedte { position:sticky; top:0; left:0; max-width:100%; transform:none; }
+  .karten-staedte button { flex:1 1 0; min-width:0; padding:6px 7px; }
+  .karten-staedte button :is(b, small) { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .karten-filter { position:sticky; top:58px; left:0; max-width:100%; transform:none; margin-top:5px; }
+  .karten-layout { grid-template-columns:1fr; height:auto; padding-top:8px; }
+  .stadt-links { grid-template-rows:auto auto; }
+  .post-panel { max-height:230px; }
+  .stadtkarte { min-height:520px; }
+  .karten-legende { display:grid; min-height:420px; }
+  .karten-marker { width:138px; }
+
+  .dashboard .kacheln { grid-template-columns:1fr; }
+  .kpi-paar { grid-template-columns:1fr 1fr; }
+  .chart-zusatz, .seiten-spalte, .portfolio-grid { grid-template-columns:1fr; }
+  .log-karte { grid-column:1; }
+  .chart-wrap { min-height:260px; overflow-x:auto; }
+  #chart { min-width:680px; }
+  .zentrale-tabs { overflow-x:auto; }
+  .zentrale-tabs button { padding-inline:9px; }
+
+  .filter-zeile { top:46px; }
+  .filter-zeile label, .filter-zeile select { min-width:0; flex:1 1 130px; }
+  .markt-karte { grid-template-columns:1fr; }
+  .markt-gallery .expose-bild { min-height:150px; }
+  .markt-deal { grid-column:1; grid-template-columns:1fr; }
+  .markt-aktionen { grid-template-columns:1fr; }
+  .markt-zitat { -webkit-line-clamp:3; }
+
+  .expose-kopf { top:-14px; grid-template-columns:auto minmax(0,1fr); margin:-14px -12px 0; padding:10px 12px; }
+  .expose-kopf h1 { font-size:18px; }
+  .ansicht-umschalter { grid-column:1/-1; justify-self:end; }
+  .expose-gallery, .expose-unten, .objekt-spalten { grid-template-columns:1fr; }
+  .handlungskette ol { grid-template-columns: 1fr 1fr; }
+  .pruefstand { grid-template-columns: 1fr; }
+  .pruefstand p { grid-column: 1; }
+  .turnaround-kopf, .turnaround-linien, .turnaround-ziele { grid-template-columns: 1fr; }
+  .turnaround-kpis { grid-template-columns: 1fr 1fr; }
+  .turnaround-ziele { grid-column: 1; }
+  .ziel-aktiv, .ziel-optionen, .arbeitsmodelle { grid-template-columns:1fr; }
+  .ziel-aktiv small { grid-column:1; }
+  .objekt-visual, .objekt-visual .expose-bild { min-height:300px; }
+  .pnl-karte { grid-column:1; }
+
+  .finanz-konten, .transfer-raster, .finanz-unten, .finanz-kurzwerte { grid-template-columns:1fr; }
+  .konto-karte:last-child { grid-column:1; }
+  .transfer-karte { min-width:0; }
+  .geld-eingabe input { min-width:0; }
+
+  dialog { max-width:calc(100vw - 12px); max-height:calc(100vh - 12px); }
+  #dlg-finanzierung { width:100vw; max-width:100vw; border-radius:0; }
+  .fin-schritte button { padding-inline:4px; font-size:11px; }
+  .nutzungs-karten, .fin-szenarien { grid-template-columns:1fr; }
+  .fin-haushalt-wirkung { grid-template-columns:1fr; }
+  .fin-haushalt-wirkung > i { transform:rotate(90deg); text-align:center; }
+  .preset-optionen { grid-template-columns:1fr; }
+  .start-einstellungen { grid-template-columns:1fr; }
+}
+
+@media (max-width: 420px) {
+  .finanz-aktionen > .sparplan-karte form { grid-template-columns:1fr; }
+  .finanz-aktionen > .sparplan-karte form > label,
+  .finanz-aktionen > .sparplan-karte form > input,
+  .finanz-aktionen > .sparplan-karte .sparplan-aufteilung,
+  .finanz-aktionen > .sparplan-karte form > button { grid-column:1; grid-row:auto; justify-self:stretch; }
+  .brand span { font-size:16px; }
+  .menue > button { width:38px; min-width:38px; height:38px; }
+  .ressourcenleiste > :is(div,button) { flex-basis:126px; padding-inline:7px; }
+  .ressourcenleiste b { font-size:12px; }
+  .karten-marker { width:124px; }
+  .marker-bild { height:64px; }
+  .kpi-paar { grid-template-columns:1fr; }
+  .markt-aktionen { grid-template-columns:1fr; }
+  #gebot-live { font-size:32px; }
+  .objekt-kennzahlen > div { align-items:flex-start; flex-direction:column; gap:5px; }
+  .bank-kopf { grid-template-columns:42px minmax(0,1fr) 36px; padding-inline:10px; }
+  .bank-kopf img { width:40px; height:40px; }
+  .fin-ek-schnellwahl { grid-template-columns:1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; scroll-behavior:auto !important; transition-duration:.01ms !important; }
+}
+
+/* --- Breite Viewports: Lesebreite statt Vollbild-Streckung -------------------
+   Die Screens sind position:fixed mit `inset: 84px 20px 88px`; ohne Obergrenze
+   wächst der Inhalt bis 2520 px (bei 2560 px Fenster). Ab hier bekommen sie eine
+   feste Bühnenbreite und werden zentriert; die Bottom-Navigation bleibt an der
+   linken Inhaltskante, damit Dock und Inhalt zusammengehörig wirken. */
+@media (min-width: 1680px) {
+  /* Zentriert wird über auto-Margins, nicht über transform: Die Screens tragen
+     `animation: screen-in ... both`, deren Endkeyframe ein transform setzt und
+     jede eigene transform-Deklaration dauerhaft überschreiben würde. */
+  .dashboard, .marktplatz, .expose, .endgame, .finanzen, .spielkarte {
+    left: 0;
+    right: 0;
+    width: min(var(--inhalt-max), calc(100vw - 40px));
+    margin-inline: auto;
+  }
+  .screens-nav { left: max(20px, calc(50vw - var(--inhalt-max) / 2)); }
+  /* Die Marker sitzen prozentual im Bühnenfeld. Ohne Deckel driften vier Karten
+     über 1900 px auseinander; das Feld bleibt deshalb zentriert begrenzt. */
+  .stadt-markerfeld { left: 0; right: 0; width: min(1080px, 100%); margin-inline: auto; }
+  /* Zwei 10-px-Labels sollen keine Kilometerskala aufspannen. */
+  .transfer-skala { max-width: 720px; }
+}
+
+/* Startdialog: Die Vorschau ist eine kleine Zusammenfassung, keine weitere
+   Kennzahlentabelle. Titel, Startvermoegen und Monatsbild bekommen deshalb
+   klar getrennte Zeilen statt vier konkurrierender Auto-Spalten. */
+.start-vorschau {
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: 8px;
+  padding: 12px 14px;
+  border: 1px solid rgba(238,205,133,.17);
+}
+.start-vorschau > span {
+  color: var(--gedimmt);
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: .08em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+.start-vorschau ul {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 16px;
+}
+.start-vorschau li {
+  min-width: 0;
+  line-height: 1.4;
+}
+.start-vorschau li:nth-child(n + 3) {
+  grid-column: 1 / -1;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(238,205,133,.12);
+  color: #f5e4b7;
+  font-weight: 600;
+}
+.start-vorschau .start-besonderheit { grid-column: 1 / -1; }
+
+@media (max-width: 420px) {
+  .start-vorschau ul { grid-template-columns: minmax(0, 1fr); }
+  .start-vorschau li:nth-child(2) {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(238,205,133,.12);
+  }
+}
+
+/* Startdialog auf Desktop: Die vier Startlagen nutzen die verfügbare Breite
+   in einer Reihe. Dadurch bleibt der Dialog deutlich breiter als hoch und der
+   Weg von Startlage zu Schwierigkeit und Vorschau wird wesentlich kürzer. */
+@media (min-width: 1100px) {
+  #dlg-neu {
+    width: min(1160px, calc(100vw - 48px));
+    max-width: min(1160px, calc(100vw - 48px));
+  }
+  #dlg-neu .preset-optionen {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+

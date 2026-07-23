@@ -5,6 +5,74 @@ ohne Erklärung von außen funktionieren. Seed-Matrizen prüfen Zahlen; dieser
 Test prüft Verständnis und Spielgefühl. Technische oder automatisierte Läufe
 werden klar von menschlicher Beobachtung getrennt.
 
+## Laufende Owner-Annotationen 20.07.2026
+
+| Stelle | Fund | Umsetzung / Abnahme |
+|---|---|---|
+| Dialoge | Hintergrundklick soll schließen, bei ungespeicherten Änderungen aber zuerst warnen | UI v44: zentraler Close-Guard für Hintergrund, Esc und Abbrechen; erzwungener Start und ungelöstes Ereignis bleiben geschützt |
+| Stadtbühne und Ortsindex | Hintergrund unscharf/dunkel, Marker springen, Listenpunkte ohne Bild und zu hoch | UI v44: kein Bühnenfilter, ortsfester Fokus/Hover, kompakte 72 × 50-px-Vorschauen |
+| Globale Lesbarkeit | Schrift, KPI-Kontrast, Header-Icons, Tabs, Slider und Tooltips schwer lesbar bzw. abgeschnitten | UI v44: größere Basis-/KPI-Schriften, höhere Kontraste, zentrierte Icons, Tab-Gaps, goldene 720-px-Regler und Top-Layer-Tooltips |
+| Exposé und Finanzierung | Unnatürliche Ablehnungscopy, helle/Grün-Kontrastfehler und unklarer Sollzins | UI v44/45: „Angebot ablehnen“, dunkle Hinweisflächen, helles Verdikt und sichtbare Basiszins + Finanzierungsquote + Bindung-Zerlegung |
+| Zweiter Annotationspass | Vergleich zu textlastig; Bankdialog zergliedert; Fachsprache, helle Inseln und mehrere Positions-/Interaktionsfehler | UI v45: farbige Abweichungen, zweistufige Finanzierung mit fixen Reglern, „Finanzierungsquote“/„typischer Planungsmonat“, dunkle Formflächen, Bild-Panning, Status-/Zeit-/Badge-Korrekturen und reparierte Tour |
+| Familienpreset | Reisen und Kleinkindkosten zu hoch | 900 € Reisen, zusammen 300 € direkte Kosten für zwei Kleinkinder; steigende Staffel für Schule, Teenager und Ausbildung/Studium |
+| Gesamter Startdialog bei 1305 × 979 px | Dialog ist zu schmal und dadurch unnötig hoch und lang | UI v43: bis zu 1160 px breit, vier Startlagen in einer Zeile; breiter als hoch, vollständig sichtbar und ohne horizontalen Überlauf |
+| Startdialog, Startvorschau bei 1305 × 979 px | Vier konkurrierende Spalten zerlegen Werte in schmale, unruhige Textfragmente | UI v42: Überschrift, zwei gleich breite Vermögenswerte und volle Folgezeilen; kein horizontaler Overflow, Browser-Vertrag ergänzt |
+
+## Technische Abnahme 22.07.2026 — Save v20 / UI v51
+
+Bei mindestens 1201 px müssen Geldflusszeilen und die Steuerregel mindestens
+13 px groß sein. Grüne Statusbadges verwenden dunkle Schrift auf einer hellen
+Grünfläche; insbesondere „vermietet · Wohnen auf Zeit“ muss sofort lesbar sein.
+
+Bei 1143 px zusätzlich prüfen: Keine der drei HUD-Finanzflächen wird höher als
+44 px. Der zweizeilige Header darf seine Ressourcenzeile nicht mehr unnötig
+strecken. Die letzten vier Stadtpost-Einträge müssen dieselben Symbole und
+Farben wie ihre Pendants im Glockenarchiv besitzen. Langes Drücken eines
+Dockbuttons darf bei Desktopbreite keine Scrollsteuerung einblenden.
+Der Objektvergleich muss ab 701 px ohne horizontale Querleiste auskommen und
+lange Titel umbrechen. Objektbilder dürfen am unteren Rand keinen durchgehenden
+schwarzen Verlauf mehr zeigen; die drei Status-Pills bleiben lesbar.
+
+### Vorheriger UI-v49-Pass
+
+Im visuellen Shell-Sweep besonders prüfen: Auf Stadt, Marktplatz, jeder der drei
+Zentrale-Unterseiten und Finanzen ist immer genau ein Bottom-Dockziel golden
+aktiv. Die übrigen Dockflächen bleiben deckend und gut lesbar. Bei 1440 px sind
+die drei Finanzwerte im Kopf höchstens 46 px hoch; gewöhnliche Überschriften,
+Icons und Rahmen erscheinen neutral statt dekorativ golden. Primäraktionen und
+der aktive Bereich bleiben als Goldakzent eindeutig erkennbar.
+
+## Technische Abnahme 21.07.2026 — Save v20 / UI v48
+
+Der Code-Inspector-Nachlauf ist automatisiert geschlossen. Der Browser-Smoke
+prüft 41 konkrete dynamische Textzustände in HUD/Zentrale, Bewerberdossier,
+Benachrichtigungen, Einstellungen, Marktplatz und Finanzierung gegen die
+WCAG-Kontrastschwelle. Bei 1383 × 979 px erzwingt ein künstlich langer Chart,
+dass ausschließlich `.chart-wrap` horizontal scrollt, während Chartkarte,
+Zentrale-Screen und Dokument innerhalb ihrer Breite bleiben. Der CSS-Split ist
+rein strukturell; im manuellen Lauf genügt daher ein kurzer visueller Sweep auf
+ungewollte Kaskadenabweichungen.
+
+## Frühere technische Abnahme 21.07.2026 — Save v20 / UI v47
+
+UI v47 deckt den jüngsten 23-Punkte-Pass ab. Im nächsten manuellen Lauf
+besonders prüfen: gemeinsame Tagesgeld-/ETF-Gruppe und permanente Zentrale-Tabs,
+gleich breite Vergleichsspalten, Befundsymbole, großen Bildzoom, Notartermin-
+Celebration, farbige/verlinkte Meldungen, jährliche Sondertilgungserinnerung und
+die größere Bewerberkarte. Bei 1383–1408 × 979 px soll die Vermögens-Zentrale
+ohne Seitenscrollen auskommen; bei langen Runs darf ausschließlich das Diagramm
+intern horizontal navigieren.
+
+## Technische Abnahme 21.07.2026 — Save v20 / UI v46
+
+Der dritte gesammelte Annotationspass ist automatisiert umgesetzt. Im nächsten
+menschlichen Lauf besonders prüfen: Berliner Mietersuche bei allen drei
+Vermietungswegen, Schließen und Wiederfinden einer laufenden Suche,
+Wohnortwarnung beim regionalen Eigenheim, ETF-Einsatz per Slider,
+Sondertilgungs-Vorschau sowie die neue Zentrale-Navigation. Technische Gates
+prüfen deterministische Bewerberrunden, einmalige regionale Einkommenswirkung,
+signed Jahressteuer, 5-%-Jahresrahmen und die eine Ereignisquelle.
+
 ## Ablauf (45–60 Minuten)
 
 1. Neues Spiel auf **Normal**, Seed `owner-normal`. Der Owner bedient
@@ -30,7 +98,7 @@ Besonders beobachten:
 
 - Wird innerhalb von 30 Sekunden ein sinnvoller nächster Schritt erkannt?
 - Sind Tagesgeld, Cashflow, Zeit, Familie, Nettovermögen und ETF auffindbar?
-- Werden Prüfung, Eigenkapital, LTV und laufende Kosten vor dem Kauf verstanden?
+- Werden Prüfung, Eigenkapital, Finanzierungsquote und laufende Kosten vor dem Kauf verstanden?
 - Ist die 50/50-Aufteilung auf echtes ETF-Depot und Tagesgeld klar?
 - Wird der Finanzbereich über Tagesgeld, ETF oder Hauptnavigation gefunden und
   werden einmalige Umschichtung und künftiger Sparplan unterschieden?
@@ -245,7 +313,7 @@ Lautdenken des Owners.
 kein Ersatz für Arbeitspaket A.
 
 - Der Startdialog zeigt vier getrennte Startlagen. Die Schuldenberg-Vorschau
-  nennt fünf Mietobjekte und 93–97 % LTV; der Azubi nennt Handwerksbonus und
+  nennt fünf Mietobjekte und 93–97 % Finanzierungsquote; der Azubi nennt Handwerksbonus und
   Gesellenabschluss ab Jahr 4.
 - Der Simtest übernimmt für den Schuldenberg fünf echte Listings mit rund
   1,54 Mio. € Restschuld, prüft identische Portfolios bei identischem Seed und

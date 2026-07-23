@@ -1,19 +1,19 @@
 // dashboard.js — Screen 1: Kennzahlen-Kacheln, Haushaltsrechnung,
 // Nettovermögen-vs-ETF-Chart (Design-Säule 4: die ETF-Linie bleibt sichtbar).
 
-import { monatsWerte, nettovermoegen, gesamtMonate, datum } from '../engine.js?v=41';
-import { fairerWert } from '../market.js?v=41';
-import { getListing } from '../content.js?v=41';
-import { bildHTML } from '../iso.js?v=41';
-import { eigenheimMonatskosten } from '../eigenheim.js?v=41';
-import { setzeGrenzsteuersatz, steuerVorschau } from '../tax.js?v=41';
-import { fmtEUR, fmtEURKompakt, fmtEURSigniert, fmtDatum } from './util.js?v=41';
-import { fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=41';
-import { vermietungsmodell } from '../tenants.js?v=41';
-import { haushaltsUeberschussMonat, naechsterZugEmpfehlung } from './kennzahlen.js?v=41';
-import { aktualisiereNavMarkierung } from './shell.js?v=41';
-import { portfolioTriage, stabilisierungsLinien, turnaroundAktiv } from '../turnaround.js?v=41';
-import { renderStrategy } from './strategy.js?v=41';
+import { monatsWerte, nettovermoegen, datum } from '../engine.js?v=51';
+import { fairerWert } from '../market.js?v=51';
+import { getListing } from '../content.js?v=51';
+import { bildHTML } from '../iso.js?v=51';
+import { eigenheimMonatskosten } from '../eigenheim.js?v=51';
+import { setzeGrenzsteuersatz, steuerVorschau } from '../tax.js?v=51';
+import { fmtEUR, fmtEURKompakt, fmtEURSigniert, fmtDatum } from './util.js?v=51';
+import { fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=51';
+import { vermietungsmodell } from '../tenants.js?v=51';
+import { haushaltsUeberschussMonat, naechsterZugEmpfehlung } from './kennzahlen.js?v=51';
+import { aktualisiereNavMarkierung } from './shell.js?v=51';
+import { portfolioTriage, stabilisierungsLinien, turnaroundAktiv } from '../turnaround.js?v=51';
+import { renderStrategy } from './strategy.js?v=51';
 
 let getState = null;
 let onObjekt = null;   // Callback: Portfolio-Objekt anklicken → Objekt-Detail
@@ -71,6 +71,8 @@ function setzeZentraleTab(tab) {
     const aktiv = button.dataset.zentraleTab === tab;
     button.classList.toggle('aktiv', aktiv);
     button.setAttribute('aria-selected', String(aktiv));
+    if (aktiv) button.setAttribute('aria-current', 'page');
+    else button.removeAttribute('aria-current');
     button.tabIndex = aktiv ? 0 : -1;
   });
   document.querySelectorAll('[data-zentrale-panel]').forEach((panel) => {
@@ -83,7 +85,6 @@ export function renderDashboard(state) {
   renderKacheln(state);
   renderHaushalt(state);
   renderPortfolio(state);
-  renderLog(state);
   renderQuartalsbericht(state);
   renderStrategy(state);
   renderSteuer(state);
@@ -119,7 +120,7 @@ function renderKacheln(state) {
   setKachel('tile-cash', fmtEUR(state.cash),
     `Tagesgeld ${(state.config.kapital.tagesgeldZins * 100).toLocaleString('de-DE')} % p.a.`);
 
-  setKachel('tile-cashflow', fmtEURSigniert(haushaltsUeberschuss), 'normalisierter Monat · vor ETF-Sparplan',
+  setKachel('tile-cashflow', fmtEURSigniert(haushaltsUeberschuss), 'typischer Planungsmonat · vor ETF-Sparplan',
     haushaltsUeberschuss >= 0 ? 'positiv' : 'negativ');
 
   setKachel('tile-vermoegen', fmtEUR(netto),
@@ -180,9 +181,9 @@ function renderHaushalt(state) {
   if (state.portfolio.length) {
     zeilen.push([immo >= 0 ? '+' : '−', 'Immobilien (letzter Monat)', immo]);
   }
-  if (steuer > 0) zeilen.push(['−', 'Jahressteuerbescheid', -steuer]);
+  if (steuer) zeilen.push([steuer < 0 ? '+' : '−', steuer < 0 ? 'Steuergutschrift Vermietung' : 'Jahressteuerbescheid', -steuer]);
   if (verkauf) zeilen.push(['+', 'Verkaufserlös (netto)', verkauf]);
-  zeilen.push(['=', 'Haushaltsüberschuss (normalisiert, vor ETF)', haushaltsUeberschussMonat(state), true]);
+  zeilen.push(['=', 'Haushaltsüberschuss (typischer Monat, vor ETF)', haushaltsUeberschussMonat(state), true]);
   const gesamt = state.monat > 0
     ? state.letzterCashflow
     : w.sparrate - w.etfEinzahlung + zinsen + eigenheim + immo - steuer + verkauf;
@@ -200,11 +201,14 @@ function renderCashflowViz(zeilen) {
   document.getElementById('cashflow-viz').innerHTML = zeilen
     .map(([, name, betrag, fett]) => {
       const wert = fmtEURSigniert(Math.abs(betrag) < 0.005 ? 0 : betrag);
+      const gruppenkopf = name.startsWith('ETF-Sparplan')
+        ? '<div class="flow-gruppe">Sparen &amp; Investieren im letzten Monat</div>'
+        : '';
       if (fett) {
-        return `<div class="flow-summe ${betrag >= 0 ? 'positiv' : 'negativ'}"><span>${name}</span><b>${wert}</b></div>`;
+        return `${gruppenkopf}<div class="flow-summe ${betrag >= 0 ? 'positiv' : 'negativ'}"><span>${name}</span><b>${wert}</b></div>`;
       }
       const breite = Math.abs(betrag) < 0.5 ? 0 : Math.max(4, Math.round(Math.abs(betrag) / max * 100));
-      return `<div class="flow-zeile" aria-label="${name}: ${wert}">` +
+      return `${gruppenkopf}<div class="flow-zeile" aria-label="${name}: ${wert}">` +
         `<span>${name}</span><div class="flow-track"><i class="${betrag >= 0 ? 'rein' : 'raus'}" style="width:${breite}%"></i></div>` +
         `<b class="${betrag >= 0 ? 'plus-text' : 'minus-text'}">${wert}</b></div>`;
     }).join('');
@@ -297,7 +301,7 @@ function renderTurnaroundBoard(state) {
           : `Geschätzter Nettoerlös ${fmtEUR(Math.round(linie.nettoerloes))}.`} ${linie.folge}</small>` +
       (linie.ziel ? `<button type="button" data-triage-objekt="${linie.ziel}">Objekt prüfen</button>` : '') +
       `</article>`).join('')}</section>` +
-    `<div class="turnaround-tabelle-wrap"><table class="turnaround-tabelle"><thead><tr><th>Priorität</th><th>Cashflow</th><th>Risiko</th><th>LTV / Bindung</th><th>Eigenkapital</th><th>Arbeit</th><th>Kurzfristige Chancen</th></tr></thead><tbody>` +
+    `<div class="turnaround-tabelle-wrap"><table class="turnaround-tabelle"><thead><tr><th>Priorität</th><th>Cashflow</th><th>Risiko</th><th>Finanzierungsquote / Bindung</th><th>Eigenkapital</th><th>Arbeit</th><th>Kurzfristige Chancen</th></tr></thead><tbody>` +
     triage.objekte.map((o, index) => `<tr><th><button type="button" data-triage-objekt="${o.objekt.listingId}">${index + 1}. ${o.objekt.titel}</button></th>` +
       `<td class="${o.cashflow >= 0 ? 'plus-text' : 'minus-text'}">${fmtEURSigniert(Math.round(o.cashflow))}</td>` +
       `<td><span class="badge risiko-${o.risiko}">${o.risiko}</span></td>` +
@@ -352,43 +356,14 @@ function renderSteuer(state) {
   document.getElementById('steuer-satz-wert').textContent = `${slider.value} %`;
   const v = steuerVorschau(state);
   document.getElementById('steuer-vorschau').innerHTML =
-    `<span>Bescheid ${v.jahr}</span><b>${fmtEUR(Math.round(v.steuer))}</b>` +
+    `<span>Bescheid ${v.jahr}</span><b class="${v.steuer < 0 ? 'plus-text' : ''}">${v.steuer < 0 ? `${fmtEUR(Math.round(-v.steuer))} Gutschrift` : fmtEUR(Math.round(v.steuer))}</b>` +
     `<small>${fmtEUR(Math.round(v.miete))} Miete − ${fmtEUR(Math.round(v.kosten))} Kosten − ` +
     `${fmtEUR(Math.round(v.zinsen))} Zinsen − ${fmtEUR(Math.round(v.afa))} AfA = ` +
     `${fmtEUR(Math.round(v.ergebnis))} Ergebnis</small>`;
   const letzter = state.steuer.bescheide.at(-1);
   document.getElementById('steuer-letzter').textContent = letzter
-    ? `Letzter Bescheid ${letzter.jahr}: ${fmtEUR(Math.round(letzter.steuer))}`
+    ? `Letzter Bescheid ${letzter.jahr}: ${letzter.steuer < 0 ? `${fmtEUR(Math.round(-letzter.steuer))} Gutschrift` : fmtEUR(Math.round(letzter.steuer))}`
     : 'Erster Bescheid kommt im Dezember.';
-}
-
-function renderLog(state) {
-  const ziel = document.getElementById('log-liste');
-  const eintraege = (state.log || []).slice(-6).reverse();
-  if (eintraege.length === 0) {
-    ziel.innerHTML = '<p class="muted">Noch keine Ereignisse.</p>';
-    return;
-  }
-  const z = state.config.zeit;
-  ziel.innerHTML = eintraege
-    .map((e) => {
-      const d = new Date(z.startJahr, z.startMonat - 1 + e.monat, 1);
-      const typ = logTyp(e.text);
-      return `<div class="log-eintrag log-${typ}"><small>${fmtDatum(d)} · ${logLabel(typ)}</small><span>${e.text}</span></div>`;
-    })
-    .join('');
-}
-
-function logTyp(text = '') {
-  if (/Gekauft|Eigenheim|Verkauf/i.test(text)) return 'entscheidung';
-  if (/Mangel|Schaden|ausblieb|ausgezogen|Dispo/i.test(text)) return 'risiko';
-  if (/Renovierung|vermietet|Miete erhöht|getilgt/i.test(text)) return 'fortschritt';
-  if (/Steuer|Zins|ETF/i.test(text)) return 'finanzen';
-  return 'ereignis';
-}
-
-function logLabel(typ) {
-  return { entscheidung: 'Entscheidung', risiko: 'Risiko', fortschritt: 'Fortschritt', finanzen: 'Finanzen', ereignis: 'Ereignis' }[typ];
 }
 
 function renderQuartalsbericht(state) {
@@ -399,8 +374,6 @@ function renderQuartalsbericht(state) {
     nettovermoegen: nettovermoegen(state), etf: state.etfVergleich.wert, cash: state.cash,
   };
   const vorher = state.historie.findLast((h) => h.monat <= seitMonat) || state.historie[0] || aktuell;
-  const ereignisse = (state.log || []).filter((e) => e.monat > seitMonat).slice(-3).reverse();
-  const wirkungen = (state.entscheidungsHistorie || []).filter((e) => e.monat > seitMonat);
   const empfehlung = naechsterZug(state);
   document.getElementById('quartalsbericht-zeitraum').textContent = state.monat === 0 ? 'Startlage' : `letzte ${Math.min(3, state.monat)} Monate`;
   ziel.innerHTML =
@@ -408,10 +381,7 @@ function renderQuartalsbericht(state) {
     `<div><dt>Nettovermögen</dt><dd>${fmtEURSigniert((aktuell.nettovermoegen ?? nettovermoegen(state)) - (vorher.nettovermoegen ?? 0))}</dd></div>` +
     `<div><dt>ETF-Benchmark brutto</dt><dd>${fmtEURSigniert((aktuell.etf ?? state.etfVergleich.wert) - (vorher.etf ?? 0))}</dd></div>` +
     `<div><dt>Tagesgeld</dt><dd>${fmtEURSigniert((aktuell.cash ?? state.cash) - (vorher.cash ?? 0))}</dd></div></dl>` +
-    `<div class="quartals-rueckblick"><h3>Was passiert ist</h3>` +
-    (wirkungen.length ? `<p class="quartals-wirkung"><b>${wirkungen.length} bewusste Wirkung${wirkungen.length === 1 ? '' : 'en'}:</b> ${wirkungen.at(-1).text}</p>` : '') +
-    (ereignisse.length ? `<ul>${ereignisse.map((e) => `<li><span class="badge">${logLabel(logTyp(e.text))}</span>${e.text}</li>`).join('')}</ul>` : `<p class="muted">Noch keine Monatsbewegung – die Startlage steht.</p>`) +
-    `</div><div class="quartals-naechster"><span class="eyebrow">${empfehlung.phase || 'Empfehlung'}</span><h3>${empfehlung.titel}</h3><p>${empfehlung.text}</p>` +
+    `<div class="quartals-naechster"><span class="eyebrow">${empfehlung.phase || 'Empfehlung'}</span><h3>${empfehlung.titel}</h3><p>${empfehlung.text}</p>` +
     `<button type="button" id="quartal-cta" class="primaer">${empfehlung.button}</button></div>`;
   document.getElementById('quartal-cta').addEventListener('click', empfehlung.aktion);
 }
@@ -475,10 +445,14 @@ function chartHistorie(state) {
 function renderChart(state) {
   const svg = document.getElementById('chart');
   const hist = chartHistorie(state);
-  const xMax = Math.max(gesamtMonate(state), state.monat, 12);
+  // Die Zeitachse wächst mit der tatsächlich gespielten Historie. So bleibt
+  // der aktuelle Verlauf lesbar und wird nach einigen Jahren innerhalb der
+  // Karte horizontal scrollbar, statt 60 leere Zukunftsjahre zu zeichnen.
+  const xMax = Math.max(state.monat, 60);
+  const breite = Math.max(VB.w, Math.ceil(xMax / 12) * 110);
   const yMax = nettoObergrenze(Math.max(1000, ...hist.map((h) => Math.max(h.nettovermoegen, h.etf))));
 
-  const iw = VB.w - PAD.left - PAD.right;
+  const iw = breite - PAD.left - PAD.right;
   const ih = VB.h - PAD.top - PAD.bottom;
   const x = (monat) => PAD.left + (monat / xMax) * iw;
   const y = (wert) => PAD.top + ih - (wert / yMax) * ih;
@@ -533,7 +507,8 @@ function renderChart(state) {
     s += `<circle cx="${px}" cy="${y(h.etf)}" r="4" fill="${FARBEN.etf}" class="ring"/>`;
   }
 
-  svg.setAttribute('viewBox', `0 0 ${VB.w} ${VB.h}`);
+  svg.setAttribute('viewBox', `0 0 ${breite} ${VB.h}`);
+  svg.style.width = `${breite}px`;
   const letzte = hist.at(-1);
   svg.setAttribute('aria-label', letzte
     ? `Vermögensverlauf. Aktuell Nettovermögen ${fmtEUR(letzte.nettovermoegen)}, ETF-Benchmark brutto ${fmtEUR(letzte.etf)}.`
@@ -588,7 +563,7 @@ function renderZusatzCharts(state) {
     `<section class="mini-chart" aria-label="Schuldenquote ${Math.round(ltv)} Prozent, Liquiditätspuffer ${pufferMonate.toFixed(1)} Monate">` +
       `<header><h3>Schulden &amp; Puffer</h3><b>${fmtEURKompakt(schulden)} Restschuld</b></header>` +
       `<div class="risiko-zeilen">` +
-        `<div class="risiko-zeile"><span>LTV</span><div class="risiko-track"><i style="width:${ltvBreite.toFixed(1)}%"></i></div><b>${immobilien ? `${Math.round(ltv)} %` : '—'}</b></div>` +
+        `<div class="risiko-zeile"><span>Finanzierungsquote</span><div class="risiko-track"><i style="width:${ltvBreite.toFixed(1)}%"></i></div><b>${immobilien ? `${Math.round(ltv)} %` : '—'}</b></div>` +
         `<div class="risiko-zeile"><span>Liquidität</span><div class="risiko-track"><i class="puffer" style="width:${pufferBreite.toFixed(1)}%"></i></div><b>${pufferMonate.toLocaleString('de-DE', { maximumFractionDigits: 1 })} Mon.</b></div>` +
       `</div></section>`;
 }
@@ -615,7 +590,8 @@ function renderTooltip(state, x, y) {
   const wrap = tip.parentElement.getBoundingClientRect();
   const svgEl = document.getElementById('chart');
   const r = svgEl.getBoundingClientRect();
-  const px = (x(h.monat) / VB.w) * r.width + (r.left - wrap.left);
+  const chartBreite = svgEl.viewBox.baseVal.width || VB.w;
+  const px = (x(h.monat) / chartBreite) * r.width + (r.left - wrap.left);
   const py = (y(Math.max(h.nettovermoegen, h.etf)) / VB.h) * r.height + (r.top - wrap.top);
   const links = px > wrap.width * 0.62;
   tip.style.left = links ? `${px - tip.offsetWidth - 14}px` : `${px + 14}px`;
@@ -629,9 +605,10 @@ function onHover(ev) {
   if (hist.length < 2) return;
   const svg = document.getElementById('chart');
   const r = svg.getBoundingClientRect();
-  const vx = ((ev.clientX - r.left) / r.width) * VB.w;
-  const xMax = Math.max(gesamtMonate(state), state.monat, 12);
-  const iw = VB.w - PAD.left - PAD.right;
+  const chartBreite = svg.viewBox.baseVal.width || VB.w;
+  const vx = ((ev.clientX - r.left) / r.width) * chartBreite;
+  const xMax = Math.max(state.monat, 60);
+  const iw = chartBreite - PAD.left - PAD.right;
   const monat = Math.round(((vx - PAD.left) / iw) * xMax);
   hoverMonat = Math.max(0, Math.min(monat, hist.length - 1));
   renderChart(state);

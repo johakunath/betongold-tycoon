@@ -1,11 +1,11 @@
 // marktplatz.js — Screen 2: Exposé-Feed mit Filtern, Favoriten, Vergleich.
 
-import { sichtbareListings, vergleichsmiete, fairerWert } from '../market.js?v=41';
-import { getListing } from '../content.js?v=41';
-import { bildHTML, cutawayHTML } from '../iso.js?v=41';
-import { fmtEUR, fmtEURKompakt } from './util.js?v=41';
-import { eigenheimEignung, fixkostenAufschluesselung, instandhaltungMonat, objektartConfig } from '../immobilie.js?v=41';
-import { dealEntscheidung, pruefstand } from '../gameplay.js?v=41';
+import { sichtbareListings, vergleichsmiete, fairerWert } from '../market.js?v=51';
+import { getListing } from '../content.js?v=51';
+import { bildHTML, cutawayHTML } from '../iso.js?v=51';
+import { fmtEUR, fmtEURKompakt, fmtEURSigniert } from './util.js?v=51';
+import { eigenheimEignung, fixkostenAufschluesselung, instandhaltungMonat, objektartConfig } from '../immobilie.js?v=51';
+import { dealEntscheidung, pruefstand } from '../gameplay.js?v=51';
 
 let ctx = null;
 let filter = { segment: 'alle', mietstatus: 'alle', nurFavoriten: false, sortierung: 'neu' };
@@ -166,29 +166,41 @@ function zeigeVergleich() {
   });
 
   const zeile = (name, wert) =>
-    `<tr><td>${name}</td>${spalten.map((s) => `<td>${wert(s)}</td>`).join('')}</tr>`;
+    `<tr><th scope="row">${name}</th>${spalten.map((s) => `<td>${wert(s)}</td>`).join('')}</tr>`;
+  const vergleichsZeile = (name, wert, format, deltaFormat, niedrigerIstBesser = false) => {
+    const basis = wert(spalten[0]);
+    return `<tr class="vergleich-zahlenzeile"><th scope="row">${name}</th>${spalten.map((s, index) => {
+      const aktuell = wert(s);
+      if (index === 0 || !Number.isFinite(aktuell) || !Number.isFinite(basis)) {
+        return `<td><b>${format(aktuell)}</b></td>`;
+      }
+      const delta = aktuell - basis;
+      const richtung = Math.abs(delta) < .0001 ? 'gleich' : ((delta < 0) === niedrigerIstBesser ? 'besser' : 'schlechter');
+      return `<td class="vergleich-${richtung}"><b>${format(aktuell)}</b><small class="vergleich-delta">${deltaFormat(delta)}</small></td>`;
+    }).join('')}</tr>`;
+  };
+  const zahl = (wert, stellen = 0) => Number(wert).toLocaleString('de-DE', { minimumFractionDigits: stellen, maximumFractionDigits: stellen });
 
   document.getElementById('vergleich-inhalt').innerHTML =
-    `<table class="vergleich-tabelle"><tr><td></td>${spalten
+    `<table class="vergleich-tabelle"><colgroup><col class="vergleich-merkmal">${spalten.map(() => '<col class="vergleich-objekt">').join('')}</colgroup><tr><td></td>${spalten
       .map((s) => `<th>${s.l.titel}</th>`)
       .join('')}</tr>` +
-    zeile('Preis', (s) => fmtEUR(s.preis)) +
-    zeile('€/m²', (s) => Math.round(s.preis / s.l.flaeche).toLocaleString('de-DE') + ' €') +
+    vergleichsZeile('Preis', (s) => s.preis, fmtEUR, fmtEURSigniert, true) +
+    vergleichsZeile('€/m²', (s) => s.preis / s.l.flaeche, (v) => `${zahl(Math.round(v))} €`, (d) => `${d >= 0 ? '+' : '−'}${zahl(Math.abs(Math.round(d)))} €`, true) +
     zeile('Fläche / Zimmer', (s) => `${s.l.flaeche} m² / ${s.l.zimmer}`) +
     zeile('Objekt / Eigentum', (s) => `${objektartConfig(state, s.l).label} / ${s.l.eigentumsform === 'weg' ? 'WEG' : 'Alleineigentum'}`) +
     zeile('Grundstück / Außenraum', (s) => s.l.objektart === 'haus' ? `${s.l.grundstueck} / ${s.l.aussenflaeche} m²` : `— / ${s.l.aussenflaeche || 0} m²`) +
-    zeile('Baujahr', (s) => s.l.baujahr) +
+    vergleichsZeile('Baujahr', (s) => s.l.baujahr, (v) => String(v), (d) => `${d >= 0 ? '+' : '−'}${zahl(Math.abs(d))} J.`) +
     zeile('Energieklasse', (s) => s.l.energieklasse) +
-    zeile('Laufende Fixkosten', (s) => fmtEUR(fixkostenAufschluesselung(s.l).reduce((summe, k) => summe + k.betrag, 0)) + '/Mon.') +
-    zeile('Instandhaltungs-Planwert', (s) => fmtEUR(Math.round(instandhaltungMonat(state, s.l))) + '/Mon.') +
-    zeile('Familien-Eignung', (s) => `${s.l.familienScore || 0}/5${eigenheimEignung(state, s.l).geeignet ? ' · geeignet' : ''}`) +
+    vergleichsZeile('Laufende Fixkosten', (s) => fixkostenAufschluesselung(s.l).reduce((summe, k) => summe + k.betrag, 0), (v) => `${fmtEUR(v)}/Mon.`, (d) => `${fmtEURSigniert(Math.round(d))}/Mon.`, true) +
+    vergleichsZeile('Instandhaltungs-Planwert', (s) => instandhaltungMonat(state, s.l), (v) => `${fmtEUR(Math.round(v))}/Mon.`, (d) => `${fmtEURSigniert(Math.round(d))}/Mon.`, true) +
+    vergleichsZeile('Familien-Eignung', (s) => s.l.familienScore || 0, (v) => `${v}/5`, (d) => `${d >= 0 ? '+' : '−'}${zahl(Math.abs(d))}`) +
     zeile('Ausstattung', (s) => AUSSTATTUNG[s.l.ausstattung] || (s.l.mietstatus.vermietet ? 'bewohnt' : 'nicht angegeben')) +
     zeile('Kaltmiete', (s) => (s.l.mietstatus.vermietet ? fmtEUR(s.l.mietstatus.kaltmiete) + '/Mon.' : 'bezugsfrei')) +
-    zeile('Bruttorendite', (s) =>
-      s.l.mietstatus.vermietet ? (((s.l.mietstatus.kaltmiete * 12) / s.preis) * 100).toFixed(1) + ' %' : '—') +
-    zeile('Vergleichsmiete (Schätzung)', (s) => fmtEUR(Math.round(vergleichsmiete(state, s.l))) + '/Mon.') +
-    zeile('Lage', (s) => `${s.l.lageScore}/10`) +
-    zeile('Interessenten', (s) => Math.round(s.e.konkurrenz * 5)) +
+    vergleichsZeile('Bruttorendite', (s) => s.l.mietstatus.vermietet ? (s.l.mietstatus.kaltmiete * 12) / s.preis * 100 : NaN, (v) => Number.isFinite(v) ? `${zahl(v, 1)} %` : '—', (d) => `${d >= 0 ? '+' : '−'}${zahl(Math.abs(d), 2)} Pp.`) +
+    vergleichsZeile('Vergleichsmiete (Schätzung)', (s) => vergleichsmiete(state, s.l), (v) => `${fmtEUR(Math.round(v))}/Mon.`, (d) => `${fmtEURSigniert(Math.round(d))}/Mon.`) +
+    vergleichsZeile('Lage', (s) => s.l.lageScore, (v) => `${v}/10`, (d) => `${d >= 0 ? '+' : '−'}${zahl(Math.abs(d))}`) +
+    vergleichsZeile('Interessenten', (s) => Math.round(s.e.konkurrenz * 5), (v) => String(v), (d) => `${d >= 0 ? '+' : '−'}${zahl(Math.abs(d))}`) +
     `</table>`;
   document.getElementById('dlg-vergleich').showModal();
 }

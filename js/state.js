@@ -1,7 +1,7 @@
 // state.js — Spielzustand, Save-Slots (localStorage), JSON-Export/-Import, seeded RNG.
 // Kein DOM-Zugriff auf Top-Level: das Modul läuft auch unter Node (Simulationstests).
 
-import { DEFAULT_CONFIG, SAVE_VERSION, START_PRESETS } from './config.js?v=41';
+import { DEFAULT_CONFIG, SAVE_VERSION, START_PRESETS } from './config.js?v=51';
 
 // ---------------------------------------------------------------------------
 // Seeded RNG (mulberry32). state.rngState treibt die allgemeine Spielwelt;
@@ -159,6 +159,9 @@ export function newGame({
 
     cash: profil.cash,
     letzterCashflow: 0,
+    wohnort: profil.wohnort,
+    einkommensRegionalfaktor: 1,
+    ausstehenderEinkommensRegionalfaktor: null,
 
     // Tatsächlich gehaltenes Depot. Es läuft auf demselben exogenen
     // Renditepfad wie die Benchmark-Linie, kann aber für Eigenkapital verkauft
@@ -233,6 +236,7 @@ export function newGame({
     eigenheim: null,         // separat vom Mietportfolio, gleiche Objekt-/Darlehensstruktur
     steuer: {
       grenzsatz: config.steuer.grenzsatzDefault,
+      verlustvortrag: 0,
       laufendesJahr: {
         jahr: config.zeit.startJahr,
         miete: 0,
@@ -405,7 +409,7 @@ function requireCurrentSave(huelle) {
 // ein beschädigter Import kontrolliert hier statt später mitten im UI-Render.
 function validiereState(state) {
   if (!state || typeof state !== 'object') throw new Error('Spielzustand fehlt.');
-  const zahlen = ['monat', 'cash', 'rngState', 'etfRngState', 'aktienRngState', 'lebensRngState', 'familienzufriedenheit'];
+  const zahlen = ['monat', 'cash', 'rngState', 'etfRngState', 'aktienRngState', 'lebensRngState', 'familienzufriedenheit', 'einkommensRegionalfaktor'];
   for (const feld of zahlen) {
     if (!Number.isFinite(state[feld])) throw new Error(`Ungültiger Spielstand: ${feld} fehlt oder ist keine Zahl.`);
   }
@@ -443,6 +447,11 @@ function validiereState(state) {
   }
   if (!state.steuer || !Number.isFinite(state.steuer.grenzsatz)) {
     throw new Error('Ungültiger Spielstand: Steuerstatus fehlt.');
+  }
+  if (!Number.isFinite(state.steuer.verlustvortrag) || typeof state.wohnort !== 'string'
+      || (state.ausstehenderEinkommensRegionalfaktor !== null
+        && !Number.isFinite(state.ausstehenderEinkommensRegionalfaktor))) {
+    throw new Error('Ungültiger Spielstand: Wohnort- oder Verluststatus fehlt.');
   }
   if (!state.ratgeber || !Number.isFinite(state.ratgeber.letzterMonat) || !Array.isArray(state.ratgeber.gezeigt)) {
     throw new Error('Ungültiger Spielstand: Ratgeberstatus fehlt.');

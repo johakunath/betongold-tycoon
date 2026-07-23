@@ -1,0 +1,236 @@
+/* --- Verbindlicher warmer Designpass · finalisiert mit UI v31 -------------
+   Strategie-Brettspiel-Flächen und konsistente Tiefenstaffelung bilden den
+   gemeinsamen UI-Style-Lock. */
+
+:root {
+  --flaeche: #eee9df;
+  --karte: rgba(255, 253, 248, 0.97);
+  --karte-stark: #fffdf8;
+  --karte-weich: #f6f1e7;
+  --tinte: #20201d;
+  --tinte-2: #565650;
+  --gedimmt: #77766f;
+  --hairline: rgba(31, 42, 42, 0.13);
+  --grid: #e1ddd3;
+  --kopf: #1d333d;
+  --akzent: #e6a019;
+  --akzent-dunkel: #9d6500;
+  --positiv: #176b43;
+  --negativ: #a73535;
+  --serie-netto: #276da8;
+  --schatten: 0 1px 2px rgba(29, 38, 38, 0.08), 0 10px 30px rgba(45, 39, 27, 0.07);
+  --schatten-hover: 0 4px 10px rgba(29, 38, 38, 0.1), 0 18px 38px rgba(45, 39, 27, 0.11);
+}
+
+html, body {
+  background:
+    radial-gradient(circle at 8% -4%, rgba(230, 160, 25, 0.11), transparent 30rem),
+    linear-gradient(180deg, rgba(239, 244, 241, 0.65), transparent 28rem),
+    var(--flaeche);
+  font-feature-settings: "tnum" 1, "kern" 1;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.22;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.06'/%3E%3C/svg%3E");
+}
+h1, h2, h3, .brand { text-wrap: balance; }
+h1, h2, h3 { color: #202421; }
+p { text-wrap: pretty; }
+
+button {
+  min-height: 36px;
+  border-color: rgba(29, 51, 61, 0.16);
+  background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,244,235,0.97));
+  font-weight: 580;
+}
+button:hover:not(:disabled) { border-color: rgba(29,51,61,.34); background: #fffdf8; }
+button.primaer {
+  background: linear-gradient(145deg, #315462, var(--kopf));
+  border-color: #152d37;
+  box-shadow: 0 5px 14px rgba(18, 43, 53, 0.23), inset 0 1px rgba(255,255,255,0.08);
+}
+button.primaer:hover:not(:disabled) { background: linear-gradient(145deg, #3b6472, #203d48); }
+
+.topbar {
+  padding: 11px clamp(16px, 2vw, 28px) 10px;
+  gap: 9px clamp(10px, 1.35vw, 20px);
+  background: linear-gradient(90deg, rgba(255,255,255,.025), transparent 28%), linear-gradient(180deg, #213b46, var(--kopf));
+  border-bottom-color: rgba(230,160,25,.68);
+  box-shadow: 0 7px 28px rgba(16,28,33,.22);
+}
+.brand { font-size: 20px; letter-spacing: -.01em; }
+.brand::before { width: 24px; height: 24px; flex-basis: 24px; }
+#hud-datum { font-size: 14px; letter-spacing: .01em; }
+.ressourcenleiste { border-color: rgba(255,255,255,.15); border-radius: 12px; background: rgba(6,18,23,.31); }
+.ressourcenleiste > :is(div, button) { min-height: 50px; padding: 7px 12px; }
+.ressourcenleiste small { opacity: .72; }
+.ressourcenleiste b { font-size: 14px; }
+.resource-cashflow { box-shadow: inset 3px 0 0 rgba(230,160,25,.45); }
+.speed-lauf, .speed-schritte { border-color: rgba(255,255,255,.15); }
+.speed-group button { min-height: 38px; padding-inline: 9px; }
+.speed-group button.aktiv { background: linear-gradient(180deg, #f0b436, var(--akzent)); box-shadow: inset 0 1px rgba(255,255,255,.42); }
+
+.screens-nav { display: flex; gap: 5px; }
+.screens-nav button { position: relative; display: inline-flex; align-items: center; gap: 6px; color: rgba(243,239,231,.78); border-color: transparent; background: transparent; }
+.screens-nav button:hover { color: #fff; background: rgba(255,255,255,.08); }
+.screens-nav button.aktiv { color: #fff; background: rgba(255,255,255,.13); box-shadow: inset 0 -2px var(--akzent); }
+.menue button { min-width: 38px; min-height: 36px; }
+
+.dashboard, .marktplatz, .expose, .endgame, .finanzen, .spielkarte { gap: 18px; }
+.screen-heading--dashboard, .screen-heading--market, .screen-heading--finanzen, .screen-heading--map {
+  isolation: isolate;
+  border: 1px solid rgba(29,51,61,.18);
+  box-shadow: 0 2px 4px rgba(29,51,61,.08), 0 18px 42px rgba(58,45,24,.1);
+}
+.screen-heading--dashboard, .screen-heading--market { min-height: 198px; padding: 28px 32px; }
+.screen-heading--dashboard::before, .screen-heading--market::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(115deg, rgba(255,255,255,.17), transparent 46%, rgba(230,160,25,.07));
+}
+.screen-heading--dashboard h1, .screen-heading--market h1, .screen-heading--finanzen h1, .screen-heading--map h1 { font-size: clamp(28px, 2.5vw, 38px); }
+.screen-heading--map {
+  padding: 24px 28px;
+  color: var(--kopf-tinte);
+  border-radius: var(--radius-gross);
+  background: radial-gradient(circle at 88% 18%, rgba(230,160,25,.25), transparent 16rem), linear-gradient(135deg, #315563, var(--kopf));
+}
+.screen-heading--map h1 { display: flex; align-items: center; gap: 9px; color: #fff; }
+.screen-heading--map p { color: rgba(255,255,255,.72); }
+.screen-heading--map .eyebrow { color: #ffd880; }
+
+.karte, .kpi-gruppe, .stadtkarte, .karten-legende, .markt-karte, .owned-card, .score-karte {
+  border-color: rgba(29,51,61,.13);
+  background: linear-gradient(145deg, rgba(255,255,255,.62), transparent 38%), var(--karte);
+  box-shadow: var(--schatten);
+}
+.karte, .kpi-gruppe { border-radius: 16px; }
+.karte { padding: 18px; }
+.karten-kopf { padding-bottom: 10px; border-bottom: 1px solid rgba(29,51,61,.09); }
+.karten-kopf h2 { font-size: 17px; letter-spacing: -.012em; }
+.eyebrow { color: #7a6845; font-size: 10.5px; letter-spacing: .13em; }
+.kacheln { gap: 12px; }
+.kpi-gruppe { padding: 11px; }
+.kpi-gruppe > h2 { margin: 0 2px 8px; color: #4f554e; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; }
+.kachel { min-height: 93px; border-color: rgba(29,51,61,.1); background: rgba(255,255,255,.58); }
+.kachel::after { opacity: .65; }
+.kachel .label { color: #65655e; }
+.kachel .wert { letter-spacing: -.025em; }
+.portfolio-board { border-top: 3px solid rgba(39,109,168,.48); }
+.chart-karte { border-top: 3px solid rgba(230,160,25,.62); }
+.quartalsbericht { border-top: 3px solid rgba(23,107,67,.52); }
+.haushalt-karte { border-top: 3px solid rgba(29,51,61,.42); }
+.steuer-karte { border-top: 3px solid rgba(157,101,0,.42); }
+
+.markt-karte, .owned-card { overflow: hidden; transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
+.markt-karte:hover, .owned-card:hover { border-color: rgba(29,51,61,.28); box-shadow: var(--schatten-hover); transform: translateY(-2px); }
+.markt-karte .expose-bild, .owned-card .expose-bild { background: #d9ded9; }
+.badge, .tag, .hinweis-chip { border-color: rgba(29,51,61,.13); background: rgba(255,253,248,.82); }
+.filter-zeile, .karten-filter { padding: 10px; border: 1px solid rgba(29,51,61,.12); border-radius: 14px; background: rgba(255,253,248,.82); box-shadow: 0 4px 16px rgba(45,39,27,.05); }
+.filter-zeile select, input, select, textarea { border-color: rgba(29,51,61,.18); background-color: #fffdf8; }
+
+dialog { border: 1px solid rgba(29,51,61,.18); background: linear-gradient(145deg, rgba(255,255,255,.75), transparent 32%), #fbf8f1; box-shadow: 0 28px 80px rgba(15,25,29,.28), 0 3px 8px rgba(15,25,29,.12); }
+dialog::backdrop { background: rgba(18,31,36,.58); backdrop-filter: blur(3px); }
+dialog > header, dialog form > header { padding-bottom: 12px; border-bottom: 1px solid var(--hairline); }
+dialog footer { padding-top: 12px; border-top: 1px solid var(--hairline); }
+.konto-karte { border-top: 3px solid rgba(230,160,25,.58); }
+.transfer-karte { background: linear-gradient(145deg, rgba(255,255,255,.7), var(--karte-weich)); }
+.finanz-mix-balken, .balken { box-shadow: inset 0 1px 2px rgba(29,51,61,.12); }
+.toast { border: 1px solid rgba(255,255,255,.16); box-shadow: 0 16px 44px rgba(15,25,29,.3); }
+
+@media (max-width: 700px) {
+  .topbar { position: relative; }
+  .screen-heading--dashboard, .screen-heading--market { min-height: 174px; padding: 22px; }
+  .screen-heading--map { padding: 20px; }
+  .karte { padding: 15px; }
+}
+@media (max-width: 480px) {
+  .brand { font-size: 17px; }
+  .brand::before { width: 21px; height: 21px; flex-basis: 21px; }
+  .ressourcenleiste > :is(div, button) { min-height: 48px; padding: 6px 9px; }
+  .ressourcenleiste b { font-size: 13px; }
+  .speed-group { display: grid; grid-template-columns: minmax(0, 1fr) auto; overflow: visible; }
+  .speed-group .trenner { display: none; }
+  .speed-group button { min-width: 34px; min-height: 36px; padding-inline: 5px; }
+  .speed-lauf { grid-column: 1; min-width: 0; }
+  .speed-schritte { grid-column: 2; }
+  .speed-lauf button { flex: 1 1 0; }
+  .speed-lauf button span { display: none; }
+  .speed-schritte button { min-width: 44px; padding-inline: 5px; font-size: 0; }
+  #btn-step-monat::after { content: '+1 M'; font-size: 10.5px; }
+  #btn-step-jahr::after { content: '+1 J'; font-size: 10.5px; }
+  .chart-karte { min-width: 0; overflow: hidden; }
+  .chart-karte .karten-kopf { display: grid; gap: 8px; }
+  .chart-karte .karten-kopf h2 { display: block; min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
+  .chart-karte .karten-kopf .section-icon { vertical-align: -3px; }
+  .screen-heading--dashboard h1, .screen-heading--market h1, .screen-heading--finanzen h1, .screen-heading--map h1 { font-size: 27px; }
+}
+
+/* Funktionaler Zwischen-Breakpoint: Die vollständige Zeitsteuerung darf bei
+   1081–1320 px nicht rechts aus der Spielleiste laufen. Kein Design-Rework. */
+@media (max-width: 1320px) and (min-width: 701px) {
+  .topbar { grid-template-columns: auto 140px minmax(0, 1fr); gap: 8px 12px; }
+  .brand { grid-column: 1; grid-row: 1; }
+  .hud { grid-column: 2; grid-row: 1; }
+  .speed-group { grid-column: 3; grid-row: 1; justify-content: flex-end; overflow-x: auto; }
+  .ressourcenleiste { grid-column: 1 / -1; grid-row: 2; }
+  .screens-nav { grid-column: 1 / 3; grid-row: 3; overflow-x: auto; }
+  .menue { grid-column: 3; grid-row: 3; }
+}
+
+/* --- Kontenkarten ----------------------------------------------------------- */
+
+#fin-konto-cash { border-top-color: rgba(23,107,67,0.55); }
+#fin-konto-immo { border-top-color: rgba(55,112,145,0.65); }
+#fin-konto-etf { border-top-color: rgba(230,160,25,0.65); }
+
+@media (max-width: 1080px) {
+  .finanz-konten { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 700px) {
+  .finanz-konten { grid-template-columns: 1fr; }
+}
+
+/* Enger Desktop: laufende Finanzwerte vor Zeitsteuerung priorisieren. Die vollständigen
+   Bezeichnungen bleiben als aria-label/title erhalten. */
+@media (min-width: 1201px) and (max-width: 1500px) {
+  .topbar {
+    grid-template-columns: max-content 124px minmax(420px, 1fr) max-content;
+    column-gap: 10px;
+    padding-inline: 16px;
+  }
+  .brand { font-size: 18px; }
+  .brand::before { width: 22px; height: 22px; flex-basis: 22px; }
+  .hud { min-width: 0; }
+  .ressourcenleiste { grid-template-columns: repeat(3, minmax(128px, 1fr)); }
+  .ressourcenleiste > :is(div, button) { gap: 6px; padding-inline: 8px; }
+  .ressourcenleiste .hud-icon { width: 18px; height: 18px; flex-basis: 18px; }
+  .speed-group { gap: 4px; }
+  .speed-group .trenner { display: none; }
+  .speed-group button { min-width: 32px; min-height: 32px; padding: 4px 6px; }
+  .speed-lauf button span { display: none; }
+  .speed-icon { width: 14px; height: 14px; flex-basis: 14px; }
+  .speed-schritte button { min-width: 39px; padding-inline: 6px; font-size: 0; }
+  #btn-step-monat::after { content: '+1 M'; font-size: 10.5px; }
+  #btn-step-jahr::after { content: '+1 J'; font-size: 10.5px; }
+}
+
+@media (min-width: 1081px) and (max-width: 1200px) {
+  .topbar { grid-template-columns: max-content 1fr max-content; gap: 8px 12px; }
+  .brand { grid-column: 1; grid-row: 1; }
+  .hud { grid-column: 2; grid-row: 1; min-width: 0; }
+  .speed-group { grid-column: 3; grid-row: 1; }
+  .ressourcenleiste { grid-column: 1 / -1; grid-row: 2; }
+  .screens-nav { grid-column: 1; grid-row: 3; }
+  .menue { grid-column: 2 / -1; grid-row: 3; }
+}
+

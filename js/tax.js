@@ -11,7 +11,7 @@ export function tickSteuer(state, objektErgebnisse) {
   for (const { objekt, pnl } of objektErgebnisse) {
     laufend.miete += pnl.miete;
     laufend.zinsen += pnl.zinsanteil;
-    laufend.kosten += pnl.hausgeld + pnl.hausverwaltung;
+    laufend.kosten += pnl.hausgeld + pnl.hausverwaltung + (pnl.steuerInstandhaltung || 0);
     laufend.afa += (objekt.steuerBasisGebaeude || objekt.kaufpreis * cfg.gebaeudeAnteil)
       * cfg.afaSatz / 12;
   }
@@ -19,8 +19,18 @@ export function tickSteuer(state, objektErgebnisse) {
   const kalenderMonat = ((state.config.zeit.startMonat - 1 + state.monat) % 12) + 1;
   if (kalenderMonat !== 12) return 0;
 
-  const ergebnis = laufend.miete - laufend.zinsen - laufend.kosten - laufend.afa;
-  const steuer = Math.max(0, ergebnis) * state.steuer.grenzsatz;
+  const ergebnisVorVortrag = laufend.miete - laufend.zinsen - laufend.kosten - laufend.afa;
+  const verrechenbar = ergebnisVorVortrag - state.steuer.verlustvortrag;
+  // Vereinfachung: Das Spiel kennt nur das Netto-Erwerbseinkommen. Ein
+  // negatives Vermietungsergebnis wird deshalb im selben Jahr mit dem
+  // sichtbaren Grenzsteuersatz gutgeschrieben. Ein Vortrag bleibt als
+  // Datenvertrag erhalten, falls spätere Profile kein Erwerbseinkommen haben.
+  const hatErwerbseinkommen = (state.config.haushalt.nettoEinkommenPerson1 || 0) +
+    (state.config.haushalt.nettoEinkommenPerson2 || 0) > 0;
+  const steuer = (hatErwerbseinkommen ? verrechenbar : Math.max(0, verrechenbar))
+    * state.steuer.grenzsatz;
+  state.steuer.verlustvortrag = hatErwerbseinkommen ? 0 : Math.max(0, -verrechenbar);
+  const ergebnis = verrechenbar;
   const bescheid = {
     jahr: laufend.jahr,
     miete: laufend.miete,
@@ -30,6 +40,7 @@ export function tickSteuer(state, objektErgebnisse) {
     ergebnis,
     grenzsatz: state.steuer.grenzsatz,
     steuer,
+    verlustvortrag: state.steuer.verlustvortrag,
   };
   state.steuer.bescheide.push(bescheid);
   // Nullbescheide ohne jede Vermietungsaktivität bleiben im Steuerarchiv,
@@ -37,8 +48,9 @@ export function tickSteuer(state, objektErgebnisse) {
   if (laufend.miete || laufend.zinsen || laufend.kosten || laufend.afa) {
     state.log.push({
       monat: state.monat,
-      text: `Steuerbescheid ${bescheid.jahr}: ${Math.round(steuer).toLocaleString('de-DE')} € ` +
-        `auf ${Math.round(Math.max(0, ergebnis)).toLocaleString('de-DE')} € Vermietungsergebnis.`,
+      text: steuer < 0
+        ? `Steuerbescheid ${bescheid.jahr}: ${Math.round(-steuer).toLocaleString('de-DE')} € Gutschrift aus Vermietungsverlusten.`
+        : `Steuerbescheid ${bescheid.jahr}: ${Math.round(steuer).toLocaleString('de-DE')} € auf ${Math.round(ergebnis).toLocaleString('de-DE')} € Vermietungsergebnis.`,
     });
   }
   state.steuer.laufendesJahr = {
@@ -59,6 +71,6 @@ export function setzeGrenzsteuersatz(state, wert) {
 
 export function steuerVorschau(state) {
   const l = state.steuer.laufendesJahr;
-  const ergebnis = l.miete - l.zinsen - l.kosten - l.afa;
-  return { ...l, ergebnis, steuer: Math.max(0, ergebnis) * state.steuer.grenzsatz };
+  const ergebnis = l.miete - l.zinsen - l.kosten - l.afa - state.steuer.verlustvortrag;
+  return { ...l, ergebnis, steuer: ergebnis * state.steuer.grenzsatz, verlustvortrag: state.steuer.verlustvortrag };
 }

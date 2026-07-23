@@ -1,11 +1,12 @@
 // karte.js — Stadt als atmosphärische Bühne mit echten Exposé-Kacheln.
-// Die Hintergründe bleiben bewusst weich; scharf und anklickbar sind nur
+// Die Stadtmotive bleiben scharf und normal belichtet; anklickbar sind nur
 // Listing-Assets aus dem tatsächlichen Katalog.
 
-import { alleListings } from '../content.js?v=41';
-import { fairerWert } from '../market.js?v=41';
-import { fmtEURKompakt } from './util.js?v=41';
-import { liquiditaetsPufferMonate, naechsterZugEmpfehlung } from './kennzahlen.js?v=41';
+import { alleListings } from '../content.js?v=51';
+import { fairerWert } from '../market.js?v=51';
+import { fmtEURKompakt } from './util.js?v=51';
+import { liquiditaetsPufferMonate, naechsterZugEmpfehlung } from './kennzahlen.js?v=51';
+import { meldungMeta } from './meldungen.js?v=51';
 
 let ctx = null;
 let filter = 'alle';
@@ -193,7 +194,8 @@ function listenEintrag({ listing, status, preis }) {
   const kommend = status === 'kommend' ? ' is-kommend' : '';
   const deaktiviert = status === 'kommend' ? ' disabled aria-disabled="true"' : '';
   return `<button type="button" class="karten-listenpunkt status-${meta.klasse}${kommend}" data-karte-id="${listing.id}"${deaktiviert}>` +
-    `<span class="marker-symbol ${meta.klasse}" aria-hidden="true"></span><span><b>${listing.titel}</b>` +
+    `<span class="listenbild"><img src="assets/expose/${listing.id}.webp" alt="" loading="lazy">` +
+    `<i class="marker-symbol ${meta.klasse}" aria-hidden="true"></i></span><span><b>${listing.titel}</b>` +
     `<small>${meta.label}${preis ? ` · ${fmtEURKompakt(preis)}` : ''}</small></span></button>`;
 }
 
@@ -220,10 +222,9 @@ function renderPost(state) {
   const eintraege = (state.log || []).slice(-4).reverse();
   document.getElementById('stadt-post').innerHTML = eintraege.length
     ? eintraege.map((eintrag) => {
-      const typ = /Mangel|Schaden|Reparatur|Heizung/i.test(eintrag.text) ? 'wrench'
-        : /Steuer|Zins|Bank/i.test(eintrag.text) ? 'landmark'
-          : /Kauf|Markt|Gebot|Angebot/i.test(eintrag.text) ? 'scale' : 'mail';
-      return `<button type="button" data-post-monat="${eintrag.monat}">${icon(typ)}<span>${eintrag.text}</span></button>`;
+      const meta = meldungMeta(eintrag, state);
+      return `<button type="button" class="meldung-${meta.klasse}${meta.aktion ? ' ist-aktion' : ''}" data-post-monat="${eintrag.monat}">` +
+        `<span class="meldung-symbol" aria-hidden="true">${meta.symbol}</span><span>${eintrag.text}</span></button>`;
     }).join('')
     : `<p class="muted">Noch keine Post. Der erste Marktmonat bringt neue Situationen.</p>`;
   // Post-Einträge stammen aus dem Ereignislog; das vollständige Log wohnt im

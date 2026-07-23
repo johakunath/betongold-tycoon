@@ -6,6 +6,7 @@ export function initBildzoom() {
   const dialog = document.getElementById('dlg-bildzoom');
   const buehne = document.getElementById('bildzoom-buehne');
   const titel = document.getElementById('bildzoom-titel');
+  let ziehen = null;
 
   function anwenden() {
     const bild = buehne.querySelector('.bildzoom-inhalt');
@@ -20,6 +21,8 @@ export function initBildzoom() {
     inhalt.className = 'bildzoom-inhalt';
     quelle.querySelectorAll('svg, img').forEach((el) => inhalt.append(el.cloneNode(true)));
     buehne.replaceChildren(inhalt);
+    buehne.scrollLeft = 0;
+    buehne.scrollTop = 0;
     anwenden();
     dialog.showModal();
   }
@@ -58,4 +61,25 @@ export function initBildzoom() {
     faktor = Math.max(0.75, Math.min(2.5, faktor + (ev.deltaY < 0 ? 0.1 : -0.1)));
     anwenden();
   }, { passive: false });
+  buehne.addEventListener('dragstart', (ev) => ev.preventDefault());
+  buehne.addEventListener('pointerdown', (ev) => {
+    if (ev.button !== 0) return;
+    ziehen = { x: ev.clientX, y: ev.clientY, links: buehne.scrollLeft, oben: buehne.scrollTop };
+    buehne.setPointerCapture(ev.pointerId);
+    buehne.classList.add('zieht');
+    ev.preventDefault();
+  });
+  buehne.addEventListener('pointermove', (ev) => {
+    if (!ziehen) return;
+    buehne.scrollLeft = ziehen.links - (ev.clientX - ziehen.x);
+    buehne.scrollTop = ziehen.oben - (ev.clientY - ziehen.y);
+  });
+  const ziehenBeenden = (ev) => {
+    if (!ziehen) return;
+    ziehen = null;
+    if (buehne.hasPointerCapture(ev.pointerId)) buehne.releasePointerCapture(ev.pointerId);
+    buehne.classList.remove('zieht');
+  };
+  buehne.addEventListener('pointerup', ziehenBeenden);
+  buehne.addEventListener('pointercancel', ziehenBeenden);
 }

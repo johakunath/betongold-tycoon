@@ -8,18 +8,18 @@
 // optimale Spielweise; sie zeigen robuste Ausreißer und Richtungen.
 
 import { readFile } from 'node:fs/promises';
-import { newGame } from '../js/state.js?v=41';
-import { setzeInhalte, alleListings } from '../js/content.js?v=41';
+import { newGame } from '../js/state.js?v=51';
+import { setzeInhalte, alleListings } from '../js/content.js?v=51';
 import {
   initialisiereMarkt, sichtbareListings, gebotAbgeben, vergleichsmiete,
   gutachterBeauftragen,
-} from '../js/market.js?v=41';
-import { kreditAngebot, kaufeObjekt, nebenkostenFuer } from '../js/finance.js?v=41';
-import { kaufeEigenheim } from '../js/eigenheim.js?v=41';
-import { starteVermietung, neueBewerber, waehleBewerber } from '../js/tenants.js?v=41';
-import { resolveEvent } from '../js/events.js?v=41';
-import { advanceMonths, gesamtMonate, nettovermoegen } from '../js/engine.js?v=41';
-import { berechneScores } from '../js/endgame.js?v=41';
+} from '../js/market.js?v=51';
+import { kreditAngebot, kaufeObjekt, nebenkostenFuer } from '../js/finance.js?v=51';
+import { kaufeEigenheim } from '../js/eigenheim.js?v=51';
+import { starteVermietung, neueBewerber, waehleBewerber } from '../js/tenants.js?v=51';
+import { resolveEvent } from '../js/events.js?v=51';
+import { advanceMonths, gesamtMonate, nettovermoegen } from '../js/engine.js?v=51';
+import { berechneScores } from '../js/endgame.js?v=51';
 
 const lade = async (name) =>
   JSON.parse(await readFile(new URL(`../data/${name}`, import.meta.url), 'utf8'));
@@ -135,7 +135,7 @@ function simuliere(schwierigkeit, seedIndex, strategie) {
     etf: state.etfVergleich.wert,
     // Feste Proben vor dem frühestmöglichen Lebensende trennen die exogene
     // Pfadgleichheit von legitimen, stressbedingt verschiedenen Endmonaten.
-    etfProbe: [120, 240, 360, 480, 600].map((monat) => state.historie[monat]?.etf),
+    etfProbe: [120, 240, 360, 480, 600].map((monat) => state.historie[monat]?.etfRendite),
     score: ende.scores.gesamt,
     cashflow: ende.cashflow,
     familie: ende.scores.familie,
@@ -273,12 +273,15 @@ for (const schwierigkeit of schwierigkeiten) {
   });
   gateErgebnisse.push({
     name: `${schwierigkeit}: Eigenheim-Timing bleibt Trade-off`,
-    ok: paar.heimFruehGegenMitte.beideGewinnquoteA > 0.15 &&
+    // Ein regionaler Eigenheimumzug darf klar nachteilig sein, aber kein
+    // Totalausfall: Mindestens jeder zehnte Seed muss Vermögen und Score
+    // zugleich gewinnen, zugleich darf keine Seite praktisch dominieren.
+    ok: paar.heimFruehGegenMitte.beideGewinnquoteA > 0.10 &&
       paar.heimFruehGegenMitte.beideGewinnquoteA < 0.85,
   });
   const etfReferenz = laeufe[schwierigkeit].miete.map((lauf) => lauf.etfProbe);
   gateErgebnisse.push({
-    name: `${schwierigkeit}: ETF-Pfad strategieunabhängig`,
+    name: `${schwierigkeit}: ETF-Marktrendite strategieunabhängig`,
     ok: STRATEGIEN.every((strategie) =>
       laeufe[schwierigkeit][strategie.id].every((lauf, index) =>
         JSON.stringify(lauf.etfProbe) === JSON.stringify(etfReferenz[index]))),

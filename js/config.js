@@ -3,10 +3,10 @@
 // Änderungen greifen zum nächsten Tick. Werte sind plausible Defaults, keine Fakten —
 // vor Release gegen reale Daten prüfen (siehe PLAN.md §4).
 
-export const SAVE_VERSION = 19;
+export const SAVE_VERSION = 20;
 // UI-/Cache-Version ist unabhängig vom Save-Format. Bei reinen CSS-/UI-Reworks
 // erhöhen, ohne unnötig Spielstände zu migrieren.
-export const UI_VERSION = 41;
+export const UI_VERSION = 51;
 
 // Startlage und Schwierigkeit sind bewusst getrennt. Das Preset beschreibt
 // Haushalt, Vermögensaufteilung und optionale besondere Startbedingungen;
@@ -18,7 +18,7 @@ export const START_PRESETS = {
     label: 'Familienstrategie mit Puffer',
     bild: 'assets/scenarios/familienstrategie.webp',
     kurz: '40 Jahre · Berlin Rand · zwei kleine Kinder',
-    beschreibung: '8.300 € netto + 520 € Kindergeld · 6.210 € Ausgaben inkl. Reisen · 1.970 € warm; je 90.000 € Tagesgeld und ETF.',
+    beschreibung: '8.300 € netto + 520 € Kindergeld · 4.860 € Ausgaben inkl. Reisen · 1.970 € warm; je 90.000 € Tagesgeld und ETF.',
     startAlter: 40,
     cash: 90000,
     etf: 90000,
@@ -30,13 +30,13 @@ export const START_PRESETS = {
       nettoEinkommen: 8300,
       miete: 1970,              // warm
       mieteKalt: 1570,
-      lebenshaltung: 3640,      // davon 1.950 € Reisen; Kinder separat: 600 €
-      reisen: 1950,
+      lebenshaltung: 2590,      // davon 900 € Reisen; Kinder separat: 300 €
+      reisen: 900,
       autoAbMonat: 5,          // Kind 2 ist dann erstmals mindestens 1 Jahr alt
       autoKostenMonat: 600,    // editierbare All-in-Pauschale ab Aktivierung
-      sparplanEtfAnteil: 0.50, // 1.305 € von 2.610 € Start-Sparrate ins echte Depot
-      ausgabenGesamtStart: 6210,
-      ausgabenOhneReisenStart: 4260,
+      sparplanEtfAnteil: 0.50, // 1.980 € von 3.960 € Start-Sparrate ins echte Depot
+      ausgabenGesamtStart: 4860,
+      ausgabenOhneReisenStart: 3960,
     },
     kapital: {
       tagesgeldZins: 0.02,
@@ -68,7 +68,7 @@ export const START_PRESETS = {
   schuldenberg: {
     label: 'Viel Bestand, wenig Luft',
     bild: 'assets/scenarios/schuldenberg.webp',
-    kurz: '45 Jahre · 5 Mietobjekte · 93–97 % LTV',
+    kurz: '45 Jahre · 5 Mietobjekte · 93–97 % finanziert',
     beschreibung: 'Fünf vermietete Wohnungen, mehr als 1 Mio. € Restschuld und nur 18.000 € Puffer. Für Stresstests und Spaß.',
     startAlter: 45,
     cash: 18000,
@@ -81,11 +81,13 @@ export const START_PRESETS = {
       nettoEinkommen: 7200,
       miete: 1900,
       mieteKalt: 1500,
-      lebenshaltung: 2000,
+      // Stress-Preset: hoher laufender Familien-/Bestandsaufwand hält den
+      // Haushalt trotz der neuen altersgerechten Kinderstaffel unter Wasser.
+      lebenshaltung: 2600,
       reisen: 400,
       sparplanEtfAnteil: 0,
-      ausgabenGesamtStart: 5050,
-      ausgabenOhneReisenStart: 4650,
+      ausgabenGesamtStart: 5650,
+      ausgabenOhneReisenStart: 5250,
     },
     startbestand: [
       { listingId: 'bi-01', ltv: 0.96, zins: 0.044, zinsbindungRestJahre: 3 },
@@ -196,14 +198,27 @@ export const DEFAULT_CONFIG = {
     // Ab auszugsAlter: 0 € (Kind zieht aus). Kindergeld wird als eigene
     // Einnahme gezeigt und nicht mit diesen Bruttokosten verrechnet.
     kinderKosten: [
-      { bisAlter: 5,  kosten: 300 },  // direkte variable Kleinkindkosten; Wohnen/Grundbedarf stecken bereits im Haushalt
-      { bisAlter: 11, kosten: 500 },  // Grundschule
-      { bisAlter: 17, kosten: 650 },  // Teenager
-      { bisAlter: 26, kosten: 700 },  // Ausbildung/Studium (Unterstützung)
+      { bisAlter: 5,  kosten: 150 },  // zwei kleine Kinder kosten im Familienpreset zusammen rund 300 €
+      { bisAlter: 11, kosten: 250 },  // Schulalter: steigender direkter Bedarf
+      { bisAlter: 17, kosten: 300 },  // Teenager
+      { bisAlter: 26, kosten: 400 },  // Ausbildung/Studium: höherer Unterstützungsbedarf
     ],
     auszugsAlter: 27,
     kindergeldProKind: 260,       // €/Monat je Kind, feste Owner-Szenarioannahme
     kindergeldBisAlter: 27,       // bis zum 27. Geburtstag, danach 0 €
+    // Relative Medianlohn-Struktur der Regionen. Das Startprofil bildet den
+    // aktuellen Wohn-/Arbeitsort ab; ein Eigenheim-Umzug skaliert beide
+    // Erwerbseinkommen relativ zu diesem Ausgangsort.
+    regionalEinkommen: {
+      'berlin-innenstadt': 1.00,
+      'berlin-rand': 1.00,
+      // Die veröffentlichten Medianentgelte liegen brutto rund 10 %
+      // (Leipzig) beziehungsweise 27 % (Meißen) unter Berlin. Für das hier
+      // modellierte Haushaltsnetto fällt der Abstand wegen Progression,
+      // Pendel-/Remote-Optionen und zweier Einkommen etwas kleiner aus.
+      leipzig: 0.93,
+      'meissen-umland': 0.84,
+    },
   },
 
   kapital: {
@@ -257,7 +272,8 @@ export const DEFAULT_CONFIG = {
       label: 'Berlin Innenstadt',
       stadt: 'berlin',
       preisM2: 5800,           // €/m² Bestand, Index-Start
-      vergleichsmieteM2: 14.5, // Kaltmiete €/m²/Monat (~3 % Bruttorendite)
+      vergleichsmieteM2: 19.22, // Angebotsmiete 2025; innerer Stadtraum
+      neubauMieteM2: 19.97,     // Berliner Angebotsmiete Neubau 2025
       drift: { boom: 0.04, seitwaerts: 0.025, crash: -0.01 },
       sigmaMonat: 0.004,       // Monats-Rauschen auf den Index
     },
@@ -265,7 +281,8 @@ export const DEFAULT_CONFIG = {
       label: 'Berlin Rand',
       stadt: 'berlin',
       preisM2: 3800,
-      vergleichsmieteM2: 12.7, // ~4 % Bruttorendite
+      vergleichsmieteM2: 13.01, // Angebotsmiete 2025; äußerer Stadtraum
+      neubauMieteM2: 19.97,     // Berliner Angebotsmiete Neubau 2025
       drift: { boom: 0.03, seitwaerts: 0.02, crash: -0.015 },
       sigmaMonat: 0.005,
     },
@@ -367,6 +384,7 @@ export const DEFAULT_CONFIG = {
       streng: { mietAnrechnung: 0.6, puffersatz: 0.7, minEkAnteil: 0.1 },
     },
     bewirtschaftungsPauschale: 150, // €/Monat je Objekt in der Bankrechnung
+    sondertilgungMaxAnteil: 0.05, // pro Kalenderjahr, bezogen auf den Ursprungsbetrag
   },
 
   // Kaufnebenkosten (ECONOMY_MODEL §12) — "dieses Geld ist weg"
@@ -423,12 +441,12 @@ export const DEFAULT_CONFIG = {
     // Erzielbare Miete = Vergleichsmiete · zustandMietFaktor (§15)
     zustandMietFaktor: { 1: 0.85, 2: 0.93, 3: 1.0, 4: 1.06, 5: 1.12 },
     mietNiveaus: {
-      unter: { label: 'unter Marktmiete', faktor: 0.92, poolBasis: 5, qualiSkew: 0.15, leerstandsRisiko: 0.0 },
-      auf:   { label: 'zur Marktmiete',   faktor: 1.0,  poolBasis: 4, qualiSkew: 0.0,  leerstandsRisiko: 0.12 },
-      ueber: { label: 'über Marktmiete',  faktor: 1.08, poolBasis: 3, qualiSkew: -0.15, leerstandsRisiko: 0.4 },
+      unter: { label: 'unter Marktmiete', faktor: 0.92, poolBasis: 7, qualiSkew: 0.15, leerstandsRisiko: 0.0 },
+      auf:   { label: 'zur Marktmiete',   faktor: 1.0,  poolBasis: 6, qualiSkew: 0.0,  leerstandsRisiko: 0.04 },
+      ueber: { label: 'über Marktmiete',  faktor: 1.08, poolBasis: 4, qualiSkew: -0.15, leerstandsRisiko: 0.18 },
     },
     poolMin: 3,
-    poolMax: 5,
+    poolMax: 8,
     moebliertAufschlag: 0.12,    // +12 % Kaltmiete möbliert; kein Langfrist-Autopick
     moebliertMoebelKosten: 9500, // € Einrichtung (einmalig beim Möblieren)
     moebliertChurn: 1.2,         // Aufschlag aufs Auszugsrisiko möbliert
@@ -443,12 +461,12 @@ export const DEFAULT_CONFIG = {
       },
       moebliert: {
         label: 'Möbliert, längerfristig', kurz: 'mehr Miete · Einrichtung & Wechsel',
-        aufschlag: 0.12, moebelKosten: 9500, churn: 1.2, zeitProMonat: 1, leerstandsRisiko: .03,
+        aufschlag: 0.18, moebelKosten: 9500, churn: 1.2, zeitProMonat: 1, leerstandsRisiko: .02,
         rechtsrisiko: { berlin: .0025, leipzig: .0008, meissen: .0003 }, rueckzahlungMonate: 4,
       },
       wohnenAufZeit: {
         label: 'Wohnen auf Zeit', kurz: 'hohe Miete · viel Aufwand & Rechtsrisiko',
-        aufschlag: 0.32, moebelKosten: 11000, churn: 3, zeitProMonat: 3, leerstandsRisiko: .08,
+        aufschlag: 0.26, moebelKosten: 11000, churn: 3, zeitProMonat: 3, leerstandsRisiko: .04,
         rechtsrisiko: { berlin: .012, leipzig: .003, meissen: .001 }, rueckzahlungMonate: 8,
       },
     },

@@ -1,7 +1,7 @@
 // ratgeber.js — seltene, zustandsabhängige Lernhinweise für Leicht/Normal.
 // DOM-frei: Das Modul entscheidet nur, ob ein neuer Hinweis fällig ist.
 
-import { monatsWerte } from './engine.js?v=41';
+import { monatsWerte } from './engine.js?v=51';
 
 const MINDESTABSTAND = 10;
 
@@ -32,7 +32,7 @@ export function pruefeRatgeber(state) {
     {
       id: 'hoher-ltv',
       wenn: state.portfolio.some((o) => o.darlehen?.restschuld / Math.max(1, o.kaufpreis || 1) > .9),
-      text: 'Ein LTV über 90 % lässt wenig Sicherheitspuffer. Tilgung stärkt langsam das Eigenkapital; zusätzliche Käufe erhöhen vorher das Zins- und Liquiditätsrisiko.',
+      text: 'Eine Finanzierungsquote über 90 % lässt wenig Sicherheitspuffer. Tilgung stärkt langsam das Eigenkapital; zusätzliche Käufe erhöhen vorher das Zins- und Liquiditätsrisiko.',
     },
     {
       id: 'leerstand',

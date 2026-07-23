@@ -2,21 +2,19 @@
 // Dossierkarten sichten, einziehen lassen oder weitersuchen (kostet einen
 // Leerstandsmonat). Dossiers sind Hinweise, kein Score (PLAN §5.6).
 
-import { getTenant } from '../content.js?v=41';
+import { getTenant } from '../content.js?v=51';
 import {
-  angesetzteMiete, marktmiete, starteVermietung, neueBewerber, waehleBewerber,
+  angesetzteMiete, marktmiete, starteVermietung, waehleBewerber,
   vermietungsmodell,
-} from '../tenants.js?v=41';
-import { fmtEUR } from './util.js?v=41';
-import { fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=41';
+} from '../tenants.js?v=51';
+import { fmtEUR } from './util.js?v=51';
+import { fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=51';
 
 let ctx = null;
 let index = -1;
 
 export function initBewerber(context) {
   ctx = context;
-  document.getElementById('dlg-bewerber').querySelector('[data-schliessen]')
-    .addEventListener('click', () => document.getElementById('dlg-bewerber').close());
 }
 
 export function oeffneBewerber(objektIndex) {
@@ -109,7 +107,7 @@ function renderBewerberListe(state, o) {
     `<span class="badge">${suche.bewerber.length} passende Dossiers</span></div>` +
     (suche.bewerber.length
       ? `<div class="bewerber-liste">${karten}</div>`
-      : `<p class="leer-hinweis muted">Diesen Monat hat sich niemand Passendes gemeldet. Weitersuchen kostet einen Leerstandsmonat.</p>`) +
+      : `<p class="leer-hinweis muted">Diesen Monat hat sich niemand Passendes gemeldet. Die Suche läuft im Hintergrund weiter.</p>`) +
     `<aside class="leerstand-kosten" aria-label="Kosten eines weiteren Leerstandsmonats">` +
     `<div><span class="eyebrow">Wenn ihr weitersucht</span><b>Ein weiterer Leerstandsmonat</b></div>` +
     `<dl><div><dt>Entgangene Kaltmiete</dt><dd>${fmtEUR(leerstand.entgangeneMiete)}</dd></div>` +
@@ -117,7 +115,7 @@ function renderBewerberListe(state, o) {
     `<p>Im nächsten Monat fehlen damit rund <b>${fmtEUR(leerstand.liquiditaetsDruck)}</b> Liquidität. ` +
     `Ungeplante Reparaturen sind darin nicht enthalten.</p></aside>` +
     `<div class="dialog-fuss">` +
-    `<button id="btn-weiter-suchen">Weitersuchen (1 Monat)</button>` +
+    `<button id="btn-weiter-suchen">Im Hintergrund weitersuchen</button>` +
     `<button id="btn-niveau-aendern">Mietniveau ändern</button>` +
     `</div>`;
 
@@ -131,15 +129,9 @@ function renderBewerberListe(state, o) {
     }));
 
   document.getElementById('btn-weiter-suchen').addEventListener('click', () => {
-    ctx.schritt(1); // ein Leerstandsmonat vergeht (kann ein Event auslösen)
-    const st = ctx.getState();
-    if (!st.aktivesEvent && st.portfolio[index]?.suche) {
-      neueBewerber(st, st.portfolio[index]);
-      ctx.autosave();
-      render();
-    } else if (st.aktivesEvent) {
-      document.getElementById('dlg-bewerber').close(); // Event-Modal hat Vorrang
-    }
+    ctx.autosave();
+    document.getElementById('dlg-bewerber').close();
+    ctx.toast('Die Mietersuche läuft weiter; neue Dossiers erscheinen in den Benachrichtigungen.');
   });
 
   document.getElementById('btn-niveau-aendern').addEventListener('click', () => {
@@ -172,17 +164,19 @@ function bewerberKarte(state, b) {
     : quote > 0.4
       ? 'Einkommen stark beansprucht'
       : quote > 0.33 ? 'Einkommen knapp tragfähig' : 'Einkommen mit Puffer';
+  const fakt = (symbol, label, wert, klasse = '') =>
+    `<div><dt><svg class="steckbrief-icon" aria-hidden="true"><use href="#icon-${symbol}"></use></svg>${label}</dt><dd class="${klasse}">${wert}</dd></div>`;
   return (
     `<article class="bewerber-karte">` +
     `<header class="bewerber-kopf"><div class="bewerber-avatar"><img src="assets/avatar/${t.id}.webp" alt="" onerror="this.replaceWith(document.createTextNode('👤'))"></div>` +
     `<div class="bewerber-name"><b>${t.name}</b><span>${t.archetyp}</span></div></header>` +
     `<dl class="bewerber-fakten">` +
-    `<div><dt>Haushalt</dt><dd>${t.haushalt}</dd></div>` +
-    `<div><dt>Beruf</dt><dd>${t.beruf}</dd></div>` +
-    `<div><dt>Einkommensquote</dt><dd class="quote-${quoteKl}">${quoteText}</dd></div>` +
-    `<div><dt>Haustiere</dt><dd>${t.haustiere}</dd></div>` +
-    `<div><dt>Bleibeabsicht</dt><dd>${t.bleibeAbsicht}</dd></div>` +
-    `<div><dt>Referenzen</dt><dd>${t.referenzen}</dd></div>` +
+    fakt('family', 'Haushalt', t.haushalt) +
+    fakt('landmark', 'Beruf', t.beruf) +
+    fakt('wallet', 'Einkommensquote', quoteText, `quote-${quoteKl}`) +
+    fakt('home', 'Haustiere', t.haustiere) +
+    fakt('heart', 'Bleibeabsicht', t.bleibeAbsicht) +
+    fakt('shield', 'Referenzen', t.referenzen) +
     `</dl>` +
     `<div class="bewerber-hinweise" aria-label="Hinweise aus den sichtbaren Angaben">` +
     `<span class="hinweis-chip quote-${quoteKl}">${einkommenHinweis}</span>` +

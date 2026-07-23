@@ -44,6 +44,7 @@ Monatliche Wachstumsanwendung stetig: `wert(m) = basis · (1 + p.a.)^(m/12)`.
 erwerbsnetto(m)  = (nettoPersonA + nettoPersonB)
                     · (1+einkommensWachstum)^(m/12)
                     · altersfaktorEinkommen(elternAlter)
+                    · regionalfaktor(wohnort)
                     · Π sprung.faktor  für alle sprung mit m ≥ sprung.abMonat
 einkommen(m)     = erwerbsnetto(m)                                  vor rentenAlter
                   = erwerbsnetto(m) · rentenNettoFaktor             ab rentenAlter
@@ -65,30 +66,43 @@ monatsscharf weiter. `kindergeldProKind = 260 €` und
 `kindergeldBisAlter = 27` sind feste Owner-Szenarioannahmen: Das Kindergeld
 wächst nicht nominal und endet mit dem 27. Geburtstag. Es wird als eigene
 Einnahme ausgewiesen, nie still von den Brutto-Kinderkosten abgezogen.
+Die direkten Monatswerte je Kind steigen sichtbar mit der Lebensphase:
+150 € (0–5), 250 € (6–11), 300 € (12–17) und 400 € (18–26).
 
 Default-Start: 8.300 € Einkommen (4.300 € + 4.000 €), 1.970 € Warmmiete
 (1.570 € kalt),
-3.640 € sonstige Lebenshaltung inklusive 1.950 € gemitteltem Reisebudget und
-600 € direkte Kinder-Zusatzkosten (300 €/Kind für Alter 0–5). Somit 6.210 €
+2.590 € sonstige Lebenshaltung inklusive 900 € gemitteltem Reisebudget und
+300 € direkte Kinder-Zusatzkosten (150 €/Kind für Alter 0–5). Somit 4.860 €
 Brutto-Ausgaben. Für die Kinder im Alter 3,5 und 0,6 Jahre kommen 520 €
-Kindergeld als Einnahme hinzu; die Start-Sparrate beträgt 2.610 €. Ohne Reisen
-liegen die Brutto-Ausgaben bei 4.260 €. Das Reisebudget ist eine transparente
+Kindergeld als Einnahme hinzu; die Start-Sparrate beträgt 3.960 €. Ohne Reisen
+liegen die Brutto-Ausgaben bei 3.960 €. Das Reisebudget ist eine transparente
 Teilmenge der Lebenshaltung und wird nicht doppelt abgezogen.
 
-Kalibrierung aus den vom Owner gelieferten 24-Monats-Auswertungen: Der
-Mittelwert der Familienkosten ohne Reisen beträgt `(3.547 + 3.729) / 2 =
-3.638 €`. Nach Ersatz der dort gemittelten Wohnkosten von 2.050,50 € durch die
-bekannte Warmmiete von 1.970 € und zuzüglich 2 × 350 € persönlicher Kosten
-ergeben sich 4.257,50 €, gerundet 4.260 €. Die Ansicht inklusive Reisen weist
-bei Wohnen und den gemeinsamen Kategorien jeweils ungefähr den halben
-Familienanteil aus; deshalb wird ihr Mittelwert `(2.689 + 2.737) / 2 = 2.713 €`
-für den Haushalt verdoppelt. Nach 2 × 430 € persönlichen Kosten und demselben
-Mietersatz ergeben sich 6.207 €, gerundet 6.210 €. Die Differenz von 1.950 €
-ist das gemittelte Reisebudget. Die 600 € direkten Kinderkosten sind eine
-bewusste Brutto-Aufteilung innerhalb dieser Gesamtsumme; Grundbedarf steckt
-weiterhin in der Lebenshaltung.
+Die frühere 24-Monats-Kalibrierung bleibt als Ursprung des Alltagsblocks
+nachvollziehbar; der Owner-Playtest vom 20.07.2026 setzt für dieses Preset aber
+bewusst ein niedrigeres Reisebudget von 900 € und rund 300 € direkte Kosten für
+zwei Kleinkinder. Schulalter und Ausbildung/Studium erhöhen den Bedarf über die
+obige Staffel. Wohn- und Grundbedarf steckt weiterhin in Miete und allgemeiner
+Lebenshaltung; die Kinderzeile zeigt nur direkte Zusatzkosten.
 
-### 2a. Auto und Altersphasen
+### 2a. Wohn-/Arbeitsort und regionales Einkommen
+
+Jedes Startprofil speichert einen Wohn-/Arbeitsort. Der Familienstart beginnt
+in `berlin-rand`. Beim Eigenheimkauf in einem anderen Segment wird der neue Ort
+vor der Bestätigung samt Netto-Vorschau gezeigt; der Faktor greift genau einmal
+ab dem folgenden Haushaltsmonat. Default relativ zu Berlin: Leipzig 0,93,
+Meißen + Umland 0,84. Die veröffentlichten Median-Bruttoentgelte 2024 lagen bei
+4.198 € in Berlin, 3.784 € in Leipzig und 3.078 € im Landkreis Meißen. Der
+Nettoabschlag ist im Spiel bewusst kleiner als der rohe Bruttoabstand, weil
+Progression, zwei Erwerbseinkommen sowie Pendel-/Remote-Arbeit pauschal
+mitgedacht werden. Das ist eine Szenarioannahme, keine individuelle
+Gehaltsprognose.
+
+- <https://www.arbeitsagentur.de/vor-ort/neuruppin/presse/2025-34-steigende-entgelte-in-den-landkreisen-havelland-oberhavel-ostprignitz-ruppin-und-prignitz>
+- <https://www.arbeitsagentur.de/vor-ort/leipzig/presse/2025-30-medianlohn-in-leipzig-2024-auf-3784-euro-gestiegen>
+- <https://www.arbeitsagentur.de/vor-ort/rd-sachsen/presse/2024-30-medianlohn-in-sachsen-weiter-gestiegen>
+
+### 2b. Auto und Altersphasen
 
 Das Familienpreset startet ohne Auto. Sobald Kind 2 erstmals mindestens ein
 Jahr alt ist, also ab Spielmonat 5, greift eine vorläufige All-in-Pauschale von
@@ -398,8 +412,8 @@ Spielmonats und rechnet die unmittelbare Wirkung des Angebots hinzu:
 Änderung vor Steuer = aktuelle Kaltmiete oder entfallende Wohnmiete
                     − Rate − artabhängige Fixkosten − Instandhaltungsrücklage
                     + Veränderung des Tagesgeld-/Dispozinses durch das Eigenkapital
-Steuerschätzung     = max(0, Miete − Zinsanteil − Fixkosten − AfA)
-                      × Grenzsteuersatz       // alle Eingaben sind Monatswerte
+Steuerschätzung     = (Miete − Zinsanteil − Fixkosten − AfA)
+                      × Grenzsteuersatz       // kann als Gutschrift negativ sein
 Gesamt nach Steuer  = letzter Gesamtcashflow + Änderung vor Steuer − Steuerschätzung
 ```
 
@@ -418,8 +432,8 @@ Vergleichsmiete eines Durchschnittszustands.
 
 ```
 Pfad-Cashflow vor Steuer = Pfadmiete − Rate − Owner-Fixkosten − Rücklage
-Pfad-Steuer              = max(0, Pfadmiete − Zinsanteil − Fixkosten − AfA)
-                           × Grenzsteuersatz
+Pfad-Steuer              = (Pfadmiete − Zinsanteil − Fixkosten − AfA)
+                           × Grenzsteuersatz  // negativ = vereinfachte Gutschrift
 Pfad-Cashflow nach Steuer = Pfad-Cashflow vor Steuer − Pfad-Steuer
 ```
 
@@ -561,8 +575,10 @@ marktmiete(objekt) = vergleichsmiete(segment, flaeche) · zustandMietFaktor(zust
 
 `zustandMietFaktor` (config `mieter.zustandMietFaktor`): 1→0,85 … 3→1,0 …
 5→1,12. Renovierung hebt den Zustand → mehr Miete UND (über `zustandsFaktor`,
-§8) mehr Wert. Möbliert legt `moebliertAufschlag` (Default +12 %) obendrauf;
-die einmalige Einrichtung kostet im Default 9.500 € und erhöht den Churn.
+§8) mehr Wert. Die Berliner Segmentbasen sind Angebotsmieten 2025: 19,22 €/m²
+innerer Stadtraum und 13,01 €/m² äußerer Stadtraum; Neubau nutzt 19,97 €/m².
+Möblierung und Wohnen auf Zeit werden über die getrennten Wege in §25
+aufgeschlagen.
 
 ## 16. Mieterwahl & Vermietung (Phase 3)
 
@@ -571,21 +587,26 @@ Marktmiete — `unter` / `auf` / `ueber` (Faktoren 0,92 / 1,0 / 1,08). Daraus:
 
 ```
 angesetzteMiete = round(marktmiete · niveauFaktor · (moebliert ? 1+moebliertAufschlag : 1))
-bewerberzahl    = clamp(poolMin … poolMax, poolBasis(niveau) + rng{-1,0,1})
+bewerberzahl    = clamp(poolMin … poolMax,
+                        poolBasis(niveau) · stadtnachfrage + rng{-1,0,1})
 ```
 
 Bei `ueber` erscheinen manchmal 0 Bewerber im Monat (`leerstandsRisiko`) →
-ein weiterer Leerstandsmonat. Die 3–5 Bewerber werden seeded aus dem Pool von
+ein weiterer Leerstandsmonat. Berlin erhält wegen des sehr angespannten Markts
+einen zusätzlichen Nachfragefaktor und geringere Nullrunden; auch teure
+Angebote liefern damit regelmäßig Dossiers. Die 3–8 Bewerber werden seeded aus dem Pool von
 18 gezogen: Sortierung nach versteckter Qualität + Seed-Rauschen, moduliert um
 `qualiSkew(niveau)` (unter Marktmiete zieht bessere Bewerber an, über
 Marktmiete schlechtere). **Kein sichtbarer Score** — das Dossier liefert
 Hinweise, die versteckten Qualitäten (`zahlungsmoral`, `pflege`, `bleibe`,
 `konflikt`) treiben das Verhalten.
 
-Vor „Weitersuchen“ zeigt die UI die unmittelbare Liquiditätswirkung eines
-weiteren Leerstandsmonats: entgangene angesetzte Kaltmiete sowie die weiterhin
-fällige Darlehensrate, das volle Hausgeld und den Rücklagenbeitrag. Reparaturen
-sind ausdrücklich nicht Teil dieser Vorschau.
+Eine erfolglose Suche bleibt objektbezogen aktiv und blockiert die Oberfläche
+nicht. Jeder Monatszug erzeugt für ein weiterhin leeres, nicht renoviertes
+Objekt genau eine neue Runde und eine Benachrichtigung; bei Dossiers führt sie
+direkt zurück zur Auswahl. Das bloße Öffnen verbraucht kein RNG. Die UI zeigt
+die Liquiditätswirkung des Leerstands: entgangene angesetzte Kaltmiete sowie
+Rate, volles Hausgeld und Rücklage. Reparaturen sind nicht Teil der Vorschau.
 
 **Monatliches Mieterverhalten** (in tickObjekt, seeded):
 - Zahlungsausfall mit `p = (1−zahlungsmoral)·zahlungsausfallBasis` → Miete des
@@ -763,18 +784,28 @@ steuerliches Ergebnis = Mieteinnahmen
                        − nicht umlegbares Hausgeld
                        − Hausverwaltung
                        − AfA
-Steuer              = max(0, steuerliches Ergebnis) × Grenzsteuersatz
+Steuer              = steuerliches Ergebnis × Grenzsteuersatz
+                      // negativ = Gutschrift, soweit Erwerbseinkommen vorhanden
 ```
 
-Rücklagenbeiträge und Tilgung sind nicht abzugsfähig. Verluste erzeugen im MVP
-keine Erstattung und keinen Verlustvortrag. B0 hat diesen separaten
-Economy-Entscheid bestätigt: Eine sofortige Gutschrift würde negative
-Monatscashflows ohne vollständige Abbildung anderer Einkünfte und der
-Verlustverrechnung zu optimistisch glätten; ein echter Verlustvortrag würde
-zusätzlichen persistenten Steuerstate und eine weitergehende Jahressaldierung
-erfordern. Der Grenzsteuersatz ist ein
-sichtbarer Slider (`grenzsatzMin` bis `grenzsatzMax`); der Bescheid wird im
-Dezember als eine Zahlung verbucht und im Dashboard erklärt.
+Rücklagenbeiträge und Tilgung sind nicht abzugsfähig; tatsächlich verbuchte
+Instandhaltungskosten sind in der Kostenzeile enthalten. Hat das Profil
+Erwerbseinkommen, verrechnet das Spiel einen Vermietungsverlust im selben
+Jahresbescheid pauschal zum sichtbaren Grenzsteuersatz. Ohne Erwerbseinkommen
+wird er als positiver `verlustvortrag` gespeichert und mit späteren Gewinnen
+verrechnet. Das ist eine didaktische Vereinfachung der Einkunfts- und
+Verlustverrechnung, keine Steuerberatung; Liebhaberei, Herstellungskosten,
+Verlustausgleichsbeschränkungen und individuelle Veranlagung fehlen. Der
+Bescheid wird im Dezember gebucht und im Dashboard erklärt.
+
+Rechtsgrundlage der Modellrichtung: Einkunftsarten und Verlustausgleich
+§ 2 EStG, Werbungskosten § 9 EStG, Vermietungseinkünfte § 21 EStG sowie
+Verlustabzug § 10d EStG:
+
+- <https://www.gesetze-im-internet.de/estg/__2.html>
+- <https://www.gesetze-im-internet.de/estg/__9.html>
+- <https://www.gesetze-im-internet.de/estg/__21.html>
+- <https://www.gesetze-im-internet.de/estg/__10d.html>
 
 ## 22. Verkauf (Phase 4)
 
@@ -839,8 +870,8 @@ Bei einer Neuvermietung werden Mietniveau und Vermietungsweg getrennt gewählt:
 | Weg | Mietansatz | Einmalkosten | Wechsel/Aufwand | zusätzliches Modellrisiko |
 |---|---:|---:|---|---|
 | regulär | 0 % | 0 € | niedrig | keines |
-| möbliert, längerfristig | +12 % | 9.500 € | erhöht | regional niedrig bis erhöht |
-| Wohnen auf Zeit | +32 % | 11.000 € | hoch | regional deutlich erhöht |
+| möbliert, längerfristig | +18 % | 9.500 € | erhöht | regional niedrig bis erhöht |
+| Wohnen auf Zeit | +26 % | 11.000 € | hoch | regional deutlich erhöht |
 
 Die Aufschläge sind **Spielannahmen, keine Aussage über rechtlich zulässige
 Miethöhen**. Das monatliche Prüf-/Rückzahlungsrisiko ist in Berlin am höchsten,
@@ -849,17 +880,45 @@ Spieler mehrere Monatsmieten als vereinfachte Rückzahlung/Kosten und das Objekt
 wird auf reguläre Vermietung zurückgesetzt. Professionelle Hausverwaltung senkt
 den zusätzlichen Zeitbedarf, beseitigt aber kein Rechtsrisiko.
 
-Recherchegrundlage (Stand 17.07.2026): Der offizielle Berliner Mietspiegel
-beschreibt die ortsübliche Vergleichsmiete; die Senatsseite bündelt Mieterschutz
-und Mietpreisbremse. Berlin regelt Zweckentfremdung und Ferien-/Kurzzeitnutzung
-gesondert. Friedrichshain-Kreuzberg meldete 2025 ausdrücklich Prüfungen von
-möbliertem Wohnraum und vermeintlich vorübergehendem Gebrauch. Daraus folgt im
-Spiel bewusst ein Risiko-Trade-off statt eines garantierten Schlupflochs:
+Recherchegrundlage (Stand 21.07.2026): Der IBB-Wohnungsmarktbericht 2025 nennt
+für Berlin 15,78 €/m² mediane Angebotsmiete, 14,48 €/m² im Bestand, 19,97 €/m²
+im Neubau sowie 19,22/13,01 €/m² im inneren/äußeren Stadtraum. Die Senatsanalyse
+zu möbliertem Wohnen/Wohnen auf Zeit meldet für 2025 einen Anteil von 48 % am
+Angebot und 24,12 €/m² Median-All-in-Miete. Das begründet höhere marktnahe
+Ansätze, nicht deren rechtliche Zulässigkeit. Der IBB-Marktreport bewertet das
+niedrige und mittlere Segment als besonders angespannt; ImmoScout dokumentiert
+weiter starke Nachfrage. Deshalb bleibt Berlin selbst über Marktmiete nicht
+automatisch bewerberlos. Die Leitlinie zum Möblierungszuschlag und die
+Friedrichshain-Kreuzberger Kontrollen begründen zugleich das sichtbare
+Rückzahlungs-/Prüfrisiko.
+
+- <https://www.ibb.de/de/ueber-uns/publikationen/wohnungsmarktbericht/2025.html>
+- <https://www.ibb.de/media/dokumente/publikationen/berliner-wohnungsmarkt/wohnungsmarktbericht/2025/ibb-wmb-2025-zusammenfassung_de.pdf>
+- <https://www.berlin.de/sen/stadt/presse/pressemeldungen/pressemitteilung.1661965.php>
+- <https://www.ibb.de/de/ueber-uns/publikationen/wohnungsmarktbarometer/2025.html>
+- <https://www.immobilienscout24.de/unternehmen/fileadmin/user_upload/IS24_WohnBarometer-Q4_2025_Miete.pdf>
+- <https://www.berlin.de/sen/wohnen/service/leitlinie-moeblierungszuschlaege-wohnraum/>
 
 - <https://mietspiegel.berlin.de/>
 - <https://www.berlin.de/sen/wohnen/mieterschutz/>
 - <https://www.berlin.de/sen/wohnen/rechtliches/zweckentfremdungsverbot/rechtsvorschriften-und-vordrucke/>
 - <https://www.berlin.de/ba-friedrichshain-kreuzberg/aktuelles/pressemitteilungen/2025/pressemitteilung.1538458.php>
+
+## 25a. Sondertilgung
+
+Jedes Darlehen speichert seinen Ursprungsbetrag und den im Kalenderjahr bereits
+genutzten Rahmen. Freiwillig möglich ist jährlich:
+
+```
+jahresmaximum = ursprungsbetrag × 5 %
+verfügbar     = min(restschuld, jahresmaximum − imJahrGenutzt, tagesgeld)
+```
+
+Die Zahlung mindert Tagesgeld und Restschuld sofort. Die Annuität bleibt bis
+zur nächsten Anschlussfinanzierung gleich; dadurch verkürzt sich die Laufzeit
+und die folgende Zinslast sinkt. Die Objektansicht zeigt vor Bestätigung
+Tagesgeld, Restschuld und Laufzeit vorher/nachher. Der Rahmen richtet sich nach
+dem Kalenderjahr, nicht nach zwölf rollierenden Monaten.
 
 ## 26. Eigenbedarf (vereinfachtes Prozessmodell)
 

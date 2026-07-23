@@ -1,36 +1,144 @@
 // shell.js — Topbar (Datum, Geschwindigkeit, Menü), Dialoge (Neues Spiel,
 // Spielstände, Kampagnenende) und Toasts. Spiel-Logik lebt in main.js.
 
-import { DEFAULT_CONFIG, START_PRESETS } from '../config.js?v=41';
-import { listSaves } from '../state.js?v=41';
-import { datum, alter, gesamtMonate, istImRuhestand, monatsWerte } from '../engine.js?v=41';
-import { fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=41';
-import { fmtEUR, fmtDatum } from './util.js?v=41';
-import {
-  haushaltsUeberschussMonat, liquiditaetsPufferMonate, vermoegensaufbauMonat,
-} from './kennzahlen.js?v=41';
+import { DEFAULT_CONFIG, START_PRESETS } from '../config.js?v=51';
+import { listSaves } from '../state.js?v=51';
+import { datum, alter, gesamtMonate, istImRuhestand, monatsWerte } from '../engine.js?v=51';
+import { fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=51';
+import { fmtEUR, fmtDatum } from './util.js?v=51';
+import { haushaltsUeberschussMonat } from './kennzahlen.js?v=51';
+import { meldungMeta } from './meldungen.js?v=51';
 
 let app = null; // Callbacks aus main.js
 
 let screen = 'karte';
 let cashflowHideTimer = null;
 let cashflowGepinnt = false;
-// Das Meldungsarchiv hat genau eine Quelle: state.log — dieselbe Historie, die
-// Stadt-Post und Quartalsbericht ausschnittweise zeigen. Toasts sind flüchtige
+// Das Meldungsarchiv hat genau eine Quelle: state.log. Toasts sind flüchtige
 // Bedienrückmeldung („Gespeichert als …") und gehören bewusst nicht hierher.
 let gesehenLogLaenge = 0;
+const dialogAusgangszustand = new WeakMap();
+let tooltipElement = null;
+
+function formularZustand(dialog) {
+  const controls = [...dialog.querySelectorAll('input, select, textarea')]
+    .filter((control) => !control.disabled && control.type !== 'file');
+  return JSON.stringify(controls.map((control) => ({
+    name: control.name || control.id,
+    type: control.type,
+    value: control.value,
+    checked: control.checked,
+  })));
+}
+
+function dialogTitel(dialog) {
+  return dialog.querySelector('h1, h2, h3')?.textContent.trim() || 'diesem Dialog';
+}
+
+function dialogIstGeaendert(dialog) {
+  const ausgang = dialogAusgangszustand.get(dialog);
+  return ausgang !== undefined && ausgang !== formularZustand(dialog);
+}
+
+function versucheDialogZuSchliessen(dialog) {
+  if (!dialog?.open || dialog.hasAttribute('data-schliessen-gesperrt')) return false;
+  if (dialogIstGeaendert(dialog) && !window.confirm(
+    `Ungespeicherte Änderungen in „${dialogTitel(dialog)}“ verwerfen?`
+  )) return false;
+  dialog.close();
+  return true;
+}
+
+function initDialogVerhalten() {
+  const merkeAusgang = (dialog) => requestAnimationFrame(() => {
+    if (dialog.open) dialogAusgangszustand.set(dialog, formularZustand(dialog));
+  });
+  const observer = new MutationObserver((mutationen) => {
+    for (const mutation of mutationen) {
+      if (mutation.attributeName === 'open' && mutation.target.open) merkeAusgang(mutation.target);
+    }
+  });
+  document.querySelectorAll('dialog').forEach((dialog) => {
+    observer.observe(dialog, { attributes: true, attributeFilter: ['open'] });
+    dialog.addEventListener('click', (event) => {
+      if (event.target !== dialog) return;
+      const rect = dialog.getBoundingClientRect();
+      const ausserhalb = event.clientX < rect.left || event.clientX > rect.right ||
+        event.clientY < rect.top || event.clientY > rect.bottom;
+      if (ausserhalb) versucheDialogZuSchliessen(dialog);
+    });
+    dialog.addEventListener('cancel', (event) => {
+      event.preventDefault();
+      versucheDialogZuSchliessen(dialog);
+    });
+  });
+  document.addEventListener('click', (event) => {
+    const schliessen = event.target.closest('[data-schliessen]');
+    if (schliessen) versucheDialogZuSchliessen(schliessen.closest('dialog'));
+  });
+}
+
+function initInfoTooltips() {
+  tooltipElement = document.createElement('div');
+  tooltipElement.className = 'floating-info-tooltip';
+  tooltipElement.setAttribute('role', 'tooltip');
+  tooltipElement.popover = 'manual';
+  document.body.append(tooltipElement);
+
+  const ausblenden = () => {
+    if (tooltipElement.matches(':popover-open')) tooltipElement.hidePopover();
+  };
+  const anzeigen = (trigger) => {
+    const text = trigger?.dataset.tooltip;
+    if (!text) return ausblenden();
+    tooltipElement.textContent = text;
+    if (!tooltipElement.matches(':popover-open')) tooltipElement.showPopover();
+    const triggerRect = trigger.getBoundingClientRect();
+    const tipRect = tooltipElement.getBoundingClientRect();
+    const rand = 10;
+    const links = Math.min(
+      window.innerWidth - tipRect.width - rand,
+      Math.max(rand, triggerRect.left + triggerRect.width / 2 - tipRect.width / 2)
+    );
+    const platzOben = triggerRect.top - tipRect.height - 9;
+    const oben = platzOben >= rand
+      ? platzOben
+      : Math.min(window.innerHeight - tipRect.height - rand, triggerRect.bottom + 9);
+    tooltipElement.style.left = `${links}px`;
+    tooltipElement.style.top = `${Math.max(rand, oben)}px`;
+  };
+  document.addEventListener('pointerover', (event) => {
+    const trigger = event.target.closest('.info-tooltip[data-tooltip]');
+    if (trigger) anzeigen(trigger);
+  });
+  document.addEventListener('pointerout', (event) => {
+    if (event.target.closest('.info-tooltip[data-tooltip]')) ausblenden();
+  });
+  document.addEventListener('focusin', (event) => {
+    const trigger = event.target.closest('.info-tooltip[data-tooltip]');
+    if (trigger) anzeigen(trigger);
+  });
+  document.addEventListener('focusout', (event) => {
+    if (event.target.closest('.info-tooltip[data-tooltip]')) ausblenden();
+  });
+  document.addEventListener('scroll', ausblenden, true);
+  window.addEventListener('resize', ausblenden);
+}
 
 export function initShell(appApi) {
   app = appApi;
+  initDialogVerhalten();
+  initInfoTooltips();
 
   // Navigation zwischen Screens
   document.getElementById('nav-karte').addEventListener('click', () => zeigeScreen('karte'));
-  document.getElementById('nav-dashboard').addEventListener('click', () => {
-    zeigeScreen('dashboard');
-    document.querySelector('[data-zentrale-tab="vermoegen"]')?.click();
-  });
   document.getElementById('nav-marktplatz').addEventListener('click', () => zeigeScreen('marktplatz'));
   document.getElementById('nav-finanzen').addEventListener('click', oeffneFinanzen);
+  document.querySelectorAll('[data-zentrale-tab]').forEach((button) => {
+    button.addEventListener('click', () => {
+      if (screen !== 'dashboard') zeigeScreen('dashboard');
+    });
+  });
 
   // Geschwindigkeit
   document.querySelectorAll('#speed-group [data-speed]').forEach((btn) => {
@@ -153,7 +261,7 @@ export function initShell(appApi) {
     const besonderheiten = [];
     if (p.startbestand?.length) {
       const ltvs = p.startbestand.map((objekt) => Math.round(objekt.ltv * 100));
-      besonderheiten.push(`${p.startbestand.length} Mietobjekte · ${Math.min(...ltvs)}–${Math.max(...ltvs)} % LTV`);
+      besonderheiten.push(`${p.startbestand.length} Mietobjekte · ${Math.min(...ltvs)}–${Math.max(...ltvs)} % finanziert`);
     }
     if (p.beruf?.handwerklich) besonderheiten.push('Handwerksbonus bei Renovierungen');
     if (autoKosten > 0) besonderheiten.push(`Auto ab Monat ${autoStart}: ${fmtEUR(autoKosten)}/Monat all-in`);
@@ -240,9 +348,6 @@ export function initShell(appApi) {
     if (datei) app.importieren(datei);
   });
 
-  // Dialoge schließen (X-Buttons)
-  document.querySelectorAll('[data-schliessen]').forEach((btn) =>
-    btn.addEventListener('click', () => btn.closest('dialog').close()));
 }
 
 function dlg(id) {
@@ -284,19 +389,28 @@ export function zeigePortfolio() {
 export function aktualisiereNavMarkierung() {
   const aktivId = {
     karte: 'nav-karte',
-    dashboard: 'nav-dashboard',
     marktplatz: 'nav-marktplatz',
     expose: 'nav-marktplatz',
-    objekt: 'nav-dashboard',
     finanzen: 'nav-finanzen',
   }[screen];
-  for (const id of ['nav-karte', 'nav-dashboard', 'nav-marktplatz', 'nav-finanzen']) {
+  for (const id of ['nav-karte', 'nav-marktplatz', 'nav-finanzen']) {
     const button = document.getElementById(id);
     const aktiv = id === aktivId;
     button.classList.toggle('aktiv', aktiv);
     if (aktiv) button.setAttribute('aria-current', 'page');
     else button.removeAttribute('aria-current');
   }
+
+  // Die Zentrale-Tabs bleiben als direkte Ziele im Dock sichtbar. Außerhalb
+  // der Zentrale darf ihre zuletzt gemerkte Auswahl aber nicht wie ein zweiter
+  // aktiver Hauptbereich aussehen. aria-selected bewahrt den Tabzustand für
+  // die Rückkehr; .aktiv und aria-current beschreiben nur den sichtbaren Screen.
+  document.querySelectorAll('[data-zentrale-tab]').forEach((button) => {
+    const sichtbarAktiv = screen === 'dashboard' && button.getAttribute('aria-selected') === 'true';
+    button.classList.toggle('aktiv', sichtbarAktiv);
+    if (sichtbarAktiv) button.setAttribute('aria-current', 'page');
+    else button.removeAttribute('aria-current');
+  });
 }
 
 function initCashflowPopover() {
@@ -329,13 +443,9 @@ function initCashflowPopover() {
   button.addEventListener('blur', spaeterVerbergen);
   button.addEventListener('click', (event) => {
     event.stopPropagation();
-    if (cashflowGepinnt) {
-      verbergen();
-      return;
-    }
-    cashflowGepinnt = true;
-    panel.classList.add('gepinnt');
-    zeigen();
+    verbergen();
+    zeigeScreen('dashboard');
+    document.querySelector('[data-zentrale-tab="haushalt"]')?.click();
   });
   panel.addEventListener('mouseenter', zeigen);
   panel.addEventListener('mouseleave', spaeterVerbergen);
@@ -370,6 +480,27 @@ function initMeldungen() {
     }
   });
   document.getElementById('btn-meldungen-schliessen').addEventListener('click', schliessen);
+  document.getElementById('meldungen-liste').addEventListener('click', (event) => {
+    const button = event.target.closest('[data-meldung-index]');
+    if (!button) return;
+    const state = app?.getState?.();
+    const eintrag = state?.log?.[Number(button.dataset.meldungIndex)];
+    if (!eintrag) return;
+    schliessen();
+    if (eintrag.aktion === 'bewerber' && eintrag.ziel) {
+      app.oeffneBewerber?.(eintrag.ziel);
+      return;
+    }
+    const meta = meldungMeta(eintrag, state);
+    if (meta.zielTyp === 'objekt') app.oeffneObjekt?.(meta.ziel);
+    else if (meta.zielTyp === 'expose') app.oeffneExpose?.(meta.ziel);
+    else if (meta.zielTyp === 'haushalt') {
+      zeigeScreen('dashboard');
+      document.querySelector('[data-zentrale-tab="haushalt"]')?.click();
+    } else if (meta.zielTyp === 'objekte') {
+      zeigePortfolio();
+    } else if (meta.zielTyp) zeigeScreen(meta.zielTyp);
+  });
 }
 
 // Spielmonat eines Logeintrags als Datum — dieselbe Zeitrechnung wie der HUD.
@@ -382,12 +513,15 @@ function renderMeldungen() {
   const state = app?.getState?.();
   const log = state?.log || [];
   const liste = document.getElementById('meldungen-liste');
-  const eintraege = log.slice(-40).reverse();
+  const start = Math.max(0, log.length - 40);
+  const eintraege = log.slice(start).map((eintrag, offset) => ({ eintrag, index: start + offset })).reverse();
   liste.innerHTML = eintraege.length
-    ? eintraege.map((eintrag) => {
+    ? eintraege.map(({ eintrag, index }) => {
       const d = logDatum(state, eintrag.monat);
-      return `<li><span>${escapeHtml(eintrag.text)}</span>` +
-        `<time datetime="${d.toISOString().slice(0, 7)}">${fmtDatum(d)}</time></li>`;
+      const meta = meldungMeta(eintrag, state);
+      return `<li class="meldung-${meta.klasse}${meta.aktion ? ' ist-aktion' : ''}"><button type="button" class="meldung-link" data-meldung-index="${index}" aria-label="${escapeHtml(meta.label)}: ${escapeHtml(eintrag.text)}">` +
+        `<span class="meldung-symbol" aria-hidden="true">${meta.symbol}</span><span class="meldung-copy"><span>${escapeHtml(eintrag.text)}</span>` +
+        `<time datetime="${d.toISOString().slice(0, 7)}">${fmtDatum(d)}</time></span><span class="meldung-pfeil" aria-hidden="true">→</span></button></li>`;
     }).join('')
     : '<li class="leer">Noch keine Meldungen. Der erste Marktmonat bringt neue Situationen.</li>';
   const ungelesen = Math.max(0, log.length - gesehenLogLaenge);
@@ -412,6 +546,7 @@ export function updateHud(state, speed) {
   for (const [id, wert] of Object.entries(ressourcen)) {
     document.getElementById(`hud-${id}`).textContent = wert;
   }
+  document.getElementById('hud-cash').classList.toggle('wert-negativ', !!state && state.cash < 0);
   const cashflow = document.querySelector('.resource-cashflow');
   cashflow.classList.toggle('positiv', !!state && haushaltsUeberschuss >= 0);
   cashflow.classList.toggle('negativ', !!state && haushaltsUeberschuss < 0);
@@ -448,60 +583,24 @@ function renderCashflowDetails(state) {
     return;
   }
   const w = state.letzteHaushaltswerte || monatsWerte(state);
-  const zeilen = [
-    ['gruppe', 'Normalisierter Haushaltsmonat', null],
-    w.einkommenPerson2 > 0 ? ['Nettoeinkommen Person A', w.einkommenPerson1] : ['Nettoeinkommen', w.einkommen],
-    ...(w.einkommenPerson2 > 0 ? [['Nettoeinkommen Person B', w.einkommenPerson2]] : []),
-    ...(w.kindergeld > 0 ? [['Kindergeld', w.kindergeld]] : []),
-    ['Warmmiete', -w.miete],
-    ['Lebenshaltung ohne Reisen', -w.lebenshaltungOhneReisen],
-    ['Reisen (Monatsdurchschnitt)', -w.reisen],
-    ...(w.auto > 0 ? [['Auto (All-in-Pauschale)', -w.auto]] : []),
-    ['Kinder', -w.kinder],
-  ];
-  const objektZeilen = state.portfolio.map((objekt) => {
+  const ueberschuss = haushaltsUeberschussMonat(state);
+  const objektCashflow = state.portfolio.reduce((summe, objekt) => {
     const vermietet = objekt.vermietet && !objekt.renovierung;
     const miete = vermietet ? objekt.kaltmiete : 0;
-    const kosten = fixkostenMonat(state, objekt, vermietet);
-    const verwaltung = objekt.hausverwaltung && vermietet
-      ? objekt.kaltmiete * state.config.bewirtschaftung.hausverwaltungProzent : 0;
-    const ruecklage = instandhaltungMonat(state, objekt);
-    const rate = objekt.darlehen.restschuld > 0 ? objekt.darlehen.rate : 0;
-    return [objekt.titel, miete - kosten - verwaltung - ruecklage - rate];
-  });
-  if (objektZeilen.length || state.eigenheim) {
-    zeilen.push(['gruppe', 'Objekt-Cashflows', null], ...objektZeilen);
-    if (state.eigenheim) {
-      const eigenheim = state.eigenheim;
-      const kosten = fixkostenMonat(state, eigenheim, false);
-      const ruecklage = instandhaltungMonat(state, eigenheim);
-      const rate = eigenheim.darlehen?.restschuld > 0 ? eigenheim.darlehen.rate : 0;
-      zeilen.push(['Eigenheim', -kosten - ruecklage - rate]);
-    }
-  }
-  const ueberschuss = haushaltsUeberschussMonat(state);
-  const aufbau = vermoegensaufbauMonat(state);
-  zeilen.push(
-    ['summe', 'Haushaltsüberschuss vor ETF', ueberschuss],
-    ['gruppe', 'Vermögensaufbau (kein Konsumverlust)', null],
-    ['ETF-Einzahlung', aufbau.etf],
-    ['Tilgung', aufbau.tilgung],
-    ['Rücklagenzuführung', aufbau.ruecklagen],
-    ['gruppe', 'Tagesgeld im letzten Monat', null],
-    ['ETF-Sparplan', -w.etfEinzahlung],
-    ['Tagesgeld-/Dispozins', state.letzterCashZins || 0],
-    ['Vermietungssteuer', -(state.letzteSteuerzahlung || 0)],
-  );
-  if (state.letzterAktienCashflow) zeilen.push(['Sonstige Kapitalerträge', state.letzterAktienCashflow]);
-  if (state.letzterVerkaufsCashflow) zeilen.push(['Immobilienverkauf', state.letzterVerkaufsCashflow]);
-  const html = zeilen.map(([label, wert]) => label === 'gruppe'
-    ? `<tr class="gruppe"><td colspan="2">${wert}</td></tr>`
-    : label === 'summe'
-      ? `<tr class="summe"><td>${wert}</td><td class="${ueberschuss < 0 ? 'negativ' : 'positiv'}">${ueberschuss >= 0 ? '+' : '−'}${fmtEUR(Math.abs(Math.round(ueberschuss)))}</td></tr>`
-    : `<tr><td>${label}</td><td class="${wert < 0 ? 'negativ' : wert > 0 ? 'positiv' : ''}">${wert >= 0 ? '+' : '−'}${fmtEUR(Math.abs(Math.round(wert)))}</td></tr>`).join('');
-  panel.innerHTML = `<div class="cashflow-popover-kopf"><span class="eyebrow">Monat verstehen</span><h2>Haushaltsüberschuss</h2>` +
-    `<p>Normalisierte Planung vor freiwilliger ETF-Umschichtung. Puffer: ${liquiditaetsPufferMonate(state).toLocaleString('de-DE', { maximumFractionDigits: 1 })} Monate.</p></div>` +
-    `<table class="cashflow-details"><tbody>${html}<tr class="summe tagesgeld"><td>Tagesgeld-Veränderung (letzter Monat)</td><td class="${state.letzterCashflow < 0 ? 'negativ' : 'positiv'}">${state.letzterCashflow >= 0 ? '+' : '−'}${fmtEUR(Math.abs(Math.round(state.letzterCashflow)))}</td></tr></tbody></table>`;
+    return summe + miete - fixkostenMonat(state, objekt, vermietet) - instandhaltungMonat(state, objekt) -
+      (objekt.hausverwaltung && vermietet ? objekt.kaltmiete * state.config.bewirtschaftung.hausverwaltungProzent : 0) -
+      (objekt.darlehen.restschuld > 0 ? objekt.darlehen.rate : 0);
+  }, 0) + (state.letzterEigenheimCashflow || 0);
+  const ausgaben = w.miete + w.lebenshaltung + w.kinder;
+  const zeilen = [
+    ['Einkommen inkl. Kindergeld', w.gesamteinkommen],
+    ['Haushalt & Wohnen', -ausgaben],
+    ['Immobilien-Cashflow', objektCashflow],
+    ['Haushaltsüberschuss', ueberschuss],
+  ];
+  const html = zeilen.map(([label, wert], index) => `<tr class="${index === zeilen.length - 1 ? 'summe' : ''}"><td>${label}</td><td class="${wert < 0 ? 'negativ' : 'positiv'}">${wert >= 0 ? '+' : '−'}${fmtEUR(Math.abs(Math.round(wert)))}</td></tr>`).join('');
+  panel.innerHTML = `<div class="cashflow-popover-kopf"><span class="eyebrow">Kurzüberblick</span><h2>Haushaltsüberschuss</h2>` +
+    `<p>Klick öffnet die vollständige Haushaltsrechnung.</p></div><table class="cashflow-details"><tbody>${html}</tbody></table>`;
 }
 
 // --- Neues Spiel ------------------------------------------------------------
@@ -510,9 +609,7 @@ function renderCashflowDetails(state) {
 export function zeigeNeuesSpiel(erzwungen) {
   const d = dlg('dlg-neu');
   d.querySelector('[data-schliessen]').hidden = erzwungen;
-  d.oncancel = (ev) => {
-    if (erzwungen) ev.preventDefault();
-  };
+  d.toggleAttribute('data-schliessen-gesperrt', erzwungen);
   if (!d.open) d.showModal();
 }
 

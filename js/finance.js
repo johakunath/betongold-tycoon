@@ -3,17 +3,17 @@
 // DOM-frei; zirkulärer Import mit engine.js (monatsWerte) ist auf Funktions-
 // ebene unkritisch.
 
-import { rngFloat, rngNormal, bestandsMieter, entnimmRuecklage } from './state.js?v=41';
-import { getListing } from './content.js?v=41';
-import { monatsWerte } from './engine.js?v=41';
-import { fairerWert } from './market.js?v=41';
-import { angesetzteMiete, marktmiete, mieterMonat } from './tenants.js?v=41';
-import { renovierungAbschluss, renovierungsOptionen } from './renovation.js?v=41';
-import { meldeWartemoment } from './signals.js?v=41';
-import { protokolliereWirkung, pruefstand } from './gameplay.js?v=41';
+import { rngFloat, rngNormal, bestandsMieter, entnimmRuecklage } from './state.js?v=51';
+import { getListing } from './content.js?v=51';
+import { monatsWerte } from './engine.js?v=51';
+import { fairerWert } from './market.js?v=51';
+import { angesetzteMiete, marktmiete, mieterMonat, neueBewerber } from './tenants.js?v=51';
+import { renovierungAbschluss, renovierungsOptionen } from './renovation.js?v=51';
+import { meldeWartemoment } from './signals.js?v=51';
+import { protokolliereWirkung, pruefstand } from './gameplay.js?v=51';
 import {
   eigenheimEignung, fixkostenMonat, instandhaltungMonat, gebaeudeAnteil,
-} from './immobilie.js?v=41';
+} from './immobilie.js?v=51';
 
 // ---------------------------------------------------------------------------
 // Basiszins: mean-reverting Random Walk (monatlich, aus engine.tick)
@@ -91,7 +91,7 @@ export function kreditAngebot(state, {
   // Check 3: LTV
   const spread = spreadFuerLtv(state, ltv);
   if (spread === null) {
-    gruende.push(`Beleihung über 100 % (LTV ${(ltv * 100).toFixed(0)} %) finanziert die Bank nicht.`);
+    gruende.push(`Eine Finanzierungsquote über 100 % (${(ltv * 100).toFixed(0)} %) finanziert die Bank nicht.`);
   }
 
   const bindung = k.zinsbindungen.find((z) => z.jahre === zinsbindungJahre) || k.zinsbindungen[1];
@@ -129,6 +129,11 @@ export function kreditAngebot(state, {
   return {
     listing, kaufpreis, eigenkapital, nebenkosten: nk, nutzung,
     darlehen, ltv, zins, rate, tilgungssatz, zinsbindungJahre: bindung.jahre,
+    zinsBestandteile: spread === null ? null : {
+      basiszins: state.basiszins,
+      ltvSpread: spread,
+      bindungsaufschlag: bindung.aufschlag,
+    },
     spielraum, anrechenbar, belastung,
     restschuldNachBindung:
       zins === null ? null : restschuldNach(darlehen, zins, rate, bindung.jahre * 12),
@@ -144,6 +149,58 @@ export function restschuldNach(darlehen, zins, rate, monate) {
     rest -= rate - (rest * zins) / 12;
   }
   return Math.max(0, rest);
+}
+
+export function sondertilgungRahmen(state, objekt) {
+  const d = objekt?.darlehen;
+  if (!d) return { max: 0, verbleibend: 0, jahr: 0, genutzt: 0 };
+  const datum = new Date(state.config.zeit.startJahr, state.config.zeit.startMonat - 1 + state.monat, 1);
+  const jahr = datum.getFullYear();
+  const genutzt = d.sondertilgungJahr === jahr ? Number(d.sondertilgungImJahr) || 0 : 0;
+  const max = (Number(d.ursprungsbetrag) || Number(d.restschuld) || 0) * state.config.kredit.sondertilgungMaxAnteil;
+  return { max, verbleibend: Math.max(0, Math.min(d.restschuld, max - genutzt)), jahr, genutzt };
+}
+
+function kreditlaufzeitMonate(restschuld, zins, rate) {
+  let rest = Math.max(0, restschuld);
+  let monate = 0;
+  while (rest > .01 && monate < 1200) {
+    const tilgung = rate - rest * zins / 12;
+    if (tilgung <= 0) return Number.POSITIVE_INFINITY;
+    rest = Math.max(0, rest - tilgung);
+    monate += 1;
+  }
+  return monate;
+}
+
+export function sondertilgungVorschau(state, objekt, betrag) {
+  const d = objekt.darlehen;
+  const rahmen = sondertilgungRahmen(state, objekt);
+  const zahlung = Math.round(Math.max(0, Math.min(Number(betrag) || 0, rahmen.verbleibend, state.cash)));
+  return {
+    zahlung,
+    cashDanach: state.cash - zahlung,
+    restschuldDanach: Math.max(0, d.restschuld - zahlung),
+    laufzeitVorher: kreditlaufzeitMonate(d.restschuld, d.zins, d.rate),
+    laufzeitDanach: kreditlaufzeitMonate(Math.max(0, d.restschuld - zahlung), d.zins, d.rate),
+    rate: d.rate,
+  };
+}
+
+export function sondertilgen(state, objekt, betrag) {
+  const d = objekt?.darlehen;
+  const rahmen = sondertilgungRahmen(state, objekt);
+  const zahlung = Math.round(Math.max(0, Math.min(Number(betrag) || 0, rahmen.verbleibend, state.cash)));
+  if (!d || zahlung < 1) throw new Error('Keine Sondertilgung in dieser Höhe möglich.');
+  if (d.sondertilgungJahr !== rahmen.jahr) {
+    d.sondertilgungJahr = rahmen.jahr;
+    d.sondertilgungImJahr = 0;
+  }
+  state.cash -= zahlung;
+  d.restschuld = Math.max(0, d.restschuld - zahlung);
+  d.sondertilgungImJahr += zahlung;
+  state.log.push({ monat: state.monat, text: `${objekt.titel}: ${zahlung.toLocaleString('de-DE')} € Sondertilgung geleistet.` });
+  return zahlung;
 }
 
 // Erklärt die unmittelbare monatliche Cashflow-Wirkung eines Angebots, ohne
@@ -167,7 +224,7 @@ export function finanzierungsCashflowVorschau(state, angebot) {
   const steuerErgebnis = eigenheim
     ? 0
     : mieteinnahmen - zinsanteil - fixkosten - afa;
-  const steuerMonat = Math.max(0, steuerErgebnis) * state.steuer.grenzsatz;
+  const steuerMonat = steuerErgebnis * state.steuer.grenzsatz;
 
   const cashzins = (cash) => cash >= 0
     ? cash * state.config.kapital.tagesgeldZins / 12
@@ -220,9 +277,9 @@ export function finanzierungsCashflowPfade(state, angebot) {
   const fuegePfadHinzu = ({ id, label, miete, aktionen, risiko = '', einmalig = 0, dauer = 0 }) => {
     const cashflowVorSteuer = miete - fixkosten - ruecklage - rate;
     const steuerErgebnis = miete - zinsanteil - fixkosten - afa;
-    // Wie im Jahressteuerbescheid: keine sofortige Erstattung und kein
-    // Verlustvortrag. Positive Ergebnisse werden als Monatsrückstellung gezeigt.
-    const steuerMonat = Math.max(0, steuerErgebnis) * state.steuer.grenzsatz;
+    // Monatsäquivalent des vereinfachten Jahresbescheids: positive Ergebnisse
+    // kosten Steuer, negative Ergebnisse erzeugen eine Gutschrift.
+    const steuerMonat = steuerErgebnis * state.steuer.grenzsatz;
     const cashflow = cashflowVorSteuer - steuerMonat;
     pfade.push({
       id, label, miete, cashflowVorSteuer, steuerMonat, cashflow,
@@ -386,11 +443,14 @@ export function kaufeObjekt(state, angebot) {
     verkauf: null,       // Phase 4: {gestartetMonat, abschlussMonat, startSchaetzung}
     steuerBasisGebaeude: angebot.kaufpreis * gebaeudeAnteil(state, listing),
     darlehen: {
+      ursprungsbetrag: angebot.darlehen,
       restschuld: angebot.darlehen,
       zins: angebot.zins,
       tilgungssatz: angebot.tilgungssatz,
       rate: angebot.rate,
       zinsbindungBis: state.monat + angebot.zinsbindungJahre * 12,
+      sondertilgungJahr: state.config.zeit.startJahr,
+      sondertilgungImJahr: 0,
     },
   };
   state.portfolio.push(objekt);
@@ -421,10 +481,28 @@ export function kaufeObjekt(state, angebot) {
 
 export function tickObjekt(state, objekt) {
   const bw = state.config.bewirtschaftung;
+  let steuerInstandhaltung = 0;
 
   // 1. Renovierung abschließen? (RNG: Überziehung). Cash-Anteil der Überziehung.
   let reparaturCash = objekt.renovierung ? renovierungAbschluss(state, objekt) : 0;
   const imUmbau = !!objekt.renovierung; // läuft weiterhin, wenn noch nicht fertig
+
+  // Eine laufende Mietersuche blockiert das Spiel nicht. Sobald ein neuer
+  // Monat beginnt, wird im Hintergrund eine neue Runde erzeugt und landet im
+  // gemeinsamen Benachrichtigungsarchiv.
+  if (!imUmbau && !objekt.vermietet && objekt.suche && objekt.suche.generiertMonat <= state.monat) {
+    neueBewerber(state, objekt);
+    state.log.push({
+      // tickObjekt rechnet den gerade zu Ende gehenden Monat. Die Meldung
+      // erscheint deshalb im Folgemonat, den der Spieler nach dem Tick sieht.
+      monat: state.monat + 1,
+      ziel: objekt.listingId,
+      aktion: 'bewerber',
+      text: objekt.suche.bewerber.length
+        ? `${objekt.titel}: ${objekt.suche.bewerber.length} neue passende Mietdossiers liegen vor.`
+        : `${objekt.titel}: weiter leer; diesen Monat gab es kein passendes Mietdossier.`,
+    });
+  }
 
   // 2. Mieterverhalten (Zahlung, Pflege, Auszug) — nur vermietet, nicht im Umbau
   let ausfall = false;
@@ -478,6 +556,7 @@ export function tickObjekt(state, objekt) {
   for (const f of objekt.faellig) {
     if (!f.bezahlt && state.monat >= f.monat) {
       f.bezahlt = true;
+      steuerInstandhaltung += f.kosten;
       reparaturCash += entnimmRuecklage(objekt, f.kosten);
       state.log.push({
         monat: state.monat,
@@ -496,7 +575,7 @@ export function tickObjekt(state, objekt) {
 
   return {
     miete, laufendeKosten, hausgeld: laufendeKosten, hausverwaltung, rate, zinsanteil,
-    ruecklageBeitrag, reparaturCash, imUmbau, ausfall,
+    ruecklageBeitrag, reparaturCash, steuerInstandhaltung, imUmbau, ausfall,
     cashflow: miete - laufendeKosten - hausverwaltung - rate - ruecklageBeitrag - reparaturCash,
   };
 }
