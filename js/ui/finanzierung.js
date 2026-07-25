@@ -1,18 +1,18 @@
-// finanzierung.js — Screen 4: Finanzierungsdialog. Slider für Eigenkapital,
+﻿// finanzierung.js — Screen 4: Finanzierungsdialog. Slider für Eigenkapital,
 // Tilgung, Zinsbindung; live berechnetes Angebot + Haushaltsrechnungs-Verdikt.
 // Modus 'szenario' = reiner Rechner, Modus 'kauf' = mit Kaufabschluss.
 
-import { getListing } from '../content.js?v=52';
+import { getListing } from '../content.js?v=54';
 import {
   finanzierungsCashflowPfade, finanzierungsCashflowVorschau, kreditAngebot, kaufeObjekt, nebenkostenFuer,
-} from '../finance.js?v=52';
-import { kaufeEigenheim, wohnortWechselVorschau } from '../eigenheim.js?v=52';
-import { fmtEUR, fmtEURSigniert } from './util.js?v=52';
-import { eigenheimEignung, fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=52';
-import { etfVerkaufVorschau } from '../etf.js?v=52';
-import { angesetzteMiete } from '../tenants.js?v=52';
-import { fixkostenAufschluesselung } from '../immobilie.js?v=52';
-import { haushaltsUeberschussMonat, liquiditaetsPufferMonate } from './kennzahlen.js?v=52';
+} from '../finance.js?v=54';
+import { kaufeEigenheim, wohnortWechselVorschau } from '../eigenheim.js?v=54';
+import { fmtEUR, fmtEURSigniert } from './util.js?v=54';
+import { eigenheimEignung, fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=54';
+import { etfVerkaufVorschau } from '../etf.js?v=54';
+import { angesetzteMiete } from '../tenants.js?v=54';
+import { fixkostenAufschluesselung } from '../immobilie.js?v=54';
+import { haushaltsUeberschussMonat, liquiditaetsPufferMonate } from './kennzahlen.js?v=54';
 
 let ctx = null;
 let lage = null; // { listingId, kaufpreis, modus }
@@ -372,3 +372,4 @@ function abschliessen() {
   ctx.toast(a.nutzung === 'eigenheim' ? 'Eigenheim gekauft — die Wohnkosten sind jetzt neu aufgeteilt.' : 'Objekt gekauft — als Nächstes bewirtschaften.');
   lage = null;
 }
+

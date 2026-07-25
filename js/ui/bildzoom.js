@@ -1,4 +1,4 @@
-// bildzoom.js — gemeinsame Lightbox für Außen- und Innenansichten.
+﻿// bildzoom.js — gemeinsame Lightbox für Außen- und Innenansichten.
 
 let faktor = 1;
 
@@ -83,3 +83,4 @@ export function initBildzoom() {
   buehne.addEventListener('pointerup', ziehenBeenden);
   buehne.addEventListener('pointercancel', ziehenBeenden);
 }
+

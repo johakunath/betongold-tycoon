@@ -61,7 +61,7 @@
   text-align: left;
 }
 .ressourcenleiste > :last-child { border-right: 0; }
-.ressourcenleiste small { display: block; opacity: 0.67; font-size: 9.5px; letter-spacing: 0.055em; text-transform: uppercase; }
+.ressourcenleiste small { display: block; overflow: hidden; opacity: 0.67; font-size: 9.5px; letter-spacing: 0.055em; text-transform: uppercase; text-overflow: ellipsis; white-space: nowrap; }
 .ressourcenleiste b { display: block; overflow: hidden; font-size: 13.5px; font-variant-numeric: tabular-nums; text-overflow: ellipsis; white-space: nowrap; }
 .resource-copy { min-width: 0; }
 .ressourcenleiste button:hover { background: rgba(255,255,255,0.09); box-shadow: none; }

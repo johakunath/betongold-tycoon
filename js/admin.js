@@ -1,8 +1,8 @@
-// admin.js — whitelist-basierte Config-Bearbeitung für das Phase-5-Adminpanel.
+﻿// admin.js — whitelist-basierte Config-Bearbeitung für das Phase-5-Adminpanel.
 // DOM-frei und headless testbar. Angezeigte Prozentwerte werden hier sicher in
 // Dezimalwerte zurückgerechnet; unbekannte Pfade können nicht verändert werden.
 
-import { DEFAULT_CONFIG } from './config.js?v=52';
+import { DEFAULT_CONFIG } from './config.js?v=54';
 
 export const ADMIN_GRUPPEN = {
   wirtschaft: {
@@ -181,3 +181,4 @@ export function wendeAdminPendingAn(state) {
   state.adminPending = null;
   return wendeAdminWerteAn(state, pending.werte);
 }
+

@@ -1,4 +1,4 @@
-// Reproduzierbarer Multi-Seed-Balance-Harness für Phase 5.
+﻿// Reproduzierbarer Multi-Seed-Balance-Harness für Phase 5.
 //
 //   node test/balance.mjs                 # 120 Seeds je Schwierigkeit
 //   node test/balance.mjs --seeds=300     # breiter Release-Lauf
@@ -8,18 +8,18 @@
 // optimale Spielweise; sie zeigen robuste Ausreißer und Richtungen.
 
 import { readFile } from 'node:fs/promises';
-import { newGame } from '../js/state.js?v=52';
-import { setzeInhalte, alleListings } from '../js/content.js?v=52';
+import { newGame } from '../js/state.js?v=54';
+import { setzeInhalte, alleListings } from '../js/content.js?v=54';
 import {
   initialisiereMarkt, sichtbareListings, gebotAbgeben, vergleichsmiete,
   gutachterBeauftragen,
-} from '../js/market.js?v=52';
-import { kreditAngebot, kaufeObjekt, nebenkostenFuer } from '../js/finance.js?v=52';
-import { kaufeEigenheim } from '../js/eigenheim.js?v=52';
-import { starteVermietung, neueBewerber, waehleBewerber } from '../js/tenants.js?v=52';
-import { resolveEvent } from '../js/events.js?v=52';
-import { advanceMonths, gesamtMonate, nettovermoegen } from '../js/engine.js?v=52';
-import { berechneScores } from '../js/endgame.js?v=52';
+} from '../js/market.js?v=54';
+import { kreditAngebot, kaufeObjekt, nebenkostenFuer } from '../js/finance.js?v=54';
+import { kaufeEigenheim } from '../js/eigenheim.js?v=54';
+import { starteVermietung, neueBewerber, waehleBewerber } from '../js/tenants.js?v=54';
+import { resolveEvent } from '../js/events.js?v=54';
+import { advanceMonths, gesamtMonate, nettovermoegen } from '../js/engine.js?v=54';
+import { berechneScores } from '../js/endgame.js?v=54';
 
 const lade = async (name) =>
   JSON.parse(await readFile(new URL(`../data/${name}`, import.meta.url), 'utf8'));
@@ -359,3 +359,4 @@ if (jsonAusgabe) {
 }
 
 if (gatesPruefen && gateErgebnisse.some((gate) => !gate.ok)) process.exitCode = 1;
+

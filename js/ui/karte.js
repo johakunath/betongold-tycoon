@@ -1,12 +1,12 @@
-// karte.js — Stadt als atmosphärische Bühne mit echten Exposé-Kacheln.
+﻿// karte.js — Stadt als atmosphärische Bühne mit echten Exposé-Kacheln.
 // Die Stadtmotive bleiben scharf und normal belichtet; anklickbar sind nur
 // Listing-Assets aus dem tatsächlichen Katalog.
 
-import { alleListings } from '../content.js?v=52';
-import { fairerWert } from '../market.js?v=52';
-import { fmtEURKompakt } from './util.js?v=52';
-import { liquiditaetsPufferMonate, naechsterZugEmpfehlung } from './kennzahlen.js?v=52';
-import { meldungMeta } from './meldungen.js?v=52';
+import { alleListings } from '../content.js?v=54';
+import { fairerWert } from '../market.js?v=54';
+import { fmtEURKompakt } from './util.js?v=54';
+import { liquiditaetsPufferMonate, naechsterZugEmpfehlung } from './kennzahlen.js?v=54';
+import { meldungMeta } from './meldungen.js?v=54';
 
 let ctx = null;
 let filter = 'alle';
@@ -89,7 +89,8 @@ export function renderKarte(state) {
   document.getElementById('stadtkarte').innerHTML =
     `<div class="stadt-buehne-bg" style="--stadtbild:url('${stadtbildUrl(plan)}')"></div>` +
     `<div class="stadt-wash ${plan.klasse}"></div>` +
-    `<div class="stadt-markerfeld">${sichtbar.map((eintrag, index) => markerHTML(state, eintrag, index)).join('')}</div>`;
+    `<div class="stadt-markerfeld">${sichtbar.map((eintrag) => markerHTML(state, eintrag)).join('')}</div>`;
+  requestAnimationFrame(() => entzerreMarker(document.querySelector('.stadt-markerfeld')));
 
   // Bühne und Liste sind nicht dieselbe Darstellung zweimal: Die Bühne zeigt
   // den Ort räumlich inklusive noch nicht erschienener Vorschauen, die Liste
@@ -165,19 +166,79 @@ function ergaenzeBuehne(eintraege) {
   return [...aktiv, ...vorschau];
 }
 
-function markerPosition(listing, index) {
+function markerPosition(listing) {
   const pos = listing.kartenposition || { x: 50, y: 50 };
-  const staffel = (index % 3 - 1) * 2.4;
   return {
-    x: 10 + Math.max(0, Math.min(100, pos.x)) * .72 + staffel,
-    y: 11 + Math.max(0, Math.min(100, pos.y)) * .64 - staffel,
+    x: 10 + Math.max(0, Math.min(100, pos.x)) * .72,
+    y: 11 + Math.max(0, Math.min(100, pos.y)) * .64,
   };
 }
 
-function markerHTML(state, eintrag, index) {
+// Nahe beieinanderliegende kartenposition-Werte ergeben bei fester
+// Kartenbreite (154/138/124px) leicht überlappende Marker. Statt die
+// Rohposition zu verfälschen, schiebt dieser Pass nach dem Rendern nur
+// tatsächlich kollidierende Kartenpaare entlang der günstigeren Achse
+// auseinander — reine Layoutkorrektur, keine Zustands- oder RNG-Wirkung.
+function entzerreMarker(feld) {
+  const karten = [...feld.querySelectorAll('.karten-marker')];
+  if (karten.length < 2) return;
+  const feldRect = feld.getBoundingClientRect();
+  if (!feldRect.width || !feldRect.height) return;
+  const spalt = 10;
+  const boxen = karten.map((el) => {
+    const r = el.getBoundingClientRect();
+    return {
+      el, w: r.width, h: r.height,
+      cx: r.left - feldRect.left + r.width / 2,
+      cy: r.top - feldRect.top + r.height / 2,
+    };
+  });
+  for (let iteration = 0; iteration < 24; iteration += 1) {
+    let bewegt = false;
+    for (let i = 0; i < boxen.length; i += 1) {
+      for (let j = i + 1; j < boxen.length; j += 1) {
+        const a = boxen[i];
+        const b = boxen[j];
+        const minDx = (a.w + b.w) / 2 + spalt;
+        const minDy = (a.h + b.h) / 2 + spalt;
+        const dx = b.cx - a.cx;
+        const dy = b.cy - a.cy;
+        const ueberlappX = minDx - Math.abs(dx);
+        const ueberlappY = minDy - Math.abs(dy);
+        if (ueberlappX > 0 && ueberlappY > 0) {
+          bewegt = true;
+          if (ueberlappX < ueberlappY) {
+            const schub = ueberlappX / 2 + .5;
+            const richtung = dx < 0 ? -1 : 1;
+            a.cx -= schub * richtung;
+            b.cx += schub * richtung;
+          } else {
+            const schub = ueberlappY / 2 + .5;
+            const richtung = dy < 0 ? -1 : 1;
+            a.cy -= schub * richtung;
+            b.cy += schub * richtung;
+          }
+        }
+      }
+    }
+    if (!bewegt) break;
+  }
+  boxen.forEach((box) => {
+    const minX = box.w / 2 + 4;
+    const maxX = Math.max(minX, feldRect.width - box.w / 2 - 4);
+    const minY = box.h / 2 + 4;
+    const maxY = Math.max(minY, feldRect.height - box.h / 2 - 4);
+    const cx = Math.min(Math.max(box.cx, minX), maxX);
+    const cy = Math.min(Math.max(box.cy, minY), maxY);
+    box.el.style.left = `${(cx / feldRect.width * 100).toFixed(2)}%`;
+    box.el.style.top = `${(cy / feldRect.height * 100).toFixed(2)}%`;
+  });
+}
+
+function markerHTML(state, eintrag) {
   const { listing, status, preis } = eintrag;
   const meta = STATUS[status] || STATUS.pausiert;
-  const { x, y } = markerPosition(listing, index);
+  const { x, y } = markerPosition(listing);
   const favorit = state.favoriten.includes(listing.id) ? ' favorit' : '';
   const kommend = status === 'kommend' ? ' is-kommend' : '';
   const deaktiviert = status === 'kommend' ? ' disabled aria-disabled="true"' : '';
@@ -282,3 +343,4 @@ function oeffne(eintrag) {
   if (eintrag.objektKennung) ctx.oeffneObjekt(eintrag.objektKennung);
   else ctx.oeffneExpose(eintrag.listing.id);
 }
+

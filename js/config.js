@@ -1,4 +1,4 @@
-// config.js — DEFAULT_CONFIG: jede Annahme des Spiels, kommentiert und tunbar.
+﻿// config.js — DEFAULT_CONFIG: jede Annahme des Spiels, kommentiert und tunbar.
 // Das Admin-Panel (Phase 5) editiert eine Kopie dieser Struktur in state.config.
 // Änderungen greifen zum nächsten Tick. Werte sind plausible Defaults, keine Fakten —
 // vor Release gegen reale Daten prüfen (siehe PLAN.md §4).
@@ -6,7 +6,7 @@
 export const SAVE_VERSION = 21;
 // UI-/Cache-Version ist unabhängig vom Save-Format. Bei reinen CSS-/UI-Reworks
 // erhöhen, ohne unnötig Spielstände zu migrieren.
-export const UI_VERSION = 52;
+export const UI_VERSION = 54;
 
 // Startlage und Schwierigkeit sind bewusst getrennt. Das Preset beschreibt
 // Haushalt, Vermögensaufteilung und optionale besondere Startbedingungen;
@@ -622,3 +622,4 @@ export const DEFAULT_CONFIG = {
     },
   },
 };
+

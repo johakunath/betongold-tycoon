@@ -1,43 +1,43 @@
-// Headless-Simulationstest — läuft unter Node, ohne Browser:
+﻿// Headless-Simulationstest — läuft unter Node, ohne Browser:
 //   node test/simtest.mjs
 // Prüft: voller Lebenslauf, Ruhestand, variables Lebensende, Plausibilität, Seed-Determinismus,
 // Export/Import-Roundtrip mitten im Run, Schwierigkeiten, Phasenverteilung.
 // Bei neuen Systemen (Phase 2+) hier Checks ergänzen.
 
 import { readFile } from 'node:fs/promises';
-import { SAVE_VERSION, DEFAULT_CONFIG } from '../js/config.js?v=52';
-import { newGame, exportString, importString, rngFloat } from '../js/state.js?v=52';
+import { SAVE_VERSION, DEFAULT_CONFIG } from '../js/config.js?v=54';
+import { newGame, exportString, importString, rngFloat } from '../js/state.js?v=54';
 import {
   advanceMonths, alterGenau, gesamtMonate, istImRuhestand,
   lebensendeVorschau, monatsWerte, nettovermoegen,
-} from '../js/engine.js?v=52';
-import { setzeInhalte, getListing } from '../js/content.js?v=52';
+} from '../js/engine.js?v=54';
+import { setzeInhalte, getListing } from '../js/content.js?v=54';
 import {
   initialisiereMarkt, sichtbareListings, gebotAbgeben, fairerWert,
   besichtigen, dokumenteAnfordern, gutachterBeauftragen,
-} from '../js/market.js?v=52';
+} from '../js/market.js?v=54';
 import {
   finanzierungsCashflowVorschau, kreditAngebot, kaufeObjekt, restschuldNach, nebenkostenFuer,
   sondertilgen, sondertilgungRahmen, sondertilgungVorschau,
-} from '../js/finance.js?v=52';
+} from '../js/finance.js?v=54';
 import {
   starteVermietung, neueBewerber, waehleBewerber, kannErhoehen, erhoeheMiete, marktmiete,
   mietrechtFuer, angesetzteMiete, vermietungsmodell, starteEigenbedarf,
   zahleEigenbedarfAbfindung,
-} from '../js/tenants.js?v=52';
-import { etfVerkaufVorschau, kaufeEtf, setzeSparplanEtfAnteil, verkaufeEtf } from '../js/etf.js?v=52';
-import { renovierungsOptionen, starteRenovierung } from '../js/renovation.js?v=52';
-import { resolveEvent } from '../js/events.js?v=52';
-import { kaufeEigenheim, wohnortWechselVorschau } from '../js/eigenheim.js?v=52';
-import { starteVerkauf } from '../js/verkauf.js?v=52';
-import { zieheWartemomente } from '../js/signals.js?v=52';
-import { leerstandsKosten } from '../js/ui/bewerber.js?v=52';
-import { berechneEndauswertung } from '../js/endgame.js?v=52';
-import { initialisiereStartbestand } from '../js/starter.js?v=52';
+} from '../js/tenants.js?v=54';
+import { etfVerkaufVorschau, kaufeEtf, setzeSparplanEtfAnteil, verkaufeEtf } from '../js/etf.js?v=54';
+import { renovierungsOptionen, starteRenovierung } from '../js/renovation.js?v=54';
+import { resolveEvent } from '../js/events.js?v=54';
+import { kaufeEigenheim, wohnortWechselVorschau } from '../js/eigenheim.js?v=54';
+import { starteVerkauf } from '../js/verkauf.js?v=54';
+import { zieheWartemomente } from '../js/signals.js?v=54';
+import { leerstandsKosten } from '../js/ui/bewerber.js?v=54';
+import { berechneEndauswertung } from '../js/endgame.js?v=54';
+import { initialisiereStartbestand } from '../js/starter.js?v=54';
 import {
   aktuelleAdminWerte, standardAdminWerte, wendeAdminWerteAn, planeAdminWerte,
-} from '../js/admin.js?v=52';
-import { kapitalertragVorschau, kapitalsteuerStatus } from '../js/kapitalsteuer.js?v=52';
+} from '../js/admin.js?v=54';
+import { kapitalertragVorschau, kapitalsteuerStatus } from '../js/kapitalsteuer.js?v=54';
 
 const lade = async (name) =>
   JSON.parse(await readFile(new URL(`../data/${name}`, import.meta.url), 'utf8'));
@@ -815,3 +815,4 @@ function kaufeGuenstigesEigenheim(state) {
 
 console.log(fehler === 0 ? '\nALLE TESTS OK' : `\n${fehler} FEHLER`);
 process.exit(fehler === 0 ? 0 : 1);
+

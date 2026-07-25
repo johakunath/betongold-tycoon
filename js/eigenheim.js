@@ -1,10 +1,10 @@
-// eigenheim.js — Kauf eines bezugsfreien Marktobjekts zur Eigennutzung.
+﻿// eigenheim.js — Kauf eines bezugsfreien Marktobjekts zur Eigennutzung.
 // Die laufenden Kosten nutzt engine.tick über finance.tickObjekt; das Modul
 // kapselt den Nutzungswechsel und die Familienwirkung. DOM-frei.
 
-import { kaufeObjekt } from './finance.js?v=52';
-import { eigenheimEignung, fixkostenMonat, instandhaltungMonat } from './immobilie.js?v=52';
-import { getListing } from './content.js?v=52';
+import { kaufeObjekt } from './finance.js?v=54';
+import { eigenheimEignung, fixkostenMonat, instandhaltungMonat } from './immobilie.js?v=54';
+import { getListing } from './content.js?v=54';
 
 export function wohnortWechselVorschau(state, listing) {
   const ziel = listing.segment;
@@ -91,3 +91,4 @@ export function bezieheBestandsobjekt(state, objekt) {
   state.log.push({ monat: state.monat, text: `Eigenheim bezogen: ${objekt.titel}. Die bisherige Wohnmiete entfällt.` });
   return objekt;
 }
+

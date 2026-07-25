@@ -1,4 +1,4 @@
-// immobilie.js — gemeinsamer Vertrag für Wohnung, Haus und Eigenheim-Eignung.
+﻿// immobilie.js — gemeinsamer Vertrag für Wohnung, Haus und Eigenheim-Eignung.
 // DOM-frei; UI und Engine verwenden dieselben laufenden Kosten.
 
 export function objektartVon(objekt) {
@@ -57,3 +57,4 @@ export function eigenheimEignung(state, listing) {
     gruende,
   };
 }
+

@@ -369,7 +369,7 @@ input:disabled, select:disabled, textarea:disabled {
   color: #12351f !important;
   background: #bde4c3;
   border-color: #d9f2dc;
-  font-size: 12.5px;
+  font-size: 14.5px;
   font-weight: 750;
 }
 
@@ -399,10 +399,11 @@ input:disabled, select:disabled, textarea:disabled {
 .objekt-visual-overlay { background: transparent; }
 
 /* Wide desktop readability floor: prose and compact accounting labels were still
-   rendered at 10.5–11.5 px despite ample room. This pass deliberately leaves
-   mobile and the compact two-row header untouched. */
+   rendered too small despite ample room. UI v53 raises the whole desktop scale by
+   roughly 15% on top of the UI v51 pass. This deliberately leaves mobile and the
+   compact two-row header untouched. */
 @media (min-width: 1201px) {
-  html, body { font-size: 16px; }
+  html, body { font-size: 18px; }
 
   .flow-zeile,
   .objekt-flow-zeile,
@@ -429,15 +430,94 @@ input:disabled, select:disabled, textarea:disabled {
   .bewerber-fakten dd,
   .bewerber-note,
   .leerstand-kosten :is(dt, p),
-  .reno-fakten { font-size: 13px; line-height: 1.45; }
+  .reno-fakten { font-size: 15px; line-height: 1.45; }
 
   .flow-summe,
-  .steuer-vorschau span { font-size: 13.5px; }
+  .steuer-vorschau span { font-size: 15.5px; }
 
   .flow-gruppe,
   .steuer-vorschau small,
   .steuer-karte #steuer-letzter,
-  .meldungen-panel li :is(small, time) { font-size: 12px; }
+  .meldungen-panel li :is(small, time) { font-size: 14px; }
+
+  /* HUD, Topbar und Navigation */
+  .eyebrow, .label, .konto-karte dt, .karte-preis small { font-size: 14px; }
+  .hud .sub, .topbar .sub { font-size: 13px; }
+  .ressourcenleiste b { font-size: 15px; }
+  .screens-nav button span { font-size: 14px; }
+  .screens-nav .zentrale-tabs button { font-size: 15px; }
+  #hud-datum { font-size: 17px; }
+  .speed-schritte button { font-size: 13px !important; }
+  .kachel .label { font-size: 14px; }
+  .kachel .sub { font-size: 14.5px; }
+
+  /* Dialoge allgemein und Startdialog */
+  dialog h3 { font-size: 15px; }
+  dialog [data-schliessen] { font-size: 17px; }
+  .diff-option small + small, .preset-option small + small { font-size: 14px; }
+  .start-vorschau { font-size: 14px; }
+  .start-anpassen > p { font-size: 14px; }
+  .start-einstellungen label { font-size: 14px; }
+  .hinweis { font-size: 15px; }
+
+  /* Zentrale/Kacheln, Chart, Stadt und Marktplatz */
+  .mini-chart h3 { font-size: 16px; }
+  .mini-chart header b { font-size: 15.5px; }
+  .mini-legende, .risiko-zeile { font-size: 14.5px; }
+  #chart .endlabel-name { font-size: 16px; }
+  #chart .endlabel-wert { font-size: 17px; }
+  .karten-staedte button small { font-size: 13px; }
+  .karten-filter button { font-size: 14px; }
+  .stadtkarte { margin-top: 4px; }
+  .familie-panel p { font-size: 14px; }
+  .sims-zeile { font-size: 14px; }
+  .sims-zeile b { font-size: 14px; }
+  .status-legende { font-size: 13px; }
+  .karten-listenpunkt b { font-size: 15px; }
+  .karten-listenpunkt small { font-size: 14px; }
+  .karte-kopfzeile h3 { font-size: 17px; }
+  .vergleich-check { font-size: 14.5px; }
+  .marker-copy b { font-size: 13px; }
+  .marker-copy small { font-size: 12px; }
+
+  /* Exposé, Finanzierung/Bank und Vergleich */
+  .pruefstand label { font-size: 15.5px; }
+  .pruefstand label b { font-size: 16px; }
+  .pruefstand p { font-size: 15px; }
+  .fin-ek-quote small { font-size: 14px; }
+  .fin-ek-quote span { font-size: 14px; }
+  .fin-ek-schnellwahl button { font-size: 15px; }
+  .fin-konditionen-fix > label, .fin-etf-panel, .fin-bindung { font-size: 16px; }
+  .fin-konditionen-fix .fin-slider-werte { font-size: 15px; }
+  .fin-etf-panel small, .fin-etf-slider small { font-size: 14.5px; }
+  .fin-ltv-viz small { font-size: 14px; }
+  .fin-tabelle .fin-gruppe th { font-size: 13.5px; }
+  .fin-szenario h4 { font-size: 14.5px; }
+  .weg-aufteilung summary { font-size: 14.5px; }
+  .vergleich-tabelle th { font-size: 15px; }
+  .vergleich-delta, .vergleich-basis { font-size: 14px; }
+
+  /* Bewerber, Mieter und Renovierung */
+  .bewerber-name span { font-size: 14px; }
+  .bewerber-fakten dt { font-size: 13.5px; }
+  .mieter-kopf span { font-size: 14px; }
+  .hinweis-chip { font-size: 14px; }
+
+  /* Meldungen, Menü und Endgame */
+  .meldung-copy time { font-size: 13.5px !important; }
+  .menue-popover button b { font-size: 15px; }
+  .cashflow-details .gruppe td { font-size: 13px; }
+  .score-karte p { font-size: 13.5px; }
+  .endgame-details span { font-size: 14px; }
+  .timeline-eintrag { font-size: 15px; }
+
+  /* Turnaround */
+  .turnaround-kpis dt { font-size: 13px; }
+  .turnaround-tabelle { font-size: 14px; }
+  .turnaround-tabelle thead th { font-size: 13px; }
+  /* Quartalsbericht-Scrollleiste verbergen (Inhalt bleibt scrollbar). */
+  #zentrale-panel-quartal { scrollbar-width: none; }
+  #zentrale-panel-quartal::-webkit-scrollbar { display: none; }
 }
 
 .pruefstand label { font-size: 13.5px; }
@@ -640,4 +720,17 @@ input, select, textarea,
     max-height: 42px;
     padding-block: 4px;
   }
+}
+
+/* HUD-Schaltflächen: ab breitem Desktop flex-Layout erzwingen, damit SVG + Text korrekt
+   nebeneinander liegen. Höhe bleibt ≤ 46 px (Smoke-Gate). */
+@media (min-width: 1201px) {
+  .ressourcenleiste { height: 46px; max-height: 46px; }
+  .ressourcenleiste > :is(div, button) { height: 46px; min-height: 46px; max-height: 46px; }
+  .resource-finanzgruppe > button {
+    height: 46px; min-height: 46px; max-height: 46px;
+    display: flex; flex-direction: row; align-items: center;
+    gap: 8px; overflow: hidden;
+  }
+  .resource-finanzgruppe > button .resource-copy { display: block; min-width: 0; }
 }

@@ -1,4 +1,4 @@
-// signals.js — flüchtige, nicht gespeicherte UI-Signale aus der DOM-freien Engine.
+﻿// signals.js — flüchtige, nicht gespeicherte UI-Signale aus der DOM-freien Engine.
 // Wartemomente stoppen Fast-Forward, sobald eine sinnvolle Folgeaktion ansteht.
 
 function warteschlange(state) {
@@ -28,3 +28,4 @@ export function zieheWartemomente(state) {
 export function verwerfeWartemomente(state) {
   warteschlange(state).length = 0;
 }
+

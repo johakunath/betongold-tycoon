@@ -1,10 +1,10 @@
-// kennzahlen.js — einheitliche, normalisierte UI-Kennzahlen.
+﻿// kennzahlen.js — einheitliche, normalisierte UI-Kennzahlen.
 // Die Engine bleibt DOM-frei; diese Ableitungen benennen dieselben Beträge auf
 // HUD, Zentrale, Finanzen, Stadt und Finanzierung identisch.
 
-import { monatsWerte } from '../engine.js?v=52';
-import { fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=52';
-import { monatsAnlass } from '../gameplay.js?v=52';
+import { monatsWerte } from '../engine.js?v=54';
+import { fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=54';
+import { monatsAnlass } from '../gameplay.js?v=54';
 
 export function objektCashflowMonat(state, objekt, vermietet = objekt.vermietet && !objekt.renovierung) {
   const miete = vermietet ? Number(objekt.kaltmiete) || 0 : 0;
@@ -61,3 +61,4 @@ export function naechsterZugEmpfehlung(state, marktEintrag = null) {
   }
   return monatsAnlass(state);
 }
+

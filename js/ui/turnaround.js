@@ -1,7 +1,7 @@
-// ui/turnaround.js — bestätigter Banktermin für das Turnaround-Paket.
+﻿// ui/turnaround.js — bestätigter Banktermin für das Turnaround-Paket.
 
-import { bankAnpassungVorschau, wendeBankAnpassungAn } from '../turnaround.js?v=52';
-import { fmtEUR } from './util.js?v=52';
+import { bankAnpassungVorschau, wendeBankAnpassungAn } from '../turnaround.js?v=54';
+import { fmtEUR } from './util.js?v=54';
 
 let ctx = null;
 let ziel = null;
@@ -43,3 +43,4 @@ export function oeffneBankAnpassung(objekt) {
   bestaetigen.title = v.grund;
   document.getElementById('dlg-bank').showModal();
 }
+

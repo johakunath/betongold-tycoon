@@ -1,20 +1,20 @@
-// Familienmarkt-Gate: Mieten vs. Meißner Familienwohnung vs. Haus.
+﻿// Familienmarkt-Gate: Mieten vs. Meißner Familienwohnung vs. Haus.
 // Prüft 300 gepaarte Seeds und die strukturellen Unterschiede der Kostenmodelle.
 //
 //   node test/family-market.mjs --seeds=300
 
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { setzeInhalte, getListing } from '../js/content.js?v=52';
-import { newGame } from '../js/state.js?v=52';
-import { initialisiereMarkt, fairerWert } from '../js/market.js?v=52';
-import { nebenkostenFuer, kreditAngebot } from '../js/finance.js?v=52';
-import { kaufeEigenheim } from '../js/eigenheim.js?v=52';
-import { verkaufeEtf } from '../js/etf.js?v=52';
-import { advanceMonths, gesamtMonate } from '../js/engine.js?v=52';
-import { resolveEvent } from '../js/events.js?v=52';
-import { berechneScores } from '../js/endgame.js?v=52';
-import { fixkostenMonat, instandhaltungMonat } from '../js/immobilie.js?v=52';
+import { setzeInhalte, getListing } from '../js/content.js?v=54';
+import { newGame } from '../js/state.js?v=54';
+import { initialisiereMarkt, fairerWert } from '../js/market.js?v=54';
+import { nebenkostenFuer, kreditAngebot } from '../js/finance.js?v=54';
+import { kaufeEigenheim } from '../js/eigenheim.js?v=54';
+import { verkaufeEtf } from '../js/etf.js?v=54';
+import { advanceMonths, gesamtMonate } from '../js/engine.js?v=54';
+import { resolveEvent } from '../js/events.js?v=54';
+import { berechneScores } from '../js/endgame.js?v=54';
+import { fixkostenMonat, instandhaltungMonat } from '../js/immobilie.js?v=54';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const [listings, tenants, events] = await Promise.all(['listings', 'tenants', 'events'].map(async (name) =>
@@ -135,3 +135,4 @@ check(Math.max(mittel.miete, mittel.wohnung, mittel.haus) /
 
 console.log(fehler ? `\n${fehler} FAMILIENMARKT-GATES FEHLGESCHLAGEN` : '\nALLE FAMILIENMARKT-GATES OK');
 process.exit(fehler ? 1 : 0);
+

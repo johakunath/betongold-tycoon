@@ -1,22 +1,22 @@
-// Arbeitspaket F: Der Schuldenberg wird als begrenzter 12-Monats-Turnaround
+﻿// Arbeitspaket F: Der Schuldenberg wird als begrenzter 12-Monats-Turnaround
 // spielbar. Beide Linien haben echte Kosten und bleiben RNG-neutral, solange
 // keine Spielzeit vergeht.
 
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { newGame, exportString, importString } from '../js/state.js?v=52';
-import { setzeInhalte } from '../js/content.js?v=52';
-import { initialisiereMarkt } from '../js/market.js?v=52';
-import { initialisiereStartbestand } from '../js/starter.js?v=52';
-import { kannErhoehen, erhoeheMiete } from '../js/tenants.js?v=52';
-import { advanceMonths } from '../js/engine.js?v=52';
-import { resolveEvent } from '../js/events.js?v=52';
-import { starteVerkauf } from '../js/verkauf.js?v=52';
-import { haushaltsUeberschussMonat } from '../js/ui/kennzahlen.js?v=52';
+import { newGame, exportString, importString } from '../js/state.js?v=54';
+import { setzeInhalte } from '../js/content.js?v=54';
+import { initialisiereMarkt } from '../js/market.js?v=54';
+import { initialisiereStartbestand } from '../js/starter.js?v=54';
+import { kannErhoehen, erhoeheMiete } from '../js/tenants.js?v=54';
+import { advanceMonths } from '../js/engine.js?v=54';
+import { resolveEvent } from '../js/events.js?v=54';
+import { starteVerkauf } from '../js/verkauf.js?v=54';
+import { haushaltsUeberschussMonat } from '../js/ui/kennzahlen.js?v=54';
 import {
   bankAnpassungVorschau, objektCashflow, portfolioTriage,
   stabilisierungsLinien, wendeBankAnpassungAn,
-} from '../js/turnaround.js?v=52';
+} from '../js/turnaround.js?v=54';
 
 const lade = async (name) => JSON.parse(await readFile(new URL(`../data/${name}`, import.meta.url), 'utf8'));
 setzeInhalte({
@@ -125,3 +125,4 @@ assert.ok(cashflowEntfernt < -1000);
 assert.ok(verkleinern.entscheidungsHistorie.some((e) => e.typ === 'verkauft' && e.ziel === id));
 
 console.log('F-TURNAROUND OK — Triage, zwei kostenpflichtige Linien, +600-€-Ziel, 12-Monats-Fenster und Save-Roundtrip');
+

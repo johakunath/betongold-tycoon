@@ -1,7 +1,7 @@
-// etf.js — das echte, liquide ETF-Depot des Spielers. Der Vergleichs-ETF in
+﻿// etf.js — das echte, liquide ETF-Depot des Spielers. Der Vergleichs-ETF in
 // state.etfVergleich bleibt davon getrennt und dient nur als Benchmark.
 
-import { kapitalertragVorschau, verbucheKapitalertrag } from './kapitalsteuer.js?v=52';
+import { kapitalertragVorschau, verbucheKapitalertrag } from './kapitalsteuer.js?v=54';
 
 export function etfVerkaufVorschau(state, betrag) {
   const depot = state.etfDepot;
@@ -91,3 +91,4 @@ export function setzeSparplanEtfAnteil(state, anteil) {
   }
   return { ok: true, anteil: gerundet, geaendert };
 }
+

@@ -1,9 +1,9 @@
-// renovieren.js — Screen 5: Renovierungsplaner. Vier Stufen mit Kosten, Dauer,
+﻿// renovieren.js — Screen 5: Renovierungsplaner. Vier Stufen mit Kosten, Dauer,
 // Zustandsziel und Überziehungsrisiko. Start nur bei leerem Objekt (Umbau =
 // Leerstand). Formeln: ECONOMY_MODEL §17.
 
-import { renovierungsOptionen, starteRenovierung } from '../renovation.js?v=52';
-import { fmtEUR } from './util.js?v=52';
+import { renovierungsOptionen, starteRenovierung } from '../renovation.js?v=54';
+import { fmtEUR } from './util.js?v=54';
 
 let ctx = null;
 let index = -1;
@@ -94,3 +94,4 @@ function renoKarte(opt, genugCash) {
     `</div>`
   );
 }
+

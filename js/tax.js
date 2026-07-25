@@ -1,4 +1,4 @@
-// tax.js — stark vereinfachter Jahres-Steuerbescheid für vermietete Objekte.
+﻿// tax.js — stark vereinfachter Jahres-Steuerbescheid für vermietete Objekte.
 // DOM-frei; Formeln in ECONOMY_MODEL.md §21.
 
 // Sammelt die steuerlich relevanten Monatswerte aller Kapitalanlagen und
@@ -74,3 +74,4 @@ export function steuerVorschau(state) {
   const ergebnis = l.miete - l.zinsen - l.kosten - l.afa - state.steuer.verlustvortrag;
   return { ...l, ergebnis, steuer: ergebnis * state.steuer.grenzsatz, verlustvortrag: state.steuer.verlustvortrag };
 }
+

@@ -1,7 +1,7 @@
-// event.js — Screen 8: Event-Modal. Zeigt das Dilemma mit 2–3 Optionen; nach
+﻿// event.js — Screen 8: Event-Modal. Zeigt das Dilemma mit 2–3 Optionen; nach
 // der Wahl die Folge, dann weiter. Blockiert (die Zeit ist ohnehin pausiert).
 
-import { aktivesEventInfo, resolveEvent } from '../events.js?v=52';
+import { aktivesEventInfo, resolveEvent } from '../events.js?v=54';
 
 let ctx = null;
 
@@ -67,3 +67,4 @@ export function initEventWeiter() {
     ctx.render();
   });
 }
+

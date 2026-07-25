@@ -1,19 +1,19 @@
-// finance.js — Kreditangebot, Haushaltsrechnung der Bank, Kaufabwicklung,
+﻿// finance.js — Kreditangebot, Haushaltsrechnung der Bank, Kaufabwicklung,
 // Annuitäten-Tick, Anschlussfinanzierung. Formeln: ECONOMY_MODEL.md §9–§12.
 // DOM-frei; zirkulärer Import mit engine.js (monatsWerte) ist auf Funktions-
 // ebene unkritisch.
 
-import { rngFloat, rngNormal, bestandsMieter, entnimmRuecklage } from './state.js?v=52';
-import { getListing } from './content.js?v=52';
-import { monatsWerte } from './engine.js?v=52';
-import { fairerWert } from './market.js?v=52';
-import { angesetzteMiete, marktmiete, mieterMonat, neueBewerber } from './tenants.js?v=52';
-import { renovierungAbschluss, renovierungsOptionen } from './renovation.js?v=52';
-import { meldeWartemoment } from './signals.js?v=52';
-import { protokolliereWirkung, pruefstand } from './gameplay.js?v=52';
+import { rngFloat, rngNormal, bestandsMieter, entnimmRuecklage } from './state.js?v=54';
+import { getListing } from './content.js?v=54';
+import { monatsWerte } from './engine.js?v=54';
+import { fairerWert } from './market.js?v=54';
+import { angesetzteMiete, marktmiete, mieterMonat, neueBewerber } from './tenants.js?v=54';
+import { renovierungAbschluss, renovierungsOptionen } from './renovation.js?v=54';
+import { meldeWartemoment } from './signals.js?v=54';
+import { protokolliereWirkung, pruefstand } from './gameplay.js?v=54';
 import {
   eigenheimEignung, fixkostenMonat, instandhaltungMonat, gebaeudeAnteil,
-} from './immobilie.js?v=52';
+} from './immobilie.js?v=54';
 
 // ---------------------------------------------------------------------------
 // Basiszins: mean-reverting Random Walk (monatlich, aus engine.tick)
@@ -579,3 +579,4 @@ export function tickObjekt(state, objekt) {
     cashflow: miete - laufendeKosten - hausverwaltung - rate - ruecklageBeitrag - reparaturCash,
   };
 }
+

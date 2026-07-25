@@ -1,4 +1,4 @@
-// Ein-Klick-Launcher: startet einen kleinen statischen Loopback-Server, öffnet
+﻿// Ein-Klick-Launcher: startet einen kleinen statischen Loopback-Server, öffnet
 // den Standardbrowser und beendet sich nach Inaktivität automatisch.
 
 import { createServer } from 'node:http';
@@ -146,3 +146,4 @@ if (laufend) {
   }, 30000);
   waechter.unref();
 }
+

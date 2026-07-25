@@ -1,4 +1,4 @@
-// Dauerhafte Abschlussprüfung der im Owner-Chat festgelegten Produktverträge.
+﻿// Dauerhafte Abschlussprüfung der im Owner-Chat festgelegten Produktverträge.
 // Der Test prüft bewusst Querschnittsanforderungen, die sonst über mehrere
 // Fachtests und Dokumente verteilt wären.
 
@@ -6,8 +6,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { DEFAULT_CONFIG, SAVE_VERSION, START_PRESETS, UI_VERSION } from '../js/config.js?v=52';
-import { meldungMeta } from '../js/ui/meldungen.js?v=52';
+import { DEFAULT_CONFIG, SAVE_VERSION, START_PRESETS, UI_VERSION } from '../js/config.js?v=54';
+import { meldungMeta } from '../js/ui/meldungen.js?v=54';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const lies = (datei) => fs.readFileSync(path.join(root, datei), 'utf8');
@@ -58,7 +58,7 @@ function vertrag(name, pruefung) {
 
 vertrag('Versionen und Wegwerf-Saves', () => {
   assert.equal(SAVE_VERSION, 21);
-  assert.equal(UI_VERSION, 52);
+  assert.equal(UI_VERSION, 54);
   assert.match(state, /Versionskonflikt|Version/);
   assert.doesNotMatch(state, /(?:export\s+)?function\s+migrier/i);
   assert.match(state, /statt Migrationscode mitzuschleppen/);
@@ -79,9 +79,9 @@ vertrag('CSS ist in geordnete, begrenzte Wartungsschichten zerlegt', () => {
 });
 
 vertrag('Desktop-Texte und grüne Statusbadges bleiben gut lesbar', () => {
-  assert.match(css, /\.badge\.gruen\s*\{[\s\S]*?color:\s*#12351f !important;[\s\S]*?font-size:\s*12\.5px;[\s\S]*?font-weight:\s*750;/);
-  assert.match(css, /@media \(min-width:\s*1201px\)[\s\S]*?\.flow-zeile,[\s\S]*?\.steuer-regel,[\s\S]*?font-size:\s*13px;/);
-  assert.match(css, /@media \(min-width:\s*1201px\)[\s\S]*?\.steuer-vorschau small,[\s\S]*?#steuer-letzter[\s\S]*?font-size:\s*12px;/);
+  assert.match(css, /\.badge\.gruen\s*\{[\s\S]*?color:\s*#12351f !important;[\s\S]*?font-size:\s*14\.5px;[\s\S]*?font-weight:\s*750;/);
+  assert.match(css, /@media \(min-width:\s*1201px\)[\s\S]*?\.flow-zeile,[\s\S]*?\.steuer-regel,[\s\S]*?font-size:\s*15px;/);
+  assert.match(css, /@media \(min-width:\s*1201px\)[\s\S]*?\.steuer-vorschau small,[\s\S]*?#steuer-letzter[\s\S]*?font-size:\s*14px;/);
 });
 
 vertrag('Handlungskette belohnt Prüfung, Beobachten und guten Weggang', () => {
@@ -176,8 +176,8 @@ vertrag('Cashflow-Details, Benachrichtigungen und kompaktes Spielmenü', () => {
   assert.match(shell, /Math\.max\(0, log\.length - 40\)/);
   assert.match(shell, /<time datetime=/);
   assert.match(shell, /meldungMeta/);
-  assert.match(shell, /from '\.\/meldungen\.js\?v=52'/);
-  assert.match(karte, /from '\.\/meldungen\.js\?v=52'/);
+  assert.match(shell, /from '\.\/meldungen\.js\?v=54'/);
+  assert.match(karte, /from '\.\/meldungen\.js\?v=54'/);
   assert.match(karte, /meldung-\$\{meta\.klasse\}[\s\S]*meldung-symbol[\s\S]*meta\.symbol/);
   assert.match(meldungen, /export function meldungMeta/);
   assert.match(shell, /data-meldung-index/);
@@ -461,3 +461,4 @@ vertrag('Aktuelle Unterlagen enthalten weder Marina noch private Presetbenennung
 });
 
 console.log(`CHAT-CONTRACTS OK — ${anzahl} querschnittliche Owner-Verträge`);
+

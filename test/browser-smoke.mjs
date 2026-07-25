@@ -1,4 +1,4 @@
-// Dependency-freier Browser-Smoke-Test über das Chrome DevTools Protocol.
+﻿// Dependency-freier Browser-Smoke-Test über das Chrome DevTools Protocol.
 // Startet Edge/Chrome headless und bedient den echten UI-Weg:
 // Dashboard → Markt → Exposé → Gebot → Finanzierung → Kauf → Portfolio.
 //
@@ -1225,12 +1225,12 @@ async function main() {
     // Lebensphasen auch im echten Renderpfad: Ruhestands-HUD und private
     // Endbilanz werden mit einem isolierten deterministischen Teststate gezeigt.
     const lebensphasenUi = await auswerten(`(async () => {
-      const { newGame } = await import('/js/state.js?v=52');
-      const { initialisiereMarkt } = await import('/js/market.js?v=52');
-      const { advanceMonths } = await import('/js/engine.js?v=52');
-      const { resolveEvent } = await import('/js/events.js?v=52');
-      const { updateHud } = await import('/js/ui/shell.js?v=52');
-      const { zeigeEnde } = await import('/js/ui/endgame.js?v=52');
+      const { newGame } = await import('/js/state.js?v=54');
+      const { initialisiereMarkt } = await import('/js/market.js?v=54');
+      const { advanceMonths } = await import('/js/engine.js?v=54');
+      const { resolveEvent } = await import('/js/events.js?v=54');
+      const { updateHud } = await import('/js/ui/shell.js?v=54');
+      const { zeigeEnde } = await import('/js/ui/endgame.js?v=54');
       const rente = newGame({ seedText: 'browser-rente' });
       rente.monat = (rente.config.zeit.rentenAlter - rente.config.zeit.startAlter) * 12;
       updateHud(rente, 0);
@@ -1282,3 +1282,4 @@ async function main() {
 }
 
 await main();
+

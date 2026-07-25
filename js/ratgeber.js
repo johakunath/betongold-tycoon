@@ -1,7 +1,7 @@
-// ratgeber.js — seltene, zustandsabhängige Lernhinweise für Leicht/Normal.
+﻿// ratgeber.js — seltene, zustandsabhängige Lernhinweise für Leicht/Normal.
 // DOM-frei: Das Modul entscheidet nur, ob ein neuer Hinweis fällig ist.
 
-import { monatsWerte } from './engine.js?v=52';
+import { monatsWerte } from './engine.js?v=54';
 
 const MINDESTABSTAND = 10;
 
@@ -51,3 +51,4 @@ export function pruefeRatgeber(state) {
   state.ratgeber.letzterMonat = state.monat;
   return { titel: 'Tipp von Mara', text: tipp.text };
 }
+

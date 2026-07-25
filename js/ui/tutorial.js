@@ -1,4 +1,4 @@
-// tutorial.js — optionaler, nicht spielverändernder Rundgang durch die
+﻿// tutorial.js — optionaler, nicht spielverändernder Rundgang durch die
 // wichtigsten UI-Bereiche. Die Zeit bleibt während der Tour pausiert.
 
 const SCHRITTE = [
@@ -94,3 +94,4 @@ function beenden(zurZentrale) {
   if (zurZentrale) api.zeigeScreen('dashboard');
   document.getElementById('btn-hilfe').focus({ preventScroll: true });
 }
+

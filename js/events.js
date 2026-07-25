@@ -1,9 +1,9 @@
-// events.js — Dilemma-Events: monatlicher Roll (feste RNG-Position im Tick)
+﻿// events.js — Dilemma-Events: monatlicher Roll (feste RNG-Position im Tick)
 // und Auflösung ohne RNG. Formeln: ECONOMY_MODEL §18. DOM-frei.
 
-import { rngFloat, zahleReparatur } from './state.js?v=52';
-import { alleEvents, getEvent } from './content.js?v=52';
-import { planeObjektArc, schliesseAktivenArc } from './arcs.js?v=52';
+import { rngFloat, zahleReparatur } from './state.js?v=54';
+import { alleEvents, getEvent } from './content.js?v=54';
+import { planeObjektArc, schliesseAktivenArc } from './arcs.js?v=54';
 
 function kalendermonat(state) {
   return ((state.config.zeit.startMonat - 1 + state.monat) % 12) + 1;
@@ -177,3 +177,4 @@ export function aktivesEventInfo(state) {
   const objekt = state.aktivesEvent.objektIndex >= 0 ? state.portfolio[state.aktivesEvent.objektIndex] : null;
   return { ev, objekt };
 }
+

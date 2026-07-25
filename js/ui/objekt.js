@@ -1,26 +1,26 @@
-// objekt.js — Screen 7: Objekt-Detail. Cutaway, Monats-P&L, Mieter/Leerstand,
+﻿// objekt.js — Screen 7: Objekt-Detail. Cutaway, Monats-P&L, Mieter/Leerstand,
 // Rücklage, Hausverwaltung, Mieterhöhung, Renovieren. Nabe der Phase-3-Loop.
 
-import { getListing } from '../content.js?v=52';
-import { fairerWert } from '../market.js?v=52';
+import { getListing } from '../content.js?v=54';
+import { fairerWert } from '../market.js?v=54';
 import {
   marktmiete, kannErhoehen, maxMiete, erhoeheMiete, mietrechtFuer, vermietungsmodell,
   starteEigenbedarf, zieheEigenbedarfZurueck, zahleEigenbedarfAbfindung,
-} from '../tenants.js?v=52';
-import { bildHTML, cutawayHTML } from '../iso.js?v=52';
-import { faktenLabel, fmtEUR, fmtEURSigniert } from './util.js?v=52';
-import { oeffneBewerber } from './bewerber.js?v=52';
-import { oeffneRenovieren } from './renovieren.js?v=52';
-import { oeffneVerkauf } from './verkaufen.js?v=52';
+} from '../tenants.js?v=54';
+import { bildHTML, cutawayHTML } from '../iso.js?v=54';
+import { faktenLabel, fmtEUR, fmtEURSigniert } from './util.js?v=54';
+import { oeffneBewerber } from './bewerber.js?v=54';
+import { oeffneRenovieren } from './renovieren.js?v=54';
+import { oeffneVerkauf } from './verkaufen.js?v=54';
 import {
   fixkostenMonat, instandhaltungMonat, objektartConfig, fixkostenAufschluesselung,
-} from '../immobilie.js?v=52';
-import { bezieheBestandsobjekt } from '../eigenheim.js?v=52';
-import { protokolliereWirkung } from '../gameplay.js?v=52';
-import { bankAnpassungVorschau, turnaroundAktiv } from '../turnaround.js?v=52';
-import { oeffneBankAnpassung } from './turnaround.js?v=52';
-import { objektArcsFuerObjekt } from '../arcs.js?v=52';
-import { sondertilgen, sondertilgungRahmen, sondertilgungVorschau } from '../finance.js?v=52';
+} from '../immobilie.js?v=54';
+import { bezieheBestandsobjekt } from '../eigenheim.js?v=54';
+import { protokolliereWirkung } from '../gameplay.js?v=54';
+import { bankAnpassungVorschau, turnaroundAktiv } from '../turnaround.js?v=54';
+import { oeffneBankAnpassung } from './turnaround.js?v=54';
+import { objektArcsFuerObjekt } from '../arcs.js?v=54';
+import { sondertilgen, sondertilgungRahmen, sondertilgungVorschau } from '../finance.js?v=54';
 
 let ctx = null;
 let auswahl = null; // stabile listingId oder 'eigenheim'
@@ -421,3 +421,4 @@ function wire(state, objekt, index, istEigenheim) {
     renderObjekt(state);
   });
 }
+

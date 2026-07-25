@@ -1,18 +1,18 @@
-// engine.js — der monatliche Tick: Haushalts-Cashflow, Tagesgeld, Objekt-P&L,
+﻿// engine.js — der monatliche Tick: Haushalts-Cashflow, Tagesgeld, Objekt-P&L,
 // Segment-/Zins-Drift, Feed-Lifecycle, ETF-Benchmark. Formeln in
 // ECONOMY_MODEL.md. Kein DOM-Zugriff (Node-testbar). Ab Phase 3: Event-Rolls.
 
-import { rngNormalStrom } from './state.js?v=52';
-import { tickMarkt, fairerWert } from './market.js?v=52';
-import { sondertilgungRahmen, tickBasiszins, tickObjekt } from './finance.js?v=52';
-import { rolleAuftakt, rolleEvent } from './events.js?v=52';
-import { tickSteuer } from './tax.js?v=52';
-import { tickVerkaeufe } from './verkauf.js?v=52';
-import { wendeAdminPendingAn } from './admin.js?v=52';
-import { hatWartemoment, verwerfeWartemomente } from './signals.js?v=52';
-import { verbucheKapitalertrag } from './kapitalsteuer.js?v=52';
-import { arbeitsmodell, aktualisiereLebensphasen, zeitbudgetMonat } from './life.js?v=52';
-import { tickObjektArcs } from './arcs.js?v=52';
+import { rngNormalStrom } from './state.js?v=54';
+import { tickMarkt, fairerWert } from './market.js?v=54';
+import { sondertilgungRahmen, tickBasiszins, tickObjekt } from './finance.js?v=54';
+import { rolleAuftakt, rolleEvent } from './events.js?v=54';
+import { tickSteuer } from './tax.js?v=54';
+import { tickVerkaeufe } from './verkauf.js?v=54';
+import { wendeAdminPendingAn } from './admin.js?v=54';
+import { hatWartemoment, verwerfeWartemomente } from './signals.js?v=54';
+import { verbucheKapitalertrag } from './kapitalsteuer.js?v=54';
+import { arbeitsmodell, aktualisiereLebensphasen, zeitbudgetMonat } from './life.js?v=54';
+import { tickObjektArcs } from './arcs.js?v=54';
 
 const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
 
@@ -393,3 +393,4 @@ export function advanceMonths(state, n, autoResolve) {
     }
   }
 }
+

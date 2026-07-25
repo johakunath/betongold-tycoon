@@ -1,22 +1,22 @@
-// Arbeitspakete G/H: langfristige Folgen, freiwillige Ziele und echte
+﻿// Arbeitspakete G/H: langfristige Folgen, freiwillige Ziele und echte
 // Einkommen-/Zeit-/Familien-Trade-offs bleiben DOM- und RNG-frei testbar.
 
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { newGame, exportString, importString } from '../js/state.js?v=52';
-import { setzeInhalte } from '../js/content.js?v=52';
-import { initialisiereMarkt } from '../js/market.js?v=52';
-import { initialisiereStartbestand } from '../js/starter.js?v=52';
-import { advanceMonths, monatsWerte, zeitVerbrauch } from '../js/engine.js?v=52';
-import { resolveEvent } from '../js/events.js?v=52';
-import { objektArcsFuerObjekt } from '../js/arcs.js?v=52';
-import { setzeEntwicklungsziel, zielStatus } from '../js/goals.js?v=52';
+import { newGame, exportString, importString } from '../js/state.js?v=54';
+import { setzeInhalte } from '../js/content.js?v=54';
+import { initialisiereMarkt } from '../js/market.js?v=54';
+import { initialisiereStartbestand } from '../js/starter.js?v=54';
+import { advanceMonths, monatsWerte, zeitVerbrauch } from '../js/engine.js?v=54';
+import { resolveEvent } from '../js/events.js?v=54';
+import { objektArcsFuerObjekt } from '../js/arcs.js?v=54';
+import { setzeEntwicklungsziel, zielStatus } from '../js/goals.js?v=54';
 import {
   aktualisiereLebensphasen, arbeitsmodellRestbindung, naechsteLebensphase,
   setzeArbeitsmodell, zeitbudgetMonat,
-} from '../js/life.js?v=52';
-import { monatsAnlass } from '../js/gameplay.js?v=52';
-import { renovierungsOptionen, starteRenovierung } from '../js/renovation.js?v=52';
+} from '../js/life.js?v=54';
+import { monatsAnlass } from '../js/gameplay.js?v=54';
+import { renovierungsOptionen, starteRenovierung } from '../js/renovation.js?v=54';
 
 const lade = async (name) => JSON.parse(await readFile(new URL(`../data/${name}`, import.meta.url), 'utf8'));
 setzeInhalte({
@@ -131,3 +131,4 @@ assert.equal(geladen.objektArcs.length, 0);
 assert.ok(geladen.portfolio[0].renovierung.eigenleistung);
 
 console.log('G/H-DEVELOPMENT OK — Ziele, drei Arc-Typen, Arbeitsmodelle, Lebensphasen, Eigenleistung und Save-Roundtrip');
+

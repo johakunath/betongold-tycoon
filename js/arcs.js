@@ -1,6 +1,6 @@
-// arcs.js — terminierte, RNG-freie Folgekapitel zu echten Evententscheidungen.
+﻿// arcs.js — terminierte, RNG-freie Folgekapitel zu echten Evententscheidungen.
 
-import { getEvent } from './content.js?v=52';
+import { getEvent } from './content.js?v=54';
 
 export function planeObjektArc(state, objekt, plan) {
   if (!plan?.id || !plan.folgeEventId || !objekt) return null;
@@ -57,3 +57,4 @@ export function aktiveArcsFuerObjekt(state, objekt) {
 export function objektArcsFuerObjekt(state, objekt) {
   return state.objektArcs.filter((arc) => arc.listingId === objekt.listingId);
 }
+

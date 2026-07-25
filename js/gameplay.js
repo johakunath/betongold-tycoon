@@ -1,9 +1,9 @@
-// gameplay.js — DOM- und RNG-freier Vertrag für Handlungsketten und Wirkungen.
+﻿// gameplay.js — DOM- und RNG-freier Vertrag für Handlungsketten und Wirkungen.
 // Fachmodule protokollieren hier bewusst getroffene Entscheidungen; die UI
 // leitet daraus Monatsanlass, Prüfstand und kurze Vorher/Nachher-Momente ab.
 
-import { getListing } from './content.js?v=52';
-import { naechsteLebensphase } from './life.js?v=52';
+import { getListing } from './content.js?v=54';
+import { naechsteLebensphase } from './life.js?v=54';
 
 function historie(state) {
   if (!Array.isArray(state.entscheidungsHistorie)) state.entscheidungsHistorie = [];
@@ -166,3 +166,4 @@ export function monatsAnlass(state) {
     button: 'Marktplatz öffnen',
   };
 }
+

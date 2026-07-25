@@ -1,4 +1,4 @@
-// iso.js — SVG-Platzhalter-Renderer für Exposé-Bilder. Gleiche Dateinamen-
+﻿// iso.js — SVG-Platzhalter-Renderer für Exposé-Bilder. Gleiche Dateinamen-
 // Logik wie assets/ (ASSET_MANIFEST.md): existiert das WebP, legt es sich
 // per <img> über den Platzhalter; sonst bleibt der SVG-Greybox-Look.
 // Art blockt nie den Build (PLAN.md §6). Kein Spiel-RNG — Tint kommt
@@ -165,3 +165,4 @@ export function cutawayHTML(listing, zustand, klasse = '') {
     `</div>`
   );
 }
+

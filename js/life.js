@@ -1,4 +1,4 @@
-// life.js — DOM-/RNG-freie Familien-, Arbeits- und Lebensphasenverträge.
+﻿// life.js — DOM-/RNG-freie Familien-, Arbeits- und Lebensphasenverträge.
 
 function modell(state) {
   const id = state.entwicklung?.arbeitsmodellId || 'balance';
@@ -81,3 +81,4 @@ export function aktualisiereLebensphasen(state) {
   state.log.push({ monat: state.monat, text: `Lebensphase in ${rest} Monaten: ${phase.titel}. ${phase.text}` });
   return phase;
 }
+

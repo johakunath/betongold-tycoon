@@ -1,4 +1,4 @@
-// content.js — DOM-freier Zugriff auf Spielinhalte (data/*.json).
+﻿// content.js — DOM-freier Zugriff auf Spielinhalte (data/*.json).
 // Der Loader ist umgebungsneutral: der Browser (main.js) lädt per fetch,
 // der Simtest (Node) per fs.readFile — beide rufen setzeInhalte().
 
@@ -41,4 +41,5 @@ export function getEvent(id) {
   if (!e) throw new Error(`Unbekanntes Event: ${id}`);
   return e;
 }
+
 

@@ -1,8 +1,8 @@
-// goals.js — freiwillige mittelfristige Ziele ohne Belohnungs- oder Queststate.
+﻿// goals.js — freiwillige mittelfristige Ziele ohne Belohnungs- oder Queststate.
 // Fortschritt wird ausschließlich aus Portfolio, Eigenheim und Liquidität abgeleitet.
 
-import { monatsWerte } from './engine.js?v=52';
-import { objektCashflow } from './turnaround.js?v=52';
+import { monatsWerte } from './engine.js?v=54';
+import { objektCashflow } from './turnaround.js?v=54';
 
 export function setzeEntwicklungsziel(state, id) {
   if (id !== null && !state.config.entwicklung.zielOptionen[id]) throw new Error('Unbekanntes Entwicklungsziel.');
@@ -57,3 +57,4 @@ export function zielStatus(state, id = state.entwicklung?.zielId) {
 export function alleZielStatus(state) {
   return Object.keys(state.config.entwicklung.zielOptionen).map((id) => zielStatus(state, id));
 }
+

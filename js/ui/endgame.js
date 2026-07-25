@@ -1,7 +1,7 @@
-// ui/endgame.js — Screen 9: fünf Scores, Seed-Benchmarks und Timeline.
+﻿// ui/endgame.js — Screen 9: fünf Scores, Seed-Benchmarks und Timeline.
 
-import { berechneEndauswertung } from '../endgame.js?v=52';
-import { fmtEUR, fmtEURSigniert, fmtDatum } from './util.js?v=52';
+import { berechneEndauswertung } from '../endgame.js?v=54';
+import { fmtEUR, fmtEURSigniert, fmtDatum } from './util.js?v=54';
 
 const PHASEN_LABEL = {
   boom: 'Boom — Rückenwind für Märkte',
@@ -137,3 +137,4 @@ function kurz(wert) {
   if (abs >= 1000) return `${vorzeichen}${Math.round(abs / 1000)} Tsd.`;
   return `${Math.round(wert)} €`;
 }
+

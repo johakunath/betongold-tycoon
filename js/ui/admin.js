@@ -1,10 +1,10 @@
-// ui/admin.js — gruppiertes Phase-5-Adminpanel. Änderungen werden erst beim
+﻿// ui/admin.js — gruppiertes Phase-5-Adminpanel. Änderungen werden erst beim
 // Übernehmen in state.config geschrieben und greifen damit ab dem nächsten Tick.
 
 import {
   ADMIN_FELDER, ADMIN_GRUPPEN, aktuelleAdminWerte, standardAdminWerte,
   planeAdminWerte,
-} from '../admin.js?v=52';
+} from '../admin.js?v=54';
 
 let ctx = null;
 let formularWerte = null;
@@ -81,3 +81,4 @@ function renderFormular(werte) {
   document.getElementById('admin-status').textContent =
     'Änderungen greifen ab dem nächsten Monat. Bereits verbuchte Monate bleiben unverändert.';
 }
+

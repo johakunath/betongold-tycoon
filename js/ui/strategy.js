@@ -1,8 +1,8 @@
-// ui/strategy.js — native Ziel- und Arbeitsmodellwahl für G/H.
+﻿// ui/strategy.js — native Ziel- und Arbeitsmodellwahl für G/H.
 
-import { alleZielStatus, setzeEntwicklungsziel, zielStatus } from '../goals.js?v=52';
-import { arbeitsmodell, arbeitsmodellRestbindung, naechsteLebensphase, setzeArbeitsmodell } from '../life.js?v=52';
-import { fmtEUR, fmtEURSigniert } from './util.js?v=52';
+import { alleZielStatus, setzeEntwicklungsziel, zielStatus } from '../goals.js?v=54';
+import { arbeitsmodell, arbeitsmodellRestbindung, naechsteLebensphase, setzeArbeitsmodell } from '../life.js?v=54';
+import { fmtEUR, fmtEURSigniert } from './util.js?v=54';
 
 let ctx = null;
 
@@ -71,3 +71,4 @@ function renderLebensplan(state) {
   }));
   document.getElementById('btn-lebensplan-admin').addEventListener('click', () => document.getElementById('btn-admin').click());
 }
+

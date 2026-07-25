@@ -1,11 +1,11 @@
-// Technischer Release-Check für die statische GitHub-Pages-Auslieferung.
+﻿// Technischer Release-Check für die statische GitHub-Pages-Auslieferung.
 // Prüft Abhängigkeiten und Content, ohne Browser oder Build-Schritt.
 
 import { readFile, readdir, stat } from 'node:fs/promises';
 import { extname, join, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
-import { DEFAULT_CONFIG, SAVE_VERSION, UI_VERSION, START_PRESETS } from '../js/config.js?v=52';
+import { DEFAULT_CONFIG, SAVE_VERSION, UI_VERSION, START_PRESETS } from '../js/config.js?v=54';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 let fehler = 0;
@@ -194,3 +194,4 @@ if (fehler) {
 } else {
   console.log('\nRELEASE CHECK OK');
 }
+

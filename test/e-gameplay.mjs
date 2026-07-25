@@ -1,17 +1,17 @@
-// Arbeitspaket E: Anlass → Prüfung → Entscheidung → Wirkung bleibt eine
+﻿// Arbeitspaket E: Anlass → Prüfung → Entscheidung → Wirkung bleibt eine
 // DOM-/RNG-neutrale, speicherbare Kernschleife. Ein Weggang zählt als Erfolg.
 
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { newGame, exportString, importString } from '../js/state.js?v=52';
-import { setzeInhalte } from '../js/content.js?v=52';
+import { newGame, exportString, importString } from '../js/state.js?v=54';
+import { setzeInhalte } from '../js/content.js?v=54';
 import {
   initialisiereMarkt, sichtbareListings, besichtigen, dokumenteAnfordern,
   gutachterBeauftragen, angebotBeobachten, angebotVerwerfen, angebotNeuPruefen,
-} from '../js/market.js?v=52';
+} from '../js/market.js?v=54';
 import {
   dealEntscheidung, letzteWirkung, monatsAnlass, pruefstand,
-} from '../js/gameplay.js?v=52';
+} from '../js/gameplay.js?v=54';
 
 setzeInhalte({ listings: JSON.parse(fs.readFileSync(new URL('../data/listings.json', import.meta.url), 'utf8')) });
 
@@ -72,3 +72,4 @@ assert.equal(letzteWirkung(geladen).typ, 'weggegangen');
 assert.equal(pruefstand(geladen, id).schritte, 3);
 
 console.log('E-GAMEPLAY OK — Anlass, 3 Prüfungen, Beobachten, guter Weggang, Monatsgrund und Save-Roundtrip');
+

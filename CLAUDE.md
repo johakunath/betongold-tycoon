@@ -75,7 +75,17 @@ hebt auf breiten Desktops erklärende Kleinsttexte und Statuskontraste an.
 UI v52 / Save v21: Drei terminierte, RNG- und ökonomisch neutrale Auftaktmomente
 (Monate 2/5/9) beleben den Spielbeginn vor dem ersten Kauf (E2); der verbliebene
 Einzelaktien-Code ist vollständig aus Engine, State, Save und Tests entfernt (B2).
-Aktuell: `SAVE_VERSION = 21`, `UI_VERSION = 52`.
+UI v53 hebt auf breiten Desktops (ab 1201 px) die gesamte Kleinschrift —
+HUD/Topbar, Startdialog, Zentrale, Karte, Exposé, Finanzierung, Bewerber,
+Meldungen und Endauswertung — um rund 15 % gegenüber UI v51/v52 an.
+UI v54 sichert alle sub-13-px-Stellen auf ≥ 13 px (Minimum-Pass), korrigiert
+den HUD-Finanzgruppen-Überlauf mit explizitem flex-Layout (SVG + resource-copy
+nebeneinander statt übereinander), behebt das Karten-Marker-Überlapp durch
+`requestAnimationFrame`-Deferral in `entzerreMarker()`, blendet den
+Quartalsbericht-Scrollbalken visuell aus und stellt eine
+PowerShell-5.1-Encoding-Korruption (CP1252-→-UTF-8-Doppelkodierung) in
+63 JS/HTML/MJS-Quelldateien rück.
+Aktuell: `SAVE_VERSION = 21`, `UI_VERSION = 54`.
 
 Unter Windows startet `BETONGOLD_STARTEN.cmd` das unveränderte statische Spiel
 per Doppelklick über einen unsichtbaren Loopback-HTTP-Server. `file://` bleibt

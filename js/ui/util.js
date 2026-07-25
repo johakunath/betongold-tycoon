@@ -1,4 +1,4 @@
-// util.js — deutsche Formatierung für Geld, Daten, Vorzeichen.
+﻿// util.js — deutsche Formatierung für Geld, Daten, Vorzeichen.
 
 const eurFmt = new Intl.NumberFormat('de-DE', {
   style: 'currency',
@@ -42,3 +42,4 @@ export function faktenLabel(label, erklaerung) {
   return `${sicher(label)} <button type="button" class="info-tooltip" ` +
     `aria-label="Info: ${sicher(erklaerung)}" data-tooltip="${sicher(erklaerung)}">?</button>`;
 }
+

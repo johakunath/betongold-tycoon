@@ -1,4 +1,4 @@
-// Dependency-free WCAG contrast audit for the real browser smoke test.
+﻿// Dependency-free WCAG contrast audit for the real browser smoke test.
 // The expression deliberately works with computed colors so dynamic component
 // states are checked after the app has rendered them, not just as CSS strings.
 
@@ -81,3 +81,4 @@ export function contrastAuditExpression(targets) {
     return { checked, missing, failures: checked.filter((entry) => entry.ratio < entry.minimum) };
   })()`;
 }
+

@@ -1,4 +1,4 @@
-// meldungen.js — gemeinsame visuelle und semantische Einordnung des Spiel-Logs.
+﻿// meldungen.js — gemeinsame visuelle und semantische Einordnung des Spiel-Logs.
 // Stadtpost und Glockenarchiv verwenden absichtlich exakt dieselbe Zuordnung.
 
 export function meldungMeta(eintrag, state) {
@@ -21,3 +21,4 @@ export function meldungMeta(eintrag, state) {
   if (markt) return { klasse: 'markt', symbol: '◆', label: 'Angebot öffnen', zielTyp: 'expose', ziel, aktion: true };
   return { klasse: 'info', symbol: 'i', label: 'Zur Stadt', zielTyp: 'karte', aktion: false };
 }
+

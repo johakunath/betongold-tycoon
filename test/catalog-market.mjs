@@ -1,11 +1,11 @@
-// Objektkatalog-/Feed-Gate für Arbeitspaket E.
+﻿// Objektkatalog-/Feed-Gate für Arbeitspaket E.
 // Prüft Startbreite, Erstumlauf und die langfristig sichtbare Angebotsmenge.
 
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { setzeInhalte, getListing } from '../js/content.js?v=52';
-import { newGame } from '../js/state.js?v=52';
-import { initialisiereMarkt, tickMarkt, sichtbareListings } from '../js/market.js?v=52';
+import { setzeInhalte, getListing } from '../js/content.js?v=54';
+import { newGame } from '../js/state.js?v=54';
+import { initialisiereMarkt, tickMarkt, sichtbareListings } from '../js/market.js?v=54';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const listings = JSON.parse(await readFile(`${root}data/listings.json`, 'utf8'));
@@ -62,3 +62,4 @@ check(listings.every((listing) => getListing(listing.id)), 'Alle Katalog-IDs sin
 
 console.log(fehler ? `\n${fehler} KATALOG-GATES FEHLGESCHLAGEN` : '\nALLE KATALOG-GATES OK');
 process.exit(fehler ? 1 : 0);
+

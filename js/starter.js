@@ -1,11 +1,11 @@
-// starter.js — idempotente Initialisierung besonderer Startbestände.
+﻿// starter.js — idempotente Initialisierung besonderer Startbestände.
 // Läuft nach market.initialisiereMarkt(), damit Listingdaten, Mängel und
 // Feedstatus existieren. DOM-frei und vollständig im Save abbildbar.
 
-import { getListing } from './content.js?v=52';
-import { fairerWert } from './market.js?v=52';
-import { kaufeObjekt, nebenkostenFuer } from './finance.js?v=52';
-import { initialisiereTurnaround } from './turnaround.js?v=52';
+import { getListing } from './content.js?v=54';
+import { fairerWert } from './market.js?v=54';
+import { kaufeObjekt, nebenkostenFuer } from './finance.js?v=54';
+import { initialisiereTurnaround } from './turnaround.js?v=54';
 
 export function initialisiereStartbestand(state) {
   if (state.startbestandInitialisiert) return { angewendet: false, anzahl: 0 };
@@ -99,3 +99,4 @@ function aktuellesNettovermoegen(state) {
     summe + fairerWert(state, objekt) - objekt.darlehen.restschuld + (objekt.ruecklage || 0), 0);
   return state.cash + (state.etfDepot?.wert || 0) + immobilien;
 }
+

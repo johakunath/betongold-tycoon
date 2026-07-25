@@ -1,19 +1,19 @@
-// dashboard.js — Screen 1: Kennzahlen-Kacheln, Haushaltsrechnung,
+﻿// dashboard.js — Screen 1: Kennzahlen-Kacheln, Haushaltsrechnung,
 // Nettovermögen-vs-ETF-Chart (Design-Säule 4: die ETF-Linie bleibt sichtbar).
 
-import { monatsWerte, nettovermoegen, datum } from '../engine.js?v=52';
-import { fairerWert } from '../market.js?v=52';
-import { getListing } from '../content.js?v=52';
-import { bildHTML } from '../iso.js?v=52';
-import { eigenheimMonatskosten } from '../eigenheim.js?v=52';
-import { setzeGrenzsteuersatz, steuerVorschau } from '../tax.js?v=52';
-import { fmtEUR, fmtEURKompakt, fmtEURSigniert, fmtDatum } from './util.js?v=52';
-import { fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=52';
-import { vermietungsmodell } from '../tenants.js?v=52';
-import { haushaltsUeberschussMonat, naechsterZugEmpfehlung } from './kennzahlen.js?v=52';
-import { aktualisiereNavMarkierung } from './shell.js?v=52';
-import { portfolioTriage, stabilisierungsLinien, turnaroundAktiv } from '../turnaround.js?v=52';
-import { renderStrategy } from './strategy.js?v=52';
+import { monatsWerte, nettovermoegen, datum } from '../engine.js?v=54';
+import { fairerWert } from '../market.js?v=54';
+import { getListing } from '../content.js?v=54';
+import { bildHTML } from '../iso.js?v=54';
+import { eigenheimMonatskosten } from '../eigenheim.js?v=54';
+import { setzeGrenzsteuersatz, steuerVorschau } from '../tax.js?v=54';
+import { fmtEUR, fmtEURKompakt, fmtEURSigniert, fmtDatum } from './util.js?v=54';
+import { fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=54';
+import { vermietungsmodell } from '../tenants.js?v=54';
+import { haushaltsUeberschussMonat, naechsterZugEmpfehlung } from './kennzahlen.js?v=54';
+import { aktualisiereNavMarkierung } from './shell.js?v=54';
+import { portfolioTriage, stabilisierungsLinien, turnaroundAktiv } from '../turnaround.js?v=54';
+import { renderStrategy } from './strategy.js?v=54';
 
 let getState = null;
 let onObjekt = null;   // Callback: Portfolio-Objekt anklicken → Objekt-Detail
@@ -613,3 +613,4 @@ function onHover(ev) {
   hoverMonat = Math.max(0, Math.min(monat, hist.length - 1));
   renderChart(state);
 }
+

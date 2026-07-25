@@ -1,4 +1,4 @@
-// Prüft den Ein-Klick-Server ohne Browserfenster oder Fremdpakete.
+﻿// Prüft den Ein-Klick-Server ohne Browserfenster oder Fremdpakete.
 
 import { spawn } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
@@ -37,18 +37,19 @@ try {
 
   const html = await fetch(url).then((antwort) => antwort.text());
   if (!html.includes('<title>Betongold Tycoon</title>') ||
-      !html.includes('data-betongold-launcher') || !html.includes('?v=52')) {
+      !html.includes('data-betongold-launcher') || !html.includes('?v=54')) {
     throw new Error('Index oder Keepalive-Injektion ist unvollständig.');
   }
 
   const keepalive = await fetch(`${url}__betongold_keepalive`);
   if (keepalive.status !== 204) throw new Error(`Keepalive antwortet mit ${keepalive.status}.`);
 
-  const css = await fetch(`${url}css/style.css?v=52`);
+  const css = await fetch(`${url}css/style.css?v=54`);
   if (!css.ok || !css.headers.get('content-type')?.startsWith('text/css')) {
     throw new Error('CSS wird nicht korrekt ausgeliefert.');
   }
-  console.log('LAUNCHER-SMOKE OK — Startdatei, statische Dateien, MIME, Keepalive und UI v52');
+  console.log('LAUNCHER-SMOKE OK — Startdatei, statische Dateien, MIME, Keepalive und UI v54');
 } finally {
   kind.kill();
 }
+
