@@ -5,9 +5,11 @@ beginnen; `AGENTS.md` enthält bewusst keine duplizierten Regeln.
 
 ## Produkt und Stand
 
-**Betongold Tycoon** ist primär das private Entscheidungs-Labor des Owners und
-seiner Familie: reale Immobilien-, ETF-, Liquiditäts- und Eigenheimoptionen in
-komprimierter Zeit verstehen und gefahrlos erleben. Es soll Mut zum Entscheiden
+**Betongold Tycoon** ist ein Entscheidungs-Labor für Haushalte: Immobilien-,
+ETF-, Liquiditäts- und Eigenheimoptionen in komprimierter Zeit verstehen und
+gefahrlos erleben. Die vier Startlagen sind entworfene Szenarien und bilden
+keinen konkreten Haushalt ab; alle Annahmen sind im Startdialog und in den
+Einstellungen editierbar. Es soll Mut zum Entscheiden
 machen und Overplanning abbauen, ohne Renditen, Risiken oder Regulierung zu
 beschönigen. Der Spaß entsteht aus verständlichen Konsequenzen und sichtbarem
 Fortschritt, nicht aus Marketingversprechen. Die Kampagne ist vollständig

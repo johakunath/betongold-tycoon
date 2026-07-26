@@ -5,10 +5,12 @@ Arbeit in `DONE.md`. Dieses Dokument beschreibt das stabile Zielbild.
 
 ## Spielidee
 
-Ein privates Entscheidungs-Labor für die reale Familie des Owners: über
-Erwerbsleben, Ruhestand und Lebensende Immobilien-, ETF-, Liquiditäts- und
-Eigenheimwege in komprimierter Zeit ausprobieren — einschließlich der bewussten
-Entscheidung, nicht zu kaufen. Das wichtigste emotionale Ziel ist, die Angst vor
+Ein Entscheidungs-Labor für Haushalte: über Erwerbsleben, Ruhestand und
+Lebensende Immobilien-, ETF-, Liquiditäts- und Eigenheimwege in komprimierter
+Zeit ausprobieren — einschließlich der bewussten Entscheidung, nicht zu kaufen.
+Die vier Startlagen sind entworfene Szenarien und bilden keinen konkreten
+Haushalt ab; alle Annahmen sind im Startdialog und in den Einstellungen
+editierbar. Das wichtigste emotionale Ziel ist, die Angst vor
 der ersten realen Wohnungssuche und der wahrscheinlich größten Kaufentscheidung
 des Lebens zu senken. Der Spieler soll Prüfen, Bieten, Nachverhandeln, Absagen
 und Stabilisieren gefahrlos üben und dadurch Lust auf umsichtiges Handeln

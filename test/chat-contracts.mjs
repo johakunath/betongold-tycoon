@@ -460,5 +460,18 @@ vertrag('Aktuelle Unterlagen enthalten weder Marina noch private Presetbenennung
   assert.doesNotMatch(aktuell, /Unsere Lage heute/);
 });
 
+// Das Repository ist öffentlich. Die Startlagen dürfen nirgends als Abbild
+// eines konkreten realen Haushalts ausgewiesen werden — sonst lesen sich
+// Einkommen, Miete, Sparraten und Kinderalter als personenbezogene Daten.
+vertrag('Startlagen werden nirgends als realer Haushalt ausgewiesen', () => {
+  const oeffentlich = [plan, roadmap, handover, readme, architektur, html, lies('CLAUDE.md'),
+    lies('DECISIONS.md'), lies('PLAYTEST.md')].join('\n');
+  assert.doesNotMatch(oeffentlich, /reale[snr]?\s+Familien(preset|lage)/i);
+  assert.doesNotMatch(oeffentlich, /Familie des Owners/i);
+  assert.doesNotMatch(oeffentlich, /Owner-Auswertung/i);
+  assert.doesNotMatch(oeffentlich, /privates?\s+Entscheidungs-Labor/i);
+  assert.match(plan, /bilden keinen konkreten\s+Haushalt ab/);
+});
+
 console.log(`CHAT-CONTRACTS OK — ${anzahl} querschnittliche Owner-Verträge`);
 
