@@ -246,13 +246,10 @@ sind [§ 20 Abs. 9 EStG](https://www.gesetze-im-internet.de/estg/__20.html) und
 Kirchensteuer und ETF-Vorabpauschale bleiben ausdrücklich außerhalb des
 Modells. Die Buchung ist eine transparente Spielabstraktion, keine Steuerberatung.
 
-### 4b. Fiktive Einzelaktien-Sandbox — entfernt (Save v21)
+### 4b. Fiktive Einzelaktien-Sandbox — entfernt (Save v21, 23.07.2026)
 
-Die Einzelaktien-Sandbox (`state.aktienDepot`, `state.aktienRngState`,
-`data/stocks.json`, `config.aktien`) wurde am 23.07.2026 vollständig entfernt.
-Der verbleibende Kapitalmarkt besteht aus Tagesgeld und dem Welt-ETF nebst
-Benchmark (§4, §4a). Das Aktienkonzept bleibt nur in `IDEEN.md` als möglicher,
-klar abtrennbarer Value-Investing-Ableger archiviert.
+Vollständig entfernt. Kapitalmarkt: nur Tagesgeld + Welt-ETF (§4, §4a).
+Konzept archiviert in `IDEEN.md`.
 
 ## 5. Marktphase
 

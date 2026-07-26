@@ -3,6 +3,30 @@
 Kompaktes, chronologisches Log. Ältere Einträge sind verdichtet; Details
 bleiben in `DECISIONS.md` und den Fachdocs nachvollziehbar.
 
+## 2026-07-26
+
+- **UI v55 — Layout-/UI-Review: zehn Sofortkorrekturen.** Live-Audit im echten
+  Chrome über 390/700/711/760/1024/1280/1440/2560 px, Ergebnis in `REVIEW.md`.
+  Behoben: (1) `.stadtkarte svg` aus der alten Inline-SVG-Karte traf jedes
+  `.ui-icon` in den Kartenmarkern und blies die Statussymbole auf 25 × 330 px
+  (mobil 760 × 330 px) auf — Selektor auf `.stadtkarte > svg` verengt.
+  (2) HUD-Finanzgruppe hatte `flex-shrink: 0` bei festen 252 + 126 px und lief
+  bei 390 px 7 px über die Topbar. (3) Die Bottom-Navigation enthielt einen
+  zweiten `overflow: auto`-Container; „Objekte" lag bei 390 px außerhalb des
+  Viewports. (4) Breakpoint-Lücke `max-width: 700px` / `min-width: 701px` — bei
+  fraktionalen Breiten griff keine Regel; jetzt `700.98px`. (5) Für 701–760 px
+  fehlte ein Kopf-Layout: Spalte 1 ist `max-content` und wurde von der
+  Ressourcenleiste auf 580 px gedehnt, die Topbar lief bis 27 px über und Datum
+  und Menü kollidierten. (6–8) Deutsche Zahlenformatierung: neuer Helfer
+  `fmtProzent()` ersetzt englische Dezimalpunkte bei Bruttorendite, Zinssatz
+  und Liquiditätspuffer; der €/m²-Preis auf bezugsfreien Karten kam über
+  `fmtEURKompakt` als „1 Tsd €/m²" statt „1.081 €/m²". (9) Kontokennzahlen
+  hatten eine umgekehrte Typo-Hierarchie (Label 14 px, Wert 10,5 px).
+  (10) `entzerreMarker()` lief nur beim Rendern — Resize-Handler ergänzt.
+  Keine State- oder RNG-Wirkung; `SAVE_VERSION` bleibt 21, `UI_VERSION` 54→55.
+  Offene Befunde (globaler Minimum-Font-Pass, toter Legacy-Kartenblock,
+  Dockziele auf dem Telefon, Trefferflächen) stehen priorisiert in `REVIEW.md`.
+
 ## 2026-07-25
 
 - **UI v54 — Encoding-Fix, HUD-Flex, Minimum-Pass, Marker-Timing:**

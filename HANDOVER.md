@@ -1,8 +1,56 @@
 # HANDOVER.md — aktueller Projektstand
 
-**Stand:** 25.07.2026 (UI v54 — Encoding-Fix, HUD-Flex, Minimum-Pass)
+**Stand:** 26.07.2026 (UI v55 — Layout-/UI-Review, zehn Sofortkorrekturen)
 
-**Versionen:** SAVE_VERSION = 21, UI_VERSION = 54
+**Versionen:** SAVE_VERSION = 21, UI_VERSION = 55
+
+## UI v55 — Layout-/UI-Review
+
+Vollständiger Befundbericht in `REVIEW.md`; offene Punkte sind dort priorisiert.
+Behoben wurden zehn Layout-, Format- und Lesbarkeitsfehler ohne State-Wirkung:
+
+1. **`.stadtkarte svg` traf jedes Marker-Icon.** Die Regel stammt aus der alten
+   Inline-SVG-Karte und setzte `width: 100%; min-height: 330px` auf jedes
+   `.ui-icon` in den Markern — 25 × 330 px auf dem Desktop, 760 × 330 px unter
+   700 px. Selektor auf `.stadtkarte > svg` verengt
+   (`css/legacy-responsive-features.css:223,397`). Der restliche Legacy-Block
+   (`.karten-ebene`, `.stadt-strassen`, `.ebene-titel` …) ist nachweislich tot —
+   siehe `REVIEW.md` 1.2.
+2. **HUD-Finanzgruppe** hatte `flex: 2 0 252px` / `flex: 1 0 126px`; mit
+   `flex-shrink: 0` lief die Leiste bei 390 px 7 px über die Topbar und wurde
+   von deren `overflow: hidden` abgeschnitten. Jetzt `2 1 0` / `1 1 0`.
+3. **Zwei verschachtelte Scroller im Dock.** `.zentrale-tabs` war ein eigener
+   `overflow: auto`-Container und wurde bei 390 px auf 124 px gequetscht;
+   „Objekte" lag außerhalb des Viewports. Jetzt scrollt das Dock als eine Reihe.
+4. **Breakpoint-Lücke 700/701 px.** Bei fraktionalen Viewport-Breiten (Zoom,
+   Geräte-Pixelratio) traf weder `max-width: 700px` noch `min-width: 701px`.
+   Acht Vorkommen auf `max-width: 700.98px` gezogen.
+5. **Kopf-Layout für 701–760 px ergänzt.** Spalte 1 der Topbar ist `max-content`
+   und wurde von der Ressourcenleiste auf 580 px gedehnt: Überlauf bis 27 px,
+   Datum und Menü kollidierten. In diesem Band stapelt der Kopf wie mobil; der
+   Screen-Inset folgt mit 207 px.
+6. **`fmtProzent()` in `js/ui/util.js`** ersetzt englische Dezimalpunkte in
+   Exposé und Marktplatz („2.9 %" → „2,9 %"); `finance.js` und `dashboard.js`
+   ziehen mit `.replace('.', ',')` nach.
+7. **€/m² auf bezugsfreien Marktkarten** kam über `fmtEURKompakt` als
+   „1 Tsd €/m²" heraus und ist jetzt voll ausgeschrieben.
+8. **Kontokennzahlen** hatten Label 14 px über Wert 10,5 px (unter 1201 px sogar
+   9 px / 10,5 px). Beide jetzt gleich groß.
+9. **`entzerreMarker()`** lief nur beim Rendern; ein debounced Resize-Handler in
+   `js/ui/karte.js` rendert die Karte neu, damit die Marker von den rohen
+   `kartenposition`-Werten ausgehen und nicht über mehrere Resizes wegdriften.
+
+Nachgemessen bei 390/700/711/760/1024/1280/1440/2560 px: kein Seiten-Overflow,
+kein Topbar-Overflow, keine Kopf- oder Dock-Überlappung. Alle Gates grün.
+
+**Wichtig für den nächsten Agenten:** Der Claude-Browser-Pane rendert nicht
+sichtbar (`visibilityState: "hidden"`). `requestAnimationFrame` feuert dort nie
+und CSS-Animationen stehen auf Keyframe 0. Dadurch sehen `entzerreMarker()` und
+der eingeschobene `#dlg-finanzierung` (`translateX(28px)` aus
+`@keyframes fin-panel-in`) wie Fehler aus, die keine sind. Layoutmessungen über
+`getBoundingClientRect`/`getComputedStyle`/`matchMedia` bleiben korrekt.
+
+## UI v54 — Encoding-Fix, HUD-Flex, Minimum-Pass
 
 UI v54 enthält vier unabhängige Korrekturen:
 

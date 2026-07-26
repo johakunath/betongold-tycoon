@@ -999,7 +999,7 @@ dialog footer { border-color:rgba(238,205,133,.15); background:rgba(7,12,17,.2);
   .konto-karte:last-child { grid-column:1/-1; }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 700.98px) {
   body { overflow:hidden; }
   .topbar {
     grid-template-columns:minmax(0,1fr) auto;

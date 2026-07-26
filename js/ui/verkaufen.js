@@ -1,7 +1,7 @@
 ﻿// ui/verkaufen.js — kompakte, bestätigte Verkaufsentscheidung für Screen 7.
 
-import { verkaufsVorschau, starteVerkauf } from '../verkauf.js?v=54';
-import { fmtEUR } from './util.js?v=54';
+import { verkaufsVorschau, starteVerkauf } from '../verkauf.js?v=55';
+import { fmtEUR } from './util.js?v=55';
 
 let ctx = null;
 let ziel = null;

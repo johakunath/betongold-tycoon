@@ -1,11 +1,11 @@
 ﻿// marktplatz.js — Screen 2: Exposé-Feed mit Filtern, Favoriten, Vergleich.
 
-import { sichtbareListings, vergleichsmiete, fairerWert } from '../market.js?v=54';
-import { getListing } from '../content.js?v=54';
-import { bildHTML, cutawayHTML } from '../iso.js?v=54';
-import { fmtEUR, fmtEURKompakt, fmtEURSigniert } from './util.js?v=54';
-import { eigenheimEignung, fixkostenAufschluesselung, instandhaltungMonat, objektartConfig } from '../immobilie.js?v=54';
-import { dealEntscheidung, pruefstand } from '../gameplay.js?v=54';
+import { sichtbareListings, vergleichsmiete, fairerWert } from '../market.js?v=55';
+import { getListing } from '../content.js?v=55';
+import { bildHTML, cutawayHTML } from '../iso.js?v=55';
+import { fmtEUR, fmtEURSigniert, fmtProzent } from './util.js?v=55';
+import { eigenheimEignung, fixkostenAufschluesselung, instandhaltungMonat, objektartConfig } from '../immobilie.js?v=55';
+import { dealEntscheidung, pruefstand } from '../gameplay.js?v=55';
 
 let ctx = null;
 let filter = { segment: 'alle', mietstatus: 'alle', nurFavoriten: false, sortierung: 'neu' };
@@ -88,7 +88,7 @@ function karte(state, { listing: l, eintrag, preis, monateAmMarkt }) {
     `<div class="karte-fakten"><span>${icon('ruler')}${l.flaeche} m²</span><span>${icon('door')}${l.zimmer} Zi.</span><span>${icon('hammer')}Bj. ${l.baujahr}</span><span>${icon('trending')}Kl. ${l.energieklasse}</span></div>` +
     `<div class="karte-badges">` +
     (l.mietstatus.vermietet
-      ? `<span class="badge gruen">vermietet · ${bruttorendite.toFixed(1)} % brutto</span>`
+      ? `<span class="badge gruen">vermietet · ${fmtProzent(bruttorendite)} brutto</span>`
       : `<span class="badge">bezugsfrei</span>`) +
     (l.ausstattung ? `<span class="badge">${AUSSTATTUNG[l.ausstattung] || l.ausstattung}</span>` : '') +
     (monateAmMarkt === 0 ? '<span class="badge neu">NEU</span>' : `<span class="badge">seit ${monateAmMarkt} Mon.</span>`) +
@@ -102,7 +102,10 @@ function karte(state, { listing: l, eintrag, preis, monateAmMarkt }) {
     `</div>` +
     `<blockquote class="markt-zitat">„${l.maklerText}“</blockquote>` +
     `</div><div class="markt-deal"><div class="karte-preis">${fmtEUR(Math.round(preis))}` +
-    `<small>${bruttorendite === null ? `${fmtEURKompakt(preis / l.flaeche).replace(' €', ' €/m²')}` : `${bruttorendite.toFixed(1)} % brutto`}</small></div>` +
+    // Kompaktformat rundet auf volle Tausender und machte aus 1.450 €/m²
+    // ein nichtssagendes „1 Tsd €/m²". Der Quadratmeterpreis wird wie im
+    // Exposé voll ausgeschrieben.
+    `<small>${bruttorendite === null ? `${Math.round(preis / l.flaeche).toLocaleString('de-DE')} €/m²` : `${fmtProzent(bruttorendite)} brutto`}</small></div>` +
     `<div class="markt-aktionen"><button type="button" class="primaer" data-markt-aktion="${entscheidung?.typ === 'verworfen' ? 'neu' : 'gebot'}" data-id="${l.id}">${entscheidung?.typ === 'verworfen' ? 'Entscheidung ansehen' : stand.schritte ? 'Prüfung fortsetzen' : 'Prüfen & entscheiden'}</button></div>` +
     `<label class="vergleich-check"><input type="checkbox" data-vergleich="${l.id}" ` +
     `${vergleich.has(l.id) ? 'checked' : ''}> vergleichen</label></div></article>`

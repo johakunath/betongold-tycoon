@@ -2,17 +2,17 @@
 // Tilgung, Zinsbindung; live berechnetes Angebot + Haushaltsrechnungs-Verdikt.
 // Modus 'szenario' = reiner Rechner, Modus 'kauf' = mit Kaufabschluss.
 
-import { getListing } from '../content.js?v=54';
+import { getListing } from '../content.js?v=55';
 import {
   finanzierungsCashflowPfade, finanzierungsCashflowVorschau, kreditAngebot, kaufeObjekt, nebenkostenFuer,
-} from '../finance.js?v=54';
-import { kaufeEigenheim, wohnortWechselVorschau } from '../eigenheim.js?v=54';
-import { fmtEUR, fmtEURSigniert } from './util.js?v=54';
-import { eigenheimEignung, fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=54';
-import { etfVerkaufVorschau } from '../etf.js?v=54';
-import { angesetzteMiete } from '../tenants.js?v=54';
-import { fixkostenAufschluesselung } from '../immobilie.js?v=54';
-import { haushaltsUeberschussMonat, liquiditaetsPufferMonate } from './kennzahlen.js?v=54';
+} from '../finance.js?v=55';
+import { kaufeEigenheim, wohnortWechselVorschau } from '../eigenheim.js?v=55';
+import { fmtEUR, fmtEURSigniert } from './util.js?v=55';
+import { eigenheimEignung, fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=55';
+import { etfVerkaufVorschau } from '../etf.js?v=55';
+import { angesetzteMiete } from '../tenants.js?v=55';
+import { fixkostenAufschluesselung } from '../immobilie.js?v=55';
+import { haushaltsUeberschussMonat, liquiditaetsPufferMonate } from './kennzahlen.js?v=55';
 
 let ctx = null;
 let lage = null; // { listingId, kaufpreis, modus }

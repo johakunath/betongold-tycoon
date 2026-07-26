@@ -33,6 +33,15 @@ export function fmtDatum(d) {
   return datumFmt.format(d);
 }
 
+// Prozentwerte mit deutschem Dezimalkomma: 2.9 → "2,9 %". Ohne diesen Helfer
+// stand in Exposé und Marktplatz als einzige Stelle im Spiel ein Punkt.
+export function fmtProzent(n, stellen = 1) {
+  return `${Number(n).toLocaleString('de-DE', {
+    minimumFractionDigits: stellen,
+    maximumFractionDigits: stellen,
+  })} %`;
+}
+
 // Einheitliche, tastaturbedienbare Erklärhilfe für kompakte Faktentabellen.
 // Ein echter Button: nativ fokussierbar, korrekt als Bedienelement angekündigt.
 export function faktenLabel(label, erklaerung) {

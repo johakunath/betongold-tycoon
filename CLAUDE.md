@@ -85,7 +85,13 @@ nebeneinander statt übereinander), behebt das Karten-Marker-Überlapp durch
 Quartalsbericht-Scrollbalken visuell aus und stellt eine
 PowerShell-5.1-Encoding-Korruption (CP1252-→-UTF-8-Doppelkodierung) in
 63 JS/HTML/MJS-Quelldateien rück.
-Aktuell: `SAVE_VERSION = 21`, `UI_VERSION = 54`.
+UI v55 schließt einen Layout-/UI-Review ab (`REVIEW.md`): verengter
+`.stadtkarte > svg`-Selektor gegen aufgeblasene Marker-Icons, schrumpffähige
+HUD-Finanzgruppe, genau ein Scroller im Dock, geschlossene Breakpoint-Lücke bei
+700 px, gestapelter Kopf für 701–760 px, durchgängig deutsche Dezimalkommata
+über `fmtProzent()`, lesbare Kontokennzahlen und ein Resize-Handler für die
+Kartenmarker.
+Aktuell: `SAVE_VERSION = 21`, `UI_VERSION = 55`.
 
 Unter Windows startet `BETONGOLD_STARTEN.cmd` das unveränderte statische Spiel
 per Doppelklick über einen unsichtbaren Loopback-HTTP-Server. `file://` bleibt

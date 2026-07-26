@@ -2,11 +2,11 @@
 // Die Stadtmotive bleiben scharf und normal belichtet; anklickbar sind nur
 // Listing-Assets aus dem tatsächlichen Katalog.
 
-import { alleListings } from '../content.js?v=54';
-import { fairerWert } from '../market.js?v=54';
-import { fmtEURKompakt } from './util.js?v=54';
-import { liquiditaetsPufferMonate, naechsterZugEmpfehlung } from './kennzahlen.js?v=54';
-import { meldungMeta } from './meldungen.js?v=54';
+import { alleListings } from '../content.js?v=55';
+import { fairerWert } from '../market.js?v=55';
+import { fmtEURKompakt } from './util.js?v=55';
+import { liquiditaetsPufferMonate, naechsterZugEmpfehlung } from './kennzahlen.js?v=55';
+import { meldungMeta } from './meldungen.js?v=55';
 
 let ctx = null;
 let filter = 'alle';
@@ -63,6 +63,19 @@ export function initKarte(context) {
     renderKarte(ctx.getState());
   });
   document.getElementById('karte-zum-markt').addEventListener('click', () => naechsterAktion());
+  // Die Entzerrung rechnet in Pixeln der aktuellen Bühne. Ohne diesen Pass
+  // überlappen die Marker nach jeder Größenänderung wieder, bis zufällig neu
+  // gerendert wird. Neu rendern statt nachschieben, damit die Marker von den
+  // rohen kartenposition-Werten ausgehen und nicht über mehrere Resizes
+  // wegdriften. Reine Layoutkorrektur: kein State, kein RNG.
+  let entzerrTimer = 0;
+  window.addEventListener('resize', () => {
+    clearTimeout(entzerrTimer);
+    entzerrTimer = setTimeout(() => {
+      if (document.getElementById('screen-karte')?.hidden) return;
+      renderKarte(ctx.getState());
+    }, 120);
+  });
 }
 
 export function renderKarte(state) {

@@ -11,33 +11,10 @@ eines Pakets gleichzeitig zu bauen.
 > sichtbare Verbesserung und kontrolliertes Risiko — nicht nur Tabellenanalyse
 > oder garantiert steigendes Vermögen.
 
-## Neuanalyse nach dem Claude-Redesign (20.07.2026)
-
-UI v36 wurde im laufenden Spiel entlang Stadt → Zentrale → Marktplatz →
-Finanzierung → Objekt → Bewerber → Finanzen geprüft. Die neue Gestaltung ist
-die verbindliche Basis; ein weiterer Vollumbau ist nicht geplant.
-
-| Befund | Status nach v36 | Konsequenz |
-|---|---|---|
-| Cashflow nur per Hover verständlich | **gelöst:** Klick pinnt den erklärten typischen Planungsmonat | aus Gameplay-Backlog entfernen |
-| Vor-/Nach-Steuer und Cashflow-Begriffe redundant | **gelöst:** Haushalt, Objekt, Vermögensaufbau und echte Kontobewegung sind getrennt; Gewinne und verrechenbare Verluste werden erklärt | Save v20 ergänzt die signed Jahressteuer samt Verlustvortrag-Vertrag |
-| LTV zu dominant | **gelöst:** als sekundäre „Finanzierungsquote“ im Kredit-/Risikokontext | Modellwert behalten |
-| Zahlen ungeordnet und textlastig | **gelöst in B1 (UI v41):** Exposé folgt der Handlungskette, Faktentabelle aufklappbar, Finanzen-Mix rechnet netto wie seine Überschrift | erledigt |
-| Doppelte Wege und Meldungen | **gelöst in B1 (UI v41):** Meldungsarchiv liest `state.log`; Renovieren, Bestandsweg und Bühne/Liste haben je eine Stelle | erledigt |
-| Passender Elementtyp | **teilweise gelöst in B1:** ein Tab steuert genau ein Tabpanel | Bildzoom (`div role="button"`), SVG/WebP-Doppelung und generische Messbalken bleiben offen |
-| Responsive Layout | **gelöst in B1 (UI v41):** `--inhalt-max` ab 1680 px, 390 px ohne HUD-/Filter-Scrollbars; 1280-px-Kollision war nicht reproduzierbar | erledigt |
-| Kern eher analytisch als spielerisch | **gelöst in E/G:** Anlass, drei Prüfungen, Entscheidung und länger sichtbare Wirkung bilden eine wiederholbare Schleife; guter Weggang und mehrmonatige Objektgeschichten zählen | Muster bei weiteren Inhalten beibehalten |
-| „Viel Bestand, wenig Luft“ | **gelöst in F/G/H:** priorisierte Triage, zwei kostenpflichtige Linien, begrenztes Bankfenster, freiwilliges Stabilisierungsziel und Arbeitsmodell-Trade-offs | im Owner-Playtest abnehmen |
-
-Aktuelle Reihenfolge:
-
-1. **P1 — Einzelaktien-Code aus dem Kernstate entfernen (B2): erledigt
-   (23.07.2026, Save v21).** Siehe `DONE.md`.
-2. **P2 — Eventdichte vor dem ersten Kauf (E2): erledigt (23.07.2026, UI v52).**
-   Drei terminierte, RNG- und ökonomisch neutrale Auftaktmomente (Monate 2/5/9)
-   statt einer Basiswert-Anhebung. Siehe `DONE.md`.
-3. **P3 — Kapitel/Kampagnenrhythmus (I):** erst nach einem abwechslungsreichen
-   und befriedigenden Monatskern.
+Die Neuanalyse nach dem Claude-Redesign (20.07.2026) ist vollständig
+abgearbeitet; Details in `DONE.md`. Nächste offene Priorität: **P3 — Kapitel/
+Kampagnenrhythmus (I)**, erst nach einem abwechslungsreichen und befriedigenden
+Monatskern.
 
 **B1 ist mit UI v41 abgeschlossen** (siehe `DONE.md`). Offen bleibt aus dem
 Elementvertrag nur der Rest von B1.3: Bildzoom als nativer `<button>`,
@@ -72,7 +49,7 @@ SVG-/WebP-Doppelung und die generischen Messbalken.
 - Dialoge: natives `<dialog>` mit beschriftender Überschrift und normaler
   Aktionsleiste. Dialog-Header/-Footer erzeugen keine zusätzlichen
   Banner-/Contentinfo-Landmarks. Doppelte Schließen-Aktionen nur behalten, wenn
-  eine davon inhaltlich „Abbrechen und verwerfen“ bedeutet.
+  eine davon inhaltlich „Abbrechen und verwerfen" bedeutet.
 - Favorit und andere binäre Toolbaraktionen: Toggle-Button mit
   `aria-pressed`; berechnete Nachher-Werte: `<output>` statt `<article>`.
 
@@ -87,13 +64,11 @@ SVG-/WebP-Doppelung und die generischen Messbalken.
 - Keine kollidierenden Karten oder Zeilen, keine abgeschnittene Hauptaktion und
   höchstens eine primäre Scrollrichtung pro Screen.
 
-### B2. Verbliebenen Einzelaktien-Code aus dem Kern entfernen — erledigt
+### B2 — erledigt (Save v21, 23.07.2026)
 
-Am 23.07.2026 mit Save v21 abgeschlossen (`DONE.md`). `js/aktien.js` und
-`data/stocks.json` gelöscht; Depotstate, `aktienRngState`, Kurspfad, Dividenden,
-Content-Loader und aktienspezifische Tests entfernt. ETF-Depot, Sparplan,
-Tagesgeld und der gemeinsame Kapitalsteuer-Freibetrag bleiben erhalten. Das alte
-Konzept bleibt nur in `IDEEN.md` als abtrennbarer Value-Investing-Ableger.
+`js/aktien.js` und `data/stocks.json` gelöscht; Depotstate, `aktienRngState`,
+Kurspfad, Dividenden, Content-Loader und aktienspezifische Tests entfernt. Das
+alte Konzept bleibt nur in `IDEEN.md`. Details in `DONE.md`.
 
 ## Arbeitspaket I — Kampagnenrhythmus und Kapitel (P3)
 

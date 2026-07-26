@@ -110,7 +110,7 @@
   .objekt-visual .expose-bild { min-height: 0; }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 700.98px) {
   .topbar { grid-template-columns: 1fr 1fr; padding: 9px 12px; }
   .brand { grid-column: 1; grid-row: 1; width: auto; }
   .hud { grid-column: 2; grid-row: 1; text-align: right; }
@@ -220,7 +220,10 @@
 .karten-layout { display: grid; grid-template-columns: minmax(0, 2.2fr) minmax(260px, .8fr); gap: 16px; align-items: start; }
 .stadtkarte, .karten-legende { border: 1px solid var(--hairline); border-radius: 16px; background: var(--karte, #fff); box-shadow: var(--shadow-klein); }
 .stadtkarte { min-width: 0; overflow: hidden; padding: 8px; }
-.stadtkarte svg { display: block; width: 100%; height: auto; min-height: 330px; }
+/* Nur die frühere Vollflächen-Karte als direktes Kind wird gestreckt. Ohne den
+   Kindselektor traf die Regel jedes `.ui-icon` in den Markern und blies die
+   Statussymbole auf 25x330 px (mobil 760x330 px) auf. */
+.stadtkarte > svg { display: block; width: 100%; height: auto; min-height: 330px; }
 .karten-legende { padding: 16px; }
 .karten-legende h2 { margin-top: 0; }
 .karten-ebene rect { fill: #f3eee2; stroke: #cfc2aa; stroke-width: 1.5; }
@@ -383,7 +386,7 @@
   .karten-liste { max-height: 280px; }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 700.98px) {
   .spielkarte, .finanzen { padding: 18px 12px 48px; }
   .screen-heading--finanzen { padding: 18px; }
   .finanz-kurzwerte, .finanz-konten, .transfer-raster, .finanz-unten { grid-template-columns: 1fr; }
@@ -394,7 +397,7 @@
   .quartals-kpis { grid-template-columns: 1fr; }
   .quartals-rueckblick, .quartals-naechster { grid-column: 1; }
   .stadtkarte { overflow-x: auto; }
-  .stadtkarte svg { width: 760px; max-width: none; }
+  .stadtkarte > svg { width: 760px; max-width: none; }
   .fin-etf-panel { grid-template-columns: 1fr; align-items: stretch; }
 }
 

@@ -2,6 +2,9 @@
 body { font-size: 16px; }
 small { font-size: .875em; }
 .eyebrow, .label, .resource-copy small, .konto-karte dt, .karte-preis small { font-size: 11px; }
+/* Die Kontokennzahlen lagen unterhalb von 1201 px bei 9 px (Label) und 10,5 px
+   (Wert) und waren damit die kleinste Schrift im Spiel. */
+.konto-karte dl > div, .konto-karte dt, .konto-karte dd { font-size: 13px; }
 .kachel .label { color: #d3c8aa; font-size: 12px; }
 .kachel .sub { color: #c8bd9f; font-size: 13px; line-height: 1.35; }
 .stadt-post button, .naechster-zug p, .karte-fakten, .markt-zitat { font-size: 12px; }
@@ -259,14 +262,14 @@ input[type="range"]::-moz-range-thumb {
 .meldungen-panel > header .eyebrow { color: #c8bd9f; }
 .meldungen-panel > header button { color: #d4cab0; }
 
-@media (max-width: 700px) {
+@media (max-width: 700.98px) {
   .fin-konditionen-fix { padding-inline: 12px; }
   .fin-ek-schnellwahl { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .fin-ergebnis-scroll { padding-inline: 12px; }
   .objekt-titelzeile { align-items: flex-start; }
 }
 .gebot-zeile input[type="range"] { justify-self: start; }
-@media (max-width: 700px) {
+@media (max-width: 700.98px) {
   input[type="range"] { width: 100%; max-width: none; }
 }
 
@@ -442,6 +445,10 @@ input:disabled, select:disabled, textarea:disabled {
 
   /* HUD, Topbar und Navigation */
   .eyebrow, .label, .konto-karte dt, .karte-preis small { font-size: 14px; }
+  /* Das Label war hier bereits 14 px, der zugehörige Wert blieb bei 10,5 px —
+     eine umgekehrte Hierarchie ausgerechnet bei Habenzins, Marktwert,
+     Restschuld und Cashflow. Wert und Label sind jetzt gleich groß. */
+  .konto-karte dl > div, .konto-karte dd { font-size: 14px; }
   .hud .sub, .topbar .sub { font-size: 13px; }
   .ressourcenleiste b { font-size: 15px; }
   .screens-nav button span { font-size: 14px; }
@@ -607,14 +614,42 @@ input:disabled, select:disabled, textarea:disabled {
   .bewerber-liste { grid-template-columns: 1fr; }
   .bildzoom-dialog { width: calc(100vw - 16px); }
 }
-@media (max-width: 700px) {
+@media (max-width: 700.98px) {
+  /* Die drei Werte behalten ihr 2:1-Verhältnis, dürfen aber schrumpfen. Mit
+     `flex-shrink: 0` und festen 252 + 126 px lief die HUD-Gruppe bei 390 px um
+     7 px über die Topbar hinaus und wurde von deren `overflow: hidden`
+     abgeschnitten. */
   .ressourcenleiste { display: flex; }
-  .ressourcenleiste > .resource-finanzgruppe { flex: 2 0 252px; }
-  .ressourcenleiste > .resource-cashflow { flex: 1 0 126px; }
+  .ressourcenleiste > .resource-finanzgruppe { flex: 2 1 0; min-width: 0; }
+  .ressourcenleiste > .resource-cashflow { flex: 1 1 0; min-width: 0; }
   .dd-liste li.dd-befund { grid-template-columns: 24px minmax(0,1fr); }
   .dd-liste li.dd-befund .dd-quelle { grid-column: 2; }
   .bewerber-avatar { width: 78px; height: 78px; flex-basis: 78px; }
+  /* Genau ein Scroller im Dock. Als eigener `overflow: auto`-Container wurde
+     die Zentrale-Gruppe bei 390 px auf 124 px gequetscht; „Objekte" lag dann
+     ohne sichtbaren Hinweis außerhalb des Viewports. Jetzt scrollt die
+     Bottom-Navigation als eine Reihe — der einzige laut Layout-Gate erlaubte
+     interne Scroller. */
+  .screens-nav .zentrale-tabs { flex: 0 0 auto; overflow: visible; }
+  .screens-nav .zentrale-tabs button { flex-basis: 76px; min-width: 76px; min-height: 57px; }
 }
+
+/* Zwischen 701 und 760 px passte der dreispaltige Kopf nicht mehr: Spalte 1 ist
+   `max-content` und wurde von der Ressourcenleiste auf 580 px gedehnt, wodurch
+   die Topbar um bis zu 27 px überlief und Datum und Menü kollidierten. In
+   diesem Band stapelt der Kopf wie auf dem Telefon; der Screen-Inset folgt der
+   dadurch höheren Topbar. */
+@media (min-width: 701px) and (max-width: 760px) {
+  .topbar {
+    grid-template-columns: minmax(0, 1fr) max-content;
+    grid-template-areas: "brand menu" "date date" "resources resources" "speed speed";
+    min-height: 0;
+  }
+  .topbar .hud { display: flex; justify-content: center; gap: 8px; min-width: 0; }
+  .topbar .speed-group { justify-self: stretch; justify-content: center; }
+  .dashboard, .marktplatz, .expose, .endgame, .finanzen, .spielkarte { inset: 207px 14px 88px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   #dlg-kauf.kauf-feier, #dlg-kauf.kauf-feier::before { animation: none; }
 }

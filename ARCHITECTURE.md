@@ -237,7 +237,7 @@ Einkommenswechsel auf `rentenNettoFaktor`.
 
 ## 6. Save-Format und Vorab-Release-Kompatibilität
 
-- Aktuelle `SAVE_VERSION`: **20**.
+- Aktuelle `SAVE_VERSION`: **21**.
 - Vor dem ausdrücklich erklärten Release akzeptiert `state.js` nur exakt die
   aktuelle Version in Hülle und State. Ältere und neuere Versionen werden mit
   verständlicher Fehlermeldung abgelehnt; es gibt keinen Migrationspfad.
@@ -332,7 +332,7 @@ außerdem soll der Origin für `localStorage` stabil bei `127.0.0.1:4173` bleibe
   Tagesgeld→ETF bleibt vermögensneutral; ETF-Verkäufe zeigen mögliche Steuer vor
   Bestätigung und verändern das Nettovermögen nur um diese Reibung.
 - `ui/karte.js` rendert drei getrennte, schematische Karten für Berlin,
-  Leipzig und Meißen + Umland sowie eine gleichwertige Liste aus denselben 19
+  Leipzig und Meißen + Umland sowie eine gleichwertige Liste aus denselben 40
   Listings. Marker öffnen ausschließlich vorhandene
   Exposé-/Objektwege; es existiert keine zweite Objektdatenhaltung.
 - Das kompakte Spielmenü bündelt Hilfe, Einstellungen, Spielstände und Neustart.

@@ -1,17 +1,17 @@
 ﻿// expose.js — Screen 3: Exposé-Detail mit Due Diligence, Notizen,
 // Szenariorechner, Gebot / Weggehen.
 
-import { getListing } from '../content.js?v=54';
+import { getListing } from '../content.js?v=55';
 import {
   angebotsPreis, vergleichsmiete, gebotAbgeben, kaufAbbrechen,
   besichtigen, dokumenteAnfordern, gutachterBeauftragen,
   angebotBeobachten, angebotVerwerfen, angebotNeuPruefen,
-} from '../market.js?v=54';
-import { dealEntscheidung, pruefstand } from '../gameplay.js?v=54';
-import { bildHTML, cutawayHTML } from '../iso.js?v=54';
-import { fmtEUR } from './util.js?v=54';
-import { oeffneFinanzierung } from './finanzierung.js?v=54';
-import { eigenheimEignung, fixkostenAufschluesselung, instandhaltungMonat, objektartConfig } from '../immobilie.js?v=54';
+} from '../market.js?v=55';
+import { dealEntscheidung, pruefstand } from '../gameplay.js?v=55';
+import { bildHTML, cutawayHTML } from '../iso.js?v=55';
+import { fmtEUR, fmtProzent } from './util.js?v=55';
+import { oeffneFinanzierung } from './finanzierung.js?v=55';
+import { eigenheimEignung, fixkostenAufschluesselung, instandhaltungMonat, objektartConfig } from '../immobilie.js?v=55';
 
 let ctx = null;
 let aktuelleId = null;
@@ -88,7 +88,7 @@ export function renderExpose(state, voll = false) {
     `<tr><td>Mietstatus</td><td>${mietstatusText(l)}</td></tr>` +
     `<tr><td>Vergleichsmiete (Schätzung)</td><td>${fmtEUR(vm)}/Monat</td></tr>` +
     (l.mietstatus.vermietet && preis
-      ? `<tr><td>Bruttorendite</td><td data-live="rendite">${(((l.mietstatus.kaltmiete * 12) / preis) * 100).toFixed(1)} %</td></tr>`
+      ? `<tr><td>Bruttorendite</td><td data-live="rendite">${fmtProzent(((l.mietstatus.kaltmiete * 12) / preis) * 100)}</td></tr>`
       : '') +
     `<tr><td>Markt</td><td data-live="markt">${marktText(state, eintrag, interessenten)}</td></tr>` +
     `</table>` +
@@ -377,7 +377,7 @@ function updateLive(state, eintrag) {
   const m2 = document.querySelector('[data-live="preism2"]');
   if (m2) m2.textContent = preis ? Math.round(preis / l.flaeche).toLocaleString('de-DE') + ' €/m²' : '';
   const rendite = document.querySelector('[data-live="rendite"]');
-  if (rendite && preis) rendite.textContent = (((l.mietstatus.kaltmiete * 12) / preis) * 100).toFixed(1) + ' %';
+  if (rendite && preis) rendite.textContent = fmtProzent(((l.mietstatus.kaltmiete * 12) / preis) * 100);
   const markt = document.querySelector('[data-live="markt"]');
   if (markt) markt.textContent = marktText(state, eintrag, eintrag ? Math.round(eintrag.konkurrenz * 5) : 0);
   const gebotPanel = document.querySelector('.gebot-zeile[data-angebot]');

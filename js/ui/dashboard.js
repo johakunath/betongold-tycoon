@@ -1,19 +1,19 @@
 ﻿// dashboard.js — Screen 1: Kennzahlen-Kacheln, Haushaltsrechnung,
 // Nettovermögen-vs-ETF-Chart (Design-Säule 4: die ETF-Linie bleibt sichtbar).
 
-import { monatsWerte, nettovermoegen, datum } from '../engine.js?v=54';
-import { fairerWert } from '../market.js?v=54';
-import { getListing } from '../content.js?v=54';
-import { bildHTML } from '../iso.js?v=54';
-import { eigenheimMonatskosten } from '../eigenheim.js?v=54';
-import { setzeGrenzsteuersatz, steuerVorschau } from '../tax.js?v=54';
-import { fmtEUR, fmtEURKompakt, fmtEURSigniert, fmtDatum } from './util.js?v=54';
-import { fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=54';
-import { vermietungsmodell } from '../tenants.js?v=54';
-import { haushaltsUeberschussMonat, naechsterZugEmpfehlung } from './kennzahlen.js?v=54';
-import { aktualisiereNavMarkierung } from './shell.js?v=54';
-import { portfolioTriage, stabilisierungsLinien, turnaroundAktiv } from '../turnaround.js?v=54';
-import { renderStrategy } from './strategy.js?v=54';
+import { monatsWerte, nettovermoegen, datum } from '../engine.js?v=55';
+import { fairerWert } from '../market.js?v=55';
+import { getListing } from '../content.js?v=55';
+import { bildHTML } from '../iso.js?v=55';
+import { eigenheimMonatskosten } from '../eigenheim.js?v=55';
+import { setzeGrenzsteuersatz, steuerVorschau } from '../tax.js?v=55';
+import { fmtEUR, fmtEURKompakt, fmtEURSigniert, fmtDatum } from './util.js?v=55';
+import { fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=55';
+import { vermietungsmodell } from '../tenants.js?v=55';
+import { haushaltsUeberschussMonat, naechsterZugEmpfehlung } from './kennzahlen.js?v=55';
+import { aktualisiereNavMarkierung } from './shell.js?v=55';
+import { portfolioTriage, stabilisierungsLinien, turnaroundAktiv } from '../turnaround.js?v=55';
+import { renderStrategy } from './strategy.js?v=55';
 
 let getState = null;
 let onObjekt = null;   // Callback: Portfolio-Objekt anklicken → Objekt-Detail
@@ -560,7 +560,7 @@ function renderZusatzCharts(state) {
     `<section class="mini-chart" aria-label="Vermögensmix: Bruttovermögen ${fmtEUR(Math.round(brutto))}">` +
       `<header><h3>Vermögensmix</h3><b>${fmtEURKompakt(brutto)} brutto</b></header>` +
       `<div class="mix-balken">${mix}</div><div class="mini-legende">${legende}</div></section>` +
-    `<section class="mini-chart" aria-label="Schuldenquote ${Math.round(ltv)} Prozent, Liquiditätspuffer ${pufferMonate.toFixed(1)} Monate">` +
+    `<section class="mini-chart" aria-label="Schuldenquote ${Math.round(ltv)} Prozent, Liquiditätspuffer ${pufferMonate.toLocaleString('de-DE', { maximumFractionDigits: 1 })} Monate">` +
       `<header><h3>Schulden &amp; Puffer</h3><b>${fmtEURKompakt(schulden)} Restschuld</b></header>` +
       `<div class="risiko-zeilen">` +
         `<div class="risiko-zeile"><span>Finanzierungsquote</span><div class="risiko-track"><i style="width:${ltvBreite.toFixed(1)}%"></i></div><b>${immobilien ? `${Math.round(ltv)} %` : '—'}</b></div>` +

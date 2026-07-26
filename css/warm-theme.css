@@ -146,7 +146,7 @@ dialog footer { padding-top: 12px; border-top: 1px solid var(--hairline); }
 .finanz-mix-balken, .balken { box-shadow: inset 0 1px 2px rgba(29,51,61,.12); }
 .toast { border: 1px solid rgba(255,255,255,.16); box-shadow: 0 16px 44px rgba(15,25,29,.3); }
 
-@media (max-width: 700px) {
+@media (max-width: 700.98px) {
   .topbar { position: relative; }
   .screen-heading--dashboard, .screen-heading--market { min-height: 174px; padding: 22px; }
   .screen-heading--map { padding: 20px; }
@@ -196,7 +196,7 @@ dialog footer { padding-top: 12px; border-top: 1px solid var(--hairline); }
   .finanz-konten { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 700.98px) {
   .finanz-konten { grid-template-columns: 1fr; }
 }
 
