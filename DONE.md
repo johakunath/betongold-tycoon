@@ -3,6 +3,26 @@
 Kompaktes, chronologisches Log. Ältere Einträge sind verdichtet; Details
 bleiben in `DECISIONS.md` und den Fachdocs nachvollziehbar.
 
+## 2026-07-27 (1)
+
+- **UI v59 — Kopfzeile bei ~1200 px repariert.** Owner-Screenshot vom echten
+  Tablet (1200 CSS-px) zeigte das Datum auf der Cashflow-Kachel und das
+  Hamburger-Menü rechts vom Viewport abgeschnitten. Ursache: eine
+  Breakpoint-Lücke zwischen `max-width: 1180px`
+  (`css/app-shell.css`, gestapelter Kopf, `--topbar-h: 128px`) und
+  `min-width: 1201px` (`css/warm-theme.css`, priorisierter Weitpass) — im
+  1181–1200-px-Band griff keine der beiden Regeln, sodass der einreihige
+  Basiskopf mit fünf Grid-Spalten in eine zu schmale Breite gepresst wurde.
+  Am echten Chromium gemessen: Menü ragte bis 25 px über den rechten Rand.
+  Beide Grenzen auf `1200.98px`/`1201px` gezogen (`DESIGN_SYSTEM.md` §6:
+  Breakpoint-Paare als `N.98px`/`N+1px`); dasselbe Lückenpaar auch in
+  `css/annotation-fixes.css` (`min-width: 1180px` → `1201px`, Zentrale-Panel)
+  und `css/warm-theme.css` (`max-width: 1200px` → `1200.98px`) korrigiert.
+- **Neues Smoke-Gate bei 1200 px** prüft Kopfzeile (Datum, HUD, Zeitsteuerung,
+  Menü) paarweise auf Überlappung und auf Austritt aus dem Viewport.
+  Gegengeprüft: mit der alten Breakpoint-Grenze schlägt es an
+  (`"kopfAusVieport":true`).
+
 ## 2026-07-26 (4)
 
 - **UI v58 — zwei Kopfüberlappungen der Stadtbühne behoben.** Owner-Screenshots

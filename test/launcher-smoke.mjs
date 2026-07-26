@@ -37,14 +37,14 @@ try {
 
   const html = await fetch(url).then((antwort) => antwort.text());
   if (!html.includes('<title>Betongold Tycoon</title>') ||
-      !html.includes('data-betongold-launcher') || !html.includes('?v=58')) {
+      !html.includes('data-betongold-launcher') || !html.includes('?v=59')) {
     throw new Error('Index oder Keepalive-Injektion ist unvollständig.');
   }
 
   const keepalive = await fetch(`${url}__betongold_keepalive`);
   if (keepalive.status !== 204) throw new Error(`Keepalive antwortet mit ${keepalive.status}.`);
 
-  const css = await fetch(`${url}css/style.css?v=58`);
+  const css = await fetch(`${url}css/style.css?v=59`);
   if (!css.ok || !css.headers.get('content-type')?.startsWith('text/css')) {
     throw new Error('CSS wird nicht korrekt ausgeliefert.');
   }

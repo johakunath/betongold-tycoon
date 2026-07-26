@@ -4,19 +4,19 @@
 
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { newGame, exportString, importString } from '../js/state.js?v=58';
-import { setzeInhalte } from '../js/content.js?v=58';
-import { initialisiereMarkt } from '../js/market.js?v=58';
-import { initialisiereStartbestand } from '../js/starter.js?v=58';
-import { kannErhoehen, erhoeheMiete } from '../js/tenants.js?v=58';
-import { advanceMonths } from '../js/engine.js?v=58';
-import { resolveEvent } from '../js/events.js?v=58';
-import { starteVerkauf } from '../js/verkauf.js?v=58';
-import { haushaltsUeberschussMonat } from '../js/ui/kennzahlen.js?v=58';
+import { newGame, exportString, importString } from '../js/state.js?v=59';
+import { setzeInhalte } from '../js/content.js?v=59';
+import { initialisiereMarkt } from '../js/market.js?v=59';
+import { initialisiereStartbestand } from '../js/starter.js?v=59';
+import { kannErhoehen, erhoeheMiete } from '../js/tenants.js?v=59';
+import { advanceMonths } from '../js/engine.js?v=59';
+import { resolveEvent } from '../js/events.js?v=59';
+import { starteVerkauf } from '../js/verkauf.js?v=59';
+import { haushaltsUeberschussMonat } from '../js/ui/kennzahlen.js?v=59';
 import {
   bankAnpassungVorschau, objektCashflow, portfolioTriage,
   stabilisierungsLinien, wendeBankAnpassungAn,
-} from '../js/turnaround.js?v=58';
+} from '../js/turnaround.js?v=59';
 
 const lade = async (name) => JSON.parse(await readFile(new URL(`../data/${name}`, import.meta.url), 'utf8'));
 setzeInhalte({

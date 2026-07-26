@@ -983,7 +983,13 @@ dialog footer { border-color:rgba(238,205,133,.15); background:rgba(7,12,17,.2);
 
 /* Responsive Gates --------------------------------------------------------- */
 
-@media (max-width: 1180px) {
+/* Obergrenze bewusst 1200.98 px: Zwischen `max-width: 1180px` und dem
+   `min-width: 1201px`-Block lag ein 20-px-Loch, in dem weder der gestapelte
+   Kopf noch der Weitpass griff. Der einreihige Basiskopf passte dort nicht —
+   gemessen ragte das Menü bis zu 25 px über den Viewport und das Datum lag auf
+   der Cashflow-Kachel. Regel aus DESIGN_SYSTEM.md §6: Breakpoint-Paare immer
+   als N.98px / N+1px anlegen. */
+@media (max-width: 1200.98px) {
   :root { --topbar-h: 128px; }
   .topbar {
     grid-template-columns:max-content minmax(0,1fr) max-content;
@@ -998,7 +1004,7 @@ dialog footer { border-color:rgba(238,205,133,.15); background:rgba(7,12,17,.2);
   /* Filterzeile und Stadtleiste liegen beide absolut im selben Kopfband. Die
      mittige Stadtleiste reservierte nur 180 px Gasse je Seite, die rechts
      geparkte Filterzeile braucht aber ~328 px — gemessen überlappten sie sich
-     von 921 bis 1180 px (bei 1024 px um 108 x 44 px). Entzerrt wurde das nur
+     von 921 bis 1200 px (bei 1024 px um 108 x 44 px). Entzerrt wurde das nur
      unterhalb von 921 px. Ab hier steht der Filter deshalb im gesamten Band
      mittig **unter** der Stadtleiste; die Legacy-Margins werden dafür
      neutralisiert, damit die Abstände nicht aus zwei Quellen entstehen. */
@@ -1016,7 +1022,7 @@ dialog footer { border-color:rgba(238,205,133,.15); background:rgba(7,12,17,.2);
   .finanz-aktionen { grid-column:1; grid-row:auto; order:2; }
   .finanz-ueberblick { grid-column:1; grid-row:auto; order:3; min-height:300px; }
   .finanz-unten { grid-column:1; grid-row:auto; order:4; }
-  /* Filter- und Stadtleistenposition kommen ab hier aus dem 1180-px-Block. */
+  /* Filter- und Stadtleistenposition kommen ab hier aus dem 1200.98-px-Block. */
   .karten-layout { grid-template-columns:220px minmax(300px,1fr); }
   .karten-legende { display:none; }
   .markt-karte { grid-template-columns:minmax(250px,42%) minmax(250px,1fr); }

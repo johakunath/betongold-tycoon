@@ -1,11 +1,35 @@
 # HANDOVER.md — aktueller Projektstand
 
-**Stand:** 26.07.2026 (UI v58 — Kopfüberlappungen der Stadtbühne, HUD-Kacheln, „Cashflow")
+**Stand:** 27.07.2026 (UI v59 — Kopfzeilen-Breakpoint-Lücke bei ~1200 px geschlossen)
 
-**Versionen:** SAVE_VERSION = 21, UI_VERSION = 58
+**Versionen:** SAVE_VERSION = 21, UI_VERSION = 59
 
 Das Spiel ist öffentlich gehostet: <https://johakunath.github.io/betongold-tycoon/>
 (GitHub Pages aus `main`/Wurzel, Deployment = `git push`).
+
+## UI v59 — Kopfzeilen-Breakpoint-Lücke bei ~1200 px
+
+Owner-Screenshot vom echten Tablet (1200 CSS-px): Datum lag auf der
+Cashflow-Kachel, Hamburger-Menü ragte rechts über den Viewport hinaus.
+
+**Ursache.** `css/app-shell.css` stapelte den Kopf bis `max-width: 1180px`
+(`--topbar-h: 128px`); `css/warm-theme.css` priorisierte die Finanzwerte erst ab
+`min-width: 1201px`. Im **1181–1200-px-Band griff keine der beiden Regeln** —
+der einreihige Basiskopf mit fünf Grid-Spalten (`brand resources date speed
+menu`) musste dort in eine zu schmale Breite. Am echten Chromium gemessen:
+Menü ragte bis zu 25 px über den rechten Rand hinaus.
+
+**Fix.** Beide Grenzen auf das Paar `1200.98px`/`1201px` gezogen — die
+projekteigene Regel gegen Breakpoint-Löcher (`DESIGN_SYSTEM.md` §6) galt bisher
+nur für `700px`/`701px`. Betroffen: `app-shell.css` (`max-width: 1180px` →
+`1200.98px`), `annotation-fixes.css` (`min-width: 1180px` → `1201px`,
+Zentrale-Zweispaltenlayout), `warm-theme.css` (`max-width: 1200px` →
+`1200.98px`, Finanzwerte-Priorisierung).
+
+**Neues Gate.** `test/browser-smoke.mjs` prüft jetzt zusätzlich bei 1200 px,
+ob `.hud`, `.ressourcenleiste`, `.speed-group` und `.menue` sich paarweise
+überlappen oder aus dem Viewport laufen. Gegengeprüft: mit der alten Grenze
+schlägt es an (`"kopfAusVieport":true`).
 
 ## UI v58 — Kopfüberlappungen, HUD-Kacheln, Umbenennung
 

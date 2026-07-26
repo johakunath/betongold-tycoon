@@ -2,17 +2,17 @@
 // Segment-/Zins-Drift, Feed-Lifecycle, ETF-Benchmark. Formeln in
 // ECONOMY_MODEL.md. Kein DOM-Zugriff (Node-testbar). Ab Phase 3: Event-Rolls.
 
-import { rngNormalStrom } from './state.js?v=58';
-import { tickMarkt, fairerWert } from './market.js?v=58';
-import { sondertilgungRahmen, tickBasiszins, tickObjekt } from './finance.js?v=58';
-import { rolleAuftakt, rolleEvent } from './events.js?v=58';
-import { tickSteuer } from './tax.js?v=58';
-import { tickVerkaeufe } from './verkauf.js?v=58';
-import { wendeAdminPendingAn } from './admin.js?v=58';
-import { hatWartemoment, verwerfeWartemomente } from './signals.js?v=58';
-import { verbucheKapitalertrag } from './kapitalsteuer.js?v=58';
-import { arbeitsmodell, aktualisiereLebensphasen, zeitbudgetMonat } from './life.js?v=58';
-import { tickObjektArcs } from './arcs.js?v=58';
+import { rngNormalStrom } from './state.js?v=59';
+import { tickMarkt, fairerWert } from './market.js?v=59';
+import { sondertilgungRahmen, tickBasiszins, tickObjekt } from './finance.js?v=59';
+import { rolleAuftakt, rolleEvent } from './events.js?v=59';
+import { tickSteuer } from './tax.js?v=59';
+import { tickVerkaeufe } from './verkauf.js?v=59';
+import { wendeAdminPendingAn } from './admin.js?v=59';
+import { hatWartemoment, verwerfeWartemomente } from './signals.js?v=59';
+import { verbucheKapitalertrag } from './kapitalsteuer.js?v=59';
+import { arbeitsmodell, aktualisiereLebensphasen, zeitbudgetMonat } from './life.js?v=59';
+import { tickObjektArcs } from './arcs.js?v=59';
 
 const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
 

@@ -106,7 +106,14 @@ dasselbe Zeilenlayout, „Haushaltsüberschuss" heißt überall „Cashflow", un
 Jahreszähler „Jahr 1/60" ist aus dem Kopf entfernt (Alter genügt). Der
 Browser-Smoke misst Kopfüberlappung und abgeschnittene HUD-Texte jetzt selbst
 und prüft zusätzlich 1100 px.
-Aktuell: `SAVE_VERSION = 21`, `UI_VERSION = 58`.
+UI v59 schließt die letzte ungeprüfte Kopfzeilen-Lücke: Zwischen
+`max-width: 1180px` und `min-width: 1201px` klaffte ein 20-px-Band (z. B.
+1200 px, ein reales Tablet), in dem der einreihige Basiskopf nicht mehr passte
+— Menü ragte über den Viewport, Datum lag auf der Cashflow-Kachel. Beide
+Grenzen sind auf das Paar `1200.98px`/`1201px` gezogen; der Browser-Smoke
+prüft jetzt zusätzlich bei 1200 px, ob Datum, HUD, Zeitsteuerung und Menü sich
+weder überlappen noch aus dem Viewport laufen.
+Aktuell: `SAVE_VERSION = 21`, `UI_VERSION = 59`.
 
 Das Spiel ist öffentlich gehostet:
 <https://johakunath.github.io/betongold-tycoon/> (GitHub Pages aus `main`).

@@ -1,11 +1,11 @@
 ﻿// market.js — Feed-Lifecycle, Preisformel, Segment-Drift, Verhandlung,
 // Due Diligence. Formeln: ECONOMY_MODEL.md §7–8, §11, §13. DOM-frei.
 
-import { rngFloat, rngNormal } from './state.js?v=58';
-import { alleListings, getListing } from './content.js?v=58';
+import { rngFloat, rngNormal } from './state.js?v=59';
+import { alleListings, getListing } from './content.js?v=59';
 import {
   oeffneDealEntscheidung, setzeDealEntscheidung,
-} from './gameplay.js?v=58';
+} from './gameplay.js?v=59';
 
 // ---------------------------------------------------------------------------
 // Initialisierung: einmal pro Spielstand (nach newGame bzw. aktuellem Save-Import).

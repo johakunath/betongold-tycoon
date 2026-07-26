@@ -1,10 +1,10 @@
 ﻿// renovation.js — Renovierungsstufen: Optionen, Start, Abschluss (mit
 // Kostenüberziehung). Formeln: ECONOMY_MODEL §17. DOM-frei, RNG über state.js.
 
-import { rngFloat, zahleReparatur, entnimmRuecklage } from './state.js?v=58';
-import { meldeWartemoment } from './signals.js?v=58';
-import { fairerWert } from './market.js?v=58';
-import { protokolliereWirkung } from './gameplay.js?v=58';
+import { rngFloat, zahleReparatur, entnimmRuecklage } from './state.js?v=59';
+import { meldeWartemoment } from './signals.js?v=59';
+import { fairerWert } from './market.js?v=59';
+import { protokolliereWirkung } from './gameplay.js?v=59';
 
 const ENERGIEKLASSEN = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 

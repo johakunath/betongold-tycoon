@@ -1,26 +1,26 @@
 ﻿// objekt.js — Screen 7: Objekt-Detail. Cutaway, Monats-P&L, Mieter/Leerstand,
 // Rücklage, Hausverwaltung, Mieterhöhung, Renovieren. Nabe der Phase-3-Loop.
 
-import { getListing } from '../content.js?v=58';
-import { fairerWert } from '../market.js?v=58';
+import { getListing } from '../content.js?v=59';
+import { fairerWert } from '../market.js?v=59';
 import {
   marktmiete, kannErhoehen, maxMiete, erhoeheMiete, mietrechtFuer, vermietungsmodell,
   starteEigenbedarf, zieheEigenbedarfZurueck, zahleEigenbedarfAbfindung,
-} from '../tenants.js?v=58';
-import { bildHTML, cutawayHTML } from '../iso.js?v=58';
-import { faktenLabel, fmtEUR, fmtEURSigniert } from './util.js?v=58';
-import { oeffneBewerber } from './bewerber.js?v=58';
-import { oeffneRenovieren } from './renovieren.js?v=58';
-import { oeffneVerkauf } from './verkaufen.js?v=58';
+} from '../tenants.js?v=59';
+import { bildHTML, cutawayHTML } from '../iso.js?v=59';
+import { faktenLabel, fmtEUR, fmtEURSigniert } from './util.js?v=59';
+import { oeffneBewerber } from './bewerber.js?v=59';
+import { oeffneRenovieren } from './renovieren.js?v=59';
+import { oeffneVerkauf } from './verkaufen.js?v=59';
 import {
   fixkostenMonat, instandhaltungMonat, objektartConfig, fixkostenAufschluesselung,
-} from '../immobilie.js?v=58';
-import { bezieheBestandsobjekt } from '../eigenheim.js?v=58';
-import { protokolliereWirkung } from '../gameplay.js?v=58';
-import { bankAnpassungVorschau, turnaroundAktiv } from '../turnaround.js?v=58';
-import { oeffneBankAnpassung } from './turnaround.js?v=58';
-import { objektArcsFuerObjekt } from '../arcs.js?v=58';
-import { sondertilgen, sondertilgungRahmen, sondertilgungVorschau } from '../finance.js?v=58';
+} from '../immobilie.js?v=59';
+import { bezieheBestandsobjekt } from '../eigenheim.js?v=59';
+import { protokolliereWirkung } from '../gameplay.js?v=59';
+import { bankAnpassungVorschau, turnaroundAktiv } from '../turnaround.js?v=59';
+import { oeffneBankAnpassung } from './turnaround.js?v=59';
+import { objektArcsFuerObjekt } from '../arcs.js?v=59';
+import { sondertilgen, sondertilgungRahmen, sondertilgungVorschau } from '../finance.js?v=59';
 
 let ctx = null;
 let auswahl = null; // stabile listingId oder 'eigenheim'

@@ -389,7 +389,9 @@ input:disabled, select:disabled, textarea:disabled {
 .chart-karte, .chart-wrap { min-width: 0; width: 100%; max-width: 100%; }
 .chart-wrap { min-height: 280px; }
 #chart { height: clamp(270px, 31vh, 340px); }
-@media (min-width: 1180px) and (min-height: 780px) {
+/* Untergrenze 1201 px, damit sie luekenlos an `max-width: 1200.98px` schliesst:
+   Bei 1190 px stand sonst der gestapelte Kopf neben dem Weitdesktop-Chart. */
+@media (min-width: 1201px) and (min-height: 780px) {
   #zentrale-panel-vermoegen { grid-template-columns: minmax(0, 1.65fr) minmax(330px, .75fr); gap: 12px; }
   #zentrale-panel-kacheln { grid-column: 1 / -1; }
   #zentrale-panel-chart { grid-column: 1; align-self: start; }

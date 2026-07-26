@@ -1,8 +1,8 @@
 /* CSS entrypoint: ordered cascade layers. Keep imports in this order. */
-@import url("./foundation.css?v=58");
-@import url("./legacy-shell-dashboard.css?v=58");
-@import url("./legacy-gameplay.css?v=58");
-@import url("./legacy-responsive-features.css?v=58");
-@import url("./warm-theme.css?v=58");
-@import url("./app-shell.css?v=58");
-@import url("./annotation-fixes.css?v=58");
+@import url("./foundation.css?v=59");
+@import url("./legacy-shell-dashboard.css?v=59");
+@import url("./legacy-gameplay.css?v=59");
+@import url("./legacy-responsive-features.css?v=59");
+@import url("./warm-theme.css?v=59");
+@import url("./app-shell.css?v=59");
+@import url("./annotation-fixes.css?v=59");

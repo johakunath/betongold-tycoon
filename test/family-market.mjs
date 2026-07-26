@@ -5,16 +5,16 @@
 
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { setzeInhalte, getListing } from '../js/content.js?v=58';
-import { newGame } from '../js/state.js?v=58';
-import { initialisiereMarkt, fairerWert } from '../js/market.js?v=58';
-import { nebenkostenFuer, kreditAngebot } from '../js/finance.js?v=58';
-import { kaufeEigenheim } from '../js/eigenheim.js?v=58';
-import { verkaufeEtf } from '../js/etf.js?v=58';
-import { advanceMonths, gesamtMonate } from '../js/engine.js?v=58';
-import { resolveEvent } from '../js/events.js?v=58';
-import { berechneScores } from '../js/endgame.js?v=58';
-import { fixkostenMonat, instandhaltungMonat } from '../js/immobilie.js?v=58';
+import { setzeInhalte, getListing } from '../js/content.js?v=59';
+import { newGame } from '../js/state.js?v=59';
+import { initialisiereMarkt, fairerWert } from '../js/market.js?v=59';
+import { nebenkostenFuer, kreditAngebot } from '../js/finance.js?v=59';
+import { kaufeEigenheim } from '../js/eigenheim.js?v=59';
+import { verkaufeEtf } from '../js/etf.js?v=59';
+import { advanceMonths, gesamtMonate } from '../js/engine.js?v=59';
+import { resolveEvent } from '../js/events.js?v=59';
+import { berechneScores } from '../js/endgame.js?v=59';
+import { fixkostenMonat, instandhaltungMonat } from '../js/immobilie.js?v=59';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const [listings, tenants, events] = await Promise.all(['listings', 'tenants', 'events'].map(async (name) =>

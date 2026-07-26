@@ -1130,7 +1130,7 @@ async function main() {
 
     // Reproduzierbare Responsive-/A11y-Gates. Ein echter Screenreader- und
     // physischer Gerätecheck bleibt ein manueller Release-Schritt.
-    for (const [breite, hoehe] of [[1100, 800], [1024, 768], [700, 900], [390, 844]]) {
+    for (const [breite, hoehe] of [[1200, 800], [1100, 800], [1024, 768], [700, 900], [390, 844]]) {
       await sende('Emulation.setDeviceMetricsOverride', {
         width: breite, height: hoehe, deviceScaleFactor: 1, mobile: breite <= 700,
       });
@@ -1218,17 +1218,36 @@ async function main() {
         const hudAbgeschnitten = [...document.querySelectorAll('.ressourcenleiste small, .ressourcenleiste b')]
           .filter((e) => sichtbar(e) && e.scrollWidth > e.clientWidth + 1)
           .map((e) => e.textContent.trim() + ' ' + e.clientWidth + '/' + e.scrollWidth);
+        // Kopfzeile: Datum, Finanzwerte und Menue duerfen sich weder ueberlappen
+        // noch rechts aus dem Viewport laufen. Zwischen max-width 1180px und
+        // min-width 1201px klaffte ein 20-px-Loch, in dem der einreihige
+        // Basiskopf nicht mehr passte: Das Menue ragte bis zu 25 px hinaus und
+        // das Datum lag auf der Cashflow-Kachel (Tablet mit 1200 CSS-px).
+        const kopfBoxen = ['.hud', '.ressourcenleiste', '.speed-group', '.menue'].map((sel) => {
+          const el = document.querySelector(sel);
+          return el && sichtbar(el) ? el.getBoundingClientRect() : null;
+        });
+        let topbarKollision = false;
+        for (let i = 0; i < kopfBoxen.length; i++) {
+          for (let j = i + 1; j < kopfBoxen.length; j++) {
+            const a = kopfBoxen[i]; const c = kopfBoxen[j];
+            if (a && c && a.left < c.right - 1 && c.left < a.right - 1
+              && a.top < c.bottom - 1 && c.top < a.bottom - 1) topbarKollision = true;
+          }
+        }
+        const kopfAusVieport = kopfBoxen.some((b) => b && (b.right > innerWidth + 1 || b.left < -1));
         const fokus = document.querySelector('.karten-listenpunkt');
         fokus?.focus();
         return {
           overflow: document.documentElement.scrollWidth > innerWidth + 1,
           namenlos, unbeschriftet, bilderOhneAlt, kleineNav, winzigeSchrift,
-          kopfUeberlappung, hudAbgeschnitten,
+          kopfUeberlappung, hudAbgeschnitten, topbarKollision, kopfAusVieport,
           fokusSichtbar: fokus ? getComputedStyle(fokus).outlineStyle !== 'none' || fokus.classList.contains('is-focus') : false,
         };
       })()`);
       if (gate.overflow || gate.namenlos || gate.unbeschriftet || gate.bilderOhneAlt || gate.kleineNav
-        || gate.winzigeSchrift.length || gate.kopfUeberlappung || gate.hudAbgeschnitten.length || !gate.fokusSichtbar) {
+        || gate.winzigeSchrift.length || gate.kopfUeberlappung || gate.hudAbgeschnitten.length
+        || gate.topbarKollision || gate.kopfAusVieport || !gate.fokusSichtbar) {
         throw new Error(`Responsive/A11y ${breite}px: ${JSON.stringify(gate)}`);
       }
       if (breite === 390) {
@@ -1260,12 +1279,12 @@ async function main() {
     // Lebensphasen auch im echten Renderpfad: Ruhestands-HUD und private
     // Endbilanz werden mit einem isolierten deterministischen Teststate gezeigt.
     const lebensphasenUi = await auswerten(`(async () => {
-      const { newGame } = await import('/js/state.js?v=58');
-      const { initialisiereMarkt } = await import('/js/market.js?v=58');
-      const { advanceMonths } = await import('/js/engine.js?v=58');
-      const { resolveEvent } = await import('/js/events.js?v=58');
-      const { updateHud } = await import('/js/ui/shell.js?v=58');
-      const { zeigeEnde } = await import('/js/ui/endgame.js?v=58');
+      const { newGame } = await import('/js/state.js?v=59');
+      const { initialisiereMarkt } = await import('/js/market.js?v=59');
+      const { advanceMonths } = await import('/js/engine.js?v=59');
+      const { resolveEvent } = await import('/js/events.js?v=59');
+      const { updateHud } = await import('/js/ui/shell.js?v=59');
+      const { zeigeEnde } = await import('/js/ui/endgame.js?v=59');
       const rente = newGame({ seedText: 'browser-rente' });
       rente.monat = (rente.config.zeit.rentenAlter - rente.config.zeit.startAlter) * 12;
       updateHud(rente, 0);

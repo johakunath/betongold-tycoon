@@ -1,13 +1,13 @@
 ﻿// shell.js — Topbar (Datum, Geschwindigkeit, Menü), Dialoge (Neues Spiel,
 // Spielstände, Kampagnenende) und Toasts. Spiel-Logik lebt in main.js.
 
-import { DEFAULT_CONFIG, START_PRESETS } from '../config.js?v=58';
-import { listSaves } from '../state.js?v=58';
-import { datum, alter, istImRuhestand, monatsWerte } from '../engine.js?v=58';
-import { fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=58';
-import { fmtEUR, fmtDatum } from './util.js?v=58';
-import { haushaltsUeberschussMonat } from './kennzahlen.js?v=58';
-import { meldungMeta } from './meldungen.js?v=58';
+import { DEFAULT_CONFIG, START_PRESETS } from '../config.js?v=59';
+import { listSaves } from '../state.js?v=59';
+import { datum, alter, istImRuhestand, monatsWerte } from '../engine.js?v=59';
+import { fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=59';
+import { fmtEUR, fmtDatum } from './util.js?v=59';
+import { haushaltsUeberschussMonat } from './kennzahlen.js?v=59';
+import { meldungMeta } from './meldungen.js?v=59';
 
 let app = null; // Callbacks aus main.js
 
