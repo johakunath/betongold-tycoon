@@ -99,7 +99,21 @@ Inline-SVG-Kartenblock ist gelöscht, die Zentrale-Unterseiten verlassen unter
 701 px das Dock zugunsten eines Streifens unter dem Kopf, Kopfhöhe und
 Screen-Inset teilen sich `--topbar-h`, und der native Elementvertrag B1.3 ist
 mit Button-Bildzoom, `aria-hidden`-SVG-Fallback und `<meter>` geschlossen.
-Aktuell: `SAVE_VERSION = 21`, `UI_VERSION = 57`.
+UI v58 behebt zwei am echten Telefon gemeldete Kopfüberlappungen: Filterzeile
+und Stadtleiste der Stadtbühne standen unter 701 px und im bis dahin
+ungeprüften Band 921–1180 px übereinander. Alle drei HUD-Kacheln haben jetzt
+dasselbe Zeilenlayout, „Haushaltsüberschuss" heißt überall „Cashflow", und der
+Jahreszähler „Jahr 1/60" ist aus dem Kopf entfernt (Alter genügt). Der
+Browser-Smoke misst Kopfüberlappung und abgeschnittene HUD-Texte jetzt selbst
+und prüft zusätzlich 1100 px.
+UI v59 schließt die letzte ungeprüfte Kopfzeilen-Lücke: Zwischen
+`max-width: 1180px` und `min-width: 1201px` klaffte ein 20-px-Band (z. B.
+1200 px, ein reales Tablet), in dem der einreihige Basiskopf nicht mehr passte
+— Menü ragte über den Viewport, Datum lag auf der Cashflow-Kachel. Beide
+Grenzen sind auf das Paar `1200.98px`/`1201px` gezogen; der Browser-Smoke
+prüft jetzt zusätzlich bei 1200 px, ob Datum, HUD, Zeitsteuerung und Menü sich
+weder überlappen noch aus dem Viewport laufen.
+Aktuell: `SAVE_VERSION = 21`, `UI_VERSION = 59`.
 
 Das Spiel ist öffentlich gehostet:
 <https://johakunath.github.io/betongold-tycoon/> (GitHub Pages aus `main`).

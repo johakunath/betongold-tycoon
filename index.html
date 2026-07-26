@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Betongold Tycoon</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23141b22'/%3E%3Cpath d='M14 45h36v8H14zM19 31h31v8H19zM25 17h25v8H25z' fill='%23e6c264'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="css/style.css?v=57">
+  <link rel="stylesheet" href="css/style.css?v=59">
 </head>
 <body>
 
@@ -58,7 +58,7 @@
     <button type="button" id="hud-cash-aktion" class="resource-cash" title="Finanzen öffnen"><svg class="hud-icon"><use href="#icon-wallet"></use></svg><span class="resource-copy"><small>Tagesgeld</small><b id="hud-cash">—</b></span></button>
     <button type="button" id="hud-etf-aktion" title="Finanzen öffnen"><svg class="hud-icon"><use href="#icon-chart"></use></svg><span class="resource-copy"><small>ETF-Depot</small><b id="hud-etf">—</b></span></button>
     </div>
-    <button type="button" class="resource-cashflow" id="hud-cashflow-aktion" aria-expanded="false" aria-controls="cashflow-popover"><svg class="hud-icon"><use href="#icon-trending"></use></svg><span class="resource-copy"><small>Haushaltsüberschuss</small><b id="hud-cashflow">—</b></span><span class="resource-action">Details</span></button>
+    <button type="button" class="resource-cashflow" id="hud-cashflow-aktion" aria-expanded="false" aria-controls="cashflow-popover"><svg class="hud-icon"><use href="#icon-trending"></use></svg><span class="resource-copy"><small>Cashflow</small><b id="hud-cashflow">—</b></span><span class="resource-action">Details</span></button>
   </div>
 
   <div class="speed-group" id="speed-group" role="toolbar" aria-label="Zeitsteuerung">
@@ -113,7 +113,7 @@
   <section class="kacheln" id="zentrale-panel-kacheln" aria-label="Kennzahlen nach Themen">
     <section class="kpi-gruppe" aria-labelledby="kpi-liquiditaet"><h2 id="kpi-liquiditaet"><svg class="section-icon"><use href="#icon-wallet"></use></svg>Liquidität</h2><div class="kpi-paar">
       <div class="kachel" id="tile-cash"><div class="label"><svg class="metric-icon"><use href="#icon-wallet"></use></svg>Tagesgeld</div><div class="wert">—</div><div class="sub"></div></div>
-      <div class="kachel" id="tile-cashflow"><div class="label"><svg class="metric-icon"><use href="#icon-trending"></use></svg>Haushaltsüberschuss</div><div class="wert">—</div><div class="sub"></div></div>
+      <div class="kachel" id="tile-cashflow"><div class="label"><svg class="metric-icon"><use href="#icon-trending"></use></svg>Cashflow</div><div class="wert">—</div><div class="sub"></div></div>
     </div></section>
     <section class="kpi-gruppe" aria-labelledby="kpi-vermoegen"><h2 id="kpi-vermoegen"><svg class="section-icon"><use href="#icon-building"></use></svg>Vermögen</h2><div class="kpi-paar">
       <div class="kachel" id="tile-vermoegen"><div class="label"><svg class="metric-icon"><use href="#icon-building"></use></svg>Nettovermögen</div><div class="wert">—</div><div class="sub"></div></div>
@@ -262,7 +262,7 @@
       </ul>
     </div>
     <dl class="finanz-kurzwerte">
-      <div><dt>Haushaltsüberschuss / Monat</dt><dd id="fin-cashflow">—</dd></div>
+      <div><dt>Cashflow / Monat</dt><dd id="fin-cashflow">—</dd></div>
       <div><dt>Liquiditätspuffer</dt><dd id="fin-puffer">—</dd></div>
     </dl>
   </section>
@@ -637,7 +637,7 @@
 <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 <input type="file" id="import-datei" accept=".json,application/json" hidden>
 
-<script type="module" src="js/main.js?v=57"></script>
+<script type="module" src="js/main.js?v=59"></script>
 </body>
 </html>
 

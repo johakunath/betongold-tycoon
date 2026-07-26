@@ -983,7 +983,13 @@ dialog footer { border-color:rgba(238,205,133,.15); background:rgba(7,12,17,.2);
 
 /* Responsive Gates --------------------------------------------------------- */
 
-@media (max-width: 1180px) {
+/* Obergrenze bewusst 1200.98 px: Zwischen `max-width: 1180px` und dem
+   `min-width: 1201px`-Block lag ein 20-px-Loch, in dem weder der gestapelte
+   Kopf noch der Weitpass griff. Der einreihige Basiskopf passte dort nicht —
+   gemessen ragte das Menü bis zu 25 px über den Viewport und das Datum lag auf
+   der Cashflow-Kachel. Regel aus DESIGN_SYSTEM.md §6: Breakpoint-Paare immer
+   als N.98px / N+1px anlegen. */
+@media (max-width: 1200.98px) {
   :root { --topbar-h: 128px; }
   .topbar {
     grid-template-columns:max-content minmax(0,1fr) max-content;
@@ -994,9 +1000,17 @@ dialog footer { border-color:rgba(238,205,133,.15); background:rgba(7,12,17,.2);
   .ressourcenleiste { grid-template-columns:repeat(3,minmax(130px,1fr)); }
   .speed-group { justify-self:end; }
   .dashboard, .marktplatz, .expose, .endgame, .finanzen, .spielkarte { inset:calc(var(--topbar-h) + 12px) 14px 88px; }
-  .karten-layout { grid-template-columns:250px minmax(320px,1fr) 250px; }
   .stadt-panel, .karten-legende { padding:12px; }
-  .karten-staedte { max-width:calc(100% - 360px); }
+  /* Filterzeile und Stadtleiste liegen beide absolut im selben Kopfband. Die
+     mittige Stadtleiste reservierte nur 180 px Gasse je Seite, die rechts
+     geparkte Filterzeile braucht aber ~328 px — gemessen überlappten sie sich
+     von 921 bis 1200 px (bei 1024 px um 108 x 44 px). Entzerrt wurde das nur
+     unterhalb von 921 px. Ab hier steht der Filter deshalb im gesamten Band
+     mittig **unter** der Stadtleiste; die Legacy-Margins werden dafür
+     neutralisiert, damit die Abstände nicht aus zwei Quellen entstehen. */
+  .karten-staedte { max-width:calc(100% - 24px); margin:0; }
+  .karten-filter { top:84px; right:auto; left:50%; max-width:calc(100% - 24px); margin:0; transform:translateX(-50%); }
+  .karten-layout { grid-template-columns:250px minmax(320px,1fr) 250px; padding-top:136px; }
   .markt-karte { grid-template-columns:minmax(280px,34%) minmax(240px,1fr) 190px; }
   .markt-gallery .expose-bild { min-height:174px; }
 }
@@ -1008,9 +1022,8 @@ dialog footer { border-color:rgba(238,205,133,.15); background:rgba(7,12,17,.2);
   .finanz-aktionen { grid-column:1; grid-row:auto; order:2; }
   .finanz-ueberblick { grid-column:1; grid-row:auto; order:3; min-height:300px; }
   .finanz-unten { grid-column:1; grid-row:auto; order:4; }
-  .karten-filter { top:58px; right:auto; left:50%; max-width:calc(100% - 24px); transform:translateX(-50%); }
-  .karten-staedte { max-width:calc(100% - 24px); }
-  .karten-layout { grid-template-columns:220px minmax(300px,1fr); padding-top:108px; }
+  /* Filter- und Stadtleistenposition kommen ab hier aus dem 1200.98-px-Block. */
+  .karten-layout { grid-template-columns:220px minmax(300px,1fr); }
   .karten-legende { display:none; }
   .markt-karte { grid-template-columns:minmax(250px,42%) minmax(250px,1fr); }
   .markt-deal { grid-column:1/-1; display:grid; grid-template-columns:1fr 2fr auto; align-items:center; border-top:1px solid rgba(238,205,133,.13); border-left:0; }
@@ -1060,10 +1073,20 @@ dialog footer { border-color:rgba(238,205,133,.15); background:rgba(7,12,17,.2);
   #screen-karte { overflow:auto; }
   /* Vier Stadtfilter teilen sich die Zeile; ohne Shrink erzwingen 4 x 122 px
      Mindestbreite sonst eine horizontale Scrollleiste bei 390 px. */
-  .karten-staedte { position:sticky; top:0; left:0; max-width:100%; transform:none; }
+  /* Im Markup steht die Filterzeile **vor** der Stadtleiste. `sticky` mit
+     `top: 58px` auf dem DOM-ersten Element schob sie deshalb schon bei
+     `scrollTop: 0` um 58 px nach unten, mitten auf die Stadtleiste darunter —
+     gemessen 44 px Überlappung bei 390 px und volle Deckung bei 700 px. Die
+     58 px unterstellten außerdem eine einzeilige Filterzeile; ab ≤ 480 px ist
+     sie zweizeilig (85 px). Auf dem Telefon bleibt deshalb genau ein Element
+     sticky: die Stadtleiste als primäres Umschaltelement. Die Filterzeile
+     steht normal im Fluss darüber und läuft beim Scrollen darunter durch —
+     dafür muss die Stadtleiste hier über ihr liegen (Basis: 12 gegen 13). */
+  .karten-staedte { position:sticky; top:0; left:auto; z-index:14; max-width:100%; margin:0 0 8px; transform:none; }
   .karten-staedte button { flex:1 1 0; min-width:0; padding:6px 7px; }
   .karten-staedte button :is(b, small) { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .karten-filter { position:sticky; top:58px; left:0; max-width:100%; transform:none; margin-top:5px; }
+  .karten-filter { position:static; z-index:auto; flex-wrap:nowrap; max-width:100%; margin:0 0 6px; transform:none; }
+  .karten-filter button { flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .karten-layout { grid-template-columns:1fr; height:auto; padding-top:8px; }
   .stadt-links { grid-template-rows:auto auto; }
   .post-panel { max-height:230px; }
@@ -1127,6 +1150,13 @@ dialog footer { border-color:rgba(238,205,133,.15); background:rgba(7,12,17,.2);
   .brand span { font-size:16px; }
   .menue > button { width:38px; min-width:38px; height:38px; }
   .ressourcenleiste > :is(div,button) { flex-basis:126px; padding-inline:7px; }
+  /* Seit alle drei Kacheln dasselbe Zeilenlayout haben, kostet das Icon hier
+     rund 25 px neben dem Label — gemessen wurden dadurch „Tagesgeld" (74 px
+     Bedarf in 56 px) und „ETF-Depot" abgeschnitten. Auf dem schmalsten
+     Telefon hat das Label Vorrang vor der Dekoration; dieselben Symbole
+     stehen unverändert auf den Zentrale-Kacheln. */
+  .ressourcenleiste .hud-icon { display:none; }
+  .resource-finanzgruppe > button { padding-inline:7px; }
   .ressourcenleiste b { font-size:13px; }
   .karten-marker { width:124px; }
   .marker-bild { height:64px; }

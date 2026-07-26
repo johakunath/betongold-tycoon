@@ -342,6 +342,18 @@ input:disabled, select:disabled, textarea:disabled {
   color: var(--tinte); background: transparent; box-shadow: none;
 }
 .resource-finanzgruppe > button:last-child { border-right: 0; }
+/* Alle drei HUD-Kacheln gleich bauen. Ohne explizites Zeilenlayout entscheidet
+   der anonyme Blockfluss im `<button>` (ein `<span>` mit Block-Kindern erzeugt
+   anonyme Blockboxen) je nach Restbreite unterschiedlich: In den ersten beiden
+   Kacheln stand das Icon über dem Label, in der dritten daneben. Die Regel lag
+   bisher nur im 1201-px-Block und galt damit ausgerechnet dort nicht, wo es
+   eng wird. */
+.ressourcenleiste > button,
+.resource-finanzgruppe > button {
+  display: flex; flex-direction: row; align-items: center;
+  gap: 7px; overflow: hidden;
+}
+.ressourcenleiste .resource-copy { display: block; min-width: 0; }
 /* Tagesgeld und ETF-Depot sind zwei Hälften **einer** Schaltfläche: Beide
    öffnen denselben Finanzen-Screen. Hover, Druckpunkt und Tastaturfokus hängen
    deshalb an der Gruppe, nicht am einzelnen Button — sonst leuchtet nur die
@@ -377,7 +389,9 @@ input:disabled, select:disabled, textarea:disabled {
 .chart-karte, .chart-wrap { min-width: 0; width: 100%; max-width: 100%; }
 .chart-wrap { min-height: 280px; }
 #chart { height: clamp(270px, 31vh, 340px); }
-@media (min-width: 1180px) and (min-height: 780px) {
+/* Untergrenze 1201 px, damit sie luekenlos an `max-width: 1200.98px` schliesst:
+   Bei 1190 px stand sonst der gestapelte Kopf neben dem Weitdesktop-Chart. */
+@media (min-width: 1201px) and (min-height: 780px) {
   #zentrale-panel-vermoegen { grid-template-columns: minmax(0, 1.65fr) minmax(330px, .75fr); gap: 12px; }
   #zentrale-panel-kacheln { grid-column: 1 / -1; }
   #zentrale-panel-chart { grid-column: 1; align-self: start; }
@@ -810,15 +824,11 @@ input, select, textarea,
   }
 }
 
-/* HUD-Schaltflächen: ab breitem Desktop flex-Layout erzwingen, damit SVG + Text korrekt
-   nebeneinander liegen. Höhe bleibt ≤ 46 px (Smoke-Gate). */
+/* HUD-Schaltflächen: ab breitem Desktop nur noch die Höhe festzurren
+   (≤ 46 px, Smoke-Gate). Das Zeilenlayout selbst steht seit UI v58 in der
+   Basis und gilt damit auf jedem Viewport. */
 @media (min-width: 1201px) {
   .ressourcenleiste { height: 46px; max-height: 46px; }
   .ressourcenleiste > :is(div, button) { height: 46px; min-height: 46px; max-height: 46px; }
-  .resource-finanzgruppe > button {
-    height: 46px; min-height: 46px; max-height: 46px;
-    display: flex; flex-direction: row; align-items: center;
-    gap: 8px; overflow: hidden;
-  }
-  .resource-finanzgruppe > button .resource-copy { display: block; min-width: 0; }
+  .resource-finanzgruppe > button { height: 46px; min-height: 46px; max-height: 46px; gap: 8px; }
 }

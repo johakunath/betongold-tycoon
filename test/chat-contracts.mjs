@@ -6,8 +6,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { DEFAULT_CONFIG, SAVE_VERSION, START_PRESETS, UI_VERSION } from '../js/config.js?v=57';
-import { meldungMeta } from '../js/ui/meldungen.js?v=57';
+import { DEFAULT_CONFIG, SAVE_VERSION, START_PRESETS, UI_VERSION } from '../js/config.js?v=59';
+import { meldungMeta } from '../js/ui/meldungen.js?v=59';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const lies = (datei) => fs.readFileSync(path.join(root, datei), 'utf8');
@@ -58,7 +58,7 @@ function vertrag(name, pruefung) {
 
 vertrag('Versionen und Wegwerf-Saves', () => {
   assert.equal(SAVE_VERSION, 21);
-  assert.equal(UI_VERSION, 57);
+  assert.equal(UI_VERSION, 59);
   assert.match(state, /Versionskonflikt|Version/);
   assert.doesNotMatch(state, /(?:export\s+)?function\s+migrier/i);
   assert.match(state, /statt Migrationscode mitzuschleppen/);
@@ -176,8 +176,8 @@ vertrag('Cashflow-Details, Benachrichtigungen und kompaktes Spielmenü', () => {
   assert.match(shell, /Math\.max\(0, log\.length - 40\)/);
   assert.match(shell, /<time datetime=/);
   assert.match(shell, /meldungMeta/);
-  assert.match(shell, /from '\.\/meldungen\.js\?v=57'/);
-  assert.match(karte, /from '\.\/meldungen\.js\?v=57'/);
+  assert.match(shell, /from '\.\/meldungen\.js\?v=59'/);
+  assert.match(karte, /from '\.\/meldungen\.js\?v=59'/);
   assert.match(karte, /meldung-\$\{meta\.klasse\}[\s\S]*meldung-symbol[\s\S]*meta\.symbol/);
   assert.match(meldungen, /export function meldungMeta/);
   assert.match(shell, /data-meldung-index/);
@@ -272,7 +272,7 @@ vertrag('Finanzierung trennt Objekt-, Steuer- und Haushaltswirkung', () => {
   assert.match(finanzierungUi, /Bis zur Vermietung/);
   assert.match(finanzierungUi, /Nach geplanter Vermietung/);
   assert.match(finanzierungUi, /Steuergutschrift|steuerMonat/);
-  assert.match(finanzierungUi, /Haushaltsüberschuss heute/);
+  assert.match(finanzierungUi, /Cashflow heute/);
   assert.match(finanzierungUi, /WEG-Kosten aufteilen/);
   assert.match(finanzierungUi, /Markt-Basiszins/);
   assert.match(finanzierungUi, /Aufschlag für Finanzierungsquote/);

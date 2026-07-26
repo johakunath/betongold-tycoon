@@ -1,11 +1,81 @@
 # HANDOVER.md — aktueller Projektstand
 
-**Stand:** 26.07.2026 (UI v57 — HUD-Finanzgruppe reagiert als eine Schaltfläche)
+**Stand:** 27.07.2026 (UI v59 — Kopfzeilen-Breakpoint-Lücke bei ~1200 px geschlossen)
 
-**Versionen:** SAVE_VERSION = 21, UI_VERSION = 57
+**Versionen:** SAVE_VERSION = 21, UI_VERSION = 59
 
 Das Spiel ist öffentlich gehostet: <https://johakunath.github.io/betongold-tycoon/>
 (GitHub Pages aus `main`/Wurzel, Deployment = `git push`).
+
+## UI v59 — Kopfzeilen-Breakpoint-Lücke bei ~1200 px
+
+Owner-Screenshot vom echten Tablet (1200 CSS-px): Datum lag auf der
+Cashflow-Kachel, Hamburger-Menü ragte rechts über den Viewport hinaus.
+
+**Ursache.** `css/app-shell.css` stapelte den Kopf bis `max-width: 1180px`
+(`--topbar-h: 128px`); `css/warm-theme.css` priorisierte die Finanzwerte erst ab
+`min-width: 1201px`. Im **1181–1200-px-Band griff keine der beiden Regeln** —
+der einreihige Basiskopf mit fünf Grid-Spalten (`brand resources date speed
+menu`) musste dort in eine zu schmale Breite. Am echten Chromium gemessen:
+Menü ragte bis zu 25 px über den rechten Rand hinaus.
+
+**Fix.** Beide Grenzen auf das Paar `1200.98px`/`1201px` gezogen — die
+projekteigene Regel gegen Breakpoint-Löcher (`DESIGN_SYSTEM.md` §6) galt bisher
+nur für `700px`/`701px`. Betroffen: `app-shell.css` (`max-width: 1180px` →
+`1200.98px`), `annotation-fixes.css` (`min-width: 1180px` → `1201px`,
+Zentrale-Zweispaltenlayout), `warm-theme.css` (`max-width: 1200px` →
+`1200.98px`, Finanzwerte-Priorisierung).
+
+**Neues Gate.** `test/browser-smoke.mjs` prüft jetzt zusätzlich bei 1200 px,
+ob `.hud`, `.ressourcenleiste`, `.speed-group` und `.menue` sich paarweise
+überlappen oder aus dem Viewport laufen. Gegengeprüft: mit der alten Grenze
+schlägt es an (`"kopfAusVieport":true`).
+
+## UI v58 — Kopfüberlappungen, HUD-Kacheln, Umbenennung
+
+Auslöser waren zwei Owner-Screenshots vom echten Telefon. Alles reines UI/Text;
+kein State, keine Ökonomie, keine RNG- oder Tickreihenfolge berührt.
+
+1. **Stadtbühne, ≤ 700.98 px.** Im Markup steht `.karten-filter` **vor**
+   `.karten-staedte` (`index.html:281–287`). Der Mobilblock gab der Filterzeile
+   trotzdem `position: sticky; top: 58px` — sticky schiebt ein Element nach
+   unten, wenn seine natürliche Position über der Schwelle liegt, also schon bei
+   `scrollTop: 0` um 58 px, mitten auf die Stadtleiste. `z-index: 13` gegen `12`
+   ließ die Filterlabels obendrauf malen. Die 58 px unterstellten außerdem eine
+   einzeilige Filterzeile; ab ≤ 480 px war sie zweizeilig (85 px). Jetzt:
+   Stadtleiste sticky mit `z-index: 14`, Filterzeile `position: static`,
+   `flex-wrap: nowrap`, Legacy-Margins neutralisiert.
+2. **Stadtbühne, 921–1180 px.** Beide Leisten liegen dort absolut im selben
+   Kopfband. `.karten-staedte` ist mittig und reservierte `calc(100% - 360px)`
+   ⇒ 180 px Gasse je Seite; `.karten-filter` sitzt `right: 8px` mit bis zu
+   320 px Breite ⇒ ~328 px Bedarf. Entzerrt wurde das nur im
+   `@media (max-width: 920px)`. Die Entzerrung steht jetzt im 1180-px-Block und
+   gilt damit lückenlos; der 920-px-Block enthält nur noch, was wirklich erst
+   dort gilt.
+3. **HUD-Kacheln.** `display: flex; flex-direction: row` für
+   `.ressourcenleiste > button` und `.resource-finanzgruppe > button` steht
+   jetzt in der Basis statt nur im 1201-px-Block. Preis davon: Unter 420 px
+   kostet das Icon ~25 px neben dem Label — dort entfallen die HUD-Symbole
+   (`.ressourcenleiste .hud-icon { display: none }`), sonst wurde „Tagesgeld"
+   abgeschnitten (74 px Bedarf in 56 px).
+4. **„Cashflow" statt „Haushaltsüberschuss"** an allen sichtbaren Stellen.
+   IDs und Klassen hießen längst so. `ECONOMY_MODEL.md` behält bewusst
+   „Haushalts-Cashflow", weil dort direkt daneben der Objekt-Cashflow steht.
+5. **„Jahr 1/60" entfernt.** Eine Stelle (`js/ui/shell.js`); der Import von
+   `gesamtMonate` wurde dort mit entfernt. `#hud-alter` bleibt bestehen.
+
+**Neue Gates.** `test/browser-smoke.mjs` misst im Karte-Gate jetzt selbst, ob
+`.karten-filter` und `.karten-staedte` sich schneiden und ob ein Text in der
+`.ressourcenleiste` abgeschnitten ist. Die Viewportschleife läuft zusätzlich bei
+**1100 px** — genau das Band, in dem der Desktopfehler unentdeckt blieb. Beide
+Gates sind gegengeprüft: Mit der alten CSS-Regel schlagen sie an.
+
+**Hinweis zur Testumgebung (Container).** Chromium verweigert als root den
+Start ohne `--no-sandbox`; `browser-smoke.mjs` setzt den Flag bewusst nicht.
+Hier lief der Test deshalb als Nicht-Root mit explizitem Node 22:
+`su ubuntu -s /bin/bash -c "BROWSER_BIN=… HOME=/tmp/ubhome TMPDIR=/tmp/ubtmp
+/opt/node22/bin/node test/browser-smoke.mjs"`. Auf einem normalen Arbeitsplatz
+ist nichts davon nötig.
 
 ## UI v57 — HUD-Finanzgruppe als eine Schaltfläche
 

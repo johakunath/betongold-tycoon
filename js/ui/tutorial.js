@@ -7,7 +7,7 @@ const SCHRITTE = [
     text: 'Hier steht euer sofort einsetzbarer Puffer. Käufe, Prüfungen, Reparaturen und ein negativer Monats-Cashflow gehen direkt davon ab.',
   },
   {
-    screen: 'dashboard', tab: 'vermoegen', selector: '#tile-cashflow', titel: 'Haushaltsüberschuss',
+    screen: 'dashboard', tab: 'vermoegen', selector: '#tile-cashflow', titel: 'Cashflow',
     text: 'Diese Kennzahl zeigt einen typischen Planungsmonat mit Einkommen, Lebenshaltung und Objekt-Cashflows vor der freiwilligen ETF-Umschichtung. Die echte Tagesgeld-Veränderung steht separat in der Haushaltsrechnung.',
   },
   {

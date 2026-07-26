@@ -3,6 +3,62 @@
 Kompaktes, chronologisches Log. Ältere Einträge sind verdichtet; Details
 bleiben in `DECISIONS.md` und den Fachdocs nachvollziehbar.
 
+## 2026-07-27 (1)
+
+- **UI v59 — Kopfzeile bei ~1200 px repariert.** Owner-Screenshot vom echten
+  Tablet (1200 CSS-px) zeigte das Datum auf der Cashflow-Kachel und das
+  Hamburger-Menü rechts vom Viewport abgeschnitten. Ursache: eine
+  Breakpoint-Lücke zwischen `max-width: 1180px`
+  (`css/app-shell.css`, gestapelter Kopf, `--topbar-h: 128px`) und
+  `min-width: 1201px` (`css/warm-theme.css`, priorisierter Weitpass) — im
+  1181–1200-px-Band griff keine der beiden Regeln, sodass der einreihige
+  Basiskopf mit fünf Grid-Spalten in eine zu schmale Breite gepresst wurde.
+  Am echten Chromium gemessen: Menü ragte bis 25 px über den rechten Rand.
+  Beide Grenzen auf `1200.98px`/`1201px` gezogen (`DESIGN_SYSTEM.md` §6:
+  Breakpoint-Paare als `N.98px`/`N+1px`); dasselbe Lückenpaar auch in
+  `css/annotation-fixes.css` (`min-width: 1180px` → `1201px`, Zentrale-Panel)
+  und `css/warm-theme.css` (`max-width: 1200px` → `1200.98px`) korrigiert.
+- **Neues Smoke-Gate bei 1200 px** prüft Kopfzeile (Datum, HUD, Zeitsteuerung,
+  Menü) paarweise auf Überlappung und auf Austritt aus dem Viewport.
+  Gegengeprüft: mit der alten Breakpoint-Grenze schlägt es an
+  (`"kopfAusVieport":true`).
+
+## 2026-07-26 (4)
+
+- **UI v58 — zwei Kopfüberlappungen der Stadtbühne behoben.** Owner-Screenshots
+  vom echten Telefon zeigten „Im Bestand"/„Favoriten" unlesbar über den
+  Stadtreitern. Ursache: Im Markup steht die Filterzeile **vor** der
+  Stadtleiste, der Mobilblock gab ihr aber `position: sticky; top: 58px` — das
+  schob sie schon bei `scrollTop: 0` um 58 px nach unten, mitten auf die
+  Stadtleiste, und `z-index: 13` gewann gegen `12`. Gemessen: 44 px
+  Überlappung bei 390 px, volle Deckung bei 700 px. Auf dem Telefon bleibt
+  jetzt genau ein Element sticky (die Stadtleiste, `z-index: 14`); die
+  Filterzeile steht einzeilig im normalen Fluss darüber.
+- **Dieselbe Kollision im Band 921–1180 px.** Beide Leisten liegen dort absolut
+  im selben Kopfband: Die mittige Stadtleiste reservierte 180 px Gasse je
+  Seite, die rechts geparkte Filterzeile braucht ~328 px. Entzerrt wurde das
+  nur unterhalb von 921 px — bei 1024 px überlappten sie um 108 × 44 px. Die
+  Entzerrung gilt jetzt im gesamten Band ≤ 1180 px, mit neutralisierten
+  Legacy-Margins und expliziten Abständen (`top: 84px`, `padding-top: 136px`)
+  statt zweier Quellen.
+- **Alle drei HUD-Kacheln gleich gebaut.** Das Zeilenlayout lag nur im
+  1201-px-Block; darunter entschied der anonyme Blockfluss im `<button>`
+  unterschiedlich — Icon mal über, mal neben dem Label. Die Regel steht jetzt
+  in der Basis. Damit das schmalste Telefon die Labels vollständig zeigt,
+  entfallen unter 420 px die HUD-Symbole (gemessen: „Tagesgeld" brauchte 74 px
+  in 56 px).
+- **„Haushaltsüberschuss" heißt überall „Cashflow"** (HUD, Zentrale-Kachel,
+  Finanzen, Cashflow-Popover, Finanzierung, Tutorial). Die interne Benennung
+  lautete längst so (`resource-cashflow`, `#tile-cashflow`, `#fin-cashflow`).
+  In `ECONOMY_MODEL.md` steht bewusst „Haushalts-Cashflow", damit die Größe
+  vom Objekt-Cashflow unterscheidbar bleibt.
+- **Jahreszähler „Jahr 1/60" aus dem Kopf entfernt**; das Alter genügt
+  (`js/ui/shell.js`, eine erzeugende Stelle).
+- **Zwei neue Smoke-Gates**: Kopfüberlappung (`.karten-filter` gegen
+  `.karten-staedte`) und abgeschnittene HUD-Texte, geprüft bei 1100/1024/700/
+  390 px. 1100 px ist neu in der Schleife — genau dort lag das ungeprüfte Band.
+  Beide Gates gegengeprüft: mit der alten Regel schlagen sie an.
+
 ## 2026-07-26 (3)
 
 - **UI v57 — Tagesgeld und ETF-Depot reagieren als eine Schaltfläche.**
