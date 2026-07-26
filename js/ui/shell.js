@@ -1,13 +1,13 @@
 ﻿// shell.js — Topbar (Datum, Geschwindigkeit, Menü), Dialoge (Neues Spiel,
 // Spielstände, Kampagnenende) und Toasts. Spiel-Logik lebt in main.js.
 
-import { DEFAULT_CONFIG, START_PRESETS } from '../config.js?v=57';
-import { listSaves } from '../state.js?v=57';
-import { datum, alter, gesamtMonate, istImRuhestand, monatsWerte } from '../engine.js?v=57';
-import { fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=57';
-import { fmtEUR, fmtDatum } from './util.js?v=57';
-import { haushaltsUeberschussMonat } from './kennzahlen.js?v=57';
-import { meldungMeta } from './meldungen.js?v=57';
+import { DEFAULT_CONFIG, START_PRESETS } from '../config.js?v=58';
+import { listSaves } from '../state.js?v=58';
+import { datum, alter, istImRuhestand, monatsWerte } from '../engine.js?v=58';
+import { fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=58';
+import { fmtEUR, fmtDatum } from './util.js?v=58';
+import { haushaltsUeberschussMonat } from './kennzahlen.js?v=58';
+import { meldungMeta } from './meldungen.js?v=58';
 
 let app = null; // Callbacks aus main.js
 
@@ -540,7 +540,7 @@ function renderMeldungen() {
 export function updateHud(state, speed) {
   document.getElementById('hud-datum').textContent = state ? fmtDatum(datum(state)) : '—';
   document.getElementById('hud-alter').textContent = state
-    ? `Jahr ${Math.floor(state.monat / 12) + 1}/${Math.ceil(gesamtMonate(state) / 12)} · Alter ${alter(state)}${istImRuhestand(state) ? ' · Ruhestand' : ''}`
+    ? `Alter ${alter(state)}${istImRuhestand(state) ? ' · Ruhestand' : ''}`
     : '';
   const haushaltsUeberschuss = state ? haushaltsUeberschussMonat(state) : 0;
   const ressourcen = state ? {
@@ -601,10 +601,10 @@ function renderCashflowDetails(state) {
     ['Einkommen inkl. Kindergeld', w.gesamteinkommen],
     ['Haushalt & Wohnen', -ausgaben],
     ['Immobilien-Cashflow', objektCashflow],
-    ['Haushaltsüberschuss', ueberschuss],
+    ['Cashflow', ueberschuss],
   ];
   const html = zeilen.map(([label, wert], index) => `<tr class="${index === zeilen.length - 1 ? 'summe' : ''}"><td>${label}</td><td class="${wert < 0 ? 'negativ' : 'positiv'}">${wert >= 0 ? '+' : '−'}${fmtEUR(Math.abs(Math.round(wert)))}</td></tr>`).join('');
-  panel.innerHTML = `<div class="cashflow-popover-kopf"><span class="eyebrow">Kurzüberblick</span><h2>Haushaltsüberschuss</h2>` +
+  panel.innerHTML = `<div class="cashflow-popover-kopf"><span class="eyebrow">Kurzüberblick</span><h2>Cashflow</h2>` +
     `<p>Klick öffnet die vollständige Haushaltsrechnung.</p></div><table class="cashflow-details"><tbody>${html}</tbody></table>`;
 }
 

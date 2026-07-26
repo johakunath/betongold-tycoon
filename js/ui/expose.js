@@ -1,17 +1,17 @@
 ﻿// expose.js — Screen 3: Exposé-Detail mit Due Diligence, Notizen,
 // Szenariorechner, Gebot / Weggehen.
 
-import { getListing } from '../content.js?v=57';
+import { getListing } from '../content.js?v=58';
 import {
   angebotsPreis, vergleichsmiete, gebotAbgeben, kaufAbbrechen,
   besichtigen, dokumenteAnfordern, gutachterBeauftragen,
   angebotBeobachten, angebotVerwerfen, angebotNeuPruefen,
-} from '../market.js?v=57';
-import { dealEntscheidung, pruefstand } from '../gameplay.js?v=57';
-import { bildHTML, cutawayHTML } from '../iso.js?v=57';
-import { fmtEUR, fmtProzent } from './util.js?v=57';
-import { oeffneFinanzierung } from './finanzierung.js?v=57';
-import { eigenheimEignung, fixkostenAufschluesselung, instandhaltungMonat, objektartConfig } from '../immobilie.js?v=57';
+} from '../market.js?v=58';
+import { dealEntscheidung, pruefstand } from '../gameplay.js?v=58';
+import { bildHTML, cutawayHTML } from '../iso.js?v=58';
+import { fmtEUR, fmtProzent } from './util.js?v=58';
+import { oeffneFinanzierung } from './finanzierung.js?v=58';
+import { eigenheimEignung, fixkostenAufschluesselung, instandhaltungMonat, objektartConfig } from '../immobilie.js?v=58';
 
 let ctx = null;
 let aktuelleId = null;

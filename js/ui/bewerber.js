@@ -2,13 +2,13 @@
 // Dossierkarten sichten, einziehen lassen oder weitersuchen (kostet einen
 // Leerstandsmonat). Dossiers sind Hinweise, kein Score (PLAN §5.6).
 
-import { getTenant } from '../content.js?v=57';
+import { getTenant } from '../content.js?v=58';
 import {
   angesetzteMiete, marktmiete, starteVermietung, waehleBewerber,
   vermietungsmodell,
-} from '../tenants.js?v=57';
-import { fmtEUR } from './util.js?v=57';
-import { fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=57';
+} from '../tenants.js?v=58';
+import { fmtEUR } from './util.js?v=58';
+import { fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=58';
 
 let ctx = null;
 let index = -1;

@@ -2,17 +2,17 @@
 // Tilgung, Zinsbindung; live berechnetes Angebot + Haushaltsrechnungs-Verdikt.
 // Modus 'szenario' = reiner Rechner, Modus 'kauf' = mit Kaufabschluss.
 
-import { getListing } from '../content.js?v=57';
+import { getListing } from '../content.js?v=58';
 import {
   finanzierungsCashflowPfade, finanzierungsCashflowVorschau, kreditAngebot, kaufeObjekt, nebenkostenFuer,
-} from '../finance.js?v=57';
-import { kaufeEigenheim, wohnortWechselVorschau } from '../eigenheim.js?v=57';
-import { fmtEUR, fmtEURSigniert } from './util.js?v=57';
-import { eigenheimEignung, fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=57';
-import { etfVerkaufVorschau } from '../etf.js?v=57';
-import { angesetzteMiete } from '../tenants.js?v=57';
-import { fixkostenAufschluesselung } from '../immobilie.js?v=57';
-import { haushaltsUeberschussMonat, liquiditaetsPufferMonate } from './kennzahlen.js?v=57';
+} from '../finance.js?v=58';
+import { kaufeEigenheim, wohnortWechselVorschau } from '../eigenheim.js?v=58';
+import { fmtEUR, fmtEURSigniert } from './util.js?v=58';
+import { eigenheimEignung, fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=58';
+import { etfVerkaufVorschau } from '../etf.js?v=58';
+import { angesetzteMiete } from '../tenants.js?v=58';
+import { fixkostenAufschluesselung } from '../immobilie.js?v=58';
+import { haushaltsUeberschussMonat, liquiditaetsPufferMonate } from './kennzahlen.js?v=58';
 
 let ctx = null;
 let lage = null; // { listingId, kaufpreis, modus }
@@ -309,7 +309,7 @@ function render() {
       `<div class="fin-szenarien">${szenario(vorschau.leerstand ? 'Bis zur Vermietung' : istEigenheim ? 'Als Eigenheim' : 'Mit Bestandsmiete', aktuellVermietet ? mieteGeplant : 0, aktuellVermietet ? fixVermietet : fixLeer, objektJetzt)}` +
       (vorschau.leerstand ? szenario('Nach geplanter Vermietung', mieteGeplant, fixVermietet, objektGeplant, true) : '') +
       `</div>${pfadUrteil}${wegAufteilung}${steuerZeile}` +
-      `<div class="fin-haushalt-wirkung"><span><small>Haushaltsüberschuss heute</small><b>${fmtEURSigniert(Math.round(haushaltBasis))}</b></span>` +
+      `<div class="fin-haushalt-wirkung"><span><small>Cashflow heute</small><b>${fmtEURSigniert(Math.round(haushaltBasis))}</b></span>` +
       `<i>→</i><span><small>nach Kauf${vorschau.leerstand ? ' & Vermietung' : ''}</small><b class="${klasse(haushaltDanach)}">${fmtEURSigniert(Math.round(haushaltDanach))}</b></span></div></div>`;
   }
   if (a.zusage) {

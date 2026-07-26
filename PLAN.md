@@ -151,7 +151,7 @@ Spielannahmen ausgewiesen.
 
 Alle Screens verwenden dieselben vier Ebenen und vermischen sie nicht:
 
-- **Haushaltsüberschuss:** laufendes Einkommen und Alltag plus Objektwirkungen,
+- **Cashflow (Haushalt):** laufendes Einkommen und Alltag plus Objektwirkungen,
   vor freiwilliger ETF-Umschichtung;
 - **Objekt-Cashflow:** Miete minus Owner-Kosten, Verwaltung, Rücklage und volle
   Kreditrate;

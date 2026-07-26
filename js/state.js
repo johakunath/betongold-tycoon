@@ -1,7 +1,7 @@
 ﻿// state.js — Spielzustand, Save-Slots (localStorage), JSON-Export/-Import, seeded RNG.
 // Kein DOM-Zugriff auf Top-Level: das Modul läuft auch unter Node (Simulationstests).
 
-import { DEFAULT_CONFIG, SAVE_VERSION, START_PRESETS } from './config.js?v=57';
+import { DEFAULT_CONFIG, SAVE_VERSION, START_PRESETS } from './config.js?v=58';
 
 // ---------------------------------------------------------------------------
 // Seeded RNG (mulberry32). state.rngState treibt die allgemeine Spielwelt;

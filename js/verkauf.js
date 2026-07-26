@@ -1,9 +1,9 @@
 ﻿// verkauf.js — sechsmonatiger Verkauf von Kapitalanlage oder Eigenheim.
 // Keine Zufälligkeit; der Marktwert am Abschluss bestimmt den Erlös.
 
-import { fairerWert } from './market.js?v=57';
-import { meldeWartemoment } from './signals.js?v=57';
-import { protokolliereWirkung } from './gameplay.js?v=57';
+import { fairerWert } from './market.js?v=58';
+import { meldeWartemoment } from './signals.js?v=58';
+import { protokolliereWirkung } from './gameplay.js?v=58';
 
 export function verkaufsVorschau(state, objekt) {
   const cfg = state.config.verkauf;

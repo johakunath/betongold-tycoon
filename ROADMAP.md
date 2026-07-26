@@ -70,6 +70,22 @@ UI, unabhängig vom Arbeitspaket.
 Kurspfad, Dividenden, Content-Loader und aktienspezifische Tests entfernt. Das
 alte Konzept bleibt nur in `IDEEN.md`. Details in `DONE.md`.
 
+## Arbeitspaket J — echtes Familienbild für das Standard-Preset (P2)
+
+Die Familienkarte auf der Stadtbühne (`index.html:291`) zeigt
+`assets/avatar/t-05.webp` — einen **Mieter**-Avatar aus dem `t-*`-Satz mit einer
+einzelnen Frau. Das Standard-Preset „Familienstrategie mit Puffer"
+(`js/config.js`) beschreibt aber zwei Erwachsene und zwei kleine Kinder; Bild
+und Spielstand widersprechen sich.
+
+- Eigenes Familienbild anlegen: beide Erwachsene plus zwei kleine Kinder,
+  warme Anmutung, keine UI und keine Schrift (Art Direction nach
+  `DESIGN_SYSTEM.md` §5).
+- Eigener Name außerhalb des Mieter-Namensraums (nicht `t-*`), damit Mieter-
+  und Haushaltsbilder nicht verwechselt werden können.
+- In `ASSET_MANIFEST.md` eintragen; das Gesamtbudget bleibt < 15 MB.
+- Prüfen, ob die übrigen drei Startprofile dasselbe Problem haben.
+
 ## Arbeitspaket I — Kampagnenrhythmus und Kapitel (P3)
 
 Kapitel, Meilensteine oder stärker inszenierte Kampagnen erst bauen, wenn der

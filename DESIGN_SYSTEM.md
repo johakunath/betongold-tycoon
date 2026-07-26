@@ -23,7 +23,7 @@ Vermeiden:
 
 ## 2. Hierarchie und Navigation
 
-- Fester Top-HUD: Datum/Alter, Tagesgeld, Haushaltsüberschuss, ETF, Zeitsteuerung
+- Fester Top-HUD: Datum/Alter, Tagesgeld, Cashflow, ETF, Zeitsteuerung
   und kompaktes Menü.
 - Feste Bottom-Navigation nach Priorität: Stadt, Marktplatz, die dauerhaft
   sichtbaren Zentrale-Bereiche Vermögen/Haushalt/Objekte und Finanzen.
@@ -191,7 +191,7 @@ Einzelpositionen sind farbneutral.
 - Ein bidirektionaler Slider von −20.000 bis +20.000 Euro (500-Euro-Schritte)
   steuert Tagesgeld ↔ ETF. Beide Nachher-Konten, Deltas, Richtung und beim
   Verkauf Steuer/Netto reagieren live vor der Bestätigung.
-- Haushaltsüberschuss und Liquiditätspuffer stehen vor Depotdetails.
+- Cashflow und Liquiditätspuffer stehen vor Depotdetails.
 - Einzelaktien gehören nicht in die Kern-UI.
 - Vermögensmix verwendet entweder Nettoanteile oder zeigt eine vollständige
   Bruttobilanz mit Schulden. Netto-Headline und Brutto-Immobilienanteil werden

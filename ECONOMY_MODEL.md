@@ -710,7 +710,7 @@ verändert keine Rechnung.
 
 **Freiwillige mittelfristige Ziele:** 36 Monate erstes stabiles Mietobjekt,
 96 Monate Eigenheim oder 60 Monate Bestand stabilisieren. Fortschritt wird aus
-vorhandenem Objekt-Cashflow, Eigenheim, Haushaltsüberschuss und einem
+vorhandenem Objekt-Cashflow, Eigenheim, Haushalts-Cashflow und einem
 Sechsmonatspuffer abgeleitet; `stabilerCashflowGrenze = −100 €/Monat` ist der
 konservative Near-Break-even-Wert aus B0. Zielwahl, Wechsel und Pause verändern
 weder Geld noch RNG und vergeben keine Belohnung.

@@ -2,9 +2,9 @@
 // Die laufenden Kosten nutzt engine.tick über finance.tickObjekt; das Modul
 // kapselt den Nutzungswechsel und die Familienwirkung. DOM-frei.
 
-import { kaufeObjekt } from './finance.js?v=57';
-import { eigenheimEignung, fixkostenMonat, instandhaltungMonat } from './immobilie.js?v=57';
-import { getListing } from './content.js?v=57';
+import { kaufeObjekt } from './finance.js?v=58';
+import { eigenheimEignung, fixkostenMonat, instandhaltungMonat } from './immobilie.js?v=58';
+import { getListing } from './content.js?v=58';
 
 export function wohnortWechselVorschau(state, listing) {
   const ziel = listing.segment;

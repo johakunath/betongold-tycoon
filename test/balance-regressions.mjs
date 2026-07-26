@@ -8,15 +8,15 @@
 // Renovierungsrenditen sowie möbliert gegen unmöbliert über zehn Jahre.
 
 import { readFile } from 'node:fs/promises';
-import { newGame } from '../js/state.js?v=57';
-import { setzeInhalte, alleListings, getListing } from '../js/content.js?v=57';
-import { initialisiereMarkt, fairerWert } from '../js/market.js?v=57';
-import { kreditAngebot, kaufeObjekt } from '../js/finance.js?v=57';
+import { newGame } from '../js/state.js?v=58';
+import { setzeInhalte, alleListings, getListing } from '../js/content.js?v=58';
+import { initialisiereMarkt, fairerWert } from '../js/market.js?v=58';
+import { kreditAngebot, kaufeObjekt } from '../js/finance.js?v=58';
 import {
   starteVermietung, neueBewerber, waehleBewerber,
-} from '../js/tenants.js?v=57';
-import { advanceMonths, nettovermoegen } from '../js/engine.js?v=57';
-import { resolveEvent } from '../js/events.js?v=57';
+} from '../js/tenants.js?v=58';
+import { advanceMonths, nettovermoegen } from '../js/engine.js?v=58';
+import { resolveEvent } from '../js/events.js?v=58';
 
 const lade = async (name) =>
   JSON.parse(await readFile(new URL(`../data/${name}`, import.meta.url), 'utf8'));
