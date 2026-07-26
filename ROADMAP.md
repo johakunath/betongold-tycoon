@@ -16,19 +16,19 @@ abgearbeitet; Details in `DONE.md`. Nächste offene Priorität: **P3 — Kapitel
 Kampagnenrhythmus (I)**, erst nach einem abwechslungsreichen und befriedigenden
 Monatskern.
 
-**B1 ist mit UI v41 abgeschlossen** (siehe `DONE.md`). Offen bleibt aus dem
-Elementvertrag nur der Rest von B1.3: Bildzoom als nativer `<button>`,
-`aria-hidden` für den SVG-Fallback bei vorhandenem WebP und echte `<meter>`
-statt generischer Div-Messbalken.
+**B1 ist abgeschlossen** (siehe `DONE.md`). Der Rest von B1.3 — Bildzoom als
+nativer `<button>`, `aria-hidden` für den SVG-Fallback bei vorhandenem WebP und
+echte `<meter>` — ist mit UI v56 umgesetzt. Die vier Finanz-Messbalken
+(`ownership-meter`, `ltv-track`, `reserve-track`, `risiko-track`) bleiben
+bewusst `<div>`; Begründung in `REVIEW.md` unter „Bewusst nicht gemacht".
 
 ## Arbeitspaket B — Qualitäts- und Scope-Pass (P1)
 
-### B1. Nativer Elementvertrag (Rest) — die Umsetzung ist abgeschlossen
+### B1. Nativer Elementvertrag — umgesetzt
 
-Der Vereinfachungspass B1.1/B1.2/B1.4 ist mit UI v41 erledigt und in `DONE.md`
-protokolliert. Es bleibt der **verbindliche Elementvertrag**: Er gilt dauerhaft
-für jede neue UI, unabhängig vom Arbeitspaket. Offen sind daraus noch Bildzoom,
-SVG-/WebP-Doppelung und die generischen Messbalken.
+Der Vereinfachungspass B1.1/B1.2/B1.4 ist mit UI v41 erledigt, B1.3 mit UI v56.
+Es bleibt der **verbindliche Elementvertrag**: Er gilt dauerhaft für jede neue
+UI, unabhängig vom Arbeitspaket.
 
 #### B1.3 Verbindlicher nativer Elementvertrag
 

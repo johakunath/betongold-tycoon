@@ -1,13 +1,17 @@
 /* Annotation batch v44: shared readability and interaction repairs. */
 body { font-size: 16px; }
-small { font-size: .875em; }
-.eyebrow, .label, .resource-copy small, .konto-karte dt, .karte-preis small { font-size: 11px; }
-/* Die Kontokennzahlen lagen unterhalb von 1201 px bei 9 px (Label) und 10,5 px
-   (Wert) und waren damit die kleinste Schrift im Spiel. */
+/* UI v56 — Minimum-Font-Pass als Basis, nicht als Desktop-Sonderfall.
+   Bis UI v55 galt die 13-px-Untergrenze nur im 1201-px-Block; auf Tablet,
+   Telefon und selbst bei 1280 px blieben rund 30 Stellen darunter, bis hinab
+   zu 9 px. Ab hier ist 13 px der Boden und der 1201-px-Block ein reiner
+   Vergrößerungs-Pass. `max()` erhält die gewollte relative Staffelung bei
+   großen Elternschriften und deckelt sie nur nach unten. */
+small { font-size: max(13px, .875em); }
+.eyebrow, .label, .resource-copy small, .konto-karte dt, .karte-preis small { font-size: 13px; }
 .konto-karte dl > div, .konto-karte dt, .konto-karte dd { font-size: 13px; }
-.kachel .label { color: #d3c8aa; font-size: 12px; }
+.kachel .label { color: #d3c8aa; font-size: 13px; }
 .kachel .sub { color: #c8bd9f; font-size: 13px; line-height: 1.35; }
-.stadt-post button, .naechster-zug p, .karte-fakten, .markt-zitat { font-size: 12px; }
+.stadt-post button, .naechster-zug p, .karte-fakten, .markt-zitat { font-size: 13px; }
 
 /* Die Stadtbuehne zeigt das Motiv unverfaelscht; die sehr leichte Farblasur
    trennt Marker weiterhin vom Foto, ohne es abzudunkeln oder weichzuzeichnen. */
@@ -39,7 +43,7 @@ small { font-size: .875em; }
 .karten-listenpunkt .listenbild img { width: 100%; height: 100%; object-fit: cover; }
 .karten-listenpunkt .listenbild .marker-symbol { position: absolute; top: 5px; left: 5px; }
 .karten-listenpunkt b { font-size: 13px; line-height: 1.2; }
-.karten-listenpunkt small { margin-top: 3px; font-size: 12px; }
+.karten-listenpunkt small { margin-top: 3px; font-size: 13px; }
 
 /* Icon-only controls and tabs share explicit centering/gaps. */
 .menue > button { display: grid; place-items: center; line-height: 0; }
@@ -50,7 +54,7 @@ small { font-size: .875em; }
 /* Alte responsive Kurzlabels hatten neben dem echten Text ein zweites Label
    erzeugt. Ein Button besitzt jetzt genau eine sichtbare Beschriftung. */
 #btn-step-monat::after, #btn-step-jahr::after { content: none !important; }
-.speed-schritte button { font-size: 11px !important; }
+.speed-schritte button { font-size: 13px !important; }
 
 /* Annotation batch 46: Zentrale-Unterseiten sitzen als zweiter Block im Dock. */
 .screens-nav .zentrale-tabs {
@@ -161,8 +165,8 @@ input[type="range"]::-moz-range-thumb {
   top: 5px;
   right: 7px;
   display: grid;
-  min-width: 19px;
-  height: 19px;
+  min-width: 21px;
+  height: 21px;
   margin: 0;
   padding: 0 5px;
   place-items: center;
@@ -171,7 +175,7 @@ input[type="range"]::-moz-range-thumb {
   color: #fff;
   background: #1879dd;
   box-shadow: 0 2px 7px rgba(0,0,0,.4);
-  font: 700 10px/1 sans-serif;
+  font: 700 13px/1 sans-serif;
 }
 .screens-nav #markt-zaehler:empty { display: none; }
 
@@ -345,6 +349,9 @@ input:disabled, select:disabled, textarea:disabled {
   padding-left: 12px; border-left: 1px solid rgba(238,205,133,.28);
 }
 .screens-nav .zentrale-tabs button { font-size: 13px; }
+/* Ab 701 px sind die drei Unterseiten selbst die Dockziele der Zentrale; ein
+   zusätzlicher Sammelbutton wäre dort ein vierter Weg zum selben Screen. */
+#nav-zentrale { display: none; }
 
 .chart-karte, .chart-wrap { min-width: 0; width: 100%; max-width: 100%; }
 .chart-wrap { min-height: 280px; }
@@ -364,7 +371,7 @@ input:disabled, select:disabled, textarea:disabled {
 .mini-chart h3 { font-size: 14px; }
 .mini-chart header b { font-size: 13.5px; }
 .mini-legende, .risiko-zeile { font-size: 12.5px; }
-.hud .sub, .topbar .sub { color: #c7bda5; font-size: 12px; }
+.hud .sub, .topbar .sub { color: #c7bda5; font-size: 13px; }
 #hud-datum { font-size: 17px; }
 
 .markt-karte .badge.orange { color: #352409; background: #f2ce79; border-color: #ffe4a6; font-weight: 750; }
@@ -484,8 +491,8 @@ input:disabled, select:disabled, textarea:disabled {
   .karten-listenpunkt small { font-size: 14px; }
   .karte-kopfzeile h3 { font-size: 17px; }
   .vergleich-check { font-size: 14.5px; }
-  .marker-copy b { font-size: 13px; }
-  .marker-copy small { font-size: 12px; }
+  .marker-copy b { font-size: 14px; }
+  .marker-copy small { font-size: 13px; }
 
   /* Exposé, Finanzierung/Bank und Vergleich */
   .pruefstand label { font-size: 15.5px; }
@@ -625,13 +632,38 @@ input:disabled, select:disabled, textarea:disabled {
   .dd-liste li.dd-befund { grid-template-columns: 24px minmax(0,1fr); }
   .dd-liste li.dd-befund .dd-quelle { grid-column: 2; }
   .bewerber-avatar { width: 78px; height: 78px; flex-basis: 78px; }
-  /* Genau ein Scroller im Dock. Als eigener `overflow: auto`-Container wurde
-     die Zentrale-Gruppe bei 390 px auf 124 px gequetscht; „Objekte" lag dann
-     ohne sichtbaren Hinweis außerhalb des Viewports. Jetzt scrollt die
-     Bottom-Navigation als eine Reihe — der einzige laut Layout-Gate erlaubte
-     interne Scroller. */
-  .screens-nav .zentrale-tabs { flex: 0 0 auto; overflow: visible; }
-  .screens-nav .zentrale-tabs button { flex-basis: 76px; min-width: 76px; min-height: 57px; }
+  /* Sechs Dockziele passen auf dem Telefon nicht nebeneinander. Statt sie
+     horizontal scrollen zu lassen — „Objekte" lag bei 390 px ohne sichtbaren
+     Hinweis außerhalb des Viewports —, verlassen die drei Zentrale-Unterseiten
+     hier das Dock und werden zum vollbreiten Streifen unter dem Kopf. Das Dock
+     behält drei feste Ziele (Stadt, Marktplatz, Finanzen) und braucht keinen
+     internen Scroller mehr. Reine Positionierung: Das Markup bleibt eine
+     einzige `role="tablist"`-Gruppe. */
+  #nav-zentrale { display: flex; }
+  .screens-nav .zentrale-tabs {
+    position: fixed;
+    top: calc(var(--topbar-h) + 6px);
+    right: 8px;
+    left: 8px;
+    z-index: 24;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    border-left: 0;
+  }
+  /* Der Streifen gehört zur Zentrale und darf nicht über den anderen Screens
+     schweben. Das `!important` der Basisregel muss dafür mitgezogen werden. */
+  .screens-nav .zentrale-tabs { display: none !important; }
+  body[data-screen="dashboard"] .screens-nav .zentrale-tabs { display: flex !important; }
+  .screens-nav .zentrale-tabs button {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 44px;
+    padding-inline: 6px;
+  }
+  /* Der Streifen braucht eigene Höhe: Nur die Zentrale rückt nach unten. */
+  body[data-screen="dashboard"] .dashboard { top: calc(var(--topbar-h) + 60px); }
 }
 
 /* Zwischen 701 und 760 px passte der dreispaltige Kopf nicht mehr: Spalte 1 ist
@@ -640,14 +672,14 @@ input:disabled, select:disabled, textarea:disabled {
    diesem Band stapelt der Kopf wie auf dem Telefon; der Screen-Inset folgt der
    dadurch höheren Topbar. */
 @media (min-width: 701px) and (max-width: 760px) {
+  :root { --topbar-h: 200px; }
   .topbar {
     grid-template-columns: minmax(0, 1fr) max-content;
     grid-template-areas: "brand menu" "date date" "resources resources" "speed speed";
-    min-height: 0;
   }
   .topbar .hud { display: flex; justify-content: center; gap: 8px; min-width: 0; }
   .topbar .speed-group { justify-self: stretch; justify-content: center; }
-  .dashboard, .marktplatz, .expose, .endgame, .finanzen, .spielkarte { inset: 207px 14px 88px; }
+  .dashboard, .marktplatz, .expose, .endgame, .finanzen, .spielkarte { inset: calc(var(--topbar-h) + 8px) 14px 88px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

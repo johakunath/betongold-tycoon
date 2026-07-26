@@ -1182,18 +1182,36 @@ async function main() {
         const unbeschriftet = [...document.querySelectorAll('input,select,textarea')].filter((i) => sichtbar(i) &&
           !(i.getAttribute('aria-label') || i.closest('label') || document.querySelector('label[for="' + i.id + '"]'))).length;
         const bilderOhneAlt = [...document.querySelectorAll('img')].filter((i) => sichtbar(i) && !i.hasAttribute('alt')).length;
+        // Nur sichtbare Dockziele zaehlen. Ausgeblendete Buttons melden 0x0 und
+        // haetten den Gate sonst allein durch ihr display:none ausgeloest —
+        // #nav-zentrale existiert bewusst nur unterhalb von 701 px.
         const kleineNav = [...document.querySelectorAll('.screens-nav button')].filter((b) => {
+          if (!sichtbar(b)) return false;
           const r = b.getBoundingClientRect(); return r.height < 28 || r.width < 28;
         }).length;
+        // Schriftuntergrenze (DESIGN_SYSTEM.md §3): 13 px gilt als Basis, nicht
+        // nur im 1201-px-Block. Bis UI v55 blieben darunter rund 30 Stellen bis
+        // hinab zu 9 px zurueck, weil der Minimum-Pass nur den Desktop traf.
+        const winzigeSchrift = [...new Set([...document.querySelectorAll('body *')].filter((e) => {
+          if (e.closest('[hidden]')) return false;
+          const s = getComputedStyle(e);
+          if (s.display === 'none' || s.visibility === 'hidden') return false;
+          const r = e.getBoundingClientRect();
+          if (!r.width || !r.height) return false;
+          if (parseFloat(s.fontSize) >= 13) return false;
+          return [...e.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim());
+        }).map((e) => (e.id ? '#' + e.id : e.tagName.toLowerCase() + '.' + String(e.className).split(' ')[0])
+          + ':' + parseFloat(getComputedStyle(e).fontSize) + 'px'))].slice(0, 8);
         const fokus = document.querySelector('.karten-listenpunkt');
         fokus?.focus();
         return {
           overflow: document.documentElement.scrollWidth > innerWidth + 1,
-          namenlos, unbeschriftet, bilderOhneAlt, kleineNav,
+          namenlos, unbeschriftet, bilderOhneAlt, kleineNav, winzigeSchrift,
           fokusSichtbar: fokus ? getComputedStyle(fokus).outlineStyle !== 'none' || fokus.classList.contains('is-focus') : false,
         };
       })()`);
-      if (gate.overflow || gate.namenlos || gate.unbeschriftet || gate.bilderOhneAlt || gate.kleineNav || !gate.fokusSichtbar) {
+      if (gate.overflow || gate.namenlos || gate.unbeschriftet || gate.bilderOhneAlt || gate.kleineNav
+        || gate.winzigeSchrift.length || !gate.fokusSichtbar) {
         throw new Error(`Responsive/A11y ${breite}px: ${JSON.stringify(gate)}`);
       }
       if (breite === 390) {
@@ -1225,12 +1243,12 @@ async function main() {
     // Lebensphasen auch im echten Renderpfad: Ruhestands-HUD und private
     // Endbilanz werden mit einem isolierten deterministischen Teststate gezeigt.
     const lebensphasenUi = await auswerten(`(async () => {
-      const { newGame } = await import('/js/state.js?v=55');
-      const { initialisiereMarkt } = await import('/js/market.js?v=55');
-      const { advanceMonths } = await import('/js/engine.js?v=55');
-      const { resolveEvent } = await import('/js/events.js?v=55');
-      const { updateHud } = await import('/js/ui/shell.js?v=55');
-      const { zeigeEnde } = await import('/js/ui/endgame.js?v=55');
+      const { newGame } = await import('/js/state.js?v=56');
+      const { initialisiereMarkt } = await import('/js/market.js?v=56');
+      const { advanceMonths } = await import('/js/engine.js?v=56');
+      const { resolveEvent } = await import('/js/events.js?v=56');
+      const { updateHud } = await import('/js/ui/shell.js?v=56');
+      const { zeigeEnde } = await import('/js/ui/endgame.js?v=56');
       const rente = newGame({ seedText: 'browser-rente' });
       rente.monat = (rente.config.zeit.rentenAlter - rente.config.zeit.startAlter) * 12;
       updateHud(rente, 0);

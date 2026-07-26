@@ -27,6 +27,11 @@
   background: var(--karte);
 }
 .filter-check { display: flex; align-items: center; gap: 6px; color: var(--tinte-2); }
+/* Die Systemvorgabe von 13 px war die kleinste Bedienfläche im Spiel. Das
+   umgebende Label bleibt der eigentliche Klickbereich. */
+.filter-check input[type="checkbox"], .vergleich-check input[type="checkbox"] {
+  width: 17px; height: 17px; flex: 0 0 auto; margin: 0;
+}
 .filter-zeile button { margin-left: auto; }
 
 .markt-liste {
@@ -67,7 +72,15 @@
   letter-spacing: 0.08em;
 }
 
-.expose-bild { position: relative; aspect-ratio: 4 / 3; background: #dce8ef; }
+/* `.expose-bild` ist ein nativer <button> (Elementvertrag B1.3). Der Reset
+   nimmt ihm die Button-Optik, damit er weiter wie eine Bildfläche wirkt. */
+.expose-bild {
+  position: relative; aspect-ratio: 4 / 3; background: #dce8ef;
+  display: block; width: 100%; margin: 0; padding: 0;
+  border: 0; border-radius: 0; box-shadow: none;
+  font: inherit; color: inherit; text-align: inherit; appearance: none;
+}
+.expose-bild:hover { box-shadow: none; }
 .expose-bild svg, .expose-bild img {
   position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block;
 }
@@ -98,6 +111,8 @@
 .fav {
   border: none; background: transparent; font-size: 18px; padding: 0 2px;
   color: var(--hairline); -webkit-text-stroke: 1px var(--gedimmt);
+  /* Der Stern war nur 19 px breit und damit auf Touch kaum zu treffen. */
+  min-width: 32px;
 }
 .fav.aktiv { color: var(--akzent); -webkit-text-stroke: 0; }
 .karte-ort, .karte-fakten { display: flex; align-items: center; gap: 6px; }
@@ -109,7 +124,7 @@
 
 .karte-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
 .badge {
-  font-size: 11.5px;
+  font-size: 13px;
   border: 1px solid var(--hairline);
   border-radius: 999px;
   padding: 2px 9px;

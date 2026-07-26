@@ -157,7 +157,7 @@ input[type="range"] { accent-color: #d9b464; }
   grid-template-areas: "brand resources date speed menu";
   align-items: center;
   gap: 10px 14px;
-  min-height: 72px;
+  min-height: var(--topbar-h);
   padding: 9px 20px;
   color: var(--tinte);
   border: 0;
@@ -181,7 +181,7 @@ input[type="range"] { accent-color: #d9b464; }
 .brand svg { width: 28px; height: 28px; fill: #e6c264; filter: drop-shadow(0 2px 5px rgba(0,0,0,.42)); }
 .hud { grid-area: date; min-width: 116px; text-align: center; }
 #hud-datum { color: #f4dd9b; font-family: "Cormorant Garamond", Georgia, serif; font-size: 15px; font-weight: 700; }
-.hud .sub, .topbar .sub { color: #a89c7f; font-size: 10px; opacity: 1; }
+.hud .sub, .topbar .sub { color: #a89c7f; font-size: 13px; opacity: 1; }
 
 .ressourcenleiste {
   grid-area: resources;
@@ -231,7 +231,7 @@ input[type="range"] { accent-color: #d9b464; }
   border: 0;
   border-right: 1px solid rgba(238, 205, 133, .16);
   border-radius: 0;
-  font-size: 10px;
+  font-size: 13px;
   background: transparent;
   box-shadow: none;
 }
@@ -292,7 +292,7 @@ input[type="range"] { accent-color: #d9b464; }
   backdrop-filter: blur(8px);
 }
 .screens-nav button .ui-icon { width: 19px; height: 19px; flex-basis: 19px; }
-.screens-nav button span { color: inherit; font-size: 12px; font-weight: 800; font-style: normal; }
+.screens-nav button span { color: inherit; font-size: 13px; font-weight: 800; font-style: normal; }
 .screens-nav button.aktiv {
   color: #241d10;
   border-color: #f4dd9b;
@@ -336,10 +336,16 @@ input[type="range"] { accent-color: #d9b464; }
 
 /* Screen-Flächen ----------------------------------------------------------- */
 
+/* Der obere Abstand leitet sich aus `--topbar-h` ab — derselben Variable, aus
+   der `.topbar` ihre `min-height` bezieht. Vorher waren Kopfhöhe und Inset zwei
+   getrennte Konstantensätze, die nach jedem Typografie-Pass auseinanderliefen.
+   Bewusst rein in CSS gelöst: Eine JS-gemessene Höhe wäre exakter, würde das
+   Kernlayout aber von einem Callback abhängig machen — bleibt der aus, liegt
+   der halbe Screen unter dem Kopf. */
 .dashboard, .marktplatz, .expose, .endgame, .finanzen, .spielkarte {
   position: fixed;
   z-index: 5;
-  inset: 84px 20px 88px;
+  inset: calc(var(--topbar-h) + 12px) 20px 88px;
   width: auto;
   max-width: none;
   min-width: 0;
@@ -446,7 +452,7 @@ input[type="range"] { accent-color: #d9b464; }
   background: transparent;
 }
 .karten-staedte button b, .karten-staedte button small { display: block; color: inherit; text-align: left; }
-.karten-staedte button small { font-size: 10px; font-weight: 500; }
+.karten-staedte button small { font-size: 13px; font-weight: 500; }
 .karten-staedte button.aktiv { color: #f4dd9b; border-color: rgba(238,205,133,.55); background: rgba(238,205,133,.13); }
 .karten-filter {
   position: absolute;
@@ -461,7 +467,7 @@ input[type="range"] { accent-color: #d9b464; }
   background: rgba(17,24,32,.8);
   overflow-x: auto;
 }
-.karten-filter button { min-width: auto; min-height: 34px; padding: 5px 9px; border: 0; background: transparent; font-size: 11px; }
+.karten-filter button { min-width: auto; min-height: 34px; padding: 5px 9px; border: 0; background: transparent; font-size: 13px; }
 .karten-filter button.aktiv { color: #21190b; background: linear-gradient(180deg,#eecd85,#c69a3f); }
 
 .karten-layout {
@@ -486,19 +492,35 @@ input[type="range"] { accent-color: #d9b464; }
 .familie-panel header { display: flex; align-items: center; gap: 11px; margin-bottom: 13px; }
 .familie-panel header img { width: 52px; height: 52px; border: 2px solid #d8b866; border-radius: 50%; object-fit: cover; }
 .familie-panel h2, .post-panel h2, .karten-legende h2 { margin: 0; color: #f4dd9b; font-size: 18px; }
-.familie-panel p { margin: 1px 0 0; font-size: 11px; }
-.sims-zeile { display: grid; grid-template-columns: 27px 56px minmax(50px,1fr) 43px; align-items: center; gap: 7px; margin-top: 9px; color: var(--tinte-2); font-size: 12px; }
+.familie-panel p { margin: 1px 0 0; font-size: 13px; }
+.sims-zeile { display: grid; grid-template-columns: 27px 56px minmax(50px,1fr) 43px; align-items: center; gap: 7px; margin-top: 9px; color: var(--tinte-2); font-size: 13px; }
 .sims-icon { display: grid; width: 25px; height: 25px; place-items: center; border-radius: 50%; color: white; }
 .sims-icon svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; }
 .sims-icon.familie { background: #b86d55; }
 .sims-icon.zeit { background: #806aa1; }
 .sims-icon.nerven { background: #c79531; }
 .sims-icon.puffer { background: #58886e; }
-.sims-zeile > div { height: 8px; border-radius: 99px; background: rgba(3,7,10,.66); overflow: hidden; }
-.sims-zeile > div i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg,#e0a084,#e6c264); }
-.sims-zeile:nth-of-type(2) > div i { background: linear-gradient(90deg,#806aa1,#b79bd6); }
-.sims-zeile:nth-of-type(4) > div i { background: linear-gradient(90deg,#6fae7f,#9ed19e); }
-.sims-zeile b { color: #efe7d5; font-size: 11px; text-align: right; font-variant-numeric: tabular-nums; }
+/* Familie, Zeit, Nerven und Puffer sind begrenzte Zustände und deshalb native
+   <meter> (Elementvertrag B1.3). Die Optik bleibt der bisherige schmale
+   Farbverlauf; dafür braucht jede Engine ihre eigenen Pseudoelemente. */
+.sims-zeile > meter {
+  width: 100%; height: 8px; border: 0; border-radius: 99px;
+  background: rgba(3,7,10,.66); overflow: hidden; appearance: none;
+}
+.sims-zeile > meter::-webkit-meter-bar {
+  border: 0; border-radius: 99px; background: rgba(3,7,10,.66);
+}
+.sims-zeile > meter::-webkit-meter-optimum-value,
+.sims-zeile > meter::-webkit-meter-suboptimum-value,
+.sims-zeile > meter::-webkit-meter-even-less-good-value {
+  border-radius: 99px; background: linear-gradient(90deg,#e0a084,#e6c264);
+}
+.sims-zeile > meter::-moz-meter-bar { border-radius: 99px; background: linear-gradient(90deg,#e0a084,#e6c264); }
+.sims-zeile:nth-of-type(2) > meter::-webkit-meter-optimum-value { background: linear-gradient(90deg,#806aa1,#b79bd6); }
+.sims-zeile:nth-of-type(2) > meter::-moz-meter-bar { background: linear-gradient(90deg,#806aa1,#b79bd6); }
+.sims-zeile:nth-of-type(4) > meter::-webkit-meter-optimum-value { background: linear-gradient(90deg,#6fae7f,#9ed19e); }
+.sims-zeile:nth-of-type(4) > meter::-moz-meter-bar { background: linear-gradient(90deg,#6fae7f,#9ed19e); }
+.sims-zeile b { color: #efe7d5; font-size: 13px; text-align: right; font-variant-numeric: tabular-nums; }
 
 .post-panel { min-height: 0; overflow: hidden; }
 .post-panel header, .karten-legende > header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 9px; }
@@ -542,13 +564,13 @@ input[type="range"] { accent-color: #d9b464; }
 .status-pausiert .marker-status { background: #8d979e; }
 .marker-copy { display: block; padding: 7px 8px 8px; text-align: left; }
 .marker-copy b, .marker-copy small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.marker-copy b { color: #efe7d5; font-size: 11px; }
-.marker-copy small { color: var(--gedimmt); font-size: 9.5px; }
+.marker-copy b { color: #efe7d5; font-size: 13px; }
+.marker-copy small { color: var(--gedimmt); font-size: 13px; }
 .marker-stiel { position: absolute; top: 100%; left: 50%; width: 2px; height: 14px; background: currentColor; }
 .marker-stiel::after { content:''; position:absolute; bottom:-4px; left:-3px; width:8px; height:8px; border-radius:50%; background: currentColor; }
 
 .karten-legende { grid-template-rows: auto auto minmax(0,1fr) auto; overflow: hidden; }
-.status-legende { display: flex; flex-wrap: wrap; gap: 5px 10px; color: var(--gedimmt); font-size: 9px; }
+.status-legende { display: flex; flex-wrap: wrap; gap: 5px 10px; color: var(--gedimmt); font-size: 13px; }
 .marker-symbol { width: 9px; height: 9px; background: #e6c264; }
 .marker-symbol.reserviert { background: #7ea8d8; }
 .marker-symbol.bestand, .marker-symbol.eigenheim { background: #6fae7f; }
@@ -645,7 +667,7 @@ input[type="range"] { accent-color: #d9b464; }
 .markt-karte:hover { border-color: rgba(238,205,133,.48); box-shadow: 0 12px 32px rgba(0,0,0,.28); transform: translateY(-1px); }
 .markt-gallery { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 0; min-width: 0; }
 .markt-ansicht { position: relative; min-width: 0; border-right: 1px solid rgba(238,205,133,.12); }
-.markt-ansicht > span { position: absolute; left: 8px; bottom: 7px; z-index: 2; padding: 2px 6px; color: #efe7d5; border-radius: 6px; background: rgba(7,11,15,.78); font-size: 9px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.markt-ansicht > span { position: absolute; left: 8px; bottom: 7px; z-index: 2; padding: 2px 7px; color: #efe7d5; border-radius: 6px; background: rgba(7,11,15,.78); font-size: 13px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
 .markt-gallery .expose-bild { width: 100%; height: 100%; min-height: 184px; border: 0; border-radius: 0; }
 .markt-gallery .expose-bild img, .markt-gallery .expose-bild svg { width: 100%; height: 100%; object-fit: cover; }
 .markt-karte .karte-inhalt { display: flex; min-width: 0; flex-direction: column; gap: 7px; padding: 13px 15px; }
@@ -667,7 +689,7 @@ input[type="range"] { accent-color: #d9b464; }
   cursor: pointer;
 }
 .karte-titel:hover:not(:disabled) { border: 0; background: none; box-shadow: none; transform: none; text-decoration: underline; }
-.karte-ort { color: var(--gedimmt); font-size: 10.5px; }
+.karte-ort { color: var(--gedimmt); font-size: 13px; }
 .karte-fakten { display: flex; flex-wrap: wrap; gap: 6px 13px; color: var(--tinte-2); font-size: 11px; }
 .karte-fakten > span { display: inline-flex; align-items: center; gap: 4px; }
 .karte-fakten .ui-icon { width: 13px; height: 13px; color: #e6c264; }
@@ -678,7 +700,7 @@ input[type="range"] { accent-color: #d9b464; }
 .karte-preis small { display: block; margin-top: 2px; font-family: inherit; font-size: 10px; }
 .markt-aktionen { display: grid; grid-template-columns: 1fr; gap: 7px; }
 .markt-aktionen button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
-.vergleich-check { color: var(--gedimmt); font-size: 10px; }
+.vergleich-check { color: var(--gedimmt); font-size: 13px; }
 .fav { color: #e6c264; background: rgba(14,20,27,.76); }
 
 /* Exposé und Objekt -------------------------------------------------------- */
@@ -776,20 +798,20 @@ input[type="range"] { accent-color: #d9b464; }
 .transfer-karte h3 { color:#f0d995; }
 .transfer-vorschau { color:var(--tinte-2); background:rgba(255,255,255,.035); }
 .transfer-regler { display:grid; gap:12px; margin-top:14px; }
-.transfer-slider-label { display:flex; align-items:end; justify-content:space-between; gap:12px; color:var(--tinte-2); font-size:12px; }
+.transfer-slider-label { display:flex; align-items:end; justify-content:space-between; gap:12px; color:var(--tinte-2); font-size:13px; }
 .transfer-slider-label output { color:#f4dd9b; font-family:"Cormorant Garamond",Georgia,serif; font-size:20px; font-weight:700; font-variant-numeric:tabular-nums; }
 .transfer-slider-wrap { position:relative; padding:3px 0; }
 .transfer-slider-wrap::after { content:''; position:absolute; z-index:0; top:0; bottom:0; left:50%; width:1px; background:rgba(238,205,133,.52); pointer-events:none; }
 #fin-transfer { position:relative; z-index:1; width:100%; accent-color:#d9b464; }
-.transfer-skala { display:grid; grid-template-columns:1fr auto 1fr; gap:10px; margin-top:-7px; color:var(--gedimmt); font-size:10px; }
+.transfer-skala { display:grid; grid-template-columns:1fr auto 1fr; gap:10px; margin-top:-7px; color:var(--gedimmt); font-size:13px; }
 .transfer-skala b { color:var(--tinte-2); font-weight:500; text-align:center; }
 .transfer-skala span:last-child { text-align:right; }
 .transfer-konten { display:grid; grid-template-columns:minmax(0,1fr) 48px minmax(0,1fr); align-items:stretch; gap:10px; }
 .transfer-konto { display:flex; align-items:center; gap:12px; min-width:0; padding:13px; border:1px solid rgba(238,205,133,.18); border-radius:12px; background:rgba(2,6,9,.24); }
 .transfer-konto > div { display:grid; min-width:0; }
-.transfer-konto small { color:var(--gedimmt); font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; }
+.transfer-konto small { color:var(--gedimmt); font-size:13px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; }
 .transfer-konto strong { color:#f4dd9b; font-family:"Cormorant Garamond",Georgia,serif; font-size:25px; line-height:1.1; font-variant-numeric:tabular-nums; }
-.transfer-konto div > span { color:var(--gedimmt); font-size:12px; font-weight:700; font-variant-numeric:tabular-nums; }
+.transfer-konto div > span { color:var(--gedimmt); font-size:13px; font-weight:700; font-variant-numeric:tabular-nums; }
 .transfer-konto div > span.positiv { color:var(--positiv); }
 .transfer-konto div > span.negativ { color:var(--negativ); }
 .transfer-pfeil { display:grid; place-items:center; color:#e6c264; font-family:"Cormorant Garamond",Georgia,serif; font-size:30px; }
@@ -962,15 +984,16 @@ dialog footer { border-color:rgba(238,205,133,.15); background:rgba(7,12,17,.2);
 /* Responsive Gates --------------------------------------------------------- */
 
 @media (max-width: 1180px) {
+  :root { --topbar-h: 128px; }
   .topbar {
     grid-template-columns:max-content minmax(0,1fr) max-content;
     grid-template-areas:"brand date menu" "resources speed speed";
-    min-height:128px;
+    min-height:var(--topbar-h);
     padding:8px 14px;
   }
   .ressourcenleiste { grid-template-columns:repeat(3,minmax(130px,1fr)); }
   .speed-group { justify-self:end; }
-  .dashboard, .marktplatz, .expose, .endgame, .finanzen, .spielkarte { inset:140px 14px 88px; }
+  .dashboard, .marktplatz, .expose, .endgame, .finanzen, .spielkarte { inset:calc(var(--topbar-h) + 12px) 14px 88px; }
   .karten-layout { grid-template-columns:250px minmax(320px,1fr) 250px; }
   .stadt-panel, .karten-legende { padding:12px; }
   .karten-staedte { max-width:calc(100% - 360px); }
@@ -1000,11 +1023,12 @@ dialog footer { border-color:rgba(238,205,133,.15); background:rgba(7,12,17,.2);
 }
 
 @media (max-width: 700.98px) {
+  :root { --topbar-h: 220px; }
   body { overflow:hidden; }
   .topbar {
     grid-template-columns:minmax(0,1fr) auto;
     grid-template-areas:"brand menu" "date date" "resources resources" "speed speed";
-    min-height:190px;
+    min-height:var(--topbar-h);
     gap:5px 8px;
     padding:7px 10px;
     overflow:hidden;
@@ -1021,7 +1045,7 @@ dialog footer { border-color:rgba(238,205,133,.15); background:rgba(7,12,17,.2);
   .speed-group { justify-self:stretch; justify-content:center; width:100%; overflow-x:auto; }
   .speed-group button { min-width:36px; }
   .speed-lauf button span { display:none; }
-  .dashboard, .marktplatz, .expose, .endgame, .finanzen, .spielkarte { inset:198px 8px 82px; }
+  .dashboard, .marktplatz, .expose, .endgame, .finanzen, .spielkarte { inset:calc(var(--topbar-h) + 10px) 8px 82px; }
   .dashboard, .finanzen, .marktplatz, .expose, .endgame { padding:14px 12px 20px; }
   .screen-heading, .screen-heading--dashboard, .screen-heading--market, .screen-heading--finanzen { top:-14px; margin:-14px -12px 0; padding:11px 12px; }
   .screen-heading p { display:none; }
@@ -1103,7 +1127,7 @@ dialog footer { border-color:rgba(238,205,133,.15); background:rgba(7,12,17,.2);
   .brand span { font-size:16px; }
   .menue > button { width:38px; min-width:38px; height:38px; }
   .ressourcenleiste > :is(div,button) { flex-basis:126px; padding-inline:7px; }
-  .ressourcenleiste b { font-size:12px; }
+  .ressourcenleiste b { font-size:13px; }
   .karten-marker { width:124px; }
   .marker-bild { height:64px; }
   .kpi-paar { grid-template-columns:1fr; }
@@ -1135,6 +1159,14 @@ dialog footer { border-color:rgba(238,205,133,.15); background:rgba(7,12,17,.2);
     margin-inline: auto;
   }
   .screens-nav { left: max(20px, calc(50vw - var(--inhalt-max) / 2)); }
+  /* Kopf, Inhalt und Dock bilden eine Spalte. Ohne Deckel spannte die Topbar
+     über die volle Fensterbreite, während der Inhalt bei 2560 px auf 1600 px
+     zentriert blieb — das HUD saß dann rund 300 px rechts vom Inhalt. Der
+     Deckel läuft über das Innenabstands-Padding, damit der deckende Balken
+     weiterhin bis an beide Fensterkanten reicht. */
+  .topbar {
+    padding-inline: max(20px, calc(50vw - var(--inhalt-max) / 2));
+  }
   /* Die Marker sitzen prozentual im Bühnenfeld. Ohne Deckel driften vier Karten
      über 1900 px auseinander; das Feld bleibt deshalb zentriert begrenzt. */
   .stadt-markerfeld { left: 0; right: 0; width: min(1080px, 100%); margin-inline: auto; }

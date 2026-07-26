@@ -220,27 +220,19 @@
 .karten-layout { display: grid; grid-template-columns: minmax(0, 2.2fr) minmax(260px, .8fr); gap: 16px; align-items: start; }
 .stadtkarte, .karten-legende { border: 1px solid var(--hairline); border-radius: 16px; background: var(--karte, #fff); box-shadow: var(--shadow-klein); }
 .stadtkarte { min-width: 0; overflow: hidden; padding: 8px; }
-/* Nur die frühere Vollflächen-Karte als direktes Kind wird gestreckt. Ohne den
-   Kindselektor traf die Regel jedes `.ui-icon` in den Markern und blies die
-   Statussymbole auf 25x330 px (mobil 760x330 px) auf. */
-.stadtkarte > svg { display: block; width: 100%; height: auto; min-height: 330px; }
 .karten-legende { padding: 16px; }
 .karten-legende h2 { margin-top: 0; }
-.karten-ebene rect { fill: #f3eee2; stroke: #cfc2aa; stroke-width: 1.5; }
-.karten-ebene > path:not(.karten-wasser) { fill: none; stroke: #d5c8b2; stroke-width: 8; stroke-linecap: round; opacity: .7; }
-.karten-ebene.ebene-meissen-umland rect { fill: #edf2e9; }
-.karten-wasser { fill: none; stroke: #7eafb8; stroke-width: 5; opacity: .75; }
-.ebene-titel { fill: var(--tinte); font: 700 17px system-ui, sans-serif; }
-.ebene-sub { fill: var(--gedimmt); font: 11px system-ui, sans-serif; }
-.karten-marker { cursor: pointer; outline: none; }
-.karten-marker > :first-child { fill: #fff; stroke: var(--petrol); stroke-width: 3; vector-effect: non-scaling-stroke; }
-.karten-marker.status-bestand > :first-child { fill: var(--petrol); }
-.karten-marker.status-eigenheim > :first-child { fill: var(--amber, #d9a441); stroke: #6f5020; }
-.karten-marker.status-reserviert > :first-child { fill: #fff4d5; stroke: #b07119; }
-.karten-marker.status-pausiert, .karten-marker.status-kommend { opacity: .52; }
+/* Die Stadtbühne war früher eine Inline-SVG-Karte. Sie ist heute ein `<div>`
+   mit WebP-Hintergrund und HTML-Markern (`js/ui/karte.js`); die zugehörigen
+   SVG-Regeln (`.karten-ebene`, `.ebene-*`, `.stadt-grund/-park/-wasser/
+   -strassen/-orte/-titel`, `.marker-strich`, `fill`/`stroke` auf
+   `.karten-marker > :first-child`) sind mit UI v56 entfernt. Eine davon —
+   `.stadtkarte svg` — hatte bis UI v54 jedes `.ui-icon` in den Markern auf
+   25 x 330 px aufgeblasen. */
+.karten-marker { cursor: pointer; }
+.karten-marker:focus-visible { outline: 2px solid #f4dd9b; outline-offset: 2px; }
+.karten-marker.status-pausiert { opacity: .52; }
 .karten-marker.favorit { filter: drop-shadow(0 0 4px #d9a441); }
-.karten-marker.is-focus > :first-child, .karten-marker:focus-visible > :first-child { stroke-width: 6; }
-.marker-strich { fill: none !important; stroke: var(--tinte) !important; stroke-width: 2 !important; }
 .status-legende { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 12px; font-size: 12px; }
 .status-legende span { display: flex; align-items: center; gap: 6px; }
 .marker-symbol { width: 13px; height: 13px; display: inline-block; flex: 0 0 auto; border: 2px solid var(--petrol); border-radius: 50%; background: #fff; }
@@ -253,19 +245,6 @@
 .karten-listenpunkt b, .karten-listenpunkt small { display: block; }
 .karten-listenpunkt small { color: var(--gedimmt); }
 .karten-listenpunkt.is-focus, .karten-listenpunkt:focus-visible { background: color-mix(in srgb, var(--petrol) 9%, white); }
-.stadt-grund { fill: #eee8db; }
-.stadt-leipzig .stadt-grund { fill: #eeeade; }
-.stadt-meissen .stadt-grund { fill: #edf0e7; }
-.stadt-park { fill: #cdddc1; opacity: .82; }
-.stadt-wasser { fill: none; stroke: #78aeba; stroke-width: 27; opacity: .88; }
-.stadt-wasser.breit { stroke-width: 42; }
-.stadt-wasser.schmal { stroke-width: 11; }
-.stadt-strassen path { fill: none; stroke: #fffdf6; stroke-width: 15; stroke-linecap: round; filter: drop-shadow(0 1px 0 rgba(92,76,50,.25)); }
-.stadt-strassen path:nth-child(3n) { stroke-width: 9; }
-.stadt-strassen path:nth-child(2n) { stroke-width: 11; }
-.stadt-orte text { fill: #665e50; font: 600 12px system-ui, sans-serif; paint-order: stroke; stroke: rgba(255,253,248,.9); stroke-width: 4px; stroke-linejoin: round; }
-.stadt-titel text:first-child { fill: var(--tinte); font: 800 21px system-ui, sans-serif; }
-.stadt-titel text:last-child { fill: var(--gedimmt); font: 11px system-ui, sans-serif; }
 
 .fin-etf-panel { display: grid; grid-template-columns: minmax(170px, 1fr) 130px auto; gap: 9px; align-items: end; padding: 10px; border: 1px solid var(--hairline); border-radius: 10px; }
 .fin-etf-panel b, .fin-etf-panel small { display: block; }
@@ -326,7 +305,7 @@
 .finanz-kurzwerte > div { padding: 11px 14px; border-right: 1px solid var(--hairline); }
 .finanz-kurzwerte > div:last-child { border-right: 0; }
 .finanz-kurzwerte dt, .finanz-kurzwerte dd { display: block; }
-.finanz-kurzwerte dt { color: var(--tinte-2); font-size: 11.5px; }
+.finanz-kurzwerte dt { color: var(--tinte-2); font-size: 13px; }
 .finanz-kurzwerte dd { margin: 2px 0 0; font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .finanz-kurzwerte .positiv, .konto-karte > strong.positiv { color: var(--positiv); }
 .finanz-kurzwerte .negativ, .konto-karte > strong.negativ { color: var(--negativ); }
@@ -335,7 +314,7 @@
 .finanz-mix-balken i { display: block; height: 100%; transition: width .2s ease; }
 #fin-mix-cash { background: #4f7763; }
 #fin-mix-etf { background: var(--serie-etf); }
-.finanz-mix p { margin: 6px 0 0; color: var(--tinte-2); font-size: 12px; }
+.finanz-mix p { margin: 6px 0 0; color: var(--tinte-2); font-size: 13px; }
 
 .finanz-konten, .transfer-raster, .finanz-unten { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 .konto-karte { position: relative; overflow: hidden; padding: 20px 22px; }
@@ -370,10 +349,10 @@
 .sparplan-karte form > label { color: var(--tinte-2); font-size: 13px; }
 .sparplan-karte output { color: var(--tinte); font-weight: 700; }
 .sparplan-karte input[type="range"] { width: 100%; accent-color: var(--kopf); }
-.sparplan-aufteilung { display: flex; justify-content: space-between; gap: 12px; color: var(--tinte-2); font-size: 12px; }
+.sparplan-aufteilung { display: flex; justify-content: space-between; gap: 12px; color: var(--tinte-2); font-size: 13px; }
 .sparplan-karte form > button { justify-self: start; }
 .finanz-bewegungen { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
-.finanz-bewegungen li { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 10px; padding: 8px 0; border-top: 1px solid var(--hairline); font-size: 12.5px; }
+.finanz-bewegungen li { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 10px; padding: 8px 0; border-top: 1px solid var(--hairline); font-size: 13px; }
 .finanz-bewegungen li > span:first-child { color: var(--gedimmt); font-variant-numeric: tabular-nums; }
 .finanz-bewegungen .bewegung-leer { display: block; color: var(--gedimmt); }
 
@@ -397,7 +376,6 @@
   .quartals-kpis { grid-template-columns: 1fr; }
   .quartals-rueckblick, .quartals-naechster { grid-column: 1; }
   .stadtkarte { overflow-x: auto; }
-  .stadtkarte > svg { width: 760px; max-width: none; }
   .fin-etf-panel { grid-template-columns: 1fr; align-items: stretch; }
 }
 

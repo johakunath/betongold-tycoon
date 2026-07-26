@@ -3,6 +3,39 @@
 Kompaktes, chronologisches Log. Ältere Einträge sind verdichtet; Details
 bleiben in `DECISIONS.md` und den Fachdocs nachvollziehbar.
 
+## 2026-07-26 (2)
+
+- **UI v56 — REVIEW.md abgearbeitet.** Alle offenen Befunde des Layout-/
+  UI-Reviews umgesetzt; `REVIEW.md` ist auf den Reststand eingedampft.
+  (1) **Minimum-Font-Pass als Basis:** Die 13-px-Untergrenze lag bis v55 nur im
+  1201-px-Block; auf Tablet und Telefon blieben rund 30 Stellen bis hinab zu
+  9 px zurück. Die Basiswerte in `app-shell.css`, `legacy-gameplay.css`,
+  `legacy-responsive-features.css` und `annotation-fixes.css` sind angehoben,
+  `small` nutzt `max(13px, .875em)`, der 1201-px-Block ist reiner
+  Vergrößerungs-Pass. Ein neues Gate im `browser-smoke` misst die kleinste
+  gerenderte Schrift bei 1024/700/390 px — es fand sofort den erst mit der
+  ersten Meldung sichtbaren `#meldungen-zaehler` (9 px).
+  (2) **Toter Legacy-Kartenblock gelöscht** (~40 Zeilen Inline-SVG-Karte).
+  (3) **Dock auf dem Telefon:** Die drei Zentrale-Unterseiten verlassen unter
+  701 px das Dock und werden zum vollbreiten Streifen unter dem Kopf; ein neues
+  Dockziel `#nav-zentrale` führt dorthin. Das Dock hat damit vier feste Ziele
+  und braucht keinen internen Scroller mehr (319 px in 374 px).
+  (4) **Kopfhöhe und Screen-Inset teilen sich `--topbar-h`** statt zweier
+  getrennter Konstantensätze je Breakpoint. Bewusst rein in CSS: Eine
+  JS-gemessene Höhe wäre exakter, macht das Kernlayout aber von einem Callback
+  abhängig — bleibt der aus, liegt der halbe Screen unter dem Kopf.
+  (5) **Elementvertrag B1.3 geschlossen:** Bildzoom ist ein nativer `<button>`
+  (der eigene keydown-Zweig in `bildzoom.js` entfällt, sonst hätte
+  `showModal()` doppelt gefeuert), der SVG-Platzhalter ist bei vorhandenem WebP
+  `aria-hidden`, und die vier Zustandsbalken der Familie sind native `<meter>`.
+  (6) **Trefferflächen:** `.info-tooltip` bekommt ein 24-px-Overlay, `.fav`
+  32 px Mindestbreite, Checkboxen 17 px.
+  (7) **Topbar auf Lesebreite** ab 1680 px — Kopf, Inhalt und Dock stehen jetzt
+  in einer Spalte (vorher saß das HUD bei 2560 px rund 300 px rechts daneben).
+  Regeln zu Schriftuntergrenze, Scroller-Verschachtelung, Breakpoint-Lücken und
+  `--topbar-h` stehen in `DESIGN_SYSTEM.md`. `UI_VERSION` 55→56, `SAVE_VERSION`
+  unverändert 21.
+
 ## 2026-07-26
 
 - **UI v55 — Layout-/UI-Review: zehn Sofortkorrekturen.** Live-Audit im echten

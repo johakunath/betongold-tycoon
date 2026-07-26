@@ -35,14 +35,10 @@ export function initBildzoom() {
       oeffnen(quelle);
     }
   });
-  document.addEventListener('keydown', (ev) => {
-    const quelle = ev.target.closest?.('.bild-zoom');
-    if (quelle && (ev.key === 'Enter' || ev.key === ' ')) {
-      ev.preventDefault();
-      ev.stopPropagation();
-      oeffnen(quelle);
-    }
-  });
+  // Kein eigener keydown-Zweig mehr: `.bild-zoom` ist seit dem Elementvertrag
+  // ein nativer <button> und löst bei Enter/Leertaste selbst ein click-Ereignis
+  // aus. Der frühere Zweig hätte zusätzlich gefeuert und `showModal()` ein
+  // zweites Mal auf dem bereits offenen Dialog aufgerufen.
 
   document.getElementById('bildzoom-plus').addEventListener('click', () => {
     faktor = Math.min(2.5, faktor + 0.25);

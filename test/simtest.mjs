@@ -5,39 +5,39 @@
 // Bei neuen Systemen (Phase 2+) hier Checks ergänzen.
 
 import { readFile } from 'node:fs/promises';
-import { SAVE_VERSION, DEFAULT_CONFIG } from '../js/config.js?v=55';
-import { newGame, exportString, importString, rngFloat } from '../js/state.js?v=55';
+import { SAVE_VERSION, DEFAULT_CONFIG } from '../js/config.js?v=56';
+import { newGame, exportString, importString, rngFloat } from '../js/state.js?v=56';
 import {
   advanceMonths, alterGenau, gesamtMonate, istImRuhestand,
   lebensendeVorschau, monatsWerte, nettovermoegen,
-} from '../js/engine.js?v=55';
-import { setzeInhalte, getListing } from '../js/content.js?v=55';
+} from '../js/engine.js?v=56';
+import { setzeInhalte, getListing } from '../js/content.js?v=56';
 import {
   initialisiereMarkt, sichtbareListings, gebotAbgeben, fairerWert,
   besichtigen, dokumenteAnfordern, gutachterBeauftragen,
-} from '../js/market.js?v=55';
+} from '../js/market.js?v=56';
 import {
   finanzierungsCashflowVorschau, kreditAngebot, kaufeObjekt, restschuldNach, nebenkostenFuer,
   sondertilgen, sondertilgungRahmen, sondertilgungVorschau,
-} from '../js/finance.js?v=55';
+} from '../js/finance.js?v=56';
 import {
   starteVermietung, neueBewerber, waehleBewerber, kannErhoehen, erhoeheMiete, marktmiete,
   mietrechtFuer, angesetzteMiete, vermietungsmodell, starteEigenbedarf,
   zahleEigenbedarfAbfindung,
-} from '../js/tenants.js?v=55';
-import { etfVerkaufVorschau, kaufeEtf, setzeSparplanEtfAnteil, verkaufeEtf } from '../js/etf.js?v=55';
-import { renovierungsOptionen, starteRenovierung } from '../js/renovation.js?v=55';
-import { resolveEvent } from '../js/events.js?v=55';
-import { kaufeEigenheim, wohnortWechselVorschau } from '../js/eigenheim.js?v=55';
-import { starteVerkauf } from '../js/verkauf.js?v=55';
-import { zieheWartemomente } from '../js/signals.js?v=55';
-import { leerstandsKosten } from '../js/ui/bewerber.js?v=55';
-import { berechneEndauswertung } from '../js/endgame.js?v=55';
-import { initialisiereStartbestand } from '../js/starter.js?v=55';
+} from '../js/tenants.js?v=56';
+import { etfVerkaufVorschau, kaufeEtf, setzeSparplanEtfAnteil, verkaufeEtf } from '../js/etf.js?v=56';
+import { renovierungsOptionen, starteRenovierung } from '../js/renovation.js?v=56';
+import { resolveEvent } from '../js/events.js?v=56';
+import { kaufeEigenheim, wohnortWechselVorschau } from '../js/eigenheim.js?v=56';
+import { starteVerkauf } from '../js/verkauf.js?v=56';
+import { zieheWartemomente } from '../js/signals.js?v=56';
+import { leerstandsKosten } from '../js/ui/bewerber.js?v=56';
+import { berechneEndauswertung } from '../js/endgame.js?v=56';
+import { initialisiereStartbestand } from '../js/starter.js?v=56';
 import {
   aktuelleAdminWerte, standardAdminWerte, wendeAdminWerteAn, planeAdminWerte,
-} from '../js/admin.js?v=55';
-import { kapitalertragVorschau, kapitalsteuerStatus } from '../js/kapitalsteuer.js?v=55';
+} from '../js/admin.js?v=56';
+import { kapitalertragVorschau, kapitalsteuerStatus } from '../js/kapitalsteuer.js?v=56';
 
 const lade = async (name) =>
   JSON.parse(await readFile(new URL(`../data/${name}`, import.meta.url), 'utf8'));

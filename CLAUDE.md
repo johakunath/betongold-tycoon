@@ -93,7 +93,16 @@ HUD-Finanzgruppe, genau ein Scroller im Dock, geschlossene Breakpoint-Lücke bei
 700 px, gestapelter Kopf für 701–760 px, durchgängig deutsche Dezimalkommata
 über `fmtProzent()`, lesbare Kontokennzahlen und ein Resize-Handler für die
 Kartenmarker.
-Aktuell: `SAVE_VERSION = 21`, `UI_VERSION = 55`.
+UI v56 arbeitet den Rest des Reviews ab: 13 px sind die Schriftuntergrenze als
+Basis (nicht nur ab 1201 px, per Smoke-Gate abgesichert), der tote
+Inline-SVG-Kartenblock ist gelöscht, die Zentrale-Unterseiten verlassen unter
+701 px das Dock zugunsten eines Streifens unter dem Kopf, Kopfhöhe und
+Screen-Inset teilen sich `--topbar-h`, und der native Elementvertrag B1.3 ist
+mit Button-Bildzoom, `aria-hidden`-SVG-Fallback und `<meter>` geschlossen.
+Aktuell: `SAVE_VERSION = 21`, `UI_VERSION = 56`.
+
+Das Spiel ist öffentlich gehostet:
+<https://johakunath.github.io/betongold-tycoon/> (GitHub Pages aus `main`).
 
 Unter Windows startet `BETONGOLD_STARTEN.cmd` das unveränderte statische Spiel
 per Doppelklick über einen unsichtbaren Loopback-HTTP-Server. `file://` bleibt

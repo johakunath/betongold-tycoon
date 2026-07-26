@@ -1,13 +1,13 @@
 ﻿// shell.js — Topbar (Datum, Geschwindigkeit, Menü), Dialoge (Neues Spiel,
 // Spielstände, Kampagnenende) und Toasts. Spiel-Logik lebt in main.js.
 
-import { DEFAULT_CONFIG, START_PRESETS } from '../config.js?v=55';
-import { listSaves } from '../state.js?v=55';
-import { datum, alter, gesamtMonate, istImRuhestand, monatsWerte } from '../engine.js?v=55';
-import { fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=55';
-import { fmtEUR, fmtDatum } from './util.js?v=55';
-import { haushaltsUeberschussMonat } from './kennzahlen.js?v=55';
-import { meldungMeta } from './meldungen.js?v=55';
+import { DEFAULT_CONFIG, START_PRESETS } from '../config.js?v=56';
+import { listSaves } from '../state.js?v=56';
+import { datum, alter, gesamtMonate, istImRuhestand, monatsWerte } from '../engine.js?v=56';
+import { fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=56';
+import { fmtEUR, fmtDatum } from './util.js?v=56';
+import { haushaltsUeberschussMonat } from './kennzahlen.js?v=56';
+import { meldungMeta } from './meldungen.js?v=56';
 
 let app = null; // Callbacks aus main.js
 
@@ -133,6 +133,10 @@ export function initShell(appApi) {
   // Navigation zwischen Screens
   document.getElementById('nav-karte').addEventListener('click', () => zeigeScreen('karte'));
   document.getElementById('nav-marktplatz').addEventListener('click', () => zeigeScreen('marktplatz'));
+  // Eigenes Dockziel für die Zentrale. Auf schmalen Viewports verlassen die
+  // drei Unterseiten das Dock (sie werden dort zum Streifen unter dem Kopf) —
+  // ohne diesen Button gäbe es dann keinen Weg mehr in die Zentrale.
+  document.getElementById('nav-zentrale').addEventListener('click', () => zeigeScreen('dashboard'));
   document.getElementById('nav-finanzen').addEventListener('click', oeffneFinanzen);
   document.querySelectorAll('[data-zentrale-tab]').forEach((button) => {
     button.addEventListener('click', () => {
@@ -392,8 +396,9 @@ export function aktualisiereNavMarkierung() {
     marktplatz: 'nav-marktplatz',
     expose: 'nav-marktplatz',
     finanzen: 'nav-finanzen',
+    dashboard: 'nav-zentrale',
   }[screen];
-  for (const id of ['nav-karte', 'nav-marktplatz', 'nav-finanzen']) {
+  for (const id of ['nav-karte', 'nav-marktplatz', 'nav-zentrale', 'nav-finanzen']) {
     const button = document.getElementById(id);
     const aktiv = id === aktivId;
     button.classList.toggle('aktiv', aktiv);

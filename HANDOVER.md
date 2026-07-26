@@ -1,8 +1,52 @@
 # HANDOVER.md — aktueller Projektstand
 
-**Stand:** 26.07.2026 (UI v55 — Layout-/UI-Review, zehn Sofortkorrekturen)
+**Stand:** 26.07.2026 (UI v56 — Layout-/UI-Review vollständig abgearbeitet)
 
-**Versionen:** SAVE_VERSION = 21, UI_VERSION = 55
+**Versionen:** SAVE_VERSION = 21, UI_VERSION = 56
+
+Das Spiel ist öffentlich gehostet: <https://johakunath.github.io/betongold-tycoon/>
+(GitHub Pages aus `main`/Wurzel, Deployment = `git push`).
+
+## UI v56 — Rest des Reviews
+
+Vollständiger Befundbericht in `REVIEW.md`, inklusive der Punkte, die bewusst
+offen bleiben, und ihrer Begründung.
+
+1. **Minimum-Font-Pass als Basis statt Desktop-Sonderfall.** Die 13-px-Grenze
+   lag nur im 1201-px-Block; darunter blieben rund 30 Stellen bis hinab zu 9 px.
+   Basiswerte in `app-shell.css`, `legacy-gameplay.css`,
+   `legacy-responsive-features.css` und `annotation-fixes.css` angehoben,
+   `small` nutzt `max(13px, .875em)`. **Neues Gate** im `browser-smoke`
+   (`winzigeSchrift`) misst die kleinste gerenderte Schrift bei 1024/700/390 px
+   und hat direkt den erst mit der ersten Meldung sichtbaren
+   `#meldungen-zaehler` (9 px) gefunden.
+2. **Toter Legacy-Kartenblock gelöscht** (~40 Zeilen für die frühere
+   Inline-SVG-Karte). Vorher einzeln gegen `js/`, `index.html` und `data/`
+   geprüft: keine dieser Klassen wird noch erzeugt.
+3. **Dock auf dem Telefon.** Unter 701 px verlassen die drei
+   Zentrale-Unterseiten das Dock und werden zum vollbreiten Streifen unter dem
+   Kopf; das neue Dockziel `#nav-zentrale` führt dorthin. Ohne diesen Button
+   gäbe es keinen Weg mehr in die Zentrale — das war der Grund für das
+   `display: flex !important` auf `.zentrale-tabs`. Dock jetzt: vier feste
+   Ziele, 319 px in 374 px, kein interner Scroller.
+4. **`--topbar-h` ist die gemeinsame Quelle** für `.topbar { min-height }` und
+   den oberen Screen-Inset. Werte je Breakpoint gemessen: 72 / 128 / 200 / 220
+   px. **Bewusst rein in CSS**: Ein ResizeObserver wäre exakter, macht das
+   Kernlayout aber von einem Callback abhängig — im nicht rendernden Tab blieb
+   der Wert stehen und ergab 125 px Überlappung.
+5. **Elementvertrag B1.3 geschlossen.** Bildzoom ist ein nativer `<button>`;
+   der eigene keydown-Zweig in `js/ui/bildzoom.js` ist entfallen, weil Enter und
+   Leertaste sonst zusätzlich zum nativen Klick `showModal()` auf dem bereits
+   offenen Dialog aufgerufen hätten. Der SVG-Platzhalter ist bei vorhandenem
+   WebP `aria-hidden`. Die vier Familien-Zustandsbalken sind native `<meter>`.
+6. **Trefferflächen:** `.info-tooltip` 24-px-Overlay über `::before` (`::after`
+   trägt den Tooltip-Text), `.fav` `min-width: 32px`, Checkboxen 17 px.
+7. **Topbar ab 1680 px auf Lesebreite** — Kopf, Inhalt und Dock stehen in einer
+   Spalte.
+
+Die dauerhaften Regeln daraus (Schriftuntergrenze, genau ein Scroller pro Achse,
+Breakpoint-Paare ohne Lücke, gemeinsame Quelle für Kopfhöhe und Inset) stehen in
+`DESIGN_SYSTEM.md` §3 und §6.
 
 ## UI v55 — Layout-/UI-Review
 

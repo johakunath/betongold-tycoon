@@ -97,35 +97,43 @@ const STILE = {
   },
 };
 
-export function platzhalterSVG(listing) {
+// `stumm` blendet den Platzhalter aus dem Accessibility-Baum aus. Liegt ein
+// WebP vor, liegen sonst zwei gleichwertige Bilder übereinander und
+// Screenreader lesen die Ansicht doppelt vor (Elementvertrag B1.3: bei
+// vorhandenem WebP genau ein zugängliches Bild).
+export function platzhalterSVG(listing, stumm = false) {
   const t = idHash(listing.id) % 3;
   const stil = STILE[listing.stil] || STILE.altbau;
+  const rolle = stumm
+    ? 'aria-hidden="true"'
+    : `role="img" aria-label="Außenansicht: ${listing.titel}"`;
   return (
     `<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" ` +
-    `role="img" aria-label="Außenansicht: ${listing.titel}">${SZENE_START}${stil(t)}</svg>`
+    `${rolle}>${SZENE_START}${stil(t)}</svg>`
   );
 }
 
 // Bild-Container: SVG sofort, echtes Asset legt sich darüber, sobald es
 // existiert; bei 404 entfernt sich das <img> selbst (Platzhalter bleibt).
 export function bildHTML(listing, klasse = '') {
-  const asset = listing.assetStatus === 'placeholder'
-    ? ''
-    : `<img src="assets/expose/${listing.id}.webp" alt="Außenansicht: ${listing.titel}" loading="lazy" ` +
-      `onerror="this.remove()">`;
+  const hatAsset = listing.assetStatus !== 'placeholder';
+  const asset = hatAsset
+    ? `<img src="assets/expose/${listing.id}.webp" alt="Außenansicht: ${listing.titel}" loading="lazy" ` +
+      `onerror="this.remove()">`
+    : '';
   return (
-    `<div class="expose-bild bild-zoom ${klasse}" role="button" tabindex="0" ` +
+    `<button type="button" class="expose-bild bild-zoom ${klasse}" ` +
     `data-bild-label="Außenansicht · ${listing.titel}" aria-label="Außenansicht von ${listing.titel} vergrößern">` +
-    platzhalterSVG(listing) +
+    platzhalterSVG(listing, hatAsset) +
     asset +
     `<span class="zoom-hinweis" aria-hidden="true">⌕</span>` +
-    `</div>`
+    `</button>`
   );
 }
 
 // Innenraum-Cutaway-Platzhalter (ASSET_MANIFEST §2). Zwei Zustände:
 // saniert (Zustand ≥ 4) hell/frisch, unsaniert gedämpft.
-export function cutawaySVG(listing, zustand) {
+export function cutawaySVG(listing, zustand, stumm = false) {
   const saniert = zustand >= 4;
   const wand = saniert ? '#f2ece0' : '#d9cfbd';
   const boden = saniert ? '#d8b892' : '#a98c68';
@@ -134,8 +142,8 @@ export function cutawaySVG(listing, zustand) {
   const fensterX = 250 + t * 20;
   const unmoebliert = listing.ausstattung === 'unmoebliert';
   return (
-    `<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" role="img" ` +
-    `aria-label="Innenansicht: ${listing.titel}">` +
+    `<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" ` +
+    `${stumm ? 'aria-hidden="true"' : `role="img" aria-label="Innenansicht: ${listing.titel}"`}>` +
     `<rect width="400" height="300" fill="${wand}"/>` +
     `<rect y="214" width="400" height="86" fill="${boden}"/>` +          // Boden
     `<polygon points="0,214 400,214 400,238 0,262" fill="rgba(0,0,0,0.06)"/>` + // Perspektive
@@ -152,17 +160,18 @@ export function cutawaySVG(listing, zustand) {
 
 export function cutawayHTML(listing, zustand, klasse = '') {
   const datei = zustand >= 4 ? 'saniert' : 'unsaniert';
-  const asset = listing.assetStatus === 'placeholder'
-    ? ''
-    : `<img src="assets/cutaway/${listing.id}_${datei}.webp" alt="Innenansicht: ${listing.titel}" loading="lazy" ` +
-      `onerror="this.remove()">`;
+  const hatAsset = listing.assetStatus !== 'placeholder';
+  const asset = hatAsset
+    ? `<img src="assets/cutaway/${listing.id}_${datei}.webp" alt="Innenansicht: ${listing.titel}" loading="lazy" ` +
+      `onerror="this.remove()">`
+    : '';
   return (
-    `<div class="expose-bild bild-zoom ${klasse}" role="button" tabindex="0" ` +
+    `<button type="button" class="expose-bild bild-zoom ${klasse}" ` +
     `data-bild-label="Innenansicht · ${listing.titel}" aria-label="Innenansicht von ${listing.titel} vergrößern">` +
-    cutawaySVG(listing, zustand) +
+    cutawaySVG(listing, zustand, hatAsset) +
     asset +
     `<span class="zoom-hinweis" aria-hidden="true">⌕</span>` +
-    `</div>`
+    `</button>`
   );
 }
 

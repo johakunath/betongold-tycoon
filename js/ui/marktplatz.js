@@ -1,11 +1,11 @@
 ﻿// marktplatz.js — Screen 2: Exposé-Feed mit Filtern, Favoriten, Vergleich.
 
-import { sichtbareListings, vergleichsmiete, fairerWert } from '../market.js?v=55';
-import { getListing } from '../content.js?v=55';
-import { bildHTML, cutawayHTML } from '../iso.js?v=55';
-import { fmtEUR, fmtEURSigniert, fmtProzent } from './util.js?v=55';
-import { eigenheimEignung, fixkostenAufschluesselung, instandhaltungMonat, objektartConfig } from '../immobilie.js?v=55';
-import { dealEntscheidung, pruefstand } from '../gameplay.js?v=55';
+import { sichtbareListings, vergleichsmiete, fairerWert } from '../market.js?v=56';
+import { getListing } from '../content.js?v=56';
+import { bildHTML, cutawayHTML } from '../iso.js?v=56';
+import { fmtEUR, fmtEURSigniert, fmtProzent } from './util.js?v=56';
+import { eigenheimEignung, fixkostenAufschluesselung, instandhaltungMonat, objektartConfig } from '../immobilie.js?v=56';
+import { dealEntscheidung, pruefstand } from '../gameplay.js?v=56';
 
 let ctx = null;
 let filter = { segment: 'alle', mietstatus: 'alle', nurFavoriten: false, sortierung: 'neu' };

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Betongold Tycoon</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23141b22'/%3E%3Cpath d='M14 45h36v8H14zM19 31h31v8H19zM25 17h25v8H25z' fill='%23e6c264'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="css/style.css?v=55">
+  <link rel="stylesheet" href="css/style.css?v=56">
 </head>
 <body>
 
@@ -89,6 +89,7 @@
 <nav class="screens-nav" aria-label="Spielbereiche">
   <button type="button" id="nav-karte" class="aktiv" aria-current="page"><svg class="ui-icon"><use href="#icon-map"></use></svg><span>Stadt</span></button>
   <button type="button" id="nav-marktplatz"><svg class="ui-icon"><use href="#icon-scale"></use></svg><span>Marktplatz</span><i id="markt-zaehler" class="zaehler" aria-hidden="true"></i></button>
+  <button type="button" id="nav-zentrale"><svg class="ui-icon"><use href="#icon-landmark"></use></svg><span>Zentrale</span></button>
   <div class="zentrale-tabs" role="tablist" aria-label="Bereich der Zentrale">
     <button type="button" role="tab" id="zentrale-tab-vermoegen" data-zentrale-tab="vermoegen" class="aktiv" aria-selected="true" aria-controls="zentrale-panel-vermoegen"><svg class="ui-icon"><use href="#icon-trending"></use></svg>Vermögen</button>
     <button type="button" role="tab" id="zentrale-tab-haushalt" data-zentrale-tab="haushalt" aria-selected="false" tabindex="-1" aria-controls="zentrale-panel-haushalt"><svg class="ui-icon"><use href="#icon-scale"></use></svg>Haushalt</button>
@@ -288,10 +289,10 @@
     <aside class="stadt-links" aria-label="Familie und Post">
       <section class="stadt-panel familie-panel">
         <header><img src="assets/avatar/t-05.webp" alt="Familie"><div><h2>Familie</h2><p>Euer wichtigstes Asset — nicht beleihbar.</p></div></header>
-        <div class="sims-zeile"><span class="sims-icon familie"><svg><use href="#icon-heart"></use></svg></span><span>Familie</span><div><i id="stadt-familie-balken"></i></div><b id="stadt-familie-wert">—</b></div>
-        <div class="sims-zeile"><span class="sims-icon zeit"><svg><use href="#icon-clock"></use></svg></span><span>Zeit</span><div><i id="stadt-zeit-balken"></i></div><b id="stadt-zeit-wert">—</b></div>
-        <div class="sims-zeile"><span class="sims-icon nerven"><svg><use href="#icon-trending"></use></svg></span><span>Nerven</span><div><i id="stadt-nerven-balken"></i></div><b id="stadt-nerven-wert">—</b></div>
-        <div class="sims-zeile"><span class="sims-icon puffer"><svg><use href="#icon-shield"></use></svg></span><span>Puffer</span><div><i id="stadt-puffer-balken"></i></div><b id="stadt-puffer-wert">—</b></div>
+        <div class="sims-zeile"><span class="sims-icon familie"><svg><use href="#icon-heart"></use></svg></span><span>Familie</span><meter id="stadt-familie-meter" min="0" max="100" value="0" aria-label="Familienzufriedenheit"></meter><b id="stadt-familie-wert">—</b></div>
+        <div class="sims-zeile"><span class="sims-icon zeit"><svg><use href="#icon-clock"></use></svg></span><span>Zeit</span><meter id="stadt-zeit-meter" min="0" max="100" value="0" aria-label="Freie Zeit im Monat"></meter><b id="stadt-zeit-wert">—</b></div>
+        <div class="sims-zeile"><span class="sims-icon nerven"><svg><use href="#icon-trending"></use></svg></span><span>Nerven</span><meter id="stadt-nerven-meter" min="0" max="100" value="0" aria-label="Nervenstand"></meter><b id="stadt-nerven-wert">—</b></div>
+        <div class="sims-zeile"><span class="sims-icon puffer"><svg><use href="#icon-shield"></use></svg></span><span>Puffer</span><meter id="stadt-puffer-meter" min="0" max="100" value="0" aria-label="Liquiditaetspuffer in Monaten"></meter><b id="stadt-puffer-wert">—</b></div>
       </section>
       <section class="stadt-panel post-panel">
         <header><h2><svg class="section-icon"><use href="#icon-mail"></use></svg>Post</h2><small>letzte Meldungen</small></header>
@@ -636,7 +637,7 @@
 <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 <input type="file" id="import-datei" accept=".json,application/json" hidden>
 
-<script type="module" src="js/main.js?v=55"></script>
+<script type="module" src="js/main.js?v=56"></script>
 </body>
 </html>
 

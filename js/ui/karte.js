@@ -2,11 +2,11 @@
 // Die Stadtmotive bleiben scharf und normal belichtet; anklickbar sind nur
 // Listing-Assets aus dem tatsächlichen Katalog.
 
-import { alleListings } from '../content.js?v=55';
-import { fairerWert } from '../market.js?v=55';
-import { fmtEURKompakt } from './util.js?v=55';
-import { liquiditaetsPufferMonate, naechsterZugEmpfehlung } from './kennzahlen.js?v=55';
-import { meldungMeta } from './meldungen.js?v=55';
+import { alleListings } from '../content.js?v=56';
+import { fairerWert } from '../market.js?v=56';
+import { fmtEURKompakt } from './util.js?v=56';
+import { liquiditaetsPufferMonate, naechsterZugEmpfehlung } from './kennzahlen.js?v=56';
+import { meldungMeta } from './meldungen.js?v=56';
 
 let ctx = null;
 let filter = 'alle';
@@ -286,8 +286,12 @@ function renderFamilie(state) {
     nerven: [nerven, `${Math.round(nerven)}`],
     puffer: [Math.min(100, puffer / 12 * 100), `${puffer.toLocaleString('de-DE', { maximumFractionDigits: 1 })} M.`],
   };
-  for (const [id, [breite, text]] of Object.entries(werte)) {
-    document.getElementById(`stadt-${id}-balken`).style.width = `${breite.toFixed(1)}%`;
+  for (const [id, [anteil, text]] of Object.entries(werte)) {
+    const meter = document.getElementById(`stadt-${id}-meter`);
+    meter.value = Math.round(anteil);
+    // Der sichtbare Wert steht daneben; im Accessibility-Baum ersetzt er die
+    // nackte Prozentzahl des Meters.
+    meter.textContent = text;
     document.getElementById(`stadt-${id}-wert`).textContent = text;
   }
 }

@@ -98,7 +98,13 @@ Einzelpositionen sind farbneutral.
   bleibt vollständig offline nutzbar.
 - Eyebrows: Versalien, eng, klein und gedimmt.
 - Geldwerte tabellarisch; Beträge rechtsbündig, Vorzeichen konsistent.
-- Fließtext standardmäßig mindestens 14 px, kompakte Metadaten mindestens 10 px.
+- Fließtext standardmäßig mindestens 14 px. **Untergrenze für jeden sichtbaren
+  Text ist 13 px** — auch für Badges, Zählerchen, Bildlabels und
+  Zeitsteuerung. Die Untergrenze gilt als Basis; Breakpoint-Blöcke dürfen nur
+  nach oben abweichen. Vorher lag sie nur im 1201-px-Block, wodurch auf Tablet
+  und Telefon rund 30 Stellen bis hinab zu 9 px zurückblieben.
+- Wert und Label eines Kennzahlenpaars sind nie gegenläufig gestaffelt: Steht
+  das Label auf 14 px, steht der Wert nicht darunter.
 
 ### Form und Tiefe
 
@@ -229,10 +235,26 @@ Listingassets bleiben der verbindliche Architektur- und Zustandslock:
 - Tablet/klein: 700 px.
 - Mobil: 390 px.
 
-Kein horizontaler Seiten-Overflow. Bottom-Navigation darf intern horizontal
-scrollen. Auf Mobil werden Stadtspalten gestapelt, Marktkarten einspaltig,
-Finanzkonten, Zielwahl und Arbeitsmodelle untereinander angeordnet; Diagramme
-dürfen intern scrollen.
+Kein horizontaler Seiten-Overflow. Auf Mobil werden Stadtspalten gestapelt,
+Marktkarten einspaltig, Finanzkonten, Zielwahl und Arbeitsmodelle untereinander
+angeordnet; Diagramme dürfen intern scrollen.
+
+**Genau ein Scroller pro Achse.** Die Bottom-Navigation darf intern horizontal
+scrollen — dann aber als Ganzes. Ein Scroller im Scroller quetscht den inneren
+Container auf Reste zusammen: Die Zentrale-Untergruppe landete so bei 390 px auf
+124 px Breite, „Objekte" lag ohne sichtbaren Hinweis außerhalb des Viewports.
+Unterhalb von 701 px hat das Dock deshalb vier feste Ziele; die drei
+Zentrale-Unterseiten werden dort zum vollbreiten Streifen unter dem Kopf.
+
+**Breakpoint-Paare ohne Lücke.** `max-width: N px` neben `min-width: N+1 px`
+lässt bei fraktionalen Viewport-Breiten (Browserzoom, Geräte-Pixelratio) ein
+Loch, in dem keine der beiden Regeln greift. Bei 700,4 px lief die Topbar
+dadurch 24 px über. Neue Paare deshalb immer als `N.98px` / `N+1px` anlegen.
+
+**Kopfhöhe und Screen-Inset haben eine gemeinsame Quelle.** Die Screens sind
+`position: fixed`; ihr oberer Abstand kommt aus `--topbar-h`, aus der auch
+`.topbar` ihre `min-height` bezieht. Wer den Kopf verändert, ändert die Variable
+— nie nur eine der beiden Seiten.
 
 ## 7. Accessibility
 

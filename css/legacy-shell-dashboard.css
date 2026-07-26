@@ -558,13 +558,13 @@ dialog footer { margin-top: 18px; display: flex; justify-content: flex-end; gap:
   position: absolute;
   top: 2px;
   right: 2px;
-  min-width: 15px;
-  height: 15px;
+  min-width: 19px;
+  height: 19px;
   padding: 0 4px;
   border-radius: 99px;
   background: var(--akzent);
   color: #17272e;
-  font: 800 9px/15px system-ui;
+  font: 800 13px/19px system-ui;
   text-align: center;
 }
 .menue-popover {
