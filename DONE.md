@@ -3,6 +3,22 @@
 Kompaktes, chronologisches Log. Ältere Einträge sind verdichtet; Details
 bleiben in `DECISIONS.md` und den Fachdocs nachvollziehbar.
 
+## 2026-07-26 (3)
+
+- **UI v57 — Tagesgeld und ETF-Depot reagieren als eine Schaltfläche.**
+  Owner-Beobachtung: Beide HUD-Hälften öffnen denselben Finanzen-Screen, leuchten
+  beim Zeigen aber einzeln auf — das las sich wie zwei verschiedene Ziele.
+  Hover, Druckpunkt und Tastaturfokus hängen jetzt an
+  `.resource-finanzgruppe` statt am einzelnen Button: Beide Hälften heben sich
+  gemeinsam um 1 px, gehen gemeinsam 1 px runter und teilen Hintergrund und
+  Textfarbe; beim Drücken verschwindet zusätzlich die Trennlinie, sodass die
+  Gruppe für den Moment eine durchgehende Fläche ist. Nötig war dafür, den
+  generischen `button:hover`-Hub aus `app-shell.css` zu überschreiben — er hob
+  sonst nur die berührte Hälfte an. Der Fokusring bleibt bewusst am
+  tatsächlich fokussierten Button. Der separate Haushaltsüberschuss-Button
+  bleibt unberührt. Regel in `DESIGN_SYSTEM.md` §6. Reines CSS,
+  `UI_VERSION` 56→57.
+
 ## 2026-07-26 (2)
 
 - **UI v56 — REVIEW.md abgearbeitet.** Alle offenen Befunde des Layout-/

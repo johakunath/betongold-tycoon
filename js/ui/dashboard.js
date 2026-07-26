@@ -1,19 +1,19 @@
 ﻿// dashboard.js — Screen 1: Kennzahlen-Kacheln, Haushaltsrechnung,
 // Nettovermögen-vs-ETF-Chart (Design-Säule 4: die ETF-Linie bleibt sichtbar).
 
-import { monatsWerte, nettovermoegen, datum } from '../engine.js?v=56';
-import { fairerWert } from '../market.js?v=56';
-import { getListing } from '../content.js?v=56';
-import { bildHTML } from '../iso.js?v=56';
-import { eigenheimMonatskosten } from '../eigenheim.js?v=56';
-import { setzeGrenzsteuersatz, steuerVorschau } from '../tax.js?v=56';
-import { fmtEUR, fmtEURKompakt, fmtEURSigniert, fmtDatum } from './util.js?v=56';
-import { fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=56';
-import { vermietungsmodell } from '../tenants.js?v=56';
-import { haushaltsUeberschussMonat, naechsterZugEmpfehlung } from './kennzahlen.js?v=56';
-import { aktualisiereNavMarkierung } from './shell.js?v=56';
-import { portfolioTriage, stabilisierungsLinien, turnaroundAktiv } from '../turnaround.js?v=56';
-import { renderStrategy } from './strategy.js?v=56';
+import { monatsWerte, nettovermoegen, datum } from '../engine.js?v=57';
+import { fairerWert } from '../market.js?v=57';
+import { getListing } from '../content.js?v=57';
+import { bildHTML } from '../iso.js?v=57';
+import { eigenheimMonatskosten } from '../eigenheim.js?v=57';
+import { setzeGrenzsteuersatz, steuerVorschau } from '../tax.js?v=57';
+import { fmtEUR, fmtEURKompakt, fmtEURSigniert, fmtDatum } from './util.js?v=57';
+import { fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=57';
+import { vermietungsmodell } from '../tenants.js?v=57';
+import { haushaltsUeberschussMonat, naechsterZugEmpfehlung } from './kennzahlen.js?v=57';
+import { aktualisiereNavMarkierung } from './shell.js?v=57';
+import { portfolioTriage, stabilisierungsLinien, turnaroundAktiv } from '../turnaround.js?v=57';
+import { renderStrategy } from './strategy.js?v=57';
 
 let getState = null;
 let onObjekt = null;   // Callback: Portfolio-Objekt anklicken → Objekt-Detail

@@ -99,7 +99,7 @@ Inline-SVG-Kartenblock ist gelöscht, die Zentrale-Unterseiten verlassen unter
 701 px das Dock zugunsten eines Streifens unter dem Kopf, Kopfhöhe und
 Screen-Inset teilen sich `--topbar-h`, und der native Elementvertrag B1.3 ist
 mit Button-Bildzoom, `aria-hidden`-SVG-Fallback und `<meter>` geschlossen.
-Aktuell: `SAVE_VERSION = 21`, `UI_VERSION = 56`.
+Aktuell: `SAVE_VERSION = 21`, `UI_VERSION = 57`.
 
 Das Spiel ist öffentlich gehostet:
 <https://johakunath.github.io/betongold-tycoon/> (GitHub Pages aus `main`).

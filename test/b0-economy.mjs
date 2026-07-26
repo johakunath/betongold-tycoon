@@ -4,13 +4,13 @@
 // zusätzliche Hürden und sind nicht Teil dieser isolierten Objektmatrix.
 
 import { readFile } from 'node:fs/promises';
-import { newGame } from '../js/state.js?v=56';
-import { setzeInhalte } from '../js/content.js?v=56';
-import { fairerWert } from '../js/market.js?v=56';
+import { newGame } from '../js/state.js?v=57';
+import { setzeInhalte } from '../js/content.js?v=57';
+import { fairerWert } from '../js/market.js?v=57';
 import {
   finanzierungsCashflowPfade, kreditAngebot, nebenkostenFuer,
-} from '../js/finance.js?v=56';
-import { fixkostenMonat, instandhaltungMonat } from '../js/immobilie.js?v=56';
+} from '../js/finance.js?v=57';
+import { fixkostenMonat, instandhaltungMonat } from '../js/immobilie.js?v=57';
 
 const listings = JSON.parse(await readFile(new URL('../data/listings.json', import.meta.url), 'utf8'));
 setzeInhalte({ listings });

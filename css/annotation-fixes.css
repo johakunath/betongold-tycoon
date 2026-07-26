@@ -342,7 +342,28 @@ input:disabled, select:disabled, textarea:disabled {
   color: var(--tinte); background: transparent; box-shadow: none;
 }
 .resource-finanzgruppe > button:last-child { border-right: 0; }
-.resource-finanzgruppe > button:hover { background: rgba(255,255,255,.08); }
+/* Tagesgeld und ETF-Depot sind zwei Hälften **einer** Schaltfläche: Beide
+   öffnen denselben Finanzen-Screen. Hover, Druckpunkt und Tastaturfokus hängen
+   deshalb an der Gruppe, nicht am einzelnen Button — sonst leuchtet nur die
+   berührte Hälfte auf und suggeriert zwei verschiedene Ziele. Der Fokusring
+   bleibt bewusst am tatsächlich fokussierten Button, damit Tastaturbedienung
+   weiterhin zeigt, wo man steht. */
+.resource-finanzgruppe:hover > button,
+.resource-finanzgruppe:focus-within > button {
+  color: #fff8e6;
+  background: rgba(255,255,255,.08);
+  /* Muss den generischen `button:hover`-Hub überschreiben: Der hob sonst nur
+     die berührte Hälfte um 1 px an, während die andere stehen blieb. */
+  transform: translateY(-1px);
+}
+/* Beide Hälften gehen gemeinsam runter. `:active` greift auch am Elternteil,
+   solange ein Kind gedrückt wird — die Regel trifft deshalb beide Buttons.
+   Die Trennlinie verschwindet dabei, damit die Gruppe für den Moment wie eine
+   durchgehende Fläche wirkt. */
+.resource-finanzgruppe:active > button {
+  transform: translateY(1px);
+  border-right-color: transparent;
+}
 
 .screens-nav .zentrale-tabs {
   display: flex !important; align-items: stretch; gap: 5px; margin-left: 7px;

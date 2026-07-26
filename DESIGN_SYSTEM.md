@@ -239,6 +239,13 @@ Kein horizontaler Seiten-Overflow. Auf Mobil werden Stadtspalten gestapelt,
 Marktkarten einspaltig, Finanzkonten, Zielwahl und Arbeitsmodelle untereinander
 angeordnet; Diagramme dürfen intern scrollen.
 
+**Ein Ziel, ein Zustand.** Führen mehrere Flächen zum selben Ort, reagieren sie
+gemeinsam. Tagesgeld und ETF-Depot im HUD sind zwei Hälften einer Schaltfläche
+und öffnen beide die Finanzen: Hover, Druckpunkt und Tastaturfokus hängen
+deshalb an `.resource-finanzgruppe`, nicht am einzelnen Button. Der Fokusring
+bleibt am tatsächlich fokussierten Element, damit Tastaturbedienung weiterhin
+zeigt, wo man steht.
+
 **Genau ein Scroller pro Achse.** Die Bottom-Navigation darf intern horizontal
 scrollen — dann aber als Ganzes. Ein Scroller im Scroller quetscht den inneren
 Container auf Reste zusammen: Die Zentrale-Untergruppe landete so bei 390 px auf

@@ -1,11 +1,34 @@
 # HANDOVER.md — aktueller Projektstand
 
-**Stand:** 26.07.2026 (UI v56 — Layout-/UI-Review vollständig abgearbeitet)
+**Stand:** 26.07.2026 (UI v57 — HUD-Finanzgruppe reagiert als eine Schaltfläche)
 
-**Versionen:** SAVE_VERSION = 21, UI_VERSION = 56
+**Versionen:** SAVE_VERSION = 21, UI_VERSION = 57
 
 Das Spiel ist öffentlich gehostet: <https://johakunath.github.io/betongold-tycoon/>
 (GitHub Pages aus `main`/Wurzel, Deployment = `git push`).
+
+## UI v57 — HUD-Finanzgruppe als eine Schaltfläche
+
+Tagesgeld und ETF-Depot öffnen beide den Finanzen-Screen, leuchteten beim Zeigen
+aber einzeln auf. Hover, Druckpunkt und Tastaturfokus hängen jetzt an
+`.resource-finanzgruppe` statt am einzelnen Button
+(`css/annotation-fixes.css`, direkt nach `.resource-finanzgruppe > button`).
+
+- Beide Hälften heben sich gemeinsam um 1 px, gehen gemeinsam 1 px runter und
+  teilen Hintergrund und Textfarbe. Beim Drücken wird die Trennlinie
+  transparent, sodass die Gruppe kurz eine durchgehende Fläche ist.
+- Der generische `button:hover:not(:disabled)`-Hub aus `app-shell.css:95` musste
+  dafür überschrieben werden — er hob sonst nur die berührte Hälfte an. Gleiche
+  Spezifität (0,2,1), `annotation-fixes.css` gewinnt über die Schichtreihenfolge.
+- `:active` greift auch am Elternteil, solange ein Kind gedrückt wird; die Regel
+  trifft deshalb beide Buttons.
+- Der Fokusring bleibt bewusst am tatsächlich fokussierten Button, damit
+  Tastaturbedienung weiterhin zeigt, wo man steht.
+- Der separate `#hud-cashflow-aktion` bleibt unberührt (eigenes Ziel: Popover).
+
+**Messhinweis:** Im nicht rendernden Pane stehen auch Transitions auf ihrem
+Startwert. Hover-Effekte deshalb mit `transition: none !important` messen, sonst
+liest man den alten Zustand ab.
 
 ## UI v56 — Rest des Reviews
 
