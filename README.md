@@ -51,11 +51,23 @@ JSON-Export/-Import sind eingebaut.
 
 ### Öffentlich hosten und Spielstände
 
-Das Spiel ist vollständig statisch. Für die erste öffentliche Version ist
-**GitHub Pages** die einfachste Standardwahl: kein Servercode, kein Build und
-ein Deployment direkt aus dem Repository. **Vercel** ist sinnvoll, wenn private
-Repositories, Vorschau-Deployments pro Änderung oder später serverseitige
-Funktionen wichtiger werden.
+**Live: [johakunath.github.io/betongold-tycoon](https://johakunath.github.io/betongold-tycoon/)**
+
+Das Spiel ist vollständig statisch. Gehostet wird über **GitHub Pages** aus
+`main` / Wurzelverzeichnis: kein Servercode, kein Build, kein Deployment-Schritt
+über `git push` hinaus. `.nojekyll` verhindert, dass Jekyll die Auslieferung
+anfasst; alle Pfade sind relativ, das Spiel läuft deshalb auch aus einem
+Unterverzeichnis. **Vercel** wäre die Alternative, wenn ein privates Repository,
+Vorschau-Deployments pro Änderung oder später serverseitige Funktionen wichtiger
+werden.
+
+Nach einem Push dauert der Pages-Build etwa eine halbe Minute. Wenn eine
+Änderung im Browser nicht ankommt, ist fast immer der Cachebuster (`?v=N`) nicht
+mitgezogen worden — `node test/release-check.mjs` prüft das.
+
+Die vier Startlagen sind entworfene Szenarien und bilden keinen konkreten
+Haushalt ab. Alle Annahmen — Einkommen, Miete, Ausgaben, Sparraten, Kinderalter
+— sind im Startdialog und in den Einstellungen editierbar.
 
 Spielstände liegen ausschließlich im lokalen Browserspeicher (`localStorage`)
 der jeweiligen Website. Sie werden nicht in GitHub, Vercel oder einer Cloud
