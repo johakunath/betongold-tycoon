@@ -1,26 +1,26 @@
 ﻿// objekt.js — Screen 7: Objekt-Detail. Cutaway, Monats-P&L, Mieter/Leerstand,
 // Rücklage, Hausverwaltung, Mieterhöhung, Renovieren. Nabe der Phase-3-Loop.
 
-import { getListing } from '../content.js?v=59';
-import { fairerWert } from '../market.js?v=59';
+import { getListing } from '../content.js?v=60';
+import { fairerWert } from '../market.js?v=60';
 import {
   marktmiete, kannErhoehen, maxMiete, erhoeheMiete, mietrechtFuer, vermietungsmodell,
   starteEigenbedarf, zieheEigenbedarfZurueck, zahleEigenbedarfAbfindung,
-} from '../tenants.js?v=59';
-import { bildHTML, cutawayHTML } from '../iso.js?v=59';
-import { faktenLabel, fmtEUR, fmtEURSigniert } from './util.js?v=59';
-import { oeffneBewerber } from './bewerber.js?v=59';
-import { oeffneRenovieren } from './renovieren.js?v=59';
-import { oeffneVerkauf } from './verkaufen.js?v=59';
+} from '../tenants.js?v=60';
+import { bildHTML, cutawayHTML } from '../iso.js?v=60';
+import { faktenLabel, fmtEUR, fmtEURSigniert } from './util.js?v=60';
+import { oeffneBewerber } from './bewerber.js?v=60';
+import { oeffneRenovieren } from './renovieren.js?v=60';
+import { oeffneVerkauf } from './verkaufen.js?v=60';
 import {
   fixkostenMonat, instandhaltungMonat, objektartConfig, fixkostenAufschluesselung,
-} from '../immobilie.js?v=59';
-import { bezieheBestandsobjekt } from '../eigenheim.js?v=59';
-import { protokolliereWirkung } from '../gameplay.js?v=59';
-import { bankAnpassungVorschau, turnaroundAktiv } from '../turnaround.js?v=59';
-import { oeffneBankAnpassung } from './turnaround.js?v=59';
-import { objektArcsFuerObjekt } from '../arcs.js?v=59';
-import { sondertilgen, sondertilgungRahmen, sondertilgungVorschau } from '../finance.js?v=59';
+} from '../immobilie.js?v=60';
+import { bezieheBestandsobjekt } from '../eigenheim.js?v=60';
+import { protokolliereWirkung } from '../gameplay.js?v=60';
+import { bankAnpassungVorschau, turnaroundAktiv } from '../turnaround.js?v=60';
+import { oeffneBankAnpassung } from './turnaround.js?v=60';
+import { objektArcsFuerObjekt } from '../arcs.js?v=60';
+import { sondertilgen, sondertilgungRahmen, sondertilgungVorschau } from '../finance.js?v=60';
 
 let ctx = null;
 let auswahl = null; // stabile listingId oder 'eigenheim'
@@ -129,7 +129,9 @@ export function renderObjekt(state) {
       `<div><dt>Wert heute</dt><dd class="wert-gold">${fmtEUR(Math.round(wert))}</dd></div>` +
       `<div><dt>Restschuld (Bank)</dt><dd class="wert-negativ">${fmtEUR(Math.round(objekt.darlehen.restschuld))}</dd></div>` +
       `<div><dt>${istEigenheim ? 'Wohnkosten jetzt' : 'Objekt-Cashflow jetzt'}</dt><dd class="${netto >= 0 ? 'wert-positiv' : 'wert-negativ'}">${fmtEURSigniert(Math.round(netto))}/Mon.</dd></div>` +
-      (!istEigenheim ? `<div><dt>Cashflow nach Vermietung</dt><dd class="${nettoNachVermietung >= 0 ? 'wert-positiv' : 'wert-negativ'}">${fmtEURSigniert(Math.round(nettoNachVermietung))}/Mon.</dd></div>` : '') +
+      // Bei laufender Vermietung wäre die zweite Zeile identisch: nur zeigen,
+      // solange sie etwas anderes aussagt (Leerstand oder Umbau).
+      (!istEigenheim && Math.round(nettoNachVermietung) !== Math.round(netto) ? `<div><dt>Cashflow nach Vermietung</dt><dd class="${nettoNachVermietung >= 0 ? 'wert-positiv' : 'wert-negativ'}">${fmtEURSigniert(Math.round(nettoNachVermietung))}/Mon.</dd></div>` : '') +
     `</dl><details class="objekt-daten"><summary>Objektdaten &amp; Finanzierung</summary>` +
     statusHTML(state, objekt, wert, markt, istEigenheim) + `</details>` +
     (!istEigenheim ? `<p class="mietrecht-hinweis"><b>${mietrecht.label}</b><br>${mietrecht.kurz}</p>` : '') +

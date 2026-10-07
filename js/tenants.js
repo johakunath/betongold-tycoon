@@ -1,11 +1,11 @@
 ﻿// tenants.js — Mieterwahl, Neuvermietung, monatliches Mieterverhalten,
 // Mieterhöhung. Formeln: ECONOMY_MODEL §15–16. DOM-frei, RNG nur über state.js.
 
-import { rngFloat, rngNormal } from './state.js?v=59';
-import { vergleichsmiete } from './market.js?v=59';
-import { alleTenants, getTenant } from './content.js?v=59';
-import { meldeWartemoment } from './signals.js?v=59';
-import { protokolliereWirkung } from './gameplay.js?v=59';
+import { rngFloat, rngNormal } from './state.js?v=60';
+import { vergleichsmiete } from './market.js?v=60';
+import { alleTenants, getTenant } from './content.js?v=60';
+import { meldeWartemoment } from './signals.js?v=60';
+import { protokolliereWirkung } from './gameplay.js?v=60';
 
 // Erzielbare Marktmiete (kalt) für ein Objekt: Vergleichsmiete × Zustandsfaktor.
 export function marktmiete(state, objekt) {

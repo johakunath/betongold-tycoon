@@ -63,8 +63,12 @@ sparrate(m)      = einkommen + kindergeld − miete − lebenshaltung − kinder
 Kinderkosten-Staffel nach Alter (`kinderKosten`, letzte Stufe gilt bis
 `auszugsAlter`, danach 0). Das Alter läuft ab dem Dezimal-Startalter
 monatsscharf weiter. `kindergeldProKind = 260 €` und
-`kindergeldBisAlter = 27` sind feste Owner-Szenarioannahmen: Das Kindergeld
-wächst nicht nominal und endet mit dem 27. Geburtstag. Es wird als eigene
+`kindergeldBisAlter = 25` sind feste Szenarioannahmen: Das Kindergeld
+wächst nicht nominal und endet mit dem 25. Geburtstag; das entspricht der
+gesetzlichen Grenze für Kinder in Ausbildung
+([§ 32 Abs. 4 EStG](https://www.gesetze-im-internet.de/estg/__32.html)).
+Die direkten Kinderkosten laufen davon unabhängig bis `auszugsAlter = 27`
+weiter. Es wird als eigene
 Einnahme ausgewiesen, nie still von den Brutto-Kinderkosten abgezogen.
 Die direkten Monatswerte je Kind steigen sichtbar mit der Lebensphase:
 150 € (0–5), 250 € (6–11), 300 € (12–17) und 400 € (18–26).

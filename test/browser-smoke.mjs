@@ -1250,6 +1250,21 @@ async function main() {
         || gate.topbarKollision || gate.kopfAusVieport || !gate.fokusSichtbar) {
         throw new Error(`Responsive/A11y ${breite}px: ${JSON.stringify(gate)}`);
       }
+      // Ein sichtbarer Toast darf die Bottom-Navigation nicht überdecken
+      // (UI v60; vorher bei 390/700 px direkt auf dem Dock).
+      const toastAufNav = await auswerten(`(() => {
+        const toast = document.querySelector('#toast');
+        const nav = document.querySelector('.screens-nav');
+        toast.style.transition = 'none';
+        toast.textContent = 'Smoke-Test: Toast-Position';
+        toast.classList.add('sichtbar');
+        const t = toast.getBoundingClientRect();
+        const n = nav.getBoundingClientRect();
+        toast.classList.remove('sichtbar');
+        toast.style.transition = '';
+        return t.left < n.right && t.right > n.left && t.top < n.bottom && t.bottom > n.top;
+      })()`);
+      if (toastAufNav) throw new Error(`Toast überdeckt die Bottom-Navigation bei ${breite}px`);
       if (breite === 390) {
         await auswerten(`(() => {
           document.querySelector('#btn-menue').click();
@@ -1279,12 +1294,12 @@ async function main() {
     // Lebensphasen auch im echten Renderpfad: Ruhestands-HUD und private
     // Endbilanz werden mit einem isolierten deterministischen Teststate gezeigt.
     const lebensphasenUi = await auswerten(`(async () => {
-      const { newGame } = await import('/js/state.js?v=59');
-      const { initialisiereMarkt } = await import('/js/market.js?v=59');
-      const { advanceMonths } = await import('/js/engine.js?v=59');
-      const { resolveEvent } = await import('/js/events.js?v=59');
-      const { updateHud } = await import('/js/ui/shell.js?v=59');
-      const { zeigeEnde } = await import('/js/ui/endgame.js?v=59');
+      const { newGame } = await import('/js/state.js?v=60');
+      const { initialisiereMarkt } = await import('/js/market.js?v=60');
+      const { advanceMonths } = await import('/js/engine.js?v=60');
+      const { resolveEvent } = await import('/js/events.js?v=60');
+      const { updateHud } = await import('/js/ui/shell.js?v=60');
+      const { zeigeEnde } = await import('/js/ui/endgame.js?v=60');
       const rente = newGame({ seedText: 'browser-rente' });
       rente.monat = (rente.config.zeit.rentenAlter - rente.config.zeit.startAlter) * 12;
       updateHud(rente, 0);

@@ -37,18 +37,21 @@ Startlage und Schwierigkeit werden getrennt gewählt.
 
 | Startpreset | Alter | Netto/Monat | Ausgaben/Monat | Tagesgeld | ETF | Kinder | Besonderheit |
 |---|---:|---:|---:|---:|---:|---|---|
-| Familienstrategie mit Puffer (Default) | 40 | 8.300 € + 520 € Kindergeld | 6.210 € | 90.000 € | 90.000 € | 3,5 und 0,6 | reales 24-Monats-Familienprofil; Auto ab Monat 5 |
+| Familienstrategie mit Puffer (Default) | 40 | 8.300 € + 520 € Kindergeld | 4.860 € | 90.000 € | 90.000 € | 3,5 und 0,6 | reales 24-Monats-Familienprofil; Auto ab Monat 5 |
 | Klassischer Einstieg | 30 | 3.200 € | 2.200 € | 35.000 € | 5.000 € | keine | alleinstehender Aufbau |
 | Viel Bestand, wenig Luft | 45 | 7.200 € | 5.050 € | 18.000 € | 5.000 € | 12 und 9 | 5 vermietete Objekte, 93–97 % LTV |
 | Junger Handwerker-Azubi | 17 | 1.100 € | 930 € | 2.500 € | 0 € | keine | Gesellenlohn nach 3 Jahren, Handwerksbonus |
 
-Beim Default sind 1.970 € Warmmiete (1.570 € kalt) enthalten. Ohne den aus den
-letzten 24 Monaten auf 1.950 €/Monat gemittelten Reiseblock liegen die
-Brutto-Ausgaben bei 4.260 €. Die Kinder werden mit zusammen 600 € direkten
-Zusatzkosten separat ausgewiesen; Wohnen und Grundbedarf stecken bereits im
-Haushalt. Zusätzlich fließen 260 € Kindergeld je Kind bis zum 27. Geburtstag
-als eigene Einnahme ein. Dadurch ergibt sich eine Start-Sparrate von 2.610 €.
-Davon fließen im Default automatisch 50 % (anfangs 1.305 €) ins echte ETF-Depot
+Beim Default sind 1.970 € Warmmiete (1.570 € kalt) und 2.590 € Lebenshaltung
+enthalten, davon 900 € Reisen als Monatsdurchschnitt. Die Kinder werden mit
+zusammen 300 € direkten Zusatzkosten (2 × 150 € in der ersten Altersstufe)
+separat ausgewiesen; Wohnen und Grundbedarf stecken bereits im Haushalt. Damit
+liegen die Brutto-Ausgaben bei 4.860 €, ohne Reisen bei 3.960 €. Zusätzlich
+fließen 260 € Kindergeld je Kind bis zum 25. Geburtstag als eigene Einnahme
+ein. Dadurch ergibt sich eine Start-Sparrate von 3.960 €
+(8.300 € + 520 € − 4.860 €). Quelle der Zahlen ist `START_PRESETS.heute` in
+`js/config.js`.
+Davon fließen im Default automatisch 50 % (anfangs 1.980 €) ins echte ETF-Depot
 und 50 % aufs Tagesgeld; das Tagesgeld
 wird im Preset mit 2 % p.a. verzinst. Der klassische Einstieg legt 25 % seiner
 positiven Sparrate ins ETF-Depot und 75 % aufs Tagesgeld; sein Tagesgeld nutzt
@@ -88,7 +91,8 @@ dieses Fensters um höchstens vier Jahre vorziehen. Das ist ein transparentes
 Spielmodell, keine individuelle Lebenserwartungsprognose.
 
 Das echte ETF-Depot kann für Eigenkapital verkauft werden. Leicht/Normal/Schwer
-skalieren Startvermögen und Einkommen (105/100/95 %) und verändern Bankstrenge,
+skalieren das Startvermögen (115/100/80 %) und das Einkommen (105/100/95 %) und
+verändern Bankstrenge,
 Eventlast sowie Volatilität. Normal bildet die obigen 8.300 € exakt ab.
 
 Aktuelle Segmente: Berlin Innenstadt, Berlin Rand, Leipzig und Meißen + Umland. Berlin ist im

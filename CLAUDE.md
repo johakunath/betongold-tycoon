@@ -113,7 +113,10 @@ UI v59 schließt die letzte ungeprüfte Kopfzeilen-Lücke: Zwischen
 Grenzen sind auf das Paar `1200.98px`/`1201px` gezogen; der Browser-Smoke
 prüft jetzt zusätzlich bei 1200 px, ob Datum, HUD, Zeitsteuerung und Menü sich
 weder überlappen noch aus dem Viewport laufen.
-Aktuell: `SAVE_VERSION = 21`, `UI_VERSION = 59`.
+UI v60 behebt die Befunde des Gameplay-Reviews: Events prüfen Kindesalter,
+Auto und Ruhestand, Kindergeld endet mit 25, der Finanzierungsdialog lässt
+einen Restpuffer, und das Exposé beginnt wieder bei der Prüfung.
+Aktuell: `SAVE_VERSION = 21`, `UI_VERSION = 60`.
 
 Das Spiel ist öffentlich gehostet:
 <https://johakunath.github.io/betongold-tycoon/> (GitHub Pages aus `main`).

@@ -3,6 +3,14 @@
 Kompaktes, chronologisches Log. Ältere Einträge sind verdichtet; Details
 bleiben in `DECISIONS.md` und den Fachdocs nachvollziehbar.
 
+## 2026-10-07
+
+- **UI v60 — Bugfixes aus dem Gameplay-Review.** Haushaltsbedingungen für
+  Events (Kindesalter, Auto, vor Rente), Auto-Event ohne Doppelzählung,
+  Kindergeld bis 25, Finanzierungsdialog mit Restpuffer-Startwert und
+  korrekter ETF-Meldung, Exposé springt nicht mehr am Prüfen vorbei, Toast
+  über dem Dock, Label-/Doku-Korrekturen. Details in `HANDOVER.md`.
+
 ## 2026-07-27 (1)
 
 - **UI v59 — Kopfzeile bei ~1200 px repariert.** Owner-Screenshot vom echten

@@ -1,11 +1,11 @@
 ﻿// marktplatz.js — Screen 2: Exposé-Feed mit Filtern, Favoriten, Vergleich.
 
-import { sichtbareListings, vergleichsmiete, fairerWert } from '../market.js?v=59';
-import { getListing } from '../content.js?v=59';
-import { bildHTML, cutawayHTML } from '../iso.js?v=59';
-import { fmtEUR, fmtEURSigniert, fmtProzent } from './util.js?v=59';
-import { eigenheimEignung, fixkostenAufschluesselung, instandhaltungMonat, objektartConfig } from '../immobilie.js?v=59';
-import { dealEntscheidung, pruefstand } from '../gameplay.js?v=59';
+import { sichtbareListings, vergleichsmiete, fairerWert } from '../market.js?v=60';
+import { getListing } from '../content.js?v=60';
+import { bildHTML, cutawayHTML } from '../iso.js?v=60';
+import { fmtEUR, fmtEURSigniert, fmtProzent } from './util.js?v=60';
+import { eigenheimEignung, fixkostenAufschluesselung, instandhaltungMonat, objektartConfig } from '../immobilie.js?v=60';
+import { dealEntscheidung, pruefstand } from '../gameplay.js?v=60';
 
 let ctx = null;
 let filter = { segment: 'alle', mietstatus: 'alle', nurFavoriten: false, sortierung: 'neu' };
@@ -106,7 +106,9 @@ function karte(state, { listing: l, eintrag, preis, monateAmMarkt }) {
     // ein nichtssagendes „1 Tsd €/m²". Der Quadratmeterpreis wird wie im
     // Exposé voll ausgeschrieben.
     `<small>${bruttorendite === null ? `${Math.round(preis / l.flaeche).toLocaleString('de-DE')} €/m²` : `${fmtProzent(bruttorendite)} brutto`}</small></div>` +
-    `<div class="markt-aktionen"><button type="button" class="primaer" data-markt-aktion="${entscheidung?.typ === 'verworfen' ? 'neu' : 'gebot'}" data-id="${l.id}">${entscheidung?.typ === 'verworfen' ? 'Entscheidung ansehen' : stand.schritte ? 'Prüfung fortsetzen' : 'Prüfen & entscheiden'}</button></div>` +
+    // Erst nach allen drei Prüfschritten springt die Karte direkt zum Gebot;
+    // vorher beginnt das Exposé oben bei Anlass und Prüfung (UI v60).
+    `<div class="markt-aktionen"><button type="button" class="primaer" data-markt-aktion="${entscheidung?.typ === 'verworfen' ? 'neu' : stand.schritte >= 3 ? 'gebot' : 'pruefen'}" data-id="${l.id}">${entscheidung?.typ === 'verworfen' ? 'Entscheidung ansehen' : stand.schritte >= 3 ? 'Gebot vorbereiten' : stand.schritte ? 'Prüfung fortsetzen' : 'Prüfen & entscheiden'}</button></div>` +
     `<label class="vergleich-check"><input type="checkbox" data-vergleich="${l.id}" ` +
     `${vergleich.has(l.id) ? 'checked' : ''}> vergleichen</label></div></article>`
   );

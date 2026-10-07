@@ -6,7 +6,7 @@
 export const SAVE_VERSION = 21;
 // UI-/Cache-Version ist unabhängig vom Save-Format. Bei reinen CSS-/UI-Reworks
 // erhöhen, ohne unnötig Spielstände zu migrieren.
-export const UI_VERSION = 59;
+export const UI_VERSION = 60;
 
 // Startlage und Schwierigkeit sind bewusst getrennt. Das Preset beschreibt
 // Haushalt, Vermögensaufteilung und optionale besondere Startbedingungen;
@@ -205,7 +205,7 @@ export const DEFAULT_CONFIG = {
     ],
     auszugsAlter: 27,
     kindergeldProKind: 260,       // €/Monat je Kind, feste Owner-Szenarioannahme
-    kindergeldBisAlter: 27,       // bis zum 27. Geburtstag, danach 0 €
+    kindergeldBisAlter: 25,       // bis zum 25. Geburtstag (§ 32 Abs. 4 EStG, Kind in Ausbildung), danach 0 €
     // Relative Medianlohn-Struktur der Regionen. Das Startprofil bildet den
     // aktuellen Wohn-/Arbeitsort ab; ein Eigenheim-Umzug skaliert beide
     // Erwerbseinkommen relativ zu diesem Ausgangsort.
@@ -373,6 +373,7 @@ export const DEFAULT_CONFIG = {
     },
     bewirtschaftungsPauschale: 150, // €/Monat je Objekt in der Bankrechnung
     sondertilgungMaxAnteil: 0.05, // pro Kalenderjahr, bezogen auf den Ursprungsbetrag
+    vorschlagRestpufferMonate: 3, // Startwert im Finanzierungsdialog lässt mind. so viele Monatsausgaben auf dem Tagesgeld
   },
 
   // Kaufnebenkosten (ECONOMY_MODEL §12) — "dieses Geld ist weg"

@@ -1,17 +1,17 @@
 ﻿// expose.js — Screen 3: Exposé-Detail mit Due Diligence, Notizen,
 // Szenariorechner, Gebot / Weggehen.
 
-import { getListing } from '../content.js?v=59';
+import { getListing } from '../content.js?v=60';
 import {
   angebotsPreis, vergleichsmiete, gebotAbgeben, kaufAbbrechen,
   besichtigen, dokumenteAnfordern, gutachterBeauftragen,
   angebotBeobachten, angebotVerwerfen, angebotNeuPruefen,
-} from '../market.js?v=59';
-import { dealEntscheidung, pruefstand } from '../gameplay.js?v=59';
-import { bildHTML, cutawayHTML } from '../iso.js?v=59';
-import { fmtEUR, fmtProzent } from './util.js?v=59';
-import { oeffneFinanzierung } from './finanzierung.js?v=59';
-import { eigenheimEignung, fixkostenAufschluesselung, instandhaltungMonat, objektartConfig } from '../immobilie.js?v=59';
+} from '../market.js?v=60';
+import { dealEntscheidung, pruefstand } from '../gameplay.js?v=60';
+import { bildHTML, cutawayHTML } from '../iso.js?v=60';
+import { fmtEUR, fmtProzent } from './util.js?v=60';
+import { oeffneFinanzierung } from './finanzierung.js?v=60';
+import { eigenheimEignung, fixkostenAufschluesselung, instandhaltungMonat, objektartConfig } from '../immobilie.js?v=60';
 
 let ctx = null;
 let aktuelleId = null;
@@ -235,7 +235,7 @@ function ddHTML(state, l, dd) {
     `data-tooltip="Vorbereitung deckt Hinweise und manche Risiken auf. Kein Schritt garantiert ein mangelfreies Objekt.">?</button></h3>` +
     `<div class="pruefstand"><label>Prüffortschritt <progress value="${stand.schritte}" max="${stand.gesamt}">${stand.schritte} von ${stand.gesamt}</progress><b>${stand.schritte}/${stand.gesamt}</b></label>` +
     `<label>Restunsicherheit <meter min="0" max="100" low="25" high="70" optimum="0" value="${stand.restunsicherheit}">${stand.restunsicherheit} %</meter><b>${stand.label}</b></label>` +
-    `<p>${stand.funde} Risikohinweis${stand.funde === 1 ? '' : 'e'} · ${stand.zeit} h eingesetzt · ${fmtEUR(stand.kosten)} Kosten</p></div>` +
+    `<p>${stand.funde === 1 ? '1 beziffertes Risiko' : `${stand.funde} bezifferte Risiken`} · ${stand.zeit} h eingesetzt · ${fmtEUR(stand.kosten)} Kosten</p></div>` +
     `<div class="dd-buttons">` +
     `<button id="btn-besichtigen" ${dd.besichtigt ? 'disabled' : ''}>Besichtigung <small>kostenlos · ${cfg.besichtigungZeit} h</small></button>` +
     `<button id="btn-dokumente" ${dd.dokumente ? 'disabled' : ''}>Dokumente anfordern <small>kostenlos · ${cfg.dokumenteZeit} h</small></button>` +

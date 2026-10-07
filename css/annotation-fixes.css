@@ -832,3 +832,17 @@ input, select, textarea,
   .ressourcenleiste > :is(div, button) { height: 46px; min-height: 46px; max-height: 46px; }
   .resource-finanzgruppe > button { height: 46px; min-height: 46px; max-height: 46px; gap: 8px; }
 }
+
+/* Toast über dem Dock (UI v60): Die rechte Toast-Spalte (≤ 420 px) passt erst
+   ab ~1013 px neben die Bottom-Navigation (bis ~575 px). Darunter lag der Toast
+   auf der Navigation (gemessen bei 390/700/701 px); er rückt deshalb über sie. */
+@media (max-width: 1023.98px) {
+  .toast { bottom: calc(88px + env(safe-area-inset-bottom, 0px)); }
+}
+
+/* ETF-Panel im Finanzierungsdialog (UI v60): Die Reglerspalte war fest 130 px
+   breit, der Regler selbst verlangt aber min. 190 px. Er lief deshalb unter
+   „Ins Tagesgeld" und der Hinweistext lag unter dem Button. */
+@media (min-width: 701px) {
+  .fin-etf-panel { grid-template-columns: minmax(150px, 1fr) minmax(190px, 1fr) auto; }
+}

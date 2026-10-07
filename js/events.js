@@ -1,9 +1,9 @@
 ﻿// events.js — Dilemma-Events: monatlicher Roll (feste RNG-Position im Tick)
 // und Auflösung ohne RNG. Formeln: ECONOMY_MODEL §18. DOM-frei.
 
-import { rngFloat, zahleReparatur } from './state.js?v=59';
-import { alleEvents, getEvent } from './content.js?v=59';
-import { planeObjektArc, schliesseAktivenArc } from './arcs.js?v=59';
+import { rngFloat, zahleReparatur } from './state.js?v=60';
+import { alleEvents, getEvent } from './content.js?v=60';
+import { planeObjektArc, schliesseAktivenArc } from './arcs.js?v=60';
 
 function kalendermonat(state) {
   return ((state.config.zeit.startMonat - 1 + state.monat) % 12) + 1;
@@ -26,6 +26,26 @@ function passendeObjekte(state, ev) {
   });
 }
 
+// Haushaltsbedingungen (CONTENT_SCHEMA): Kinder im Haushalt mit passendem
+// Alter, ein laufend eingeplantes Auto, Erwerbsphase vor dem Ruhestand.
+function hatKindImAlter(state, minAlter = 0, maxAlter = Infinity) {
+  const h = state.config.haushalt;
+  return (h.kinder || []).some((kind) => {
+    const alter = kind.alter + state.monat / 12;
+    return alter < h.auszugsAlter && alter >= minAlter && alter <= maxAlter;
+  });
+}
+
+function hatAuto(state) {
+  const h = state.config.haushalt;
+  return (h.autoKostenMonat || 0) > 0 && state.monat >= (h.autoAbMonat ?? Number.POSITIVE_INFINITY);
+}
+
+function istImRuhestand(state) {
+  const z = state.config.zeit;
+  return z.startAlter + state.monat / 12 >= z.rentenAlter;
+}
+
 function istErfuellbar(state, ev) {
   const b = ev.bedingung || {};
   if (b.nurArc) return false;
@@ -35,6 +55,10 @@ function istErfuellbar(state, ev) {
   if (b.cooldownMonate && hist !== undefined && state.monat - hist < b.cooldownMonate) return false;
   if (ev.kategorie === 'kind' && state.kinderEventsGezeigt >= state.config.events.maxKinderEvents) return false;
   if (b.jahreszeit && b.jahreszeit !== jahreszeit(state)) return false;
+  const brauchtKind = ev.kategorie === 'kind' || b.kindAlterMin != null || b.kindAlterMax != null;
+  if (brauchtKind && !hatKindImAlter(state, b.kindAlterMin ?? 0, b.kindAlterMax ?? Infinity)) return false;
+  if (b.autoVorhanden && !hatAuto(state)) return false;
+  if (b.vorRuhestand && istImRuhestand(state)) return false;
 
   const brauchtObjekt = b.brauchtObjekt || ev.kategorie === 'objekt' || ev.kategorie === 'mieter';
   if (brauchtObjekt && passendeObjekte(state, ev).length === 0) return false;

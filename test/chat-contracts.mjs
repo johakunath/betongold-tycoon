@@ -6,8 +6,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { DEFAULT_CONFIG, SAVE_VERSION, START_PRESETS, UI_VERSION } from '../js/config.js?v=59';
-import { meldungMeta } from '../js/ui/meldungen.js?v=59';
+import { DEFAULT_CONFIG, SAVE_VERSION, START_PRESETS, UI_VERSION } from '../js/config.js?v=60';
+import { meldungMeta } from '../js/ui/meldungen.js?v=60';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const lies = (datei) => fs.readFileSync(path.join(root, datei), 'utf8');
@@ -58,7 +58,7 @@ function vertrag(name, pruefung) {
 
 vertrag('Versionen und Wegwerf-Saves', () => {
   assert.equal(SAVE_VERSION, 21);
-  assert.equal(UI_VERSION, 59);
+  assert.equal(UI_VERSION, 60);
   assert.match(state, /Versionskonflikt|Version/);
   assert.doesNotMatch(state, /(?:export\s+)?function\s+migrier/i);
   assert.match(state, /statt Migrationscode mitzuschleppen/);
@@ -113,7 +113,7 @@ vertrag('Vier getrennte Startlagen mit neutralem Familiennamen', () => {
   assert.equal(START_PRESETS.heute.haushalt.ausgabenOhneReisenStart, 3960);
   assert.equal(START_PRESETS.heute.haushalt.reisen, 900);
   assert.equal(DEFAULT_CONFIG.haushalt.kindergeldProKind, 260);
-  assert.equal(DEFAULT_CONFIG.haushalt.kindergeldBisAlter, 27);
+  assert.equal(DEFAULT_CONFIG.haushalt.kindergeldBisAlter, 25);
   assert.equal(START_PRESETS.heute.haushalt.autoAbMonat, 5);
   assert.equal(START_PRESETS.heute.haushalt.autoKostenMonat, 600);
   assert.equal(DEFAULT_CONFIG.haushalt.lebenshaltungAltersFaktoren[2].faktor, 0.8);
@@ -176,8 +176,8 @@ vertrag('Cashflow-Details, Benachrichtigungen und kompaktes Spielmenü', () => {
   assert.match(shell, /Math\.max\(0, log\.length - 40\)/);
   assert.match(shell, /<time datetime=/);
   assert.match(shell, /meldungMeta/);
-  assert.match(shell, /from '\.\/meldungen\.js\?v=59'/);
-  assert.match(karte, /from '\.\/meldungen\.js\?v=59'/);
+  assert.match(shell, /from '\.\/meldungen\.js\?v=60'/);
+  assert.match(karte, /from '\.\/meldungen\.js\?v=60'/);
   assert.match(karte, /meldung-\$\{meta\.klasse\}[\s\S]*meldung-symbol[\s\S]*meta\.symbol/);
   assert.match(meldungen, /export function meldungMeta/);
   assert.match(shell, /data-meldung-index/);

@@ -2,9 +2,9 @@
 // Die Engine bleibt DOM-frei; diese Ableitungen benennen dieselben Beträge auf
 // HUD, Zentrale, Finanzen, Stadt und Finanzierung identisch.
 
-import { monatsWerte } from '../engine.js?v=59';
-import { fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=59';
-import { monatsAnlass } from '../gameplay.js?v=59';
+import { monatsWerte } from '../engine.js?v=60';
+import { fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=60';
+import { monatsAnlass } from '../gameplay.js?v=60';
 
 export function objektCashflowMonat(state, objekt, vermietet = objekt.vermietet && !objekt.renovierung) {
   const miete = vermietet ? Number(objekt.kaltmiete) || 0 : 0;
@@ -40,11 +40,15 @@ export function vermoegensaufbauMonat(state) {
   return { etf: haushalt.etfEinzahlung, tilgung, ruecklagen, gesamt: haushalt.etfEinzahlung + tilgung + ruecklagen };
 }
 
-export function liquiditaetsPufferMonate(state) {
+// Monatliche Grundausgaben, an denen der Liquiditätspuffer gemessen wird.
+export function liquiditaetsBasisMonat(state) {
   const haushalt = monatsWerte(state);
-  const basis = Math.max(1, haushalt.miete + haushalt.lebenshaltung + haushalt.kinder +
+  return Math.max(1, haushalt.miete + haushalt.lebenshaltung + haushalt.kinder +
     (state.eigenheim ? Math.max(0, -objektCashflowMonat(state, state.eigenheim, false)) : 0));
-  return Math.max(0, state.cash) / basis;
+}
+
+export function liquiditaetsPufferMonate(state) {
+  return Math.max(0, state.cash) / liquiditaetsBasisMonat(state);
 }
 
 // Gemeinsame Empfehlung für den „nächsten klugen Zug" auf Stadt und Zentrale.

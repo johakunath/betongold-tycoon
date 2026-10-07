@@ -2,8 +2,8 @@
 // Zustandsziel und Überziehungsrisiko. Start nur bei leerem Objekt (Umbau =
 // Leerstand). Formeln: ECONOMY_MODEL §17.
 
-import { renovierungsOptionen, starteRenovierung } from '../renovation.js?v=59';
-import { fmtEUR } from './util.js?v=59';
+import { renovierungsOptionen, starteRenovierung } from '../renovation.js?v=60';
+import { fmtEUR } from './util.js?v=60';
 
 let ctx = null;
 let index = -1;

@@ -1,11 +1,52 @@
 # HANDOVER.md — aktueller Projektstand
 
-**Stand:** 27.07.2026 (UI v59 — Kopfzeilen-Breakpoint-Lücke bei ~1200 px geschlossen)
+**Stand:** 07.10.2026 (UI v60 — Bugfixes aus dem Gameplay-Review)
 
-**Versionen:** SAVE_VERSION = 21, UI_VERSION = 59
+**Versionen:** SAVE_VERSION = 21, UI_VERSION = 60
 
 Das Spiel ist öffentlich gehostet: <https://johakunath.github.io/betongold-tycoon/>
 (GitHub Pages aus `main`/Wurzel, Deployment = `git push`).
+
+## UI v60 — Bugfixes aus dem Gameplay-Review
+
+Alles am Seed `review-1` (Familienstrategie, Normal) beobachtet und behoben.
+
+1. **Events respektieren den Haushalt.** Neue `bedingung`-Felder
+   `kindAlterMin/-Max`, `autoVorhanden`, `vorRuhestand` (`js/events.js`,
+   `CONTENT_SCHEMA.md`). `kategorie:"kind"` braucht immer ein Kind im Haushalt.
+   Vorher: „Der alte Kombi" in Monat 4 ohne Auto, Auslands-Klassenfahrt mit
+   Kindern von 4,5/1,6 Jahren, Kinder-Events auch für kinderlose Presets.
+   Zuordnung: Zahnspange 9–15, Klassenfahrt 12–18, Auszeit ≤ 12 und vor Rente,
+   Jobangebot vor Rente. Die Filter wirken nach dem festen Event-Roll; die
+   RNG-Position bleibt, nur die Kandidatenliste ändert sich (gezogene Events je
+   Seed können sich deshalb ändern; alle Balance-Gates grün).
+2. **Auto-Event ohne Doppelzählung.** Die 600-€-Pauschale bündelt laut
+   `ECONOMY_MODEL.md` §2b Anschaffung und laufende Kosten. Das Event ist jetzt
+   ein vorzeitiger Motorschaden: reparieren 3.500 € oder vorzeitig ersetzen
+   7.000 € Mehrkosten (+1 Familie) statt 12.000/4.000 € Neukauf.
+3. **Kindergeld bis zum 25. Geburtstag** (§ 32 Abs. 4 EStG) statt 27. Die
+   direkten Kinderkosten laufen weiter bis `auszugsAlter = 27`.
+4. **Finanzierungsdialog.** Startwert Eigenkapital lässt mindestens
+   `kredit.vorschlagRestpufferMonate` (3) Monatsausgaben auf dem Tagesgeld
+   (vorher: bei Nebenkosten + 20 % > Tagesgeld alles, „Restpuffer 0 €"). Die
+   ETF-Vorschau meldet bei 0 € nicht mehr „Betrag liegt über dem verfügbaren
+   ETF-Wert"; das ETF-Panel überlappt den Button „Ins Tagesgeld" nicht mehr.
+   Die Quote im Dialog heißt „Finanzierungsquote zum Kaufpreis" und erklärt,
+   warum die Zentrale (Restschuld ÷ Marktwert) danach höher sein kann.
+5. **Marktplatz → Exposé.** „Prüfen & entscheiden" fokussierte das
+   Gebotsfeld und sprang am Bild und an der Prüfung vorbei nach unten. Erst
+   nach 3/3 Prüfungen heißt der Button „Gebot vorbereiten" und springt zum Gebot.
+6. **Kleinigkeiten.** Toast liegt bis 1023 px über der Bottom-Navigation statt
+   auf ihr (neues Smoke-Gate); „Puffer 18,5 M." → „Mon."; Endbilanz zeigt
+   „über 10 Jahre" statt „955,2 Monate"; Objektkarte ohne doppelte
+   Cashflow-Zeile bei laufender Vermietung; „0 Risikohinweise" heißt
+   „0 bezifferte Risiken", weil nur Mängel/Sonderumlagen gezählt werden.
+7. **Doku-Drift.** `PLAN.md` nennt jetzt die Konfigurationswerte (4.860 €
+   Ausgaben, 3.960 € Sparrate, 300 € Kinder, 115/100/80 % Startvermögen).
+
+Bewusst nicht geändert: Der Stadt-„Anlass" bleibt der globale Monatszug
+(auch wenn er ein anderes Segment betrifft); Familienavatar und le-07-Cutaway
+brauchen neue Bildassets (Roadmap J).
 
 ## UI v59 — Kopfzeilen-Breakpoint-Lücke bei ~1200 px
 

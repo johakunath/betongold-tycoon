@@ -5,39 +5,39 @@
 // Bei neuen Systemen (Phase 2+) hier Checks ergänzen.
 
 import { readFile } from 'node:fs/promises';
-import { SAVE_VERSION, DEFAULT_CONFIG } from '../js/config.js?v=59';
-import { newGame, exportString, importString, rngFloat } from '../js/state.js?v=59';
+import { SAVE_VERSION, DEFAULT_CONFIG } from '../js/config.js?v=60';
+import { newGame, exportString, importString, rngFloat } from '../js/state.js?v=60';
 import {
   advanceMonths, alterGenau, gesamtMonate, istImRuhestand,
   lebensendeVorschau, monatsWerte, nettovermoegen,
-} from '../js/engine.js?v=59';
-import { setzeInhalte, getListing } from '../js/content.js?v=59';
+} from '../js/engine.js?v=60';
+import { setzeInhalte, getListing } from '../js/content.js?v=60';
 import {
   initialisiereMarkt, sichtbareListings, gebotAbgeben, fairerWert,
   besichtigen, dokumenteAnfordern, gutachterBeauftragen,
-} from '../js/market.js?v=59';
+} from '../js/market.js?v=60';
 import {
   finanzierungsCashflowVorschau, kreditAngebot, kaufeObjekt, restschuldNach, nebenkostenFuer,
   sondertilgen, sondertilgungRahmen, sondertilgungVorschau,
-} from '../js/finance.js?v=59';
+} from '../js/finance.js?v=60';
 import {
   starteVermietung, neueBewerber, waehleBewerber, kannErhoehen, erhoeheMiete, marktmiete,
   mietrechtFuer, angesetzteMiete, vermietungsmodell, starteEigenbedarf,
   zahleEigenbedarfAbfindung,
-} from '../js/tenants.js?v=59';
-import { etfVerkaufVorschau, kaufeEtf, setzeSparplanEtfAnteil, verkaufeEtf } from '../js/etf.js?v=59';
-import { renovierungsOptionen, starteRenovierung } from '../js/renovation.js?v=59';
-import { resolveEvent } from '../js/events.js?v=59';
-import { kaufeEigenheim, wohnortWechselVorschau } from '../js/eigenheim.js?v=59';
-import { starteVerkauf } from '../js/verkauf.js?v=59';
-import { zieheWartemomente } from '../js/signals.js?v=59';
-import { leerstandsKosten } from '../js/ui/bewerber.js?v=59';
-import { berechneEndauswertung } from '../js/endgame.js?v=59';
-import { initialisiereStartbestand } from '../js/starter.js?v=59';
+} from '../js/tenants.js?v=60';
+import { etfVerkaufVorschau, kaufeEtf, setzeSparplanEtfAnteil, verkaufeEtf } from '../js/etf.js?v=60';
+import { renovierungsOptionen, starteRenovierung } from '../js/renovation.js?v=60';
+import { resolveEvent } from '../js/events.js?v=60';
+import { kaufeEigenheim, wohnortWechselVorschau } from '../js/eigenheim.js?v=60';
+import { starteVerkauf } from '../js/verkauf.js?v=60';
+import { zieheWartemomente } from '../js/signals.js?v=60';
+import { leerstandsKosten } from '../js/ui/bewerber.js?v=60';
+import { berechneEndauswertung } from '../js/endgame.js?v=60';
+import { initialisiereStartbestand } from '../js/starter.js?v=60';
 import {
   aktuelleAdminWerte, standardAdminWerte, wendeAdminWerteAn, planeAdminWerte,
-} from '../js/admin.js?v=59';
-import { kapitalertragVorschau, kapitalsteuerStatus } from '../js/kapitalsteuer.js?v=59';
+} from '../js/admin.js?v=60';
+import { kapitalertragVorschau, kapitalsteuerStatus } from '../js/kapitalsteuer.js?v=60';
 
 const lade = async (name) =>
   JSON.parse(await readFile(new URL(`../data/${name}`, import.meta.url), 'utf8'));
@@ -77,13 +77,13 @@ check(monatsWerte(autoProbe).auto === 0, 'Vor dem ersten Geburtstag von Kind 2 b
 autoProbe.monat = 5;
 check(monatsWerte(autoProbe).auto > 600,
   'Ab dem ersten Geburtstag von Kind 2 greift die fortgeschriebene 600-Euro-Autopauschale');
-const kindergeldProbe = newGame({ seedText: 'kindergeld-bis-27' });
-kindergeldProbe.monat = 282;
+const kindergeldProbe = newGame({ seedText: 'kindergeld-bis-25' });
+kindergeldProbe.monat = 258;
 check(monatsWerte(kindergeldProbe).kindergeld === 260,
-  'Kindergeld endet je Kind monatsscharf mit dem 27. Geburtstag');
-kindergeldProbe.monat = 317;
+  'Kindergeld endet je Kind monatsscharf mit dem 25. Geburtstag');
+kindergeldProbe.monat = 293;
 check(monatsWerte(kindergeldProbe).kindergeld === 0,
-  'Nach dem 27. Geburtstag beider Kinder fließt kein Kindergeld mehr');
+  'Nach dem 25. Geburtstag beider Kinder fließt kein Kindergeld mehr');
 
 check(gesamtMonate(s) === 720, 'Default-Kampagne besitzt eine harte Obergrenze von 720 Monaten (40 bis 100)');
 advanceMonths(s, 10000, auto); // stoppt selbst am Ende (Events werden auto-aufgelöst)
@@ -811,6 +811,40 @@ function kaufeGuenstigesEigenheim(state) {
     Object.keys(e1.eventHistorie).length === Object.keys(e2.eventHistorie).length,
     'Event-Auflösung ist deterministisch (Seed + Optionsfolge)');
   check(e1.familienzufriedenheit >= 0 && e1.familienzufriedenheit <= 100, 'Familienzufriedenheit in [0,100]');
+}
+
+// --- Haushaltsbedingungen der Events (Kindesalter, Auto, Ruhestand) ---------
+{
+  const verstoesse = [];
+  let kindEvents = 0;
+  let autoEvents = 0;
+  for (let i = 0; i < 24; i++) {
+    for (const startPreset of ['heute', 'klassisch']) {
+      const g = newGame({ schwierigkeit: 'schwer', startPreset, seedText: `event-bedingung-${i}` });
+      initialisiereMarkt(g);
+      const h = g.config.haushalt;
+      const rente = (g.config.zeit.rentenAlter - g.config.zeit.startAlter) * 12;
+      const kindAlter = (m) => h.kinder.map((k) => k.alter + m / 12).filter((a) => a < h.auszugsAlter);
+      while (!g.beendet && g.monat < 420) {
+        if (g.portfolio.length === 0) kaufeGuenstiges(g, () => true);
+        advanceMonths(g, 1, (s) => {
+          const id = s.aktivesEvent.eventId;
+          const m = s.monat;
+          const alter = kindAlter(m);
+          if (id === 'kind-zahnspange' && !alter.some((a) => a >= 9 && a <= 15)) verstoesse.push(`${id}@${m}`);
+          if (id === 'kind-klassenfahrt' && !alter.some((a) => a >= 12 && a <= 18)) verstoesse.push(`${id}@${m}`);
+          if (id === 'elternzeit' && (!alter.some((a) => a <= 12) || m >= rente)) verstoesse.push(`${id}@${m}`);
+          if (id === 'job-angebot' && m >= rente) verstoesse.push(`${id}@${m}`);
+          if (id === 'auto-kaputt' && !((h.autoKostenMonat || 0) > 0 && m >= h.autoAbMonat)) verstoesse.push(`${id}@${m}`);
+          if (id.startsWith('kind-')) kindEvents++;
+          if (id === 'auto-kaputt') autoEvents++;
+          resolveEvent(s, 0);
+        });
+      }
+    }
+  }
+  check(verstoesse.length === 0 && kindEvents > 0 && autoEvents > 0,
+    `Kinder-, Auto- und Erwerbs-Events respektieren den Haushalt (${kindEvents} Kinder-, ${autoEvents} Auto-Events; Verstöße: ${verstoesse.slice(0, 4).join(', ') || 'keine'})`);
 }
 
 console.log(fehler === 0 ? '\nALLE TESTS OK' : `\n${fehler} FEHLER`);

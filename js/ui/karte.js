@@ -2,11 +2,11 @@
 // Die Stadtmotive bleiben scharf und normal belichtet; anklickbar sind nur
 // Listing-Assets aus dem tatsächlichen Katalog.
 
-import { alleListings } from '../content.js?v=59';
-import { fairerWert } from '../market.js?v=59';
-import { fmtEURKompakt } from './util.js?v=59';
-import { liquiditaetsPufferMonate, naechsterZugEmpfehlung } from './kennzahlen.js?v=59';
-import { meldungMeta } from './meldungen.js?v=59';
+import { alleListings } from '../content.js?v=60';
+import { fairerWert } from '../market.js?v=60';
+import { fmtEURKompakt } from './util.js?v=60';
+import { liquiditaetsPufferMonate, naechsterZugEmpfehlung } from './kennzahlen.js?v=60';
+import { meldungMeta } from './meldungen.js?v=60';
 
 let ctx = null;
 let filter = 'alle';
@@ -284,7 +284,7 @@ function renderFamilie(state) {
     familie: [familie, `${Math.round(familie)}`],
     zeit: [zeit, `${frei.toLocaleString('de-DE', { maximumFractionDigits: 1 })} h`],
     nerven: [nerven, `${Math.round(nerven)}`],
-    puffer: [Math.min(100, puffer / 12 * 100), `${puffer.toLocaleString('de-DE', { maximumFractionDigits: 1 })} M.`],
+    puffer: [Math.min(100, puffer / 12 * 100), `${puffer.toLocaleString('de-DE', { maximumFractionDigits: 1 })} Mon.`],
   };
   for (const [id, [anteil, text]] of Object.entries(werte)) {
     const meter = document.getElementById(`stadt-${id}-meter`);
