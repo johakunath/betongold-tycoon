@@ -80,7 +80,9 @@ for (const objekt of halten.portfolio) {
     mietpruefungen += 1;
   }
 }
-assert.ok(mietpruefungen >= 4, `Mindestens vier rechtssichere Mietprüfungen erwartet, erhalten: ${mietpruefungen}`);
+// Seit Save v22 begrenzt der Mietspiegel Erhöhungen (§ 558 BGB). Die Bestandsmieten
+// der Altbauten liegen schon darüber; nur der Neubau hat noch Spielraum.
+assert.ok(mietpruefungen >= 1, `Mindestens eine rechtssichere Mietprüfung erwartet, erhalten: ${mietpruefungen}`);
 for (let i = 0; i < halten.config.turnaround.bankMaxAnpassungen; i++) {
   const naechster = portfolioTriage(halten).objekte
     .filter((o) => o.bank.moeglich)

@@ -22,7 +22,7 @@ import {
 } from '../js/finance.js?v=60';
 import {
   starteVermietung, neueBewerber, waehleBewerber, kannErhoehen, erhoeheMiete, marktmiete,
-  mietrechtFuer, angesetzteMiete, vermietungsmodell, starteEigenbedarf,
+  mietrechtFuer, angesetzteMiete, vermietungsmodell, starteEigenbedarf, mietpreisbremse,
   zahleEigenbedarfAbfindung,
 } from '../js/tenants.js?v=60';
 import { etfVerkaufVorschau, kaufeEtf, setzeSparplanEtfAnteil, verkaufeEtf } from '../js/etf.js?v=60';
@@ -317,10 +317,25 @@ check(monatsWerte(klassisch).einkommen === 3200 && monatsWerte(klassisch).etfEin
   const berlin = mietrechtFuer(regional, { segment: 'berlin-rand' });
   const leipzig = mietrechtFuer(regional, { segment: 'leipzig' });
   const meissen = mietrechtFuer(regional, { segment: 'meissen-umland' });
-  check(berlin.kappungProzent === 0.10 && leipzig.kappungProzent === 0.15
+  check(berlin.kappungProzent === 0.15 && leipzig.kappungProzent === 0.15
     && meissen.kappungProzent === 0.20
     && berlin.mieterhoehungUnzufriedenheit > leipzig.mieterhoehungUnzufriedenheit,
-  'Berlin ist restriktiver als Leipzig; Meißen nutzt die allgemeine 20-%-Grenze');
+  'Berlin und Leipzig nutzen die reale 15-%-Kappung, Meißen die allgemeine 20-%-Grenze');
+
+  // Mietpreisbremse (§ 556d BGB): Altbau in Berlin gedeckelt, Neubau,
+  // umfassende Modernisierung und Meißen nicht.
+  const altbau = { ...getListing('bi-02'), zustand: 3 };
+  const bremse = mietpreisbremse(regional, altbau);
+  const angesetzt = angesetzteMiete(regional, altbau, 'auf', 'regulaer');
+  check(bremse.gilt && Math.abs(angesetzt - Math.round(bremse.obergrenze)) <= 1
+    && angesetzt < marktmiete(regional, altbau),
+    `Berliner Altbau: Neuvermietung höchstens Mietspiegel + 10 % (${angesetzt} € statt ${Math.round(marktmiete(regional, altbau))} €)`);
+  check(!mietpreisbremse(regional, getListing('bi-03')).gilt
+    && !mietpreisbremse(regional, { ...altbau, modernisierungM2: 1400 }).gilt
+    && !mietpreisbremse(regional, getListing('me-07')).gilt,
+    'Ausnahmen: Neubau ab 2015, umfassend modernisiert, Markt ohne Mietpreisbremse');
+  check(mietpreisbremse(regional, { ...altbau, kaltmiete: 2000, vermietungsart: 'regulaer' }).obergrenze === 2000,
+    'Höhere Vormiete bleibt bei der Neuvermietung zulässig');
 }
 
 // --- Marktphasen-Verteilung über viele Seeds -------------------------------
@@ -608,7 +623,7 @@ check(leer && !leer.vermietet && leer.mieter === null, `leeres Objekt gekauft: $
 // --- Renovierung ------------------------------------------------------------
 const zustandVor = leer.zustand;
 const optionen = renovierungsOptionen(p3, leer);
-check(optionen.length === 4 && optionen.every((o) => o.schaetzung > 0), 'vier Renovierungsstufen mit Schätzung');
+check(optionen.length === 5 && optionen.every((o) => o.schaetzung > 0), 'fünf Renovierungsstufen (inkl. umfassender Modernisierung) mit Schätzung');
 const cashVorReno = p3.cash;
 starteRenovierung(p3, leer, 'kuecheBad');
 check(leer.renovierung && p3.cash < cashVorReno, 'Renovierung gestartet, Schätzsumme fällig');
@@ -832,6 +847,12 @@ function kaufeGuenstigesEigenheim(state) {
   initialisiereMarkt(ohneKauf);
   advanceMonths(ohneKauf, 10000, auto);
   const ende = berechneEndauswertung(ohneKauf);
+  const m85 = (85 - ohneKauf.config.zeit.startAlter) * 12;
+  check(ende.ruhestand && ende.ruhestand.lueckeReal > 0
+    && Math.abs(ende.scores.cashflow - Math.min(100, ende.ruhestand.passivReal / ende.ruhestand.lueckeReal * 100)) < 1e-6
+    && Math.abs(ende.vermoegenBewertungReal - ohneKauf.historie[m85].nettovermoegen / ohneKauf.historie[m85].preisniveau) < 1e-6
+    && Math.abs(ende.vermoegenZiel - 40 * 12 * (ohneKauf.startConfig.haushalt.nettoEinkommenPerson1 + ohneKauf.startConfig.haushalt.nettoEinkommenPerson2)) < 1e-6,
+    'Scores: Rentenlücke zum Rentenbeginn, Vermögen mit 85 gegen 40 Start-Jahresnettos');
   check(ohneKauf.portfolio.length === 0 && ende.scores.cashflow > 0 && ende.entnahme > 0,
     `Ohne Mietobjekt erreicht der Cashflow-Score über die sichere Entnahme ${Math.round(ende.scores.cashflow)}/100`);
   check(Math.abs(ende.zerlegung.entscheidungen + ende.zerlegung.sparaufteilung - (ende.endwerte.spieler - ende.endwerte.etf)) < 1
@@ -873,6 +894,34 @@ function kaufeGuenstigesEigenheim(state) {
   }).filter((q) => q != null);
   check(quoten.length > 0 && quoten.every((q, i) => Math.abs(q - quotenStart[i]) < 1e-9),
     'Einkommensquote der Bewerber vergleicht Miete und Einkommen im selben Preisniveau');
+}
+
+// --- Entnahmeregel statt Dispo-Falle ----------------------------------------
+{
+  const lauf = (aktiv) => {
+    const g = newGame({ seedText: 'balance-1' });
+    initialisiereMarkt(g);
+    setzeSparplanEtfAnteil(g, 1);
+    kaufeEtf(g, g.cash - 30000);
+    g.config.kapital.entnahme.aktiv = aktiv;
+    advanceMonths(g, 10000, auto);
+    return g;
+  };
+  const mitRegel = lauf(true);
+  const ohneRegel = lauf(false);
+  check(mitRegel.statistik.monateNegativCash === 0 && ohneRegel.statistik.monateNegativCash > 100,
+    `Entnahmeregel verhindert die Dispo-Falle bei 100 % ETF (${mitRegel.statistik.monateNegativCash} statt ${ohneRegel.statistik.monateNegativCash} Dispo-Monate)`);
+}
+
+// --- Eigenbedarf trifft Mieter, nicht Eigentümer ---------------------------
+{
+  const mieter = newGame({ seedText: 'eigenbedarf-mieter' });
+  initialisiereMarkt(mieter);
+  const mieteVor = mieter.config.haushalt.miete;
+  mieter.aktivesEvent = { eventId: 'eigenbedarf-vermieter', objektIndex: -1, monat: 0 };
+  resolveEvent(mieter, 0);
+  check(mieter.config.haushalt.miete === Math.round(mieteVor * 1.15) && mieter.config.eigenheim.familieNeutralBonus === 0,
+    'Eigenbedarf erhöht die Familienmiete per neuem Vertrag; Eigentum hat keinen pauschalen Familien-Dauerbonus');
 }
 
 // --- Haushaltsbedingungen der Events (Kindesalter, Auto, Ruhestand) ---------

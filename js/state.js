@@ -251,6 +251,8 @@ export function newGame({
       rentenbeginnGeloggt: false,
     },
     adminPending: null,     // Phase 5: Configänderungen, wirksam zu Beginn des nächsten Ticks
+    ruhestandsCheck: null,  // einmal zum Rentenbeginn: passives Einkommen vs. Rentenlücke
+    adminVerlauf: [],       // [{monat, werte}] angewandte Einstellungsänderungen; Vergleichsläufe spielen sie nach
 
     // Verlauf für den Chart: ein Eintrag pro Monat, Eintrag 0 = Startzustand.
     historie: [],
@@ -275,6 +277,11 @@ export function newGame({
     cashflow: 0,
     preisniveau: 1,
   });
+
+  // Unveränderte Startannahmen: Vergleichsläufe der Endauswertung starten
+  // hier statt bei der zuletzt gültigen Config (Events, Sparplan und
+  // Einstellungen ändern sie im Lauf).
+  state.startConfig = structuredClone(config);
 
   return state;
 }

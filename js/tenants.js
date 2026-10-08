@@ -2,11 +2,11 @@
 // Mieterhöhung. Formeln: ECONOMY_MODEL §15–16. DOM-frei, RNG nur über state.js.
 
 import { rngFloat, rngNormal } from './state.js?v=60';
-import { vergleichsmiete } from './market.js?v=60';
+import { stammdaten, vergleichsmiete } from './market.js?v=60';
 import { alleTenants, getTenant } from './content.js?v=60';
 import { meldeWartemoment } from './signals.js?v=60';
 import { protokolliereWirkung } from './gameplay.js?v=60';
-import { aktuellerBetrag } from './preisniveau.js?v=60';
+import { aktuellerBetrag, preisniveau } from './preisniveau.js?v=60';
 
 // Erzielbare Marktmiete (kalt) für ein Objekt: Vergleichsmiete × Zustandsfaktor.
 export function marktmiete(state, objekt) {
@@ -19,12 +19,79 @@ export function vermietungsmodell(state, modellId = 'regulaer') {
   return { id, ...(state.config.mieter.vermietungsmodelle?.[id] || state.config.mieter.vermietungsmodelle.regulaer) };
 }
 
+function istNeubau(objekt) {
+  const daten = stammdaten(objekt);
+  return daten.stil === 'neubau' || Number(daten.baujahr) >= 2020;
+}
+
+function lageFaktor(state, objekt) {
+  const b = state.config.bewertung;
+  const referenz = b.lageBasis + 5 * b.lageJePunkt;
+  return (b.lageBasis + (Number(objekt.lageScore) || 5) * b.lageJePunkt) / referenz;
+}
+
+// Ortsübliche Vergleichsmiete laut Mietspiegel (kalt, €/Monat, laufende Euro):
+// Segmentanker × Zustand × Lage. Grundlage für Mieterhöhungen (§ 558 BGB) und
+// die Mietpreisbremse (§ 556d BGB). ECONOMY_MODEL §15a.
+export function mietspiegelMiete(state, objekt) {
+  const segment = state.config.segmente[objekt.segment];
+  if (!Number.isFinite(segment?.mietspiegelM2)) return marktmiete(state, objekt);
+  const f = state.config.mieter.zustandMietFaktor[objekt.zustand] ?? 1;
+  return objekt.flaeche * segment.mietspiegelM2 * f * lageFaktor(state, objekt) * preisniveau(state);
+}
+
+// Zuletzt vereinbarte Kaltmiete ohne Möblierungsaufschlag (Vormiete). Für ein
+// noch nicht gekauftes, vermietetes Angebot ist es dessen Bestandsmiete.
+function vormieteBasis(state, objekt) {
+  if (objekt.mietstatus?.vermietet && objekt.kaltmiete === undefined) {
+    return (Number(objekt.mietstatus.kaltmiete) || 0) * preisniveau(state);
+  }
+  const vorher = Number(objekt.kaltmiete) || 0;
+  if (!vorher) return 0;
+  return vorher / (1 + (vermietungsmodell(state, objekt.vermietungsart || objekt.moebliert).aufschlag || 0));
+}
+
+// Gilt bei einer Neuvermietung die Mietpreisbremse, und bis zu welcher
+// Kaltmiete (ohne Möblierungsaufschlag)?
+export function mietpreisbremse(state, objekt) {
+  const cfg = state.config.mietpreisbremse;
+  const stadt = state.config.segmente[objekt.segment]?.stadt;
+  if (!cfg?.staedte?.[stadt]) return { gilt: false, grund: 'keine Mietpreisbremse in diesem Markt' };
+  if (Number(stammdaten(objekt).baujahr) >= cfg.neubauAbBaujahr) return { gilt: false, grund: 'Neubau, Erstvermietung nach 2014' };
+  if ((objekt.modernisierungM2 || 0) >= cfg.umfassendModernisiertM2) {
+    return { gilt: false, grund: 'umfassend modernisiert' };
+  }
+  const mietspiegel = mietspiegelMiete(state, objekt);
+  const grenze = mietspiegel * (1 + cfg.aufschlag);
+  const vormiete = vormieteBasis(state, objekt);
+  return {
+    gilt: true,
+    mietspiegel,
+    vormiete,
+    obergrenze: Math.max(grenze, vormiete),
+    grund: vormiete > grenze ? 'höhere Vormiete bleibt zulässig' : `Mietspiegel + ${Math.round(cfg.aufschlag * 100)} %`,
+  };
+}
+
 // Angesetzte Miete für eine geplante Vermietung (Mietniveau + Vermietungsweg).
+// Unter der Mietpreisbremse ist „über Marktmiete" nicht mehr als die
+// Obergrenze; der Möblierungsaufschlag kommt wie bisher obendrauf und trägt
+// das regionale Rechtsrisiko (§25).
 export function angesetzteMiete(state, objekt, niveauId, modellId = 'regulaer') {
   const m = state.config.mieter;
   const niveau = m.mietNiveaus[niveauId];
-  const basis = marktmiete(state, objekt) * niveau.faktor;
+  const bremse = mietpreisbremse(state, objekt);
+  const markt = bremse.gilt ? Math.min(marktmiete(state, objekt), bremse.obergrenze) : marktmiete(state, objekt);
+  const basis = bremse.gilt ? Math.min(markt * niveau.faktor, bremse.obergrenze) : markt * niveau.faktor;
   return Math.round(basis * (1 + vermietungsmodell(state, modellId).aufschlag));
+}
+
+// Obergrenze einer Mieterhöhung im Bestand: ortsübliche Vergleichsmiete
+// (§ 558 BGB). Neubauten haben im Modell keine eigene Mietspiegelstufe und
+// orientieren sich an der Marktmiete.
+export function erhoehungsObergrenze(state, objekt) {
+  const basis = istNeubau(objekt) ? marktmiete(state, objekt) : mietspiegelMiete(state, objekt);
+  return basis * (1 + vermietungsmodell(state, objekt.vermietungsart || objekt.moebliert).aufschlag);
 }
 
 function qualiWert(t) {
@@ -142,7 +209,7 @@ export function mietrechtFuer(state, objekt) {
   };
 }
 
-// Obergrenze: min(Marktmiete inkl. möbliert, Kappungsbasis × (1+Kappung)).
+// Obergrenze: min(ortsübliche Vergleichsmiete inkl. möbliert, Kappungsbasis × (1+Kappung)).
 export function maxMiete(state, objekt) {
   const m = state.config.mieter;
   const recht = mietrechtFuer(state, objekt);
@@ -151,7 +218,7 @@ export function maxMiete(state, objekt) {
     objekt.kappungFensterStart = state.monat;
     objekt.kappungBasis = objekt.kaltmiete;
   }
-  const markt = marktmiete(state, objekt) * (1 + vermietungsmodell(state, objekt.vermietungsart || objekt.moebliert).aufschlag);
+  const markt = erhoehungsObergrenze(state, objekt);
   const kappe = objekt.kappungBasis * (1 + recht.kappungProzent);
   return Math.floor(Math.min(markt, kappe));
 }
@@ -265,9 +332,11 @@ export function mieterMonat(state, objekt) {
   if (rechtsrisiko > 0 && rngFloat(state) < rechtsrisiko) {
     const rueckzahlung = Math.round(objekt.kaltmiete * modell.rueckzahlungMonate);
     state.cash -= rueckzahlung;
+    const bremse = mietpreisbremse(state, { ...objekt, kaltmiete: 0 });
+    const regulaer = bremse.gilt ? bremse.obergrenze : marktmiete(state, objekt);
     objekt.vermietungsart = 'regulaer';
     objekt.moebliert = false;
-    objekt.kaltmiete = Math.min(objekt.kaltmiete, Math.round(marktmiete(state, objekt)));
+    objekt.kaltmiete = Math.min(objekt.kaltmiete, Math.round(regulaer));
     state.log.push({ monat: state.monat, text: `${objekt.titel}: Mietmodell wurde geprüft; ${rueckzahlung.toLocaleString('de-DE')} € Rückzahlung/Kosten und Umstellung auf reguläre Vermietung.` });
     meldeWartemoment(state, `${objekt.titel}: Prüfung des Mietmodells. Rückzahlung fällig; Vermietung läuft regulär weiter.`, objekt.listingId);
   }

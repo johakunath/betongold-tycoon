@@ -3,6 +3,15 @@
 Kompaktes, chronologisches Log. Ältere Einträge sind verdichtet; Details
 bleiben in `DECISIONS.md` und den Fachdocs nachvollziehbar.
 
+## 2026-10-08 (2)
+
+- **Owner-Delegation, sechs Modellentscheidungen.** Reale Berliner Kappung
+  und Mietpreisbremse mit Modernisierungsausnahme, Eigenbedarfsrisiko statt
+  Eigentums-Familienbonus, Entnahmeregel gegen die Dispo-Falle, Score
+  „Rentenlücke gedeckt", Vermögensscore mit 85 relativ zum Starteinkommen,
+  Vergleichsläufe mit Startconfig und nachgespielten Einstellungen. Details in
+  `HANDOVER.md` und `DECISIONS.md`.
+
 ## 2026-10-08
 
 - **Save v22 — Arbeitspaket D (Inflation/heutige Euro) und faire

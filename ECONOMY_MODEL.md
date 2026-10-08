@@ -267,6 +267,22 @@ ohne Steuerstundung. Der echte Depotwert und die gelbe Benchmark bleiben
 Brutto-Marktwerte; „Netto bei Verkauf“ zeigt für das echte Depot die aktuell
 verfügbare Liquidität nach realisierter Steuer.
 
+### 4b. Entnahmeregel (Save v22)
+
+Ein Sicherheitsnetz gegen die Dispo-Falle, besonders im Ruhestand:
+
+```
+untergrenze = mindestpufferMonate · (miete + lebenshaltung + kinder)
+wenn aktiv und cash < untergrenze und Depot > 0:
+  ETF-Verkauf brutto so, dass netto ≈ untergrenze − cash  (Steuer wie §4a)
+```
+
+Default: aktiv, 1 Monat; in Finanzen einstellbar (0–24 Monate oder aus). Die
+Buchung läuft im Tick nach der Monatsrendite, ist ein Transfer (kein
+Cashflow) und zieht keinen RNG. Ein Logeintrag je Kalenderjahr. Vorher gab es
+keinen automatischen Verkauf; ein 100-%-ETF-Haushalt lief im Ruhestand in den
+11-%-Dispo, obwohl Millionen im Depot lagen.
+
 ### 4a. Gemeinsamer Kapitalsteuervertrag
 
 Tagesgeldzinsen und realisierte ETF-Gewinne teilen sich einen gespeicherten
@@ -580,6 +596,43 @@ Alle Segmentbasen sind Euro des Spielstarts und laufen mit dem Preisniveau
 Möblierung und Wohnen auf Zeit werden über die getrennten Wege in §25
 aufgeschlagen.
 
+### 15a. Mietspiegel, Mieterhöhung und Mietpreisbremse (Save v22)
+
+Die Segmentwerte aus §15 sind **Angebotsmieten**. Rechtlich zählt für
+Erhöhungen und in Berlin/Leipzig auch für Neuvermietungen die **ortsübliche
+Vergleichsmiete** (Mietspiegel):
+
+```
+mietspiegel(objekt) = flaeche · mietspiegelM2(segment) · zustandMietFaktor
+                      · lageFaktor(lageScore, relativ zu Lage 5) · preisniveau
+erhöhungsgrenze     = min(mietspiegel · (1 + Möblierungsaufschlag),
+                          kappungsBasis · (1 + kappung))           // § 558 BGB
+neuvermietung (Mietpreisbremse, Berlin + Leipzig):
+  obergrenze = max(mietspiegel · 1,10, Vormiete)                   // § 556d BGB
+  angesetzt  = min(marktmiete · niveau, obergrenze) · (1 + Aufschlag)
+```
+
+Ausnahmen von der Mietpreisbremse: Baujahr ab 2015 (vereinfacht für
+„Erstvermietung nach Oktober 2014"), kumuliertes Renovierungsvolumen ab
+`umfassendModernisiertM2` = 1.000 €/m² (≈ ⅓ Neubaukosten; die neue Stufe
+„Umfassende Modernisierung" erreicht es allein) und eine höhere Vormiete.
+Neubauten haben im Modell keine eigene Mietspiegelstufe; ihre Erhöhungsgrenze
+ist die Marktmiete. Unter der Bremse bringt „über Marktmiete" keine höhere
+Miete, nur mehr Leerstandsrisiko. Der Möblierungsaufschlag bleibt obendrauf
+und trägt weiter das regionale Rechtsrisiko aus §25.
+
+Anker (Näherung, tunbar): Berlin Innenstadt 8,0 €/m², Berlin Rand 7,0 €/m²
+(Berliner Mietspiegel 2024 Ø 7,21 €/m² laut BBU), Leipzig 6,8 €/m²
+(Mieterverein Ø 6,56 €/m², Spanne 6,50–10 €/m²), Meißen 6,4 €/m² (Mietspiegel
+2025–2027, identisch mit der Marktmiete). Kappung: Berlin und Leipzig 15 %,
+Meißen 20 % in 36 Monaten. Annahme: Die Mietpreisbremse gilt über die ganze
+Spielzeit; rechtlich läuft sie derzeit in Berlin längstens bis Ende 2029, in
+Leipzig bis 30.06.2027.
+
+Folge: Berliner und Leipziger Altbau-Kapitalanlagen sind ohne Modernisierung
+selten tragfähig; die 40-Listing-Matrix (B0) behält je Markt mindestens einen
+positiven Pfad, meist über Modernisierung, Neubau oder günstigen Bestand.
+
 ## 16. Mieterwahl & Vermietung (Phase 3)
 
 **Vermietung starten** (leeres Objekt): Spieler wählt Mietniveau relativ zur
@@ -623,7 +676,7 @@ senkt die Mieterzufriedenheit (höheres Auszugsrisiko temporär).
 
 ## 17. Renovierung (Phase 3)
 
-Vier Stufen (config `renovierung.stufen`), nur bei leerem Objekt startbar
+Fünf Stufen (config `renovierung.stufen`), nur bei leerem Objekt startbar
 (Umbau = Leerstand):
 
 | Stufe | Kosten €/m² | Dauer (Mon.) | Zustandsziel | Miet-Uplift | Effekt |
@@ -632,6 +685,10 @@ Vier Stufen (config `renovierung.stufen`), nur bei leerem Objekt startbar
 | kuecheBad | 450 | 4 | ≥4 | via Zustand | — |
 | grundriss | 800 | 6 | 5 | via Zustand | zusätzlicher Wert-Bonus |
 | energetisch | 600 | 5 | +1 | via Zustand | Energieklasse +2 Stufen, senkt Kosten-Events |
+| umfassend | 1.400 | 9 | 5 | via Zustand | Grundriss + Energetik; hebt die Mietpreisbremse auf (§15a) |
+
+Jede abgeschlossene Stufe addiert ihre `kostenM2` (Euro des Spielstarts) zu
+`objekt.modernisierungM2`.
 
 ```
 kostenSchaetzung = flaeche · kostenM2 · kostenFaktor
@@ -778,9 +835,13 @@ Nettovermögen   += Marktwert Eigenheim − Restschuld + Rücklage
 Die Bankrechnung ersetzt bei einem Eigenheimkauf die bisherige Wohnmiete durch
 artabhängige Fixkosten, Instandhaltung und die neue Rate. Ein bestehendes Eigenheim zählt
 bei späteren Kapitalanlage-Krediten vollständig als Belastung. Der Kauf gibt
-einmalig `familieSofortBonus`; solange das Eigenheim gehalten wird, driftet die
-Familienzufriedenheit zu `neutral + familieNeutralBonus`. Negative Folgen von
-Kinder-Events werden mit `kinderEventMalusFaktor` multipliziert.
+einmalig `familieSofortBonus` (+6, Ankommen); ein Verkauf kostet
+`verkaufFamilieMalus`. Seit Save v22 gibt es keinen pauschalen Dauerbonus
+(`familieNeutralBonus = 0`) und keine Abmilderung von Kinder-Events
+(`kinderEventMalusFaktor = 1`). Stattdessen trägt das Mieten ein eigenes
+Risiko: Das Event „Eigenbedarf: Euer Vermieter kündigt" (nur ohne Eigenheim)
+kostet Umzug und Familienzufriedenheit und erhöht bei gleich großer Wohnung
+die Familienmiete um 15 % (neuer Vertrag).
 
 ## 21. Jahressteuerbescheid (Phase 4, bewusst stark vereinfacht)
 
@@ -840,17 +901,19 @@ UI-Auswahl erfolgt deshalb über die stabile Listing-ID, nicht über Array-Indiz
 
 Fünf Scores, jeweils 0–100:
 
-1. **Nettovermögen:** Kaufkraft in heutigen Euro (§1a), linear bis
-   `nettovermoegenZiel` = 5 Mio. heutige Euro (entspricht dem früheren
-   nominalen 15-Mio.-Ziel bei 2 % über rund 55 Jahre).
-2. **Passiver Cashflow:** aktuelle vermietete Objekt-P&Ls abzüglich einer
-   monatlichen Steuer-Schätzung **plus** sichere Entnahme
-   `entnahmeRate` (3,5 % p.a.) aus Tagesgeld und ETF-Depot netto nach
-   Verkaufssteuer, in heutigen Euro, linear bis 2.000 €/Monat. Damit kann
-   auch eine Strategie ohne Mietobjekt den Score erreichen (PLAN Säule 1:
-   Nichtkaufen ist valide). `entnahmeRate = 0` stellt die alte, rein
-   objektbezogene Wertung her. Hinweis: Am Lebensende ist diese Dimension
-   bei fast allen Strategien gesättigt.
+1. **Nettovermögen:** Kaufkraft in heutigen Euro (§1a) **mit 85**
+   (`vermoegenBewertungAlter`), nicht am zufälligen Lebensende; linear bis
+   `vermoegenZielJahresnetto` = 40 × Start-Jahresnetto des Haushalts
+   (inklusive geplanter Einkommenssprünge). Familienstart: 3,98 Mio.,
+   klassischer Einstieg: 1,54 Mio. heutige Euro. So hat jede Startlage
+   dieselbe Chance auf einen guten Wert.
+2. **Rentenlücke gedeckt:** Im ersten Rentenmonat speichert der Tick einmal
+   `state.ruhestandsCheck`: passives Einkommen (vermietete Objekt-P&Ls nach
+   Steuer-Schätzung **plus** sichere Entnahme `entnahmeRate` 3,5 % p.a. aus
+   Tagesgeld und ETF netto) gegen die Rentenlücke (letztes Erwerbsnetto −
+   Rente), beides in heutigen Euro. Score = Deckungsgrad, höchstens 100.
+   Nichtkaufen kann ihn über die Entnahme erreichen (PLAN Säule 1). Ohne
+   Ruhestand im Lauf gilt der Endstand gegen `cashflowZiel` 2.000 €/Monat.
 3. **Resilienz:** Mittel aus LTV-Score und Rücklagenabdeckung in Monaten.
 4. **Stresshistorie:** Abzug für durchschnittlichen Zeitüberzug und Anteil der
    Monate mit negativem Cash.

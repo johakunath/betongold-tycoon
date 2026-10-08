@@ -204,7 +204,7 @@ function zeigeVergleich() {
     zeile('Ausstattung', (s) => AUSSTATTUNG[s.l.ausstattung] || (s.l.mietstatus.vermietet ? 'bewohnt' : 'nicht angegeben')) +
     zeile('Kaltmiete', (s) => (s.l.mietstatus.vermietet ? fmtEUR(angebotsBestandsmiete(state, s.l)) + '/Mon.' : 'bezugsfrei')) +
     vergleichsZeile('Bruttorendite', (s) => s.l.mietstatus.vermietet ? (angebotsBestandsmiete(state, s.l) * 12) / s.preis * 100 : NaN, (v) => Number.isFinite(v) ? `${zahl(v, 1)} %` : '—', (d) => `${d >= 0 ? '+' : '−'}${zahl(Math.abs(d), 2)} Pp.`) +
-    vergleichsZeile('Vergleichsmiete (Schätzung)', (s) => vergleichsmiete(state, s.l), (v) => `${fmtEUR(Math.round(v))}/Mon.`, (d) => `${fmtEURSigniert(Math.round(d))}/Mon.`) +
+    vergleichsZeile('Angebotsmiete (Schätzung)', (s) => vergleichsmiete(state, s.l), (v) => `${fmtEUR(Math.round(v))}/Mon.`, (d) => `${fmtEURSigniert(Math.round(d))}/Mon.`) +
     vergleichsZeile('Lage', (s) => s.l.lageScore, (v) => `${v}/10`, (d) => `${d >= 0 ? '+' : '−'}${zahl(Math.abs(d))}`) +
     vergleichsZeile('Interessenten', (s) => Math.round(s.e.konkurrenz * 5), (v) => String(v), (d) => `${d >= 0 ? '+' : '−'}${zahl(Math.abs(d))}`) +
     `</table>`;

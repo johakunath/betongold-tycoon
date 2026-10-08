@@ -864,3 +864,11 @@ input, select, textarea,
 
 /* „19,3 Mon." brach im Familienpanel um (UI v60): Werte bleiben einzeilig. */
 .sims-zeile > b { white-space: nowrap; }
+
+/* Entnahmeregel unter dem Sparplan (Save v22). */
+.entnahme-regel { display: grid; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--hairline); }
+.entnahme-regel label { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.entnahme-regel input[type="number"] { width: 5.5em; }
+.entnahme-regel button { justify-self: start; }
+.sparplan-karte form.entnahme-regel { grid-template-columns: 1fr; align-items: start; }
+.sparplan-karte form.entnahme-regel > button { grid-column: 1; grid-row: auto; justify-self: start; align-self: start; }

@@ -60,6 +60,7 @@ function istErfuellbar(state, ev) {
   if (brauchtKind && !hatKindImAlter(state, b.kindAlterMin ?? 0, b.kindAlterMax ?? Infinity)) return false;
   if (b.autoVorhanden && !hatAuto(state)) return false;
   if (b.vorRuhestand && istImRuhestand(state)) return false;
+  if (b.nurMieter && state.eigenheim) return false;
 
   const brauchtObjekt = b.brauchtObjekt || ev.kategorie === 'objekt' || ev.kategorie === 'mieter';
   if (brauchtObjekt && passendeObjekte(state, ev).length === 0) return false;
@@ -168,6 +169,13 @@ export function resolveEvent(state, optionIndex) {
   }
   if (typeof eff.zustand === 'number' && objekt) {
     objekt.zustand = Math.max(1, Math.min(5, objekt.zustand + eff.zustand));
+  }
+  // Neuer Mietvertrag der Familie (z. B. nach Eigenbedarf): relative Änderung
+  // der eigenen Wohnmiete ab dem Folgemonat; gilt auch für den ETF-Gegenfall.
+  if (typeof eff.haushaltsMiete === 'number') {
+    const h = state.config.haushalt;
+    h.miete = Math.round(h.miete * (1 + eff.haushaltsMiete));
+    h.mieteKalt = Math.round((h.mieteKalt || 0) * (1 + eff.haushaltsMiete));
   }
   if (typeof eff.miete === 'number' && objekt) {
     objekt.kaltmiete = Math.max(0, objekt.kaltmiete + euro(eff.miete));

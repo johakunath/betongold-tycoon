@@ -180,6 +180,8 @@ export function wendeAdminPendingAn(state) {
   if (!state.adminPending?.werte) return 0;
   const pending = state.adminPending;
   state.adminPending = null;
+  if (!Array.isArray(state.adminVerlauf)) state.adminVerlauf = [];
+  state.adminVerlauf.push({ monat: state.monat, werte: structuredClone(pending.werte) });
   return wendeAdminWerteAn(state, pending.werte);
 }
 

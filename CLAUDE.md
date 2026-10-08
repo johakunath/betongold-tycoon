@@ -119,7 +119,11 @@ einen Restpuffer, und das Exposé beginnt wieder bei der Prüfung.
 Save v22 setzt Arbeitspaket D um: ein Preisniveauindex (2 %) schreibt Mieten,
 Objektkosten und Eventbeträge fort, Scores rechnen in heutigen Euro, sichere
 Entnahme zählt als passiver Cashflow, und die Endauswertung zerlegt den
-ETF-Abstand über eine Linie „Ohne Käufe".
+ETF-Abstand über eine Linie „Ohne Käufe". Dazu kommen reale Mietregeln
+(15-%-Kappung, Mietpreisbremse in Berlin/Leipzig mit Modernisierungsausnahme),
+ein Eigenbedarfsrisiko für Mieter statt eines Eigentums-Familienbonus, eine
+Entnahmeregel gegen die Dispo-Falle sowie die Scores „Rentenlücke gedeckt"
+und „Kaufkraft mit 85".
 Aktuell: `SAVE_VERSION = 22`, `UI_VERSION = 60`.
 
 Das Spiel ist öffentlich gehostet:

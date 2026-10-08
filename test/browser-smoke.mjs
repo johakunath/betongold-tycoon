@@ -1323,7 +1323,8 @@ async function main() {
         !lebensphasenUi.hero.includes('Lebensbilanz') ||
         !lebensphasenUi.details.includes('Jahre im Ruhestand') ||
         !lebensphasenUi.details.includes('Langzeit-Stress') ||
-        !lebensphasenUi.score.includes('Vermögen am Lebensende')) {
+        !lebensphasenUi.score.includes('Kaufkraft mit 85') ||
+        !lebensphasenUi.details.includes('Rentenlücke')) {
       throw new Error(`Lebensphasen-UI verletzt: ${JSON.stringify(lebensphasenUi)}`);
     }
     console.log('OK   Lebensphasen: Ruhestands-HUD und Endbilanz zwischen 90–100 im echten Renderpfad');

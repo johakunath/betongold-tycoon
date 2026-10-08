@@ -12,8 +12,8 @@ const PHASEN_LABEL = {
 };
 
 const SCORE_META = {
-  vermoegen: ['Nettovermögen', 'Vermögen am Lebensende, in heutigen Euro'],
-  cashflow: ['Passiver Cashflow', 'Mieten nach Kosten und Steuer + sichere Entnahme'],
+  vermoegen: ['Nettovermögen', 'Kaufkraft mit 85 gegenüber 40 Jahresnettos'],
+  cashflow: ['Rentenlücke gedeckt', 'passives Einkommen zum Rentenbeginn'],
   resilienz: ['Resilienz', 'Beleihung und liquide Puffer'],
   stress: ['Stress', 'Zeitüberzug und Monate im Dispo'],
   familie: ['Familie', 'Schlussstand und Kampagnenschnitt'],
@@ -75,8 +75,16 @@ function renderEndgame(state, a) {
   document.getElementById('endgame-details').innerHTML =
     `<div><span>Liquide Mittel</span><b>${fmtEUR(liquideMittel)}</b></div>` +
     `<div><span>Restschulden</span><b>${fmtEUR(schulden)}</b></div>` +
-    `<div><span>Mietobjekte netto${einheit}</span><b>${fmtEURSigniert(eur(a.cashflow))}/Mon.</b></div>` +
-    `<div><span>Sichere Entnahme ${fmtProzent((state.config.endgame.entnahmeRate || 0) * 100)}${einheit}</span><b>${fmtEURSigniert(eur(a.entnahme))}/Mon.</b></div>` +
+    (a.bewertungsAlter
+      ? `<div><span>Vermögen mit ${a.bewertungsAlter} (heutige Euro)</span><b>${fmtEUR(a.vermoegenBewertungReal)}</b></div>` +
+        `<div><span>Vermögensziel (heutige Euro)</span><b>${fmtEUR(a.vermoegenZiel)}</b></div>`
+      : '') +
+    (a.ruhestand
+      ? `<div><span>Rentenlücke mit ${Math.floor(a.ruhestand.alter)} (heutige Euro)</span><b>${fmtEUR(a.ruhestand.lueckeReal)}/Mon.</b></div>` +
+        `<div><span>Passives Einkommen mit ${Math.floor(a.ruhestand.alter)}</span><b>${fmtEUR(a.ruhestand.passivReal)}/Mon.</b></div>`
+      : '') +
+    `<div><span>Mietobjekte netto am Ende${einheit}</span><b>${fmtEURSigniert(eur(a.cashflow))}/Mon.</b></div>` +
+    `<div><span>Sichere Entnahme ${fmtProzent((state.config.endgame.entnahmeRate || 0) * 100)} am Ende${einheit}</span><b>${fmtEURSigniert(eur(a.entnahme))}/Mon.</b></div>` +
     `<div><span>Finanzierungsquote</span><b>${Math.round(a.ltv * 100)} %</b></div>` +
     // Über zehn Jahre Deckung ist keine sinnvolle Monatsangabe mehr (vorher z. B. „955,2 Monate").
     `<div><span>Puffer für Objektpflichten</span><b>${a.deckungMonate > 120 ? 'über 10 Jahre' : `${a.deckungMonate.toFixed(1).replace('.', ',')} Monate`}</b></div>` +

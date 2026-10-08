@@ -76,7 +76,9 @@ for (const segment of Object.keys(state.config.segmente)) {
 }
 
 const positiveWohnungen = matrix.filter(({ listing, besterPfad }) => listing.objektart === 'wohnung' && besterPfad >= 0);
-check(positiveWohnungen.length >= 6,
+// Seit der Mietpreisbremse (Save v22) fallen Altbau-Wege in Berlin/Leipzig weg;
+// fünf Wohnungen über mehrere Märkte bleiben als „mehrere" Wege bestehen.
+check(positiveWohnungen.length >= 5,
   `mehrere Investmentwohnungen erreichen aktiv Break-even (${positiveWohnungen.map((z) => z.listing.id).join(', ')})`);
 check(pfadPositiv < matrix.length, 'keine Renditegarantie: nicht jedes Objekt wird positiv');
 

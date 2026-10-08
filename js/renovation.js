@@ -131,6 +131,9 @@ export function renovierungAbschluss(state, objekt) {
     if (i >= 0) objekt.energieklasse = ENERGIEKLASSEN[Math.max(0, i - stufe.energieBonus)];
   }
   if (stufe.wertBonus > 0) objekt.wertBonus = (objekt.wertBonus || 0) + stufe.wertBonus;
+  // Kumuliertes Modernisierungsvolumen (Euro des Spielstarts je m²): ab
+  // `mietpreisbremse.umfassendModernisiertM2` gilt die Mietpreisbremse nicht mehr.
+  objekt.modernisierungM2 = (objekt.modernisierungM2 || 0) + stufe.kostenM2;
 
   const risiko = Math.max(0,
     (state.config.renovierung.ueberziehungBasis +

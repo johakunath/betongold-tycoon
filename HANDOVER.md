@@ -41,18 +41,29 @@ zählte nur Mietobjekte; „Nur Miete/ETF" bekam dort immer 0 und lag im Schnitt
 Mieten; mit Mietprüfung mehr). Alle 13 Balance-Gates, Familienmarkt und
 5 Regressionen bei 300 Seeds grün.
 
-**Offen, braucht eine Owner-Entscheidung.**
-- Cashflow-Dimension ist am Lebensende für fast alle Strategien gesättigt;
-  dadurch liegen typische Gesamtscores bei 83–88 und das Urteil lautet oft
-  „robust". Optionen: Cashflow zum Rentenbeginn messen, Ziel anheben oder
-  Urteilsgrenzen neu setzen.
-- Berlin 10 % Kappung (DECISIONS 2026-07-15) weicht vom realen 15 % ab;
-  Mietpreisbremse bei Neuvermietung in Berlin/Leipzig ist nicht modelliert.
-- Familienbonus +8 für Eigentum ist eine Wertung zugunsten des Kaufens.
-- Kein Entnahmeplan: Mit 100 % ETF-Sparplan läuft das Tagesgeld im Ruhestand
-  in den Dispo (11 %), obwohl Millionen im Depot liegen.
-- Vermögensscore hängt weiter am zufälligen Lebensende (90–100 J.), real
-  aber schwächer als nominal.
+**Owner-Delegation umgesetzt (08.10.2026, alle sechs offenen Punkte).**
+1. Mietrecht: Berlin 15 % Kappung; Mietspiegel-Anker je Segment;
+   Mietpreisbremse in Berlin/Leipzig (`tenants.mietpreisbremse`,
+   `config.mietpreisbremse`), Erhöhungen bis Mietspiegel
+   (`erhoehungsObergrenze`); neue Stufe „Umfassende Modernisierung" und ein
+   entsprechender Finanzierungspfad. Gefundener Altfehler: Portfolio-Objekte
+   trugen kein Baujahr/Stil, Neubauten zählten als Bestand
+   (`market.stammdaten` + Felder in `kaufeObjekt`).
+2. Familie: kein Dauerbonus/keine Kinder-Event-Dämpfung für Eigentum; neues
+   Event `eigenbedarf-vermieter` (`nurMieter`, Effekt `haushaltsMiete`).
+3. Entnahmeregel (`etf.wendeEntnahmeregelAn`, Finanzen-Formular,
+   Ruhestands-Hinweis).
+4. Score „Rentenlücke gedeckt" über `state.ruhestandsCheck` (`passiv.js`).
+5. Vermögensscore mit 85 gegen 40 Start-Jahresnettos.
+6. Vergleichsläufe starten bei `state.startConfig` und spielen
+   Einstellungsänderungen (`state.adminVerlauf`) nach; sonst hätte ein
+   Event-geänderter Config-Wert (Familienmiete) schon ab Monat 0 gewirkt.
+
+Typische Gesamtscores (40 Seeds): Familie 81–84, Klassisch 74–83,
+Azubi 77–90, Schuldenberg 62–76; Rentenlücken-Score P10 55–84.
+Testanpassungen mit Begründung: B0 ≥ 5 statt ≥ 6 tragfähige Wohnungen,
+F-Turnaround ≥ 1 statt ≥ 4 Mietprüfungen (Mietspiegel deckelt), fünf
+Renovierungsstufen, Kappungs-Check auf 15 %/15 %/20 %.
 
 ## UI v60 — Bugfixes aus dem Gameplay-Review
 

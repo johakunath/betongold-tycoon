@@ -11,40 +11,12 @@ import { resolveEvent } from './events.js?v=60';
 import { advanceMonths, alterGenau, lebensstressIndex, nettovermoegen } from './engine.js?v=60';
 import { eigenheimEignung, fixkostenMonat, instandhaltungMonat } from './immobilie.js?v=60';
 import { initialisiereStartbestand } from './starter.js?v=60';
-import { etfVerkaufVorschau } from './etf.js?v=60';
+import { entnahmeCashflow, nachhaltigerCashflow } from './passiv.js?v=60';
+
+export { entnahmeCashflow, nachhaltigerCashflow };
 import { inHeutigenEuro, preisniveau } from './preisniveau.js?v=60';
 
 const clamp = (n, min = 0, max = 100) => Math.max(min, Math.min(max, n));
-
-export function nachhaltigerCashflow(state) {
-  const bw = state.config.bewirtschaftung;
-  const steuer = state.config.steuer;
-  let gesamt = 0;
-  for (const o of state.portfolio) {
-    if (!o.vermietet || o.renovierung) continue;
-    const miete = o.kaltmiete;
-    const hausgeld = fixkostenMonat(state, o, true);
-    const verwaltung = o.hausverwaltung ? o.kaltmiete * bw.hausverwaltungProzent : 0;
-    const ruecklage = instandhaltungMonat(state, o);
-    const rate = o.darlehen.restschuld > 0 ? o.darlehen.rate : 0;
-    const zins = o.darlehen.restschuld * o.darlehen.zins / 12;
-    const afa = (o.steuerBasisGebaeude || o.kaufpreis * steuer.gebaeudeAnteil) * steuer.afaSatz / 12;
-    const steuerMonat = Math.max(0, miete - hausgeld - verwaltung - zins - afa) * state.steuer.grenzsatz;
-    gesamt += miete - hausgeld - verwaltung - ruecklage - rate - steuerMonat;
-  }
-  return gesamt;
-}
-
-// Sichere Entnahme aus liquidem Vermögen (Tagesgeld + ETF netto nach
-// Verkaufssteuer) als passives Monatseinkommen. So kann auch eine Strategie
-// ohne Mietobjekt den Cashflow-Score erreichen (PLAN Säule 1).
-export function entnahmeCashflow(state) {
-  const rate = Number(state.config.endgame.entnahmeRate) || 0;
-  if (rate <= 0) return 0;
-  const depot = state.etfDepot?.wert || 0;
-  const etfNetto = depot > 0 ? (etfVerkaufVorschau(state, depot).netto || 0) : 0;
-  return rate * (Math.max(0, state.cash) + etfNetto) / 12;
-}
 
 export function berechneScores(state) {
   const cfg = state.config.endgame;
@@ -54,6 +26,30 @@ export function berechneScores(state) {
   // Ziele stehen in heutigen Euro (Spielstart); verglichen wird Kaufkraft.
   const vermoegenReal = inHeutigenEuro(state, vermoegen);
   const passiverCashflowReal = inHeutigenEuro(state, cashflow + entnahme);
+  // Vermögen wird an einem festen Alter bewertet, damit das zufällige
+  // Lebensende (90–100) den Score nicht verzerrt; die Bilanz zeigt trotzdem
+  // den Endstand.
+  const bewertungsAlter = cfg.vermoegenBewertungAlter ?? 85;
+  const bewertungsMonat = Math.round((bewertungsAlter - state.config.zeit.startAlter) * 12);
+  const bewertungsEintrag = bewertungsMonat > 0 ? state.historie[bewertungsMonat] : null;
+  const vermoegenBewertungReal = bewertungsEintrag
+    ? bewertungsEintrag.nettovermoegen / (bewertungsEintrag.preisniveau || 1)
+    : vermoegenReal;
+  // Ziel relativ zum Haushalt: Vielfaches des Start-Jahresnettos (nach
+  // geplanten Sprüngen wie dem Gesellenabschluss), damit jede Startlage
+  // dieselbe Chance auf einen guten Wert hat.
+  const startHaushalt = (state.startConfig || state.config).haushalt;
+  const sprungFaktor = (startHaushalt.einkommensSpruenge || []).reduce((f, s) => f * (s.faktor || 1), 1);
+  const startJahresnetto = (Number(startHaushalt.nettoEinkommenPerson1) || 0) + (Number(startHaushalt.nettoEinkommenPerson2) || 0);
+  const vermoegenZiel = startJahresnetto > 0 && cfg.vermoegenZielJahresnetto
+    ? cfg.vermoegenZielJahresnetto * startJahresnetto * 12 * sprungFaktor
+    : cfg.nettovermoegenZiel;
+  // Passives Einkommen zum Rentenbeginn gegen die Rentenlücke (letztes
+  // Erwerbsnetto − Rente). Ohne Ruhestand im Lauf: Endstand gegen cashflowZiel.
+  const ruhestand = state.ruhestandsCheck || null;
+  const cashflowScore = ruhestand
+    ? (ruhestand.lueckeReal <= 0 ? 100 : clamp(ruhestand.passivReal / ruhestand.lueckeReal * 100))
+    : clamp(passiverCashflowReal / cfg.cashflowZiel * 100);
   const objekte = [...state.portfolio, ...(state.eigenheim ? [state.eigenheim] : [])];
   const wert = objekte.reduce((s, o) => s + fairerWert(state, o), 0);
   const schuld = objekte.reduce((s, o) => s + o.darlehen.restschuld, 0);
@@ -82,8 +78,8 @@ export function berechneScores(state) {
   const ruhestandsdauer = Math.max(0, lebensalter - state.config.zeit.rentenAlter);
 
   const scores = {
-    vermoegen: clamp(vermoegenReal / cfg.nettovermoegenZiel * 100),
-    cashflow: clamp(passiverCashflowReal / cfg.cashflowZiel * 100),
+    vermoegen: clamp(vermoegenBewertungReal / vermoegenZiel * 100),
+    cashflow: cashflowScore,
     resilienz: (ltvScore + reserveScore) / 2,
     stress: stressScore,
     familie: clamp((state.familienzufriedenheit + familieSchnitt) / 2),
@@ -93,6 +89,10 @@ export function berechneScores(state) {
     scores,
     vermoegen,
     vermoegenReal,
+    vermoegenBewertungReal,
+    vermoegenZiel,
+    bewertungsAlter: bewertungsEintrag ? bewertungsAlter : null,
+    ruhestand,
     cashflow,
     entnahme,
     passiverCashflowReal,
@@ -153,7 +153,7 @@ function simuliereStrategie(original, strategie) {
     seedText: original.seedText,
     seedWert: original.seed,
   });
-  sim.config = structuredClone(original.config);
+  sim.config = structuredClone(original.startConfig ?? original.config);
   // Alle Referenzstrategien laufen exakt bis zum Lebensende des Spielers. So
   // vergleicht der Chart Entscheidungen statt unterschiedlicher Todeszeitpunkte.
   const vergleichsEndAlter = sim.config.zeit.startAlter + original.monat / 12;
@@ -183,6 +183,9 @@ function simuliereStrategie(original, strategie) {
     // dieselbe Aufteilungshistorie hat und die Zerlegung sauber bleibt.
     const anteil = original.historie[sim.monat + 1]?.sparplanEtfAnteil;
     if (Number.isFinite(anteil)) sim.config.haushalt.sparplanEtfAnteil = anteil;
+    // Einstellungsänderungen im selben Monat wie im Original anwenden.
+    const einstellung = (original.adminVerlauf || []).find((eintrag) => eintrag.monat === sim.monat);
+    if (einstellung) sim.adminPending = { werte: structuredClone(einstellung.werte) };
     advanceMonths(sim, 1, auto);
     linie.push({ monat: sim.monat, wert: nettovermoegen(sim) });
   }

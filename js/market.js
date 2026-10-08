@@ -150,9 +150,18 @@ export function angebotsPreis(state, id) {
 
 // Vergleichsmiete (kalt, €/Monat): Segmentanker in Euro des Spielstarts,
 // fortgeschrieben mit dem Preisniveau (ECONOMY_MODEL §1a, §15).
+// Stammdaten (Baujahr, Stil) eines Listings oder eines daraus gekauften
+// Objekts; ältere Objekte ohne diese Felder lesen sie aus dem Katalog.
+export function stammdaten(objekt) {
+  if (objekt?.baujahr !== undefined) return objekt;
+  const listing = objekt?.listingId ? getListing(objekt.listingId) : null;
+  return listing ? { ...listing, ...objekt, baujahr: listing.baujahr, stil: listing.stil } : objekt;
+}
+
 export function vergleichsmiete(state, listing) {
   const segment = state.config.segmente[listing.segment];
-  const istNeubau = listing.stil === 'neubau' || Number(listing.baujahr) >= 2020;
+  const daten = stammdaten(listing);
+  const istNeubau = daten.stil === 'neubau' || Number(daten.baujahr) >= 2020;
   const mieteM2 = istNeubau && Number.isFinite(segment.neubauMieteM2)
     ? segment.neubauMieteM2
     : segment.vergleichsmieteM2;

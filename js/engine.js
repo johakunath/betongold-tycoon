@@ -11,6 +11,8 @@ import { tickVerkaeufe } from './verkauf.js?v=60';
 import { wendeAdminPendingAn } from './admin.js?v=60';
 import { hatWartemoment, verwerfeWartemomente } from './signals.js?v=60';
 import { verbucheKapitalertrag } from './kapitalsteuer.js?v=60';
+import { wendeEntnahmeregelAn } from './etf.js?v=60';
+import { entnahmeCashflow, nachhaltigerCashflow } from './passiv.js?v=60';
 import { arbeitsmodell, aktualisiereLebensphasen, zeitbudgetMonat } from './life.js?v=60';
 import { tickObjektArcs } from './arcs.js?v=60';
 import { tickPreisniveau } from './preisniveau.js?v=60';
@@ -250,7 +252,10 @@ export function tick(state) {
     state.lebensende.rentenbeginnGeloggt = true;
     state.log.push({
       monat: state.monat,
-      text: `Ruhestand: Das Haushalts-Netto sinkt auf ${Math.round(state.config.haushalt.rentenNettoFaktor * 100)} % des fortgeschriebenen Erwerbsnettos.`,
+      text: `Ruhestand: Das Haushalts-Netto sinkt auf ${Math.round(state.config.haushalt.rentenNettoFaktor * 100)} % des fortgeschriebenen Erwerbsnettos. ` +
+        (state.config.kapital.entnahme?.aktiv
+          ? `Die Entnahmeregel hält das Tagesgeld über ${state.config.kapital.entnahme.mindestpufferMonate.toLocaleString('de-DE')} Monatsausgaben (Finanzen).`
+          : 'Die Entnahmeregel ist aus; bei leerem Tagesgeld greift der Dispo (Finanzen).'),
     });
   }
 
@@ -299,6 +304,22 @@ export function tick(state) {
   state.etfDepot.einstandGesamt += w.etfEinzahlung;
   const etf = state.etfVergleich;
   etf.wert = Math.max(0, etf.wert * (1 + etfRendite) + w.etfSparrate);
+
+  // Entnahmeregel nach der Monatsrendite: ein Transfer Depot → Tagesgeld,
+  // verändert weder Cashflow noch RNG. Einmal je Kalenderjahr ins Log.
+  const entnommen = wendeEntnahmeregelAn(state, w.miete + w.lebenshaltung + w.kinder);
+  state.letzteEntnahme = entnommen;
+  if (entnommen > 0) {
+    const jahr = state.config.zeit.startJahr + Math.floor((state.config.zeit.startMonat - 1 + state.monat) / 12);
+    if (state.entnahmeLogJahr !== jahr) {
+      state.entnahmeLogJahr = jahr;
+      state.log.push({
+        monat: state.monat,
+        kategorie: 'Finanzen',
+        text: `Entnahmeregel: ETF-Anteile verkauft (${Math.round(entnommen).toLocaleString('de-DE')} € netto in diesem Monat), damit das Tagesgeld nicht in den Dispo fällt.`,
+      });
+    }
+  }
 
   // Zeitbudget monatlich frisch; Überzug erzeugt Familien-Stress (§19).
   state.zeitbudget.verfuegbar = zeitbudgetMonat(state);
@@ -361,6 +382,28 @@ export function tick(state) {
     // Im Monat genutzter Sparplan-Anteil; Vergleichsläufe spielen ihn nach.
     sparplanEtfAnteil: w.sparplanEtfAnteil,
   });
+
+  // Einmaliger Ruhestands-Check im ersten Rentenmonat: passives Einkommen
+  // gegen die Rentenlücke (letztes Erwerbsnetto − Rente), in heutigen Euro.
+  if (w.imRuhestand && !state.ruhestandsCheck) {
+    const pn = state.preisniveau || 1;
+    const objekte = nachhaltigerCashflow(state);
+    const entnahme = entnahmeCashflow(state);
+    state.ruhestandsCheck = {
+      monat: state.monat,
+      alter: alterGenau(state),
+      objekteReal: objekte / pn,
+      entnahmeReal: entnahme / pn,
+      passivReal: (objekte + entnahme) / pn,
+      lueckeReal: Math.max(0, w.erwerbsEinkommen - w.einkommen) / pn,
+    };
+    state.log.push({
+      monat: state.monat,
+      kategorie: 'Finanzen',
+      text: `Ruhestands-Check: passives Einkommen ${Math.round(objekte + entnahme).toLocaleString('de-DE')} €/Monat ` +
+        `gegen eine Rentenlücke von ${Math.round(Math.max(0, w.erwerbsEinkommen - w.einkommen)).toLocaleString('de-DE')} €/Monat.`,
+    });
+  }
 
   const lebensende = lebensendeVorschau(state);
   Object.assign(state.lebensende, lebensende);

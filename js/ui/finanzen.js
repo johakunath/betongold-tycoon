@@ -32,6 +32,12 @@ export function initFinanzen(context) {
     ctx.sparplanSetzen(Number(sparplan.value) / 100);
   });
 
+  const entnahme = document.getElementById('form-entnahme');
+  entnahme.addEventListener('submit', (event) => {
+    event.preventDefault();
+    ctx.entnahmeSetzen(entnahme.elements.aktiv.checked, Number(entnahme.elements.monate.value));
+  });
+
 }
 
 export function renderFinanzen(state) {
@@ -93,6 +99,12 @@ export function renderFinanzen(state) {
   text('fin-etf-rate', fmtEUR(werte.etfEinzahlung));
   renderTransferVorschau(state);
 
+  const entnahme = document.getElementById('form-entnahme');
+  if (entnahme && !entnahme.contains(document.activeElement)) {
+    const regel = state.config.kapital?.entnahme || { aktiv: false, mindestpufferMonate: 0 };
+    entnahme.elements.aktiv.checked = !!regel.aktiv;
+    entnahme.elements.monate.value = String(regel.mindestpufferMonate ?? 0);
+  }
   const sparplan = document.getElementById('fin-sparplan');
   if (document.activeElement !== sparplan) {
     sparplan.value = String(Math.round((state.config.haushalt.sparplanEtfAnteil || 0) * 100));

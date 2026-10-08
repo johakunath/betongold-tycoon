@@ -242,7 +242,13 @@
         <div class="sparplan-aufteilung"><span id="fin-sparplan-cash">—</span><span id="fin-sparplan-etf">—</span></div>
         <button type="submit">Sparplan übernehmen</button>
       </form>
-      <p class="hinweis">Bei negativer Haushaltssparrate wird nichts investiert; ETF-Anteile werden nicht automatisch verkauft.</p>
+      <p class="hinweis">Bei negativer Haushaltssparrate wird nichts investiert.</p>
+      <form id="form-entnahme" class="entnahme-regel">
+        <label class="entnahme-schalter"><input type="checkbox" name="aktiv"> Entnahmeregel: ETF verkaufen statt Dispo</label>
+        <label>Tagesgeld nicht unter <input type="number" name="monate" min="0" max="24" step="0.5" inputmode="decimal"> Monatsausgaben</label>
+        <button type="submit">Regel übernehmen</button>
+        <p class="hinweis" id="fin-entnahme-hinweis">Fällt das Tagesgeld darunter, verkauft das Spiel ETF-Anteile; realisierte Gewinne werden versteuert. Wichtig vor allem im Ruhestand.</p>
+      </form>
     </section>
   </section>
 

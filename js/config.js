@@ -233,6 +233,10 @@ export const DEFAULT_CONFIG = {
     tagesgeldZins: 0.015,   // p.a.; Default-Preset „heute“ überschreibt auf 2 %
     etfRendite: 0.065,      // p.a. nominal erwartet, Welt-ETF (Benchmark-Linie, Design-Säule 4)
     etfVolatilitaet: 0.15,  // p.a. Standardabweichung Welt-ETF
+    // Entnahmeregel (ECONOMY_MODEL §4b): Sicherheitsnetz gegen den Dispo. Unter
+    // dieser Untergrenze verkauft das Spiel ETF-Anteile (mit Steuer). In
+    // Finanzen einstellbar; 0 Monate oder aus = kein automatischer Verkauf.
+    entnahme: { aktiv: true, mindestpufferMonate: 1 },
   },
 
   // Gemeinsamer deutscher Kapitalertragsteuer-Topf. Der Pauschbetrag gilt
@@ -270,6 +274,7 @@ export const DEFAULT_CONFIG = {
       preisM2: 5800,           // €/m² Bestand, Index-Start
       vergleichsmieteM2: 19.22, // Angebotsmiete 2025; innerer Stadtraum
       neubauMieteM2: 19.97,     // Berliner Angebotsmiete Neubau 2025
+      mietspiegelM2: 8.0,       // ortsübliche Vergleichsmiete (Näherung; Berliner Mietspiegel 2024 Ø 7,21 €/m², Innenstadt darüber)
       drift: { boom: 0.04, seitwaerts: 0.025, crash: -0.01 },
       sigmaMonat: 0.004,       // Monats-Rauschen auf den Index
     },
@@ -279,6 +284,7 @@ export const DEFAULT_CONFIG = {
       preisM2: 3800,
       vergleichsmieteM2: 13.01, // Angebotsmiete 2025; äußerer Stadtraum
       neubauMieteM2: 19.97,     // Berliner Angebotsmiete Neubau 2025
+      mietspiegelM2: 7.0,       // ortsübliche Vergleichsmiete (Näherung; Berliner Mietspiegel 2024 Ø 7,21 €/m²)
       drift: { boom: 0.03, seitwaerts: 0.02, crash: -0.015 },
       sigmaMonat: 0.005,
     },
@@ -287,6 +293,7 @@ export const DEFAULT_CONFIG = {
       stadt: 'leipzig',
       preisM2: 2500,
       vergleichsmieteM2: 10.4, // ~5 % Bruttorendite
+      mietspiegelM2: 6.8,      // ortsübliche Vergleichsmiete (Näherung; Mieterverein Ø 6,56 €/m², Spanne 6,50–10 €/m²)
       drift: { boom: 0.03, seitwaerts: 0.015, crash: -0.025 },
       sigmaMonat: 0.006,       // mehr Streuung, mehr Risiko
     },
@@ -295,6 +302,7 @@ export const DEFAULT_CONFIG = {
       stadt: 'meissen',
       preisM2: 1900,
       vergleichsmieteM2: 6.4,
+      mietspiegelM2: 6.4,      // Meißner Mietspiegel 2025–2027; hier entspricht die Marktmiete dem Mietspiegel
       drift: { boom: 0.025, seitwaerts: 0.01, crash: -0.025 },
       sigmaMonat: 0.006,
     },
@@ -488,14 +496,14 @@ export const DEFAULT_CONFIG = {
   // mieterfreundlich; Leipzig bleibt reguliert, aber etwas beweglicher.
   mietrecht: {
     berlin: {
-      label: 'Berlin · sehr mieterfreundlich',
+      label: 'Berlin · Mietpreisbremse und 15-%-Kappung',
       kurz: 'strenge Mietregeln',
-      kappungProzent: 0.10,
+      kappungProzent: 0.15,     // Berliner Kappungsgrenzen-Verordnung, gültig bis 10.05.2028
       kappungMonate: 36,
       mieterhoehungUnzufriedenheit: 0.35,
     },
     leipzig: {
-      label: 'Leipzig · moderater reguliert',
+      label: 'Leipzig · Mietpreisbremse und 15-%-Kappung',
       kurz: 'moderate Mietregeln',
       kappungProzent: 0.15,
       kappungMonate: 36,
@@ -510,6 +518,18 @@ export const DEFAULT_CONFIG = {
     },
   },
 
+  // Mietpreisbremse bei Neuvermietung (§ 556d BGB, ECONOMY_MODEL §15a): höchstens
+  // ortsübliche Vergleichsmiete + 10 %. Ausgenommen sind Erstvermietungen nach
+  // Oktober 2014 (vereinfacht: Baujahr ab 2015), umfassend modernisierte Objekte
+  // und eine höhere Vormiete. Annahme: Die Regel gilt über die ganze Spielzeit
+  // fort (rechtlich derzeit Berlin bis längstens Ende 2029, Leipzig bis 30.06.2027).
+  mietpreisbremse: {
+    staedte: { berlin: true, leipzig: true, meissen: false },
+    aufschlag: 0.10,
+    neubauAbBaujahr: 2015,
+    umfassendModernisiertM2: 1000, // € Renovierungsvolumen/m² (Euro des Spielstarts) ≈ ⅓ Neubaukosten
+  },
+
   // --- Phase 3: Renovierung (ECONOMY_MODEL §17) -------------------------------
   renovierung: {
     kostenFaktor: 1,           // profilspezifische handwerkliche Eigenleistung
@@ -520,6 +540,9 @@ export const DEFAULT_CONFIG = {
       kuecheBad:   { label: 'Küche & Bad', kostenM2: 450, dauer: 4, zustandZiel: 4, maxZustand: 5, wertBonus: 0, energieBonus: 0 },
       grundriss:   { label: 'Grundriss', kostenM2: 800, dauer: 6, zustandZiel: 5, maxZustand: 5, wertBonus: 0.05, energieBonus: 0 },
       energetisch: { label: 'Energetisch', kostenM2: 600, dauer: 5, zustandZiel: '+1', maxZustand: 5, wertBonus: 0, energieBonus: 2 },
+      // Grundriss + Energetik in einem Paket; überschreitet allein die Schwelle
+      // der umfassenden Modernisierung und hebt damit die Mietpreisbremse auf.
+      umfassend:   { label: 'Umfassende Modernisierung', kostenM2: 1400, dauer: 9, zustandZiel: 5, maxZustand: 5, wertBonus: 0.05, energieBonus: 2 },
     },
     ueberziehungBasis: 0.1,      // Grund-Überziehungsrisiko
     ueberziehungJeZustand: 0.06, // je Stufe unter 5 mehr Risiko (schlechter Zustand → mehr Überraschungen)
@@ -575,8 +598,8 @@ export const DEFAULT_CONFIG = {
     minZimmer: 3,                // vierköpfige Familie: 1-/2-Zimmer-Wohnungen sind kein Eigenheim-Ausweg
     minFamilienScore: 3,         // nur ausdrücklich familiengeeignete Objekte sind als Eigenheim wählbar
     familieSofortBonus: 6,       // einmaliger Stabilitäts-/Ankommensbonus beim Einzug
-    familieNeutralBonus: 8,      // höheres langfristiges Zufriedenheits-Ziel
-    kinderEventMalusFaktor: 0.6, // negative Kinder-Event-Folgen werden abgemildert
+    familieNeutralBonus: 0,      // kein pauschaler Dauerbonus mehr: Mieten trägt eigene Risiken (Eigenbedarf), Eigentum eigene Lasten
+    kinderEventMalusFaktor: 1.0, // Eigentum mildert Kinder-Events nicht pauschal ab
     verkaufFamilieMalus: 6,      // Eigenheimverkauf kostet Stabilität
   },
 
@@ -596,7 +619,9 @@ export const DEFAULT_CONFIG = {
   },
 
   endgame: {
-    nettovermoegenZiel: 5000000, // heutige Euro (Spielstart); entspricht ~15 Mio. nominal nach 55 Jahren mit 2 %
+    vermoegenBewertungAlter: 85, // Vermögensscore an festem Alter, nicht am zufälligen Lebensende
+    vermoegenZielJahresnetto: 40, // Vermögensziel = 40 × Start-Jahresnetto (inkl. geplanter Einkommenssprünge), heutige Euro
+    nettovermoegenZiel: 5000000, // Rückfall, falls kein Starteinkommen vorliegt
     cashflowZiel: 2000,          // heutige Euro/Monat; Primärziel aus PLAN §2
     entnahmeRate: 0.035,         // sichere Entnahme p.a. aus Tagesgeld + ETF (netto) zählt als passiver Cashflow; 0 = nur Mietobjekte
     ltvVollScore: 0.40,          // bis 40 % LTV volle Resilienz-Punkte

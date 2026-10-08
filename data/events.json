@@ -156,6 +156,18 @@
     ]
   },
   {
+    "id": "eigenbedarf-vermieter",
+    "titel": "Eigenbedarf: Euer Vermieter kündigt",
+    "text": "Euer Vermieter meldet Eigenbedarf für eure Wohnung an. Nach der Kündigungsfrist müsst ihr ausziehen; ein neuer Vertrag liegt beim heutigen Mietniveau.",
+    "kategorie": "haushalt",
+    "gewicht": 0.6,
+    "bedingung": { "einmalig": false, "cooldownMonate": 120, "nurMieter": true },
+    "optionen": [
+      { "text": "Gleich große Wohnung suchen (ca. 5.000 € Umzug, Miete +15 %)", "effekt": { "cash": -5000, "familie": -4, "haushaltsMiete": 0.15 }, "folge": "Gleiche Größe, neue Nachbarschaft; der neue Vertrag kostet spürbar mehr." },
+      { "text": "Kleiner wohnen (ca. 3.500 € Umzug, Miete bleibt)", "effekt": { "cash": -3500, "familie": -8 }, "folge": "Die Miete bleibt im Rahmen, aber es wird enger und der Alltag holpriger." }
+    ]
+  },
+  {
     "id": "job-angebot",
     "titel": "Jobwechsel mit Bonus, aber mehr Stress",
     "text": "Einer von euch bekommt ein Jobangebot mit Wechselbonus – aber auch deutlich mehr Verantwortung und Reisen. Das Modell verbucht nur den Bonus, keine dauerhafte Gehaltsänderung.",

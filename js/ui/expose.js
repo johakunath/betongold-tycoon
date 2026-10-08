@@ -11,6 +11,7 @@ import { dealEntscheidung, pruefstand } from '../gameplay.js?v=60';
 import { bildHTML, cutawayHTML } from '../iso.js?v=60';
 import { fmtEUR, fmtProzent } from './util.js?v=60';
 import { aktuellerBetrag, preisniveau } from '../preisniveau.js?v=60';
+import { mietpreisbremse } from '../tenants.js?v=60';
 import { oeffneFinanzierung } from './finanzierung.js?v=60';
 import { eigenheimEignung, fixkostenAufschluesselung, instandhaltungMonat, objektartConfig } from '../immobilie.js?v=60';
 
@@ -64,6 +65,7 @@ export function renderExpose(state, voll = false) {
   const reserviert = eintrag && eintrag.status === 'reserviert';
   letzterStatus = eintrag?.status || null;
   const vm = Math.round(vergleichsmiete(state, l));
+  const bremse = mietpreisbremse(state, l);
   const interessenten = eintrag ? Math.round(eintrag.konkurrenz * 5) : 0;
   const eignung = eigenheimEignung(state, l);
   const kosten = fixkostenAufschluesselung(l, preisniveau(state));
@@ -87,7 +89,10 @@ export function renderExpose(state, voll = false) {
     `<tr><td>Baujahr</td><td>${l.baujahr}</td></tr>` +
     `<tr><td>Zustand (Eindruck)</td><td>${ZUSTAND_TEXT[l.zustand]}</td></tr>` +
     `<tr><td>Mietstatus</td><td>${mietstatusText(state, l)}</td></tr>` +
-    `<tr><td>Vergleichsmiete (Schätzung)</td><td>${fmtEUR(vm)}/Monat</td></tr>` +
+    `<tr><td>Angebotsmiete (Schätzung)</td><td>${fmtEUR(vm)}/Monat</td></tr>` +
+    (bremse.gilt
+      ? `<tr><td>Mietpreisbremse</td><td>Neuvermietung höchstens ${fmtEUR(Math.round(bremse.obergrenze))}/Monat (Mietspiegel + 10 %)</td></tr>`
+      : '') +
     (l.mietstatus.vermietet && preis
       ? `<tr><td>Bruttorendite</td><td data-live="rendite">${fmtProzent(((angebotsBestandsmiete(state, l) * 12) / preis) * 100)}</td></tr>`
       : '') +

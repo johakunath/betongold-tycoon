@@ -4,7 +4,7 @@
 
 import { getTenant } from '../content.js?v=60';
 import {
-  angesetzteMiete, marktmiete, starteVermietung, waehleBewerber,
+  angesetzteMiete, marktmiete, mietpreisbremse, starteVermietung, waehleBewerber,
   vermietungsmodell,
 } from '../tenants.js?v=60';
 import { fmtEUR } from './util.js?v=60';
@@ -63,9 +63,14 @@ function renderNiveauWahl(state, o) {
       `<span><b>${modell.label}</b><small>${modell.kurz}</small><small>${modell.aufschlag ? `+${Math.round(modell.aufschlag * 100)} % Mietansatz · ` : ''}${modell.moebelKosten ? `${fmtEUR(Math.round(aktuellerBetrag(state, modell.moebelKosten)))} Einrichtung · ` : ''}${risikoText}</small></span></label>`;
   }).join('');
 
+  const bremse = mietpreisbremse(state, o);
   document.getElementById('bewerber-inhalt').innerHTML =
-    `<p class="muted">Reguläre Vergleichsmiete für diesen Zustand: <b>${fmtEUR(markt)}</b> kalt. ` +
+    `<p class="muted">Marktübliche Angebotsmiete für diesen Zustand: <b>${fmtEUR(markt)}</b> kalt. ` +
     `Mietniveau steuert Nachfrage; der Vermietungsweg verändert Ertrag, Aufwand, Wechsel und Rechtsrisiko.</p>` +
+    (bremse.gilt
+      ? `<p class="mietmodell-recht"><b>Mietpreisbremse:</b> Neuvermietung höchstens ${fmtEUR(Math.round(bremse.obergrenze))} kalt ` +
+        `(${bremse.grund}). Eine umfassende Modernisierung oder ein Neubau ab 2015 ist ausgenommen.</p>`
+      : '') +
     `<h3 class="dialog-zwischentitel">1. Vermietungsweg</h3><div class="modell-optionen">${modelle}</div>` +
     `<p class="mietmodell-recht"><b>${state.config.mietrecht?.[stadt]?.label || 'Standard-Mietrecht'}:</b> ` +
     `${stadt === 'berlin' ? 'Möblierung und Befristung sind kein automatischer Ausweg aus dem Mietrecht; Prüfungen können teuer werden.' : stadt === 'leipzig' ? 'Reguliert, aber im Spiel weniger restriktiv als Berlin.' : 'Geringerer Nachfragedruck und weniger Restriktion, dafür schwächere Mietaufschläge und Nachfrage.'}</p>` +

@@ -8,7 +8,9 @@ import { getListing } from './content.js?v=60';
 import { monatsWerte } from './engine.js?v=60';
 import { fairerWert, angebotsBestandsmiete } from './market.js?v=60';
 import { aktuellerBetrag } from './preisniveau.js?v=60';
-import { angesetzteMiete, marktmiete, mieterMonat, neueBewerber } from './tenants.js?v=60';
+import {
+  angesetzteMiete, erhoehungsObergrenze, mieterMonat, mietpreisbremse, neueBewerber,
+} from './tenants.js?v=60';
 import { renovierungAbschluss, renovierungsOptionen } from './renovation.js?v=60';
 import { meldeWartemoment } from './signals.js?v=60';
 import { protokolliereWirkung, pruefstand } from './gameplay.js?v=60';
@@ -295,7 +297,7 @@ export function finanzierungsCashflowPfade(state, angebot) {
     });
     const recht = state.config.mietrecht[stadt];
     const rechtssicher = Math.floor(Math.min(
-      marktmiete(state, listing),
+      erhoehungsObergrenze(state, listing),
       bestandsmiete * (1 + recht.kappungProzent)
     ));
     if (rechtssicher > bestandsmiete + 1) {
@@ -317,11 +319,17 @@ export function finanzierungsCashflowPfade(state, angebot) {
     const fuegeVermietungHinzu = (objekt, modellId, renovierung = null) => {
       const modell = state.config.mieter.vermietungsmodelle[modellId];
       const aktionen = [];
-      if (renovierung) aktionen.push(`Kosmetisch renovieren (${renovierung.schaetzung.toLocaleString('de-DE')} €, ${renovierung.dauer} Mon.)`);
+      const umfassend = renovierung?.id === 'umfassend';
+      if (renovierung) {
+        aktionen.push(`${umfassend ? 'Umfassend modernisieren' : 'Kosmetisch renovieren'} ` +
+          `(${renovierung.schaetzung.toLocaleString('de-DE')} €, ${renovierung.dauer} Mon.)`);
+      }
       aktionen.push(modell.label);
       fuegePfadHinzu({
-        id: `${renovierung ? 'kosmetisch-' : ''}${modellId}`,
-        label: renovierung ? `Nach Renovierung · ${modell.label}` : modell.label,
+        id: `${renovierung ? `${renovierung.id}-` : ''}${modellId}`,
+        label: renovierung
+          ? `${umfassend ? 'Nach Modernisierung ohne Mietpreisbremse' : 'Nach Renovierung'} · ${modell.label}`
+          : modell.label,
         miete: angesetzteMiete(state, objekt, 'auf', modellId),
         aktionen,
         risiko: modellRisiko[modellId],
@@ -337,6 +345,22 @@ export function finanzierungsCashflowPfade(state, angebot) {
     if (kosmetisch) {
       const nachRenovierung = { ...listing, zustand: kosmetisch.zielZustand };
       for (const modellId of modelle) fuegeVermietungHinzu(nachRenovierung, modellId, kosmetisch);
+    }
+
+    // Unter der Mietpreisbremse ist die umfassende Modernisierung der legale
+    // Weg zur Marktmiete: hoher Einmalbetrag, danach reguläre Vermietung.
+    if (mietpreisbremse(state, listing).gilt) {
+      const umfassend = renovierungsOptionen(state, listing)
+        .find((option) => option.id === 'umfassend' && option.moeglich);
+      if (umfassend) {
+        const stufe = state.config.renovierung.stufen.umfassend;
+        const modernisiert = {
+          ...listing,
+          zustand: umfassend.zielZustand,
+          modernisierungM2: (listing.modernisierungM2 || 0) + stufe.kostenM2,
+        };
+        fuegeVermietungHinzu(modernisiert, 'regulaer', umfassend);
+      }
     }
   }
 
@@ -412,6 +436,8 @@ export function kaufeObjekt(state, angebot) {
     flaeche: listing.flaeche,
     lageScore: listing.lageScore,
     zustand: listing.zustand,
+    baujahr: listing.baujahr,
+    stil: listing.stil,
     gekauftMonat: state.monat,
     kaufpreis: angebot.kaufpreis,
     nebenkosten: angebot.nebenkosten.summe,

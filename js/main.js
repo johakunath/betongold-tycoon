@@ -28,7 +28,7 @@ import { initStrategy } from './ui/strategy.js?v=60';
 import { initKarte, renderKarte } from './ui/karte.js?v=60';
 import { initTutorial } from './ui/tutorial.js?v=60';
 import { initFinanzen, renderFinanzen } from './ui/finanzen.js?v=60';
-import { kaufeEtf, setzeSparplanEtfAnteil, verkaufeEtf } from './etf.js?v=60';
+import { kaufeEtf, setzeEntnahmeregel, setzeSparplanEtfAnteil, verkaufeEtf } from './etf.js?v=60';
 import { zieheWartemomente } from './signals.js?v=60';
 import { initialisiereStartbestand } from './starter.js?v=60';
 import { pruefeRatgeber } from './ratgeber.js?v=60';
@@ -190,6 +190,21 @@ const app = {
     return true;
   },
 
+  entnahmeSetzen(aktiv, monate) {
+    if (!state) return false;
+    const ergebnis = setzeEntnahmeregel(state, aktiv, monate);
+    if (!ergebnis.ok) {
+      toast('Bitte 0 bis 24 Monate wählen.');
+      return false;
+    }
+    autosave(true);
+    render();
+    toast(ergebnis.aktiv
+      ? `Entnahmeregel: Tagesgeld bleibt über ${ergebnis.mindestpufferMonate.toLocaleString('de-DE')} Monatsausgaben.`
+      : 'Entnahmeregel aus: Bei leerem Tagesgeld greift der Dispo.');
+    return true;
+  },
+
   sparplanSetzen(anteil) {
     if (!state) return false;
     const ergebnis = setzeSparplanEtfAnteil(state, anteil);
@@ -280,6 +295,7 @@ const ctx = {
   etfVerkaufen: (betrag) => app.etfVerkaufen(betrag),
   etfKaufen: (betrag) => app.etfKaufen(betrag),
   sparplanSetzen: (anteil) => app.sparplanSetzen(anteil),
+  entnahmeSetzen: (aktiv, monate) => app.entnahmeSetzen(aktiv, monate),
 };
 
 initShell(app);
