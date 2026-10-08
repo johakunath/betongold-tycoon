@@ -80,8 +80,11 @@ assert.equal(zinsArc.aktivesEvent.eventId, 'arc-zinsplanung');
 const schuldVor = zinsArc.portfolio[0].darlehen.restschuld;
 const cashZinsVor = zinsArc.cash;
 resolveEvent(zinsArc, 0);
-assert.equal(zinsArc.portfolio[0].darlehen.restschuld, schuldVor - 5000);
-assert.equal(zinsArc.cash, cashZinsVor - 5000);
+// Eventbeträge stehen in Euro des Spielstarts; nach 12 Monaten gilt das Preisniveau.
+const sondertilgungNominal = Math.round(5000 * zinsArc.preisniveau);
+assert.ok(zinsArc.preisniveau > 1.019 && zinsArc.preisniveau < 1.021);
+assert.equal(zinsArc.portfolio[0].darlehen.restschuld, schuldVor - sondertilgungNominal);
+assert.equal(zinsArc.cash, cashZinsVor - sondertilgungNominal);
 
 // H: Arbeitsmodelle verbinden dauerhaft Einkommen, Zeit und Familienziel.
 const arbeit = newGame({ seedText: 'gh-arbeit' });

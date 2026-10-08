@@ -116,7 +116,11 @@ weder überlappen noch aus dem Viewport laufen.
 UI v60 behebt die Befunde des Gameplay-Reviews: Events prüfen Kindesalter,
 Auto und Ruhestand, Kindergeld endet mit 25, der Finanzierungsdialog lässt
 einen Restpuffer, und das Exposé beginnt wieder bei der Prüfung.
-Aktuell: `SAVE_VERSION = 21`, `UI_VERSION = 60`.
+Save v22 setzt Arbeitspaket D um: ein Preisniveauindex (2 %) schreibt Mieten,
+Objektkosten und Eventbeträge fort, Scores rechnen in heutigen Euro, sichere
+Entnahme zählt als passiver Cashflow, und die Endauswertung zerlegt den
+ETF-Abstand über eine Linie „Ohne Käufe".
+Aktuell: `SAVE_VERSION = 22`, `UI_VERSION = 60`.
 
 Das Spiel ist öffentlich gehostet:
 <https://johakunath.github.io/betongold-tycoon/> (GitHub Pages aus `main`).

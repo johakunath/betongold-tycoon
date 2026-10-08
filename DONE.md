@@ -3,6 +3,14 @@
 Kompaktes, chronologisches Log. Ältere Einträge sind verdichtet; Details
 bleiben in `DECISIONS.md` und den Fachdocs nachvollziehbar.
 
+## 2026-10-08
+
+- **Save v22 — Arbeitspaket D (Inflation/heutige Euro) und faire
+  Endauswertung.** Kumulativer Preisniveauindex (2 %) für Mieten, Objektkosten,
+  Renovierung, Mängel und Events; Scores in heutigen Euro; sichere Entnahme
+  zählt als passiver Cashflow; fünfte Linie „Ohne Käufe" mit Zerlegung des
+  ETF-Abstands; Umschalter nominal/heutige Euro. Details in `HANDOVER.md`.
+
 ## 2026-10-07
 
 - **UI v60 — Bugfixes aus dem Gameplay-Review.** Haushaltsbedingungen für

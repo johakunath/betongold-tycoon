@@ -13,6 +13,7 @@ import { hatWartemoment, verwerfeWartemomente } from './signals.js?v=60';
 import { verbucheKapitalertrag } from './kapitalsteuer.js?v=60';
 import { arbeitsmodell, aktualisiereLebensphasen, zeitbudgetMonat } from './life.js?v=60';
 import { tickObjektArcs } from './arcs.js?v=60';
+import { tickPreisniveau } from './preisniveau.js?v=60';
 
 const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
 
@@ -313,6 +314,8 @@ export function tick(state) {
   state.familienzufriedenheit = Math.max(0, Math.min(100, fz));
 
   state.monat += 1;
+  // Preise des neuen Monats; danach berechnete Kosten und Mieten nutzen ihn.
+  tickPreisniveau(state);
   // Zu Beginn jedes neuen Kalenderjahres erinnert die Bank einmal je offenem
   // Darlehen an das vertragliche Sondertilgungsfenster. Die Meldung verlinkt
   // direkt zum betreffenden Objekt und bleibt rein informativ.
@@ -354,6 +357,7 @@ export function tick(state) {
     nettovermoegen: nettovermoegen(state),
     etf: etf.wert,
     cashflow: state.letzterCashflow,
+    preisniveau: state.preisniveau,
   });
 
   const lebensende = lebensendeVorschau(state);

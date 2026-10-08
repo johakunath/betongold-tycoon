@@ -813,6 +813,32 @@ function kaufeGuenstigesEigenheim(state) {
   check(e1.familienzufriedenheit >= 0 && e1.familienzufriedenheit <= 100, 'Familienzufriedenheit in [0,100]');
 }
 
+// --- Preisniveau (ECONOMY_MODEL §1a) und faire Endauswertung ---------------
+{
+  const p = newGame({ seedText: 'preisniveau' });
+  initialisiereMarkt(p);
+  const listing = getListing('bi-01');
+  const miete0 = marktmiete(p, { ...listing, zustand: 3 });
+  advanceMonths(p, 120, auto);
+  const erwartet = Math.pow(1 + p.config.preisniveau.inflation, 10);
+  check(Math.abs(p.preisniveau - erwartet) < 1e-9 && Math.abs(p.historie[120].preisniveau - erwartet) < 1e-9,
+    `Preisniveau nach 10 Jahren = ${erwartet.toFixed(4)} (2 % p.a.) und steht in der Historie`);
+  check(Math.abs(marktmiete(p, { ...listing, zustand: 3 }) / miete0 - erwartet) < 1e-9,
+    'Marktmieten laufen mit dem Preisniveau statt eingefroren zu bleiben');
+  const geladen = importString(exportString(p));
+  check(geladen.preisniveau === p.preisniveau, 'Preisniveau übersteht Export/Import');
+
+  const ohneKauf = newGame({ seedText: 'score-ohne-kauf' });
+  initialisiereMarkt(ohneKauf);
+  advanceMonths(ohneKauf, 10000, auto);
+  const ende = berechneEndauswertung(ohneKauf);
+  check(ohneKauf.portfolio.length === 0 && ende.scores.cashflow > 0 && ende.entnahme > 0,
+    `Ohne Mietobjekt erreicht der Cashflow-Score über die sichere Entnahme ${Math.round(ende.scores.cashflow)}/100`);
+  check(Math.abs(ende.zerlegung.entscheidungen + ende.zerlegung.sparaufteilung - (ende.endwerte.spieler - ende.endwerte.etf)) < 1
+    && Math.abs(ende.zerlegung.entscheidungen) < 1,
+    'Zerlegung des ETF-Abstands summiert sich; ohne eigene Käufe liegt der Spieler auf der Ohne-Käufe-Linie');
+}
+
 // --- Haushaltsbedingungen der Events (Kindesalter, Auto, Ruhestand) ---------
 {
   const verstoesse = [];

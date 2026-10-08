@@ -5,6 +5,7 @@ import { rngFloat, zahleReparatur, entnimmRuecklage } from './state.js?v=60';
 import { meldeWartemoment } from './signals.js?v=60';
 import { fairerWert } from './market.js?v=60';
 import { protokolliereWirkung } from './gameplay.js?v=60';
+import { aktuellerBetrag, preisniveau } from './preisniveau.js?v=60';
 
 const ENERGIEKLASSEN = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
@@ -27,9 +28,10 @@ function eigenleistungsPlan(state, basisSchaetzung, dauer, aktiv) {
   const cfg = state.config.renovierung.eigenleistung;
   const handwerklich = !!state.startProfil?.beruf?.handwerklich;
   const rabatt = handwerklich ? cfg.rabattHandwerklich : cfg.rabatt;
-  const ersparnis = Math.min(cfg.ersparnisMax, Math.round(basisSchaetzung * rabatt));
+  const ersparnis = Math.min(aktuellerBetrag(state, cfg.ersparnisMax), Math.round(basisSchaetzung * rabatt));
+  // Arbeitszeit hängt am realen Volumen, nicht an inflationierten Euro.
   const zeitProMonat = Math.min(cfg.zeitMonatMax, Math.max(1,
-    Math.ceil(basisSchaetzung / 1000 * cfg.zeitJe1000Euro / dauer)
+    Math.ceil(basisSchaetzung / preisniveau(state) / 1000 * cfg.zeitJe1000Euro / dauer)
   ));
   return {
     ersparnis,
@@ -44,7 +46,7 @@ function eigenleistungsPlan(state, basisSchaetzung, dauer, aktiv) {
 export function renovierungsOptionen(state, objekt, eigenleistungAktiv = false) {
   const r = state.config.renovierung;
   return Object.entries(r.stufen).map(([id, stufe]) => {
-    const basisSchaetzung = Math.round(objekt.flaeche * stufe.kostenM2 * (r.kostenFaktor ?? 1));
+    const basisSchaetzung = Math.round(objekt.flaeche * stufe.kostenM2 * (r.kostenFaktor ?? 1) * preisniveau(state));
     const dauer = Math.max(1, Math.ceil(stufe.dauer * (r.dauerFaktor ?? 1)));
     const eigenleistung = eigenleistungsPlan(state, basisSchaetzung, dauer, eigenleistungAktiv);
     const schaetzung = basisSchaetzung - (eigenleistung?.ersparnis || 0);

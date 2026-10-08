@@ -154,6 +154,8 @@ export function newGame({
 
     monat: 0,            // gelebte Monate seit Start
     beendet: false,
+    // Kumulativer Preisniveauindex, 1,0 = Euro des Spielstarts (preisniveau.js).
+    preisniveau: 1,
 
     cash: profil.cash,
     letzterCashflow: 0,
@@ -271,6 +273,7 @@ export function newGame({
     nettovermoegen: state.cash + state.etfDepot.wert,
     etf: state.etfVergleich.wert,
     cashflow: 0,
+    preisniveau: 1,
   });
 
   return state;
@@ -393,7 +396,7 @@ function requireCurrentSave(huelle) {
 // ein beschädigter Import kontrolliert hier statt später mitten im UI-Render.
 function validiereState(state) {
   if (!state || typeof state !== 'object') throw new Error('Spielzustand fehlt.');
-  const zahlen = ['monat', 'cash', 'rngState', 'etfRngState', 'lebensRngState', 'familienzufriedenheit', 'einkommensRegionalfaktor'];
+  const zahlen = ['monat', 'cash', 'rngState', 'etfRngState', 'lebensRngState', 'familienzufriedenheit', 'einkommensRegionalfaktor', 'preisniveau'];
   for (const feld of zahlen) {
     if (!Number.isFinite(state[feld])) throw new Error(`Ungültiger Spielstand: ${feld} fehlt oder ist keine Zahl.`);
   }

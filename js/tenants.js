@@ -6,6 +6,7 @@ import { vergleichsmiete } from './market.js?v=60';
 import { alleTenants, getTenant } from './content.js?v=60';
 import { meldeWartemoment } from './signals.js?v=60';
 import { protokolliereWirkung } from './gameplay.js?v=60';
+import { aktuellerBetrag } from './preisniveau.js?v=60';
 
 // Erzielbare Marktmiete (kalt) für ein Objekt: Vergleichsmiete × Zustandsfaktor.
 export function marktmiete(state, objekt) {
@@ -89,10 +90,11 @@ export function waehleBewerber(state, objekt, tenantId) {
 
   const modell = vermietungsmodell(state, suche.modell || suche.moebliert);
   if (modell.moebelKosten > 0 && !objekt.moebliert) {
-    state.cash -= modell.moebelKosten;
+    const moebel = Math.round(aktuellerBetrag(state, modell.moebelKosten));
+    state.cash -= moebel;
     state.log.push({
       monat: state.monat,
-      text: `${objekt.titel}: für ${modell.label} mit ${modell.moebelKosten.toLocaleString('de-DE')} € eingerichtet.`,
+      text: `${objekt.titel}: für ${modell.label} mit ${moebel.toLocaleString('de-DE')} € eingerichtet.`,
     });
   }
   objekt.vermietungsart = modell.id;
@@ -235,7 +237,9 @@ function tickEigenbedarf(state, objekt) {
   const konflikt = Math.min(.55, .12 + (objekt.mieter?.konflikt || .15) * .25 + regional);
   if (rngFloat(state) < konflikt) {
     vorgang.status = 'klage';
-    vorgang.abfindung = Math.max(6000, Math.round(objekt.kaltmiete * 6 + 2000));
+    const eb = state.config.mieter.eigenbedarf || {};
+    vorgang.abfindung = Math.round(Math.max(aktuellerBetrag(state, eb.abfindungMin ?? 6000),
+      objekt.kaltmiete * (eb.abfindungMonatsmieten ?? 6) + aktuellerBetrag(state, eb.abfindungSockel ?? 2000)));
     state.log.push({ monat: state.monat, text: `${objekt.titel}: Widerspruch gegen Eigenbedarf; eine Einigung würde ${vorgang.abfindung.toLocaleString('de-DE')} € kosten.` });
     meldeWartemoment(state, `${objekt.titel}: Mieter widerspricht dem Eigenbedarf. Entscheidet über Abfindung oder Rückzug.`, objekt.listingId);
     return false;

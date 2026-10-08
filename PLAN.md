@@ -103,9 +103,16 @@ ergänzt einen günstigeren Heimatmarkt mit Mietspiegel, allgemeiner
 Rechts- oder Anlageberatung.
 
 Am Kampagnenende werden fünf gleichwertige Dimensionen bewertet:
-Nettovermögen, nachhaltiger Cashflow, Resilienz, Stress und Familie. Dazu kommen
-deterministische Vergleichslinien für Welt-ETF, Eigenheim-first und
-Invest-first auf demselben Seed.
+Nettovermögen, passiver Cashflow (Mieten plus sichere Entnahme aus Tagesgeld
+und ETF), Resilienz, Stress und Familie; Geldwerte zählen als Kaufkraft in
+heutigen Euro. Dazu kommen deterministische Vergleichslinien für Welt-ETF,
+Eigenheim-first, Invest-first und „ohne Käufe" auf demselben Seed. Die
+Endauswertung zerlegt den Abstand zum Welt-ETF in eigene Entscheidungen und
+die Sparplan-Aufteilung Tagesgeld/ETF.
+
+Ein sichtbarer Preisniveauindex (Default 2 % p.a.) schreibt Mieten,
+Objektkosten, Renovierungen und Eventbeträge fort; Zentrale und Endauswertung
+zeigen Vermögen wahlweise nominal oder in heutigen Euro.
 
 ## Kernschleife
 

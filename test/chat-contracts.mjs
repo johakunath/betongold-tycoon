@@ -57,7 +57,7 @@ function vertrag(name, pruefung) {
 }
 
 vertrag('Versionen und Wegwerf-Saves', () => {
-  assert.equal(SAVE_VERSION, 21);
+  assert.equal(SAVE_VERSION, 22);
   assert.equal(UI_VERSION, 60);
   assert.match(state, /Versionskonflikt|Version/);
   assert.doesNotMatch(state, /(?:export\s+)?function\s+migrier/i);
@@ -444,7 +444,9 @@ vertrag('Langfristige Ideen bleiben vertagt; Katalog und Finalassets sind abgesc
   assert.match(ideen, /Mit wachsender Systemtiefe langsamer und ursächlicher spielen/);
   assert.match(ideen, /Karriere-\/Gehaltsentscheidungen mit Zeit-Trade-off/);
   assert.match(ideen, /Ferienwohnung an der Ostsee/);
-  assert.match(roadmap, /inflation = 2 % p\.a\./);
+  // Arbeitspaket D ist umgesetzt (Save v22): 2 % als sichtbarer Default, nicht mehr in der Roadmap.
+  assert.equal(DEFAULT_CONFIG.preisniveau.inflation, 0.02);
+  assert.doesNotMatch(roadmap, /Arbeitspaket D/);
   assert.equal(listings.length, 40);
   assert.ok(listings.every((listing) => listing.assetStatus === undefined));
   for (const listing of listings) {

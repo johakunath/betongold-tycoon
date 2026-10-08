@@ -4,13 +4,15 @@
 import { newGame } from './state.js?v=60';
 import { initialisiereMarkt, sichtbareListings } from './market.js?v=60';
 import { nebenkostenFuer, kreditAngebot, kaufeObjekt } from './finance.js?v=60';
-import { gebotAbgeben, fairerWert } from './market.js?v=60';
+import { gebotAbgeben, fairerWert, angebotsBestandsmiete } from './market.js?v=60';
 import { kaufeEigenheim } from './eigenheim.js?v=60';
 import { starteVermietung, neueBewerber, waehleBewerber } from './tenants.js?v=60';
 import { resolveEvent } from './events.js?v=60';
 import { advanceMonths, alterGenau, lebensstressIndex, nettovermoegen } from './engine.js?v=60';
 import { eigenheimEignung, fixkostenMonat, instandhaltungMonat } from './immobilie.js?v=60';
 import { initialisiereStartbestand } from './starter.js?v=60';
+import { etfVerkaufVorschau } from './etf.js?v=60';
+import { inHeutigenEuro, preisniveau } from './preisniveau.js?v=60';
 
 const clamp = (n, min = 0, max = 100) => Math.max(min, Math.min(max, n));
 
@@ -33,10 +35,25 @@ export function nachhaltigerCashflow(state) {
   return gesamt;
 }
 
+// Sichere Entnahme aus liquidem Vermögen (Tagesgeld + ETF netto nach
+// Verkaufssteuer) als passives Monatseinkommen. So kann auch eine Strategie
+// ohne Mietobjekt den Cashflow-Score erreichen (PLAN Säule 1).
+export function entnahmeCashflow(state) {
+  const rate = Number(state.config.endgame.entnahmeRate) || 0;
+  if (rate <= 0) return 0;
+  const depot = state.etfDepot?.wert || 0;
+  const etfNetto = depot > 0 ? (etfVerkaufVorschau(state, depot).netto || 0) : 0;
+  return rate * (Math.max(0, state.cash) + etfNetto) / 12;
+}
+
 export function berechneScores(state) {
   const cfg = state.config.endgame;
   const vermoegen = nettovermoegen(state);
   const cashflow = nachhaltigerCashflow(state);
+  const entnahme = entnahmeCashflow(state);
+  // Ziele stehen in heutigen Euro (Spielstart); verglichen wird Kaufkraft.
+  const vermoegenReal = inHeutigenEuro(state, vermoegen);
+  const passiverCashflowReal = inHeutigenEuro(state, cashflow + entnahme);
   const objekte = [...state.portfolio, ...(state.eigenheim ? [state.eigenheim] : [])];
   const wert = objekte.reduce((s, o) => s + fairerWert(state, o), 0);
   const schuld = objekte.reduce((s, o) => s + o.darlehen.restschuld, 0);
@@ -65,8 +82,8 @@ export function berechneScores(state) {
   const ruhestandsdauer = Math.max(0, lebensalter - state.config.zeit.rentenAlter);
 
   const scores = {
-    vermoegen: clamp(vermoegen / cfg.nettovermoegenZiel * 100),
-    cashflow: clamp(cashflow / cfg.cashflowZiel * 100),
+    vermoegen: clamp(vermoegenReal / cfg.nettovermoegenZiel * 100),
+    cashflow: clamp(passiverCashflowReal / cfg.cashflowZiel * 100),
     resilienz: (ltvScore + reserveScore) / 2,
     stress: stressScore,
     familie: clamp((state.familienzufriedenheit + familieSchnitt) / 2),
@@ -75,7 +92,11 @@ export function berechneScores(state) {
   return {
     scores,
     vermoegen,
+    vermoegenReal,
     cashflow,
+    entnahme,
+    passiverCashflowReal,
+    preisniveau: preisniveau(state),
     ltv,
     deckungMonate,
     zeitUeberzugSchnitt,
@@ -91,17 +112,30 @@ export function berechneEndauswertung(state) {
   const scores = berechneScores(state);
   const eigenheim = simuliereStrategie(state, 'eigenheim-first');
   const invest = simuliereStrategie(state, 'invest-first');
+  const ohneKaeufe = simuliereStrategie(state, 'ohne-kaeufe');
   const spieler = state.historie.map((h) => ({ monat: h.monat, wert: h.nettovermoegen }));
   const etf = state.historie.map((h) => ({ monat: h.monat, wert: h.etf }));
+  const endwerte = {
+    spieler: spieler.at(-1)?.wert || 0,
+    etf: etf.at(-1)?.wert || 0,
+    eigenheim: eigenheim.at(-1)?.wert || 0,
+    invest: invest.at(-1)?.wert || 0,
+    ohneKaeufe: ohneKaeufe.at(-1)?.wert || 0,
+  };
   return {
     ...scores,
-    linien: { spieler, etf, eigenheim, invest },
-    endwerte: {
-      spieler: spieler.at(-1)?.wert || 0,
-      etf: etf.at(-1)?.wert || 0,
-      eigenheim: eigenheim.at(-1)?.wert || 0,
-      invest: invest.at(-1)?.wert || 0,
+    linien: { spieler, etf, eigenheim, invest, ohneKaeufe },
+    endwerte,
+    // Zerlegung des Abstands zur ETF-Linie in zwei getrennte Entscheidungen:
+    // eigene Entscheidungen (Käufe, Umschichtungen, Arbeit) gegenüber derselben
+    // Startlage ohne Käufe, und die Sparplan-Aufteilung Tagesgeld/ETF dieser
+    // Startlage gegenüber „alles in den ETF".
+    zerlegung: {
+      entscheidungen: endwerte.spieler - endwerte.ohneKaeufe,
+      sparaufteilung: endwerte.ohneKaeufe - endwerte.etf,
     },
+    // Preisniveau je Monat für die Umrechnung aller Linien in heutige Euro.
+    preisniveauVerlauf: state.historie.map((h) => h.preisniveau ?? 1),
   };
 }
 
@@ -109,6 +143,8 @@ export function berechneEndauswertung(state) {
 // Eigenheim-first sucht zuerst das günstigste bezugsfreie Objekt und investiert
 // danach; Invest-first priorisiert Bruttorendite. Beide bieten den Angebotspreis,
 // wählen 2 % Tilgung und vermieten leer gekaufte Objekte zur Marktmiete.
+// Ohne-Käufe hält nur die Startlage (inkl. eines Startbestands) und spart mit
+// der zuletzt gewählten Sparplan-Aufteilung weiter.
 function simuliereStrategie(original, strategie) {
   const sim = newGame({
     schwierigkeit: original.schwierigkeit,
@@ -134,7 +170,9 @@ function simuliereStrategie(original, strategie) {
 
   while (!sim.beendet && sim.monat < ende) {
     vermieteLeerstaende(sim);
-    if (strategie === 'eigenheim-first' && !sim.eigenheim) {
+    if (strategie === 'ohne-kaeufe') {
+      // keine Käufe; Leerstände des Startbestands werden trotzdem vermietet
+    } else if (strategie === 'eigenheim-first' && !sim.eigenheim) {
       versucheKauf(sim, 'eigenheim');
     } else if (
       sim.portfolio.length + (sim.eigenheim ? 1 : 0) < sim.config.endgame.benchmarkMaxObjekte
@@ -152,8 +190,8 @@ function versucheKauf(state, nutzung) {
     .filter(({ listing }) => nutzung !== 'eigenheim' || eigenheimEignung(state, listing).geeignet)
     .sort((a, b) => {
       if (nutzung === 'eigenheim') return a.preis - b.preis;
-      const ra = (a.listing.mietstatus.kaltmiete || 0) * 12 / a.preis;
-      const rb = (b.listing.mietstatus.kaltmiete || 0) * 12 / b.preis;
+      const ra = angebotsBestandsmiete(state, a.listing) * 12 / a.preis;
+      const rb = angebotsBestandsmiete(state, b.listing) * 12 / b.preis;
       return rb - ra || a.preis - b.preis;
     });
 

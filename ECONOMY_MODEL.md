@@ -36,6 +36,42 @@ zielAlter        = clamp(basisAlter − stressMalus, minAlter, maxAlter)
 verändert keine Markt-, ETF- oder Eventfolge. Default: 90–100 Jahre,
 höchstens vier Jahre Stressmalus und nie ein Ende vor 90.
 
+## 1a. Preisniveau (Save v22)
+
+Ein kumulativer Index übersetzt alle Beträge, die in Euro des Spielstarts
+(Januar 2026) vorliegen, in laufende Euro. Default `preisniveau.inflation =
+2 % p.a.` (EZB-Ziel, DECISIONS 2026-07-16), im Admin-Panel editierbar.
+
+```
+preisniveau(0)   = 1
+preisniveau(m+1) = preisniveau(m) · (1 + inflation)^(1/12)   // nach monat++
+laufend(betrag)  = betrag₂₀₂₆ · preisniveau
+heutigeEuro(x)   = x / preisniveau
+```
+
+Indexiert werden: Vergleichs-/Marktmieten (§15), Bestandsmieten vermieteter
+Angebote beim Kauf, Hausgeld bzw. Grundsteuer/Versicherung/Grundstück (§14),
+Instandhaltungsrücklage, Renovierungskosten und Eigenleistungsdeckel (§17),
+Mängel und Sonderumlagen beim Kauf (§13), Gutachterhonorar, Möblierung,
+Eigenbedarfsabfindung, Bewirtschaftungspauschale der Bank (§10) und
+Event-Beträge samt der Zahlen in Event-Texten (§18). Die Arbeitszeit einer
+Eigenleistung hängt am realen, nicht am inflationierten Volumen.
+
+Nicht doppelt indexiert werden Reihen mit eigener nominaler Rate: Einkommen,
+Lebenshaltung, Kinderkosten und Familienmiete (§2, jeweils Default 2 %),
+Segmentpreise (§7, Drift je Marktphase) und das ETF (§4). Kredite bleiben
+nominal; das Kindergeld bleibt eine feste Owner-Annahme. Wer die Inflation
+ändert, passt diese Raten bei Bedarf separat an.
+
+Laufende Mieten im Bestand steigen nicht automatisch: Bestehende Mieter
+zahlen ihre vereinbarte Miete, bis der Spieler eine Mietprüfung im Rahmen der
+Kappungsgrenze durchführt oder neu vermietet. Die Marktmiete läuft davon weg;
+das macht die Mietprüfung zu einer wiederkehrenden Entscheidung.
+
+Endscores (§23) vergleichen Kaufkraft in heutigen Euro. Zentrale und
+Endauswertung können Vermögenswerte nominal oder in heutigen Euro zeigen
+(Anzeigevorliebe je Browser, keine Spiellogik).
+
 ## 2. Haushalt (Phase 1)
 
 Monatliche Wachstumsanwendung stetig: `wert(m) = basis · (1 + p.a.)^(m/12)`.
@@ -538,6 +574,8 @@ marktmiete(objekt) = vergleichsmiete(segment, flaeche) · zustandMietFaktor(zust
 5→1,12. Renovierung hebt den Zustand → mehr Miete UND (über `zustandsFaktor`,
 §8) mehr Wert. Die Berliner Segmentbasen sind Angebotsmieten 2025: 19,22 €/m²
 innerer Stadtraum und 13,01 €/m² äußerer Stadtraum; Neubau nutzt 19,97 €/m².
+Alle Segmentbasen sind Euro des Spielstarts und laufen mit dem Preisniveau
+(§1a); vorher blieben sie 55 Jahre nominal eingefroren.
 Möblierung und Wohnen auf Zeit werden über die getrennten Wege in §25
 aufgeschlagen.
 
@@ -801,9 +839,17 @@ UI-Auswahl erfolgt deshalb über die stabile Listing-ID, nicht über Array-Indiz
 
 Fünf Scores, jeweils 0–100:
 
-1. **Nettovermögen:** linear bis `nettovermoegenZiel`.
-2. **Nachhaltiger Cashflow:** aktuelle vermietete Objekt-P&Ls abzüglich einer
-   monatlichen Steuer-Schätzung, linear bis 2.000 €/Monat.
+1. **Nettovermögen:** Kaufkraft in heutigen Euro (§1a), linear bis
+   `nettovermoegenZiel` = 5 Mio. heutige Euro (entspricht dem früheren
+   nominalen 15-Mio.-Ziel bei 2 % über rund 55 Jahre).
+2. **Passiver Cashflow:** aktuelle vermietete Objekt-P&Ls abzüglich einer
+   monatlichen Steuer-Schätzung **plus** sichere Entnahme
+   `entnahmeRate` (3,5 % p.a.) aus Tagesgeld und ETF-Depot netto nach
+   Verkaufssteuer, in heutigen Euro, linear bis 2.000 €/Monat. Damit kann
+   auch eine Strategie ohne Mietobjekt den Score erreichen (PLAN Säule 1:
+   Nichtkaufen ist valide). `entnahmeRate = 0` stellt die alte, rein
+   objektbezogene Wertung her. Hinweis: Am Lebensende ist diese Dimension
+   bei fast allen Strategien gesättigt.
 3. **Resilienz:** Mittel aus LTV-Score und Rücklagenabdeckung in Monaten.
 4. **Stresshistorie:** Abzug für durchschnittlichen Zeitüberzug und Anteil der
    Monate mit negativem Cash.
@@ -816,6 +862,20 @@ Invest-first. `benchmarkMaxObjekte` begrenzt die **Gesamtzahl** aus Eigenheim
 plus Mietobjekten, damit Eigenheim-first nicht automatisch ein zusätzliches
 Objekt halten darf. Diese Linien sind Lern-Benchmarks, keine Aussage über die
 einzig richtige Strategie; ihre Regeln stehen in `js/endgame.js`.
+
+Eine vierte Vergleichslinie **„Ohne Käufe"** spielt dieselbe Startlage
+(einschließlich eines Startbestands) ohne Käufe und mit der zuletzt gewählten
+Sparplan-Aufteilung. Damit zerlegt die Endauswertung den Abstand zur
+ETF-Linie in zwei getrennte Fragen:
+
+```
+Spieler − ETF = (Spieler − OhneKäufe)      // eigene Entscheidungen: Käufe,
+                                           // Umschichtungen, Arbeitsmodell
+              + (OhneKäufe − ETF)          // Sparplan-Aufteilung Tagesgeld/ETF
+```
+
+Ohne eigene Käufe ist der erste Term ≈ 0 (simtest). Beide Wertangaben sind
+Brutto-Marktwerte; das gilt für ETF-Linie und echtes Depot gleichermaßen.
 
 ## 24. Familienmarkt-Gate
 

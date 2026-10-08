@@ -98,7 +98,8 @@ läuft über die RNG-Funktionen aus `state.js` — niemals über `Math.random()`
 6. Cash, Tagesgeld/Dispo, echtes ETF-Depot und ETF-Spiegel verbuchen.
 7. Zeitbudget einschließlich Arbeit/Eigenleistung und Familienzufriedenheit
    einschließlich des Arbeitsmodellziels aktualisieren.
-8. `monat++`, dann fällige Immobilienverkäufe abschließen.
+8. `monat++`, Preisniveau fortschreiben (`tickPreisniveau`, kein RNG), dann
+   fällige Immobilienverkäufe abschließen.
 9. Statistik und Monatshistorie schreiben.
 10. Den gespeicherten Lebenshorizont aus Seed und kumuliertem Langzeitstress
     aktualisieren, gegebenenfalls Lebensende setzen; sonst zuerst einen fälligen
@@ -142,6 +143,9 @@ Version nicht. Änderungen im Entscheidungslog dokumentieren.
 - `state.objektArcs` hält terminierte, objektbezogene Folgen mit stabiler
   Listing-ID. `arcs.js` aktiviert sie bei Fälligkeit über den normalen
   Eventvertrag und beendet sie sauber, wenn das Objekt nicht mehr existiert.
+- `state.preisniveau` ist der kumulative Preisniveauindex (1,0 = Spielstart).
+  Engine-Module übersetzen Startwerte aus Listings/Config/Events ausschließlich
+  über `preisniveau.js` (`aktuellerBetrag`, `inHeutigenEuro`).
 - Nettovermögen ist Cash plus echtes ETF-Depot plus faire
   Immobilienwerte minus Restschulden plus objektspezifische Rücklagen. Das
   Eigenheim wird identisch bewertet.
@@ -209,10 +213,13 @@ aktive objektbezogene Zustände sauber behandelt.
 
 `endgame.js` berechnet fünf Scores: Nettovermögen, nachhaltiger Cashflow,
 Resilienz, Stress und Familie. Es simuliert vom gleichen Seed drei feste
-Vergleichspolitiken neu: reiner ETF, Eigenheim-first und invest-first. Die
+Vergleichspolitiken neu: reiner ETF, Eigenheim-first, invest-first und
+„ohne Käufe" (gleiche Startlage und Sparaufteilung). Die
 Objektgrenze zählt Eigenheim plus Mietobjekte, damit beide Immobilien-Policies
 dieselbe maximale Gesamtzahl halten. Zusammen
-mit der Spielerhistorie entstehen vier Linien. Diese Benchmarks sind
+mit der Spielerhistorie entstehen fünf Linien. Vermögens- und Cashflow-Score
+rechnen in heutigen Euro über `preisniveau.js`; die Historie speichert das
+Preisniveau je Monat für die Anzeige. Diese Benchmarks sind
 deterministische Orientierung, keine behaupteten optimalen Strategien.
 Alle Vergleichspolitiken laufen exakt bis zum tatsächlich erreichten
 Lebensende des Spielers; unterschiedliche Todeszeitpunkte dürfen den

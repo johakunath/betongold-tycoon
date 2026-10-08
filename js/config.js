@@ -3,7 +3,7 @@
 // Änderungen greifen zum nächsten Tick. Werte sind plausible Defaults, keine Fakten —
 // vor Release gegen reale Daten prüfen (siehe PLAN.md §4).
 
-export const SAVE_VERSION = 21;
+export const SAVE_VERSION = 22;
 // UI-/Cache-Version ist unabhängig vom Save-Format. Bei reinen CSS-/UI-Reworks
 // erhöhen, ohne unnötig Spielstände zu migrieren.
 export const UI_VERSION = 60;
@@ -219,6 +219,14 @@ export const DEFAULT_CONFIG = {
       leipzig: 0.93,
       'meissen-umland': 0.84,
     },
+  },
+
+  // Explizite Inflation (ECONOMY_MODEL §1a, DECISIONS 2026-07-16): kumulativer
+  // Index für alle Beträge, die sonst in Euro des Spielstarts eingefroren wären.
+  // Haushalt, ETF und Segmentpreise wachsen über ihre eigenen nominalen Raten
+  // (Default jeweils ≈ Inflation) und werden nicht doppelt indexiert.
+  preisniveau: {
+    inflation: 0.02,        // p.a.; mittelfristiges EZB-Ziel
   },
 
   kapital: {
@@ -467,6 +475,10 @@ export const DEFAULT_CONFIG = {
     zufriedenheitErholung: 0.03, // Zufriedenheit driftet monatlich zurück zu 0
     pflegeZustandsMonate: 240,   // Erwartungswert: schlechte Pflege kostet über ~20 J. 1 Stufe
 
+    // Eigenbedarf mit Widerspruch: Einigung kostet mind. abfindungMin, sonst
+    // Monatsmieten + Sockel (Euro des Spielstarts, mit Preisniveau fortgeschrieben).
+    eigenbedarf: { abfindungMin: 6000, abfindungMonatsmieten: 6, abfindungSockel: 2000 },
+
     kappungProzent: 0.15,        // max. Mieterhöhung …
     kappungMonate: 36,           // … in 36 Monaten (abstrahierte Kappungsgrenze)
     mieterhoehungUnzufriedenheit: 0.25, // Zufriedenheits-Malus je Erhöhung
@@ -584,8 +596,9 @@ export const DEFAULT_CONFIG = {
   },
 
   endgame: {
-    nettovermoegenZiel: 15000000, // nominales Lebensende-Ziel; langer 90–100-Horizont
-    cashflowZiel: 2000,          // Primärziel aus PLAN §2
+    nettovermoegenZiel: 5000000, // heutige Euro (Spielstart); entspricht ~15 Mio. nominal nach 55 Jahren mit 2 %
+    cashflowZiel: 2000,          // heutige Euro/Monat; Primärziel aus PLAN §2
+    entnahmeRate: 0.035,         // sichere Entnahme p.a. aus Tagesgeld + ETF (netto) zählt als passiver Cashflow; 0 = nur Mietobjekte
     ltvVollScore: 0.40,          // bis 40 % LTV volle Resilienz-Punkte
     ltvNullScore: 1.00,          // bei 100 % LTV keine LTV-Punkte
     ruecklageZielMonate: 6,      // sechs Monate laufende Objektpflichten

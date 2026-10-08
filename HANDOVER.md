@@ -1,11 +1,54 @@
 # HANDOVER.md — aktueller Projektstand
 
-**Stand:** 07.10.2026 (UI v60 — Bugfixes aus dem Gameplay-Review)
+**Stand:** 08.10.2026 (Save v22 / UI v60 — Preisniveau, faire Endauswertung)
 
-**Versionen:** SAVE_VERSION = 21, UI_VERSION = 60
+**Versionen:** SAVE_VERSION = 22, UI_VERSION = 60
 
 Das Spiel ist öffentlich gehostet: <https://johakunath.github.io/betongold-tycoon/>
 (GitHub Pages aus `main`/Wurzel, Deployment = `git push`).
+
+## Save v22 — Preisniveau und faire Endauswertung (P1 aus dem Gameplay-Review)
+
+**Warum.** Der Review fand zwei strukturelle Probleme: (1) Marktmieten,
+Hausgeld, Instandhaltung, Renovierungs-, Mängel- und Eventbeträge waren 55
+Jahre lang nominal eingefroren, während Haushalt, ETF und Kaufpreise wuchsen
+(Bruttorendite bi-01: 3,75 % → 1,23 % nach 30 Jahren). (2) Der Cashflow-Score
+zählte nur Mietobjekte; „Nur Miete/ETF" bekam dort immer 0 und lag im Schnitt
+9 Punkte hinter Kaufstrategien, obwohl Nichtkaufen laut PLAN valide ist.
+
+**Was.**
+1. `js/preisniveau.js` + `state.preisniveau` + `config.preisniveau.inflation`
+   (2 %, Admin „Inflation"). Tick: nach `monat++` (kein RNG). Indexiert sind
+   alle in `ECONOMY_MODEL.md` §1a gelisteten Beträge; Haushalt, ETF,
+   Segmentpreise und Kredite nicht (eigene nominale Raten). Event-Texte rechnen
+   „ca. 12.000 €" für die Anzeige in laufende Euro um.
+2. Endscores in heutigen Euro: `nettovermoegenZiel` 5 Mio. heutige Euro (statt
+   15 Mio. nominal), `cashflowZiel` 2.000 heutige Euro, neu
+   `endgame.entnahmeRate` 3,5 % aus Tagesgeld + ETF netto.
+3. Fünfte Vergleichslinie „Ohne Käufe" und Zerlegung des ETF-Abstands in
+   „eure Entscheidungen" und „Sparplan-Aufteilung Tagesgeld/ETF".
+4. Umschalter „nominal / heutige €" in Zentrale-Chart und Endauswertung
+   (`localStorage`-Vorliebe `betongold.euroModus`, nur UI).
+5. Kleinfix: „19,3 Mon." im Familienpanel bricht nicht mehr um.
+
+**Messung (Normal, 120 Seeds, vorher → nachher).** Score „Nur Miete/ETF"
+64,5 → 84,5; „Invest 25 %" 73,6 → 85,4; „2 Investments, dann Heim"
+75,1 → 88,0. Vermögen der Kaufstrategien +1–4 % (Harness erhöht keine
+Mieten; mit Mietprüfung mehr). Alle 13 Balance-Gates, Familienmarkt und
+5 Regressionen bei 300 Seeds grün.
+
+**Offen, braucht eine Owner-Entscheidung.**
+- Cashflow-Dimension ist am Lebensende für fast alle Strategien gesättigt;
+  dadurch liegen typische Gesamtscores bei 83–88 und das Urteil lautet oft
+  „robust". Optionen: Cashflow zum Rentenbeginn messen, Ziel anheben oder
+  Urteilsgrenzen neu setzen.
+- Berlin 10 % Kappung (DECISIONS 2026-07-15) weicht vom realen 15 % ab;
+  Mietpreisbremse bei Neuvermietung in Berlin/Leipzig ist nicht modelliert.
+- Familienbonus +8 für Eigentum ist eine Wertung zugunsten des Kaufens.
+- Kein Entnahmeplan: Mit 100 % ETF-Sparplan läuft das Tagesgeld im Ruhestand
+  in den Dispo (11 %), obwohl Millionen im Depot liegen.
+- Vermögensscore hängt weiter am zufälligen Lebensende (90–100 J.), real
+  aber schwächer als nominal.
 
 ## UI v60 — Bugfixes aus dem Gameplay-Review
 

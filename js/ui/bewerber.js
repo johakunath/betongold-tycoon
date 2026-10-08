@@ -8,6 +8,7 @@ import {
   vermietungsmodell,
 } from '../tenants.js?v=60';
 import { fmtEUR } from './util.js?v=60';
+import { aktuellerBetrag } from '../preisniveau.js?v=60';
 import { fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=60';
 
 let ctx = null;
@@ -59,7 +60,7 @@ function renderNiveauWahl(state, o) {
     const risiko = modell.rechtsrisiko?.[stadt] || 0;
     const risikoText = risiko === 0 ? 'kein zusätzliches Modellrisiko' : risiko >= .01 ? 'hohes Prüf-/Rückzahlungsrisiko' : risiko >= .002 ? 'erhöhtes Prüf-/Rückzahlungsrisiko' : 'geringes Prüf-/Rückzahlungsrisiko';
     return `<label class="modell-option"><input type="radio" name="modell" value="${id}" ${i === 0 ? 'checked' : ''}>` +
-      `<span><b>${modell.label}</b><small>${modell.kurz}</small><small>${modell.aufschlag ? `+${Math.round(modell.aufschlag * 100)} % Mietansatz · ` : ''}${modell.moebelKosten ? `${fmtEUR(modell.moebelKosten)} Einrichtung · ` : ''}${risikoText}</small></span></label>`;
+      `<span><b>${modell.label}</b><small>${modell.kurz}</small><small>${modell.aufschlag ? `+${Math.round(modell.aufschlag * 100)} % Mietansatz · ` : ''}${modell.moebelKosten ? `${fmtEUR(Math.round(aktuellerBetrag(state, modell.moebelKosten)))} Einrichtung · ` : ''}${risikoText}</small></span></label>`;
   }).join('');
 
   document.getElementById('bewerber-inhalt').innerHTML =

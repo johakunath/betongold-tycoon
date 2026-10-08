@@ -5,11 +5,12 @@ import { getListing } from '../content.js?v=60';
 import {
   angebotsPreis, vergleichsmiete, gebotAbgeben, kaufAbbrechen,
   besichtigen, dokumenteAnfordern, gutachterBeauftragen,
-  angebotBeobachten, angebotVerwerfen, angebotNeuPruefen,
+  angebotBeobachten, angebotVerwerfen, angebotNeuPruefen, angebotsBestandsmiete,
 } from '../market.js?v=60';
 import { dealEntscheidung, pruefstand } from '../gameplay.js?v=60';
 import { bildHTML, cutawayHTML } from '../iso.js?v=60';
 import { fmtEUR, fmtProzent } from './util.js?v=60';
+import { aktuellerBetrag, preisniveau } from '../preisniveau.js?v=60';
 import { oeffneFinanzierung } from './finanzierung.js?v=60';
 import { eigenheimEignung, fixkostenAufschluesselung, instandhaltungMonat, objektartConfig } from '../immobilie.js?v=60';
 
@@ -65,7 +66,7 @@ export function renderExpose(state, voll = false) {
   const vm = Math.round(vergleichsmiete(state, l));
   const interessenten = eintrag ? Math.round(eintrag.konkurrenz * 5) : 0;
   const eignung = eigenheimEignung(state, l);
-  const kosten = fixkostenAufschluesselung(l);
+  const kosten = fixkostenAufschluesselung(l, preisniveau(state));
 
   document.getElementById('expose-titel').textContent = l.titel;
 
@@ -85,10 +86,10 @@ export function renderExpose(state, voll = false) {
     `<tr><td>Fläche / Zimmer</td><td>${l.flaeche} m² / ${l.zimmer}</td></tr>` +
     `<tr><td>Baujahr</td><td>${l.baujahr}</td></tr>` +
     `<tr><td>Zustand (Eindruck)</td><td>${ZUSTAND_TEXT[l.zustand]}</td></tr>` +
-    `<tr><td>Mietstatus</td><td>${mietstatusText(l)}</td></tr>` +
+    `<tr><td>Mietstatus</td><td>${mietstatusText(state, l)}</td></tr>` +
     `<tr><td>Vergleichsmiete (Schätzung)</td><td>${fmtEUR(vm)}/Monat</td></tr>` +
     (l.mietstatus.vermietet && preis
-      ? `<tr><td>Bruttorendite</td><td data-live="rendite">${fmtProzent(((l.mietstatus.kaltmiete * 12) / preis) * 100)}</td></tr>`
+      ? `<tr><td>Bruttorendite</td><td data-live="rendite">${fmtProzent(((angebotsBestandsmiete(state, l) * 12) / preis) * 100)}</td></tr>`
       : '') +
     `<tr><td>Markt</td><td data-live="markt">${marktText(state, eintrag, interessenten)}</td></tr>` +
     `</table>` +
@@ -168,11 +169,11 @@ function befundDarstellung(text) {
   return { klasse: 'neutral', symbol: '•', label: 'Neutraler Befund' };
 }
 
-function mietstatusText(l) {
+function mietstatusText(state, l) {
   if (!l.mietstatus.vermietet) {
     return `bezugsfrei${l.mietstatus.hinweis ? ` — ${l.mietstatus.hinweis}` : ''}`;
   }
-  let t = `vermietet, ${fmtEUR(l.mietstatus.kaltmiete)} kalt`;
+  let t = `vermietet, ${fmtEUR(angebotsBestandsmiete(state, l))} kalt`;
   if (l.mietstatus.mieterSeit) t += ` (seit ${l.mietstatus.mieterSeit})`;
   if (l.mietstatus.hinweis) t += ` — ${l.mietstatus.hinweis}`;
   return t;
@@ -215,7 +216,7 @@ function ddHTML(state, l, dd) {
   if (dd.dokumente) {
     l.dokumente.forEach((t) => erkenntnisse.push(['Dokumente', t]));
     if (dd.sonderumlageBekannt && l.sonderumlage) {
-      erkenntnisse.push(['Dokumente', `⚠ Sonderumlage steht an: ${l.sonderumlage.anlass} — ca. ${fmtEUR(l.sonderumlage.betrag)}`]);
+      erkenntnisse.push(['Dokumente', `⚠ Sonderumlage steht an: ${l.sonderumlage.anlass} — ca. ${fmtEUR(Math.round(aktuellerBetrag(state, l.sonderumlage.betrag)))}`]);
     }
   }
   if (dd.gutachten) {
@@ -224,7 +225,7 @@ function ddHTML(state, l, dd) {
     }
     dd.aufgedeckteMaengel.forEach((i) => {
       const m = l.maengel[i];
-      erkenntnisse.push(['Gutachten', `⚠ ${m.name} — Behebung ca. ${fmtEUR(m.kosten)}`]);
+      erkenntnisse.push(['Gutachten', `⚠ ${m.name} — Behebung ca. ${fmtEUR(Math.round(aktuellerBetrag(state, m.kosten)))}`]);
     });
   }
 
@@ -239,7 +240,7 @@ function ddHTML(state, l, dd) {
     `<div class="dd-buttons">` +
     `<button id="btn-besichtigen" ${dd.besichtigt ? 'disabled' : ''}>Besichtigung <small>kostenlos · ${cfg.besichtigungZeit} h</small></button>` +
     `<button id="btn-dokumente" ${dd.dokumente ? 'disabled' : ''}>Dokumente anfordern <small>kostenlos · ${cfg.dokumenteZeit} h</small></button>` +
-    `<button id="btn-gutachter" title="${Math.round(cfg.gutachterTrefferquote * 100)} % Trefferchance je vorhandenem Mangel" ${dd.gutachten ? 'disabled' : ''}>Gutachter <small>${fmtEUR(cfg.gutachterKosten)} · ${cfg.gutachterZeit} h</small></button>` +
+    `<button id="btn-gutachter" title="${Math.round(cfg.gutachterTrefferquote * 100)} % Trefferchance je vorhandenem Mangel" ${dd.gutachten ? 'disabled' : ''}>Gutachter <small>${fmtEUR(Math.round(aktuellerBetrag(state, cfg.gutachterKosten)))} · ${cfg.gutachterZeit} h</small></button>` +
     `</div>` +
     (erkenntnisse.length
       ? `<ul class="dd-liste">${erkenntnisse
@@ -377,7 +378,7 @@ function updateLive(state, eintrag) {
   const m2 = document.querySelector('[data-live="preism2"]');
   if (m2) m2.textContent = preis ? Math.round(preis / l.flaeche).toLocaleString('de-DE') + ' €/m²' : '';
   const rendite = document.querySelector('[data-live="rendite"]');
-  if (rendite && preis) rendite.textContent = fmtProzent(((l.mietstatus.kaltmiete * 12) / preis) * 100);
+  if (rendite && preis) rendite.textContent = fmtProzent(((angebotsBestandsmiete(state, l) * 12) / preis) * 100);
   const markt = document.querySelector('[data-live="markt"]');
   if (markt) markt.textContent = marktText(state, eintrag, eintrag ? Math.round(eintrag.konkurrenz * 5) : 0);
   const gebotPanel = document.querySelector('.gebot-zeile[data-angebot]');

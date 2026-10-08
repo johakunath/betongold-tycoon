@@ -4,6 +4,7 @@
 import { rngFloat, zahleReparatur } from './state.js?v=60';
 import { alleEvents, getEvent } from './content.js?v=60';
 import { planeObjektArc, schliesseAktivenArc } from './arcs.js?v=60';
+import { aktuellerBetrag, textInLaufendenEuro } from './preisniveau.js?v=60';
 
 function kalendermonat(state) {
   return ((state.config.zeit.startMonat - 1 + state.monat) % 12) + 1;
@@ -150,15 +151,17 @@ export function resolveEvent(state, optionIndex) {
 
   if (aktiv.arcId) schliesseAktivenArc(state, aktiv.arcId);
 
+  // Eventbeträge stehen in Euro des Spielstarts und laufen mit dem Preisniveau.
+  const euro = (betrag) => Math.round(aktuellerBetrag(state, betrag));
   if (typeof eff.cash === 'number') {
-    if (eff.cash < 0) zahleReparatur(state, objekt, -eff.cash);
-    else state.cash += eff.cash;
+    if (eff.cash < 0) zahleReparatur(state, objekt, euro(-eff.cash));
+    else state.cash += euro(eff.cash);
   }
   if (typeof eff.ruecklage === 'number' && objekt) {
-    objekt.ruecklage = Math.max(0, objekt.ruecklage + eff.ruecklage);
+    objekt.ruecklage = Math.max(0, objekt.ruecklage + euro(eff.ruecklage));
   }
   if (typeof eff.sondertilgung === 'number' && objekt?.darlehen) {
-    const betrag = Math.min(objekt.darlehen.restschuld, Math.max(0, eff.sondertilgung));
+    const betrag = Math.min(objekt.darlehen.restschuld, Math.max(0, euro(eff.sondertilgung)));
     state.cash -= betrag;
     objekt.darlehen.restschuld -= betrag;
     if (objekt.darlehen.restschuld <= 0) objekt.darlehen.rate = 0;
@@ -167,7 +170,7 @@ export function resolveEvent(state, optionIndex) {
     objekt.zustand = Math.max(1, Math.min(5, objekt.zustand + eff.zustand));
   }
   if (typeof eff.miete === 'number' && objekt) {
-    objekt.kaltmiete = Math.max(0, objekt.kaltmiete + eff.miete);
+    objekt.kaltmiete = Math.max(0, objekt.kaltmiete + euro(eff.miete));
   }
   if (objekt && objekt.mieter) {
     if (typeof eff.mieterZufriedenheit === 'number') objekt.mieter.zufriedenheit += eff.mieterZufriedenheit;
@@ -188,7 +191,7 @@ export function resolveEvent(state, optionIndex) {
 
   state.log.push({
     monat: state.monat,
-    text: `${ev.titel}: ${opt.text}${opt.folge ? ' — ' + opt.folge : ''}`,
+    text: textInLaufendenEuro(state, `${ev.titel}: ${opt.text}${opt.folge ? ' — ' + opt.folge : ''}`),
   });
   state.aktivesEvent = null;
   return { ev, opt, objekt };

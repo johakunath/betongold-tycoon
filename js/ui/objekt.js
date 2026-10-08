@@ -3,6 +3,7 @@
 
 import { getListing } from '../content.js?v=60';
 import { fairerWert } from '../market.js?v=60';
+import { preisniveau } from '../preisniveau.js?v=60';
 import {
   marktmiete, kannErhoehen, maxMiete, erhoeheMiete, mietrechtFuer, vermietungsmodell,
   starteEigenbedarf, zieheEigenbedarfZurueck, zahleEigenbedarfAbfindung,
@@ -194,7 +195,7 @@ function statusHTML(state, objekt, wert, markt, istEigenheim) {
     `<tr><td>${faktenLabel('Objekt / Eigentum', 'Objektart und Eigentumsform bestimmen laufende Kosten, Entscheidungsfreiheit und Instandhaltungsrisiko.')}</td><td>${objektartConfig(state, objekt).label} · ${objekt.eigentumsform === 'weg' ? 'WEG' : 'Alleineigentum'}</td></tr>` +
     `<tr><td>${faktenLabel('Fläche', 'Wohnfläche; sie beeinflusst Miete, Kaufpreis und laufende Instandhaltung.')}</td><td>${objekt.flaeche} m²</td></tr>` +
     (objekt.objektart === 'haus' ? `<tr><td>${faktenLabel('Grundstück / Außenraum', 'Grundstücksgröße und nutzbarer Außenraum; relevant für Wert und Familien-Eignung.')}</td><td>${objekt.grundstueck} / ${objekt.aussenflaeche} m²</td></tr>` : '') +
-    fixkostenAufschluesselung(objekt).map((k) => `<tr><td>${faktenLabel(k.label, 'Monatlicher Eigentümeranteil an nicht auf den Mieter umlegbaren Objektkosten.')}</td><td>${fmtEUR(k.betrag)}/Monat</td></tr>`).join('') +
+    fixkostenAufschluesselung(objekt, preisniveau(state)).map((k) => `<tr><td>${faktenLabel(k.label, 'Monatlicher Eigentümeranteil an nicht auf den Mieter umlegbaren Objektkosten.')}</td><td>${fmtEUR(k.betrag)}/Monat</td></tr>`).join('') +
     `<tr><td>${faktenLabel('Zustand', 'Technischer und optischer Zustand von 1 bis 5. Wirkt auf Miete, Wert und Reparaturbedarf.')}</td><td>${objekt.zustand}/5</td></tr>` +
     `<tr><td>${faktenLabel('Energieklasse', 'Vereinfachter Effizienzindikator. Schlechtere Klassen erhöhen das Risiko künftiger Maßnahmen.')}</td><td>${objekt.energieklasse}</td></tr>` +
     `<tr><td>${faktenLabel('Restschuld', 'Noch offener Darlehensbetrag. Er sinkt durch den Tilgungsanteil der Kreditrate.')}</td><td>${fmtEUR(Math.round(objekt.darlehen.restschuld))}</td></tr>` +

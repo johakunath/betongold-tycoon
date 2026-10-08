@@ -40,7 +40,7 @@ export function pruefstand(state, id) {
   const cfg = state.config.dueDiligence;
   const zeit = (dd.besichtigt ? cfg.besichtigungZeit : 0) +
     (dd.dokumente ? cfg.dokumenteZeit : 0) + (dd.gutachten ? cfg.gutachterZeit : 0);
-  const kosten = dd.gutachten ? cfg.gutachterKosten : 0;
+  const kosten = dd.gutachten ? (dd.gutachtenKosten ?? cfg.gutachterKosten) : 0;
   const funde = (dd.aufgedeckteMaengel || []).length + (dd.sonderumlageBekannt ? 1 : 0);
   // DD reduziert Unsicherheit sichtbar, verspricht aber auch vollständig nie
   // Mangelfreiheit. Die Stufen sind UI-Sprache, keine Kaufwahrscheinlichkeit.

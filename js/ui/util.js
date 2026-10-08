@@ -52,3 +52,46 @@ export function faktenLabel(label, erklaerung) {
     `aria-label="Info: ${sicher(erklaerung)}" data-tooltip="${sicher(erklaerung)}">?</button>`;
 }
 
+
+// Anzeige nominal oder in heutigen Euro (Kaufkraft des Spielstarts). Reine
+// Anzeigevorliebe je Browser; die Engine rechnet immer nominal.
+const EURO_MODUS_SCHLUESSEL = 'betongold.euroModus';
+
+export function euroModus() {
+  try {
+    return localStorage.getItem(EURO_MODUS_SCHLUESSEL) === 'heute' ? 'heute' : 'nominal';
+  } catch {
+    return 'nominal';
+  }
+}
+
+export function setzeEuroModus(modus) {
+  try {
+    localStorage.setItem(EURO_MODUS_SCHLUESSEL, modus === 'heute' ? 'heute' : 'nominal');
+  } catch {
+    // ohne Speicher bleibt die Wahl nur für diese Sitzung bis zum Reload sichtbar
+  }
+  document.dispatchEvent(new CustomEvent('euromodus'));
+}
+
+// Teilt einen nominalen Wert durch das Preisniveau, wenn heutige Euro gewählt sind.
+export function inAnzeigeEuro(wert, preisniveau = 1) {
+  return euroModus() === 'heute' && preisniveau > 0 ? wert / preisniveau : wert;
+}
+
+export function euroUmschalterHTML() {
+  const modus = euroModus();
+  return `<div class="euro-umschalter" role="group" aria-label="Beträge anzeigen als">` +
+    `<button type="button" data-euro-modus="nominal" aria-pressed="${modus === 'nominal'}">nominal</button>` +
+    `<button type="button" data-euro-modus="heute" aria-pressed="${modus === 'heute'}" ` +
+    `title="Kaufkraft in Euro des Spielstarts (2 % Inflation p.a. als Default-Annahme)">heutige €</button></div>`;
+}
+
+// Ein delegierter Handler für alle Umschalter; Node-Tests importieren util.js
+// ohne DOM.
+if (typeof document !== 'undefined') {
+  document.addEventListener('click', (ev) => {
+    const knopf = ev.target.closest?.('[data-euro-modus]');
+    if (knopf) setzeEuroModus(knopf.dataset.euroModus);
+  });
+}

@@ -3,6 +3,7 @@
 
 import { rngFloat, rngNormal } from './state.js?v=60';
 import { alleListings, getListing } from './content.js?v=60';
+import { aktuellerBetrag, preisniveau } from './preisniveau.js?v=60';
 import {
   oeffneDealEntscheidung, setzeDealEntscheidung,
 } from './gameplay.js?v=60';
@@ -147,14 +148,23 @@ export function angebotsPreis(state, id) {
   return fairerWert(state, getListing(id)) * eintrag.aufschlag;
 }
 
-// Vergleichsmiete (kalt, €/Monat) — Phase 2 statisch je Segment.
+// Vergleichsmiete (kalt, €/Monat): Segmentanker in Euro des Spielstarts,
+// fortgeschrieben mit dem Preisniveau (ECONOMY_MODEL §1a, §15).
 export function vergleichsmiete(state, listing) {
   const segment = state.config.segmente[listing.segment];
   const istNeubau = listing.stil === 'neubau' || Number(listing.baujahr) >= 2020;
   const mieteM2 = istNeubau && Number.isFinite(segment.neubauMieteM2)
     ? segment.neubauMieteM2
     : segment.vergleichsmieteM2;
-  return listing.flaeche * mieteM2;
+  return listing.flaeche * mieteM2 * preisniveau(state);
+}
+
+// Bestandsmiete eines vermieteten Angebots in laufenden Euro (Listingdaten
+// stehen in Euro des Spielstarts).
+export function angebotsBestandsmiete(state, listing) {
+  return listing.mietstatus?.vermietet
+    ? Math.round((Number(listing.mietstatus.kaltmiete) || 0) * preisniveau(state))
+    : 0;
 }
 
 // Listings, die aktuell am Markt sind (für Feed-UI), inkl. Laufzeitdaten.
@@ -312,10 +322,11 @@ export function dokumenteAnfordern(state, id) {
 
 export function gutachterBeauftragen(state, id) {
   const dd = ddEintrag(state, id);
-  const kosten = state.config.dueDiligence.gutachterKosten;
+  const kosten = Math.round(aktuellerBetrag(state, state.config.dueDiligence.gutachterKosten));
   if (dd.gutachten) return { dd };
   if (state.cash < kosten) return { dd, fehler: 'Nicht genug Cash für den Gutachter.' };
   dd.gutachten = true;
+  dd.gutachtenKosten = kosten;
   state.cash -= kosten;
   state.zeitbudget.verbraucht += state.config.dueDiligence.gutachterZeit;
   // Jeder existierende Mangel wird unabhängig mit Trefferquote entdeckt.

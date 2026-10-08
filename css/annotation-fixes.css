@@ -846,3 +846,21 @@ input, select, textarea,
 @media (min-width: 701px) {
   .fin-etf-panel { grid-template-columns: minmax(150px, 1fr) minmax(190px, 1fr) auto; }
 }
+
+/* Umschalter nominal / heutige Euro (P1-Inflationspaket). */
+.euro-umschalter { display: inline-flex; border: 1px solid var(--hairline); border-radius: 999px; overflow: hidden; }
+.euro-umschalter button {
+  min-height: 30px; padding: 3px 11px; border: 0; border-radius: 0;
+  background: transparent; color: var(--gedimmt); font-size: 13px; box-shadow: none;
+}
+.euro-umschalter button[aria-pressed="true"] { background: var(--karte-weich, rgba(255,255,255,.08)); color: var(--tinte, inherit); font-weight: 700; }
+
+/* Fünfte Vergleichslinie „Ohne Käufe": gestrichelt, neutral, damit sie als
+   Referenz und nicht als Strategie gelesen wird. */
+.end-ohne { stroke: #b9bcb6; stroke-dasharray: 6 5; }
+.serie-ohne { background: #b9bcb6; }
+.endgame-vergleich { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+.endgame-hauptwert .euro-umschalter { margin-top: 8px; justify-self: end; }
+
+/* „19,3 Mon." brach im Familienpanel um (UI v60): Werte bleiben einzeilig. */
+.sims-zeile > b { white-space: nowrap; }

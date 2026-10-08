@@ -1,6 +1,7 @@
 ﻿// marktplatz.js — Screen 2: Exposé-Feed mit Filtern, Favoriten, Vergleich.
 
-import { sichtbareListings, vergleichsmiete, fairerWert } from '../market.js?v=60';
+import { sichtbareListings, vergleichsmiete, fairerWert, angebotsBestandsmiete } from '../market.js?v=60';
+import { preisniveau } from '../preisniveau.js?v=60';
 import { getListing } from '../content.js?v=60';
 import { bildHTML, cutawayHTML } from '../iso.js?v=60';
 import { fmtEUR, fmtEURSigniert, fmtProzent } from './util.js?v=60';
@@ -42,7 +43,7 @@ export function renderMarktplatz(state, erzwungen = false) {
   if (filter.nurFavoriten) eintraege = eintraege.filter((e) => state.favoriten.includes(e.listing.id));
 
   const rendite = (e) =>
-    e.listing.mietstatus.vermietet ? (e.listing.mietstatus.kaltmiete * 12) / e.preis : 0;
+    e.listing.mietstatus.vermietet ? (angebotsBestandsmiete(state, e.listing) * 12) / e.preis : 0;
   const sortierer = {
     neu: (a, b) => a.monateAmMarkt - b.monateAmMarkt,
     preisAuf: (a, b) => a.preis - b.preis,
@@ -67,7 +68,7 @@ function karte(state, { listing: l, eintrag, preis, monateAmMarkt }) {
   const seg = state.config.segmente[l.segment];
   const fav = state.favoriten.includes(l.id);
   const interessenten = Math.round(eintrag.konkurrenz * 5);
-  const bruttorendite = l.mietstatus.vermietet ? ((l.mietstatus.kaltmiete * 12) / preis) * 100 : null;
+  const bruttorendite = l.mietstatus.vermietet ? ((angebotsBestandsmiete(state, l) * 12) / preis) * 100 : null;
   const reserviert = eintrag.status === 'reserviert';
   const eignung = eigenheimEignung(state, l);
   const entscheidung = dealEntscheidung(state, l.id);
@@ -197,12 +198,12 @@ function zeigeVergleich() {
     zeile('Grundstück / Außenraum', (s) => s.l.objektart === 'haus' ? `${s.l.grundstueck} / ${s.l.aussenflaeche} m²` : `— / ${s.l.aussenflaeche || 0} m²`) +
     vergleichsZeile('Baujahr', (s) => s.l.baujahr, (v) => String(v), (d) => `${d >= 0 ? '+' : '−'}${zahl(Math.abs(d))} J.`) +
     zeile('Energieklasse', (s) => s.l.energieklasse) +
-    vergleichsZeile('Laufende Fixkosten', (s) => fixkostenAufschluesselung(s.l).reduce((summe, k) => summe + k.betrag, 0), (v) => `${fmtEUR(v)}/Mon.`, (d) => `${fmtEURSigniert(Math.round(d))}/Mon.`, true) +
+    vergleichsZeile('Laufende Fixkosten', (s) => fixkostenAufschluesselung(s.l, preisniveau(state)).reduce((summe, k) => summe + k.betrag, 0), (v) => `${fmtEUR(v)}/Mon.`, (d) => `${fmtEURSigniert(Math.round(d))}/Mon.`, true) +
     vergleichsZeile('Instandhaltungs-Planwert', (s) => instandhaltungMonat(state, s.l), (v) => `${fmtEUR(Math.round(v))}/Mon.`, (d) => `${fmtEURSigniert(Math.round(d))}/Mon.`, true) +
     vergleichsZeile('Familien-Eignung', (s) => s.l.familienScore || 0, (v) => `${v}/5`, (d) => `${d >= 0 ? '+' : '−'}${zahl(Math.abs(d))}`) +
     zeile('Ausstattung', (s) => AUSSTATTUNG[s.l.ausstattung] || (s.l.mietstatus.vermietet ? 'bewohnt' : 'nicht angegeben')) +
-    zeile('Kaltmiete', (s) => (s.l.mietstatus.vermietet ? fmtEUR(s.l.mietstatus.kaltmiete) + '/Mon.' : 'bezugsfrei')) +
-    vergleichsZeile('Bruttorendite', (s) => s.l.mietstatus.vermietet ? (s.l.mietstatus.kaltmiete * 12) / s.preis * 100 : NaN, (v) => Number.isFinite(v) ? `${zahl(v, 1)} %` : '—', (d) => `${d >= 0 ? '+' : '−'}${zahl(Math.abs(d), 2)} Pp.`) +
+    zeile('Kaltmiete', (s) => (s.l.mietstatus.vermietet ? fmtEUR(angebotsBestandsmiete(state, s.l)) + '/Mon.' : 'bezugsfrei')) +
+    vergleichsZeile('Bruttorendite', (s) => s.l.mietstatus.vermietet ? (angebotsBestandsmiete(state, s.l) * 12) / s.preis * 100 : NaN, (v) => Number.isFinite(v) ? `${zahl(v, 1)} %` : '—', (d) => `${d >= 0 ? '+' : '−'}${zahl(Math.abs(d), 2)} Pp.`) +
     vergleichsZeile('Vergleichsmiete (Schätzung)', (s) => vergleichsmiete(state, s.l), (v) => `${fmtEUR(Math.round(v))}/Mon.`, (d) => `${fmtEURSigniert(Math.round(d))}/Mon.`) +
     vergleichsZeile('Lage', (s) => s.l.lageScore, (v) => `${v}/10`, (d) => `${d >= 0 ? '+' : '−'}${zahl(Math.abs(d))}`) +
     vergleichsZeile('Interessenten', (s) => Math.round(s.e.konkurrenz * 5), (v) => String(v), (d) => `${d >= 0 ? '+' : '−'}${zahl(Math.abs(d))}`) +

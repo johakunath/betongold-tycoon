@@ -12,6 +12,8 @@ import { eigenheimEignung, fixkostenMonat, instandhaltungMonat } from '../immobi
 import { etfVerkaufVorschau } from '../etf.js?v=60';
 import { angesetzteMiete } from '../tenants.js?v=60';
 import { fixkostenAufschluesselung } from '../immobilie.js?v=60';
+import { angebotsBestandsmiete } from '../market.js?v=60';
+import { aktuellerBetrag, preisniveau } from '../preisniveau.js?v=60';
 import { haushaltsUeberschussMonat, liquiditaetsBasisMonat, liquiditaetsPufferMonate } from './kennzahlen.js?v=60';
 
 let ctx = null;
@@ -273,7 +275,7 @@ function render() {
     const fixVermietet = fixkostenMonat(state, listing, true);
     const ruecklage = instandhaltungMonat(state, listing);
     const mieteGeplant = istEigenheim ? 0 : aktuellVermietet
-      ? Number(listing.mietstatus.kaltmiete) || 0
+      ? angebotsBestandsmiete(state, listing)
       : angesetzteMiete(state, listing, 'auf', 'regulaer');
     const objektJetzt = istEigenheim
       ? vorschau.mietersparnis - vorschau.rate - fixLeer - ruecklage
@@ -286,7 +288,7 @@ function render() {
     const haushaltBasis = haushaltsUeberschussMonat(state);
     const haushaltDanach = haushaltBasis + objektGeplant + vorschau.cashzinsAenderung - steuerGeplant;
     const wegGesamt = listing.objektart === 'wohnung'
-      ? Number(listing.hausgeld) || fixkostenAufschluesselung(listing).reduce((summe, posten) => summe + posten.betrag, 0)
+      ? aktuellerBetrag(state, Number(listing.hausgeld)) || fixkostenAufschluesselung(listing, preisniveau(state)).reduce((summe, posten) => summe + posten.betrag, 0)
       : null;
     const wegAufteilung = wegGesamt === null ? '' :
       `<details class="weg-aufteilung"><summary>WEG-Kosten aufteilen</summary>` +
