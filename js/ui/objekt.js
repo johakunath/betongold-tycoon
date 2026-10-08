@@ -6,6 +6,7 @@ import { fairerWert } from '../market.js?v=60';
 import { preisniveau } from '../preisniveau.js?v=60';
 import {
   marktmiete, kannErhoehen, maxMiete, erhoeheMiete, mietrechtFuer, vermietungsmodell,
+  bremseVerstossRisiko, senkeAufZulaessigeMiete,
   starteEigenbedarf, zieheEigenbedarfZurueck, zahleEigenbedarfAbfindung,
 } from '../tenants.js?v=60';
 import { bildHTML, cutawayHTML } from '../iso.js?v=60';
@@ -136,6 +137,7 @@ export function renderObjekt(state) {
     `</dl><details class="objekt-daten"><summary>Objektdaten &amp; Finanzierung</summary>` +
     statusHTML(state, objekt, wert, markt, istEigenheim) + `</details>` +
     (!istEigenheim ? `<p class="mietrecht-hinweis"><b>${mietrecht.label}</b><br>${mietrecht.kurz}</p>` : '') +
+    (!istEigenheim ? bremseVerstossHTML(state, objekt) : '') +
     `</div></div>` +
 
     `<div class="objekt-spalten">` +
@@ -362,6 +364,14 @@ function wire(state, objekt, index, istEigenheim) {
   });
   document.getElementById('btn-banktermin')?.addEventListener('click', () => oeffneBankAnpassung(objekt));
 
+  document.getElementById('btn-bremse-senken')?.addEventListener('click', () => {
+    if (senkeAufZulaessigeMiete(state, objekt)) {
+      ctx.toast('Miete auf die zulässige Höhe gesenkt. Bereits zu viel gezahlte Miete bleibt bis zum Fristende rückforderbar.');
+      ctx.autosave();
+      renderObjekt(state);
+    }
+  });
+
   document.getElementById('btn-erhoehen')?.addEventListener('click', () => {
     if (erhoeheMiete(state, objekt)) {
       ctx.toast('Miete erhöht.');
@@ -423,5 +433,29 @@ function wire(state, objekt, index, istEigenheim) {
     ctx.autosave();
     renderObjekt(state);
   });
+}
+
+// Status eines bewussten Verstoßes gegen die Mietpreisbremse: Mehrmiete,
+// aufgelaufene Rückforderung, Jahresrisiko und der legale Ausstieg.
+function bremseVerstossHTML(state, objekt) {
+  const verstoss = objekt.bremseVerstoss;
+  if (!verstoss) return '';
+  if (verstoss.geruegt) {
+    return `<p class="mietrecht-hinweis bremse-verstoss"><b>${verstoss.durchAmt ? 'Bußgeld' : 'Rüge'} wegen Mietpreisbremse</b><br>` +
+      `Kosten ${fmtEUR(verstoss.kosten || 0)}; die Miete liegt jetzt bei der zulässigen Höhe.</p>`;
+  }
+  const risiko = bremseVerstossRisiko(state, objekt);
+  if (!risiko) return '';
+  const jahr = (p) => Math.round((1 - Math.pow(1 - p, 12)) * 100);
+  const frist = state.config.mietpreisbremse.verstoss.rueckforderungMonate;
+  return `<div class="mietrecht-hinweis bremse-verstoss"><b>Über der Mietpreisbremse vermietet</b><br>` +
+    (risiko.mehrMonat > 0
+      ? `${fmtEUR(risiko.mehrMonat)} pro Monat über der zulässigen Miete von ${fmtEUR(verstoss.zulaessig)}. `
+      : `Miete wieder zulässig (${fmtEUR(verstoss.zulaessig)}). `) +
+    `Rückforderbar bei Rüge: ${fmtEUR(Math.round(risiko.rueckforderbar))}` +
+    (risiko.monate <= frist ? ` (noch ${frist - risiko.monate} Monate rückwirkend)` : ' (Frist vorbei, nur noch künftig)') + '. ' +
+    `Risiko im nächsten Jahr: Rüge etwa ${jahr(risiko.ruege)} %` + (risiko.bussgeld > 0 ? `, Bußgeld etwa ${jahr(risiko.bussgeld)} %` : '') + '.' +
+    (risiko.mehrMonat > 0 ? `<br><button type="button" id="btn-bremse-senken">Miete auf zulässige Höhe senken</button>` : '') +
+    `</div>`;
 }
 

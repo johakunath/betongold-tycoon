@@ -324,6 +324,13 @@ function render() {
         `<b>${titel}</b><span>${aktionen}.${einmalig}</span>` +
         (pfad.risiko ? infoTooltip(pfad.risiko, 'Risiken dieses Bewirtschaftungspfads erklären') : '') + `</output>`;
     }
+    const bruch = perspektive?.rechtsbruch;
+    if (bruch) {
+      pfadUrteil += `<output class="fin-pfad-urteil rechtsbruch" aria-label="Rechtswidriger Pfad">` +
+        `<b>Nur mit Rechtsbruch: ${fmtEURSigniert(Math.round(bruch.cashflow))}/Monat nach Steuer</b>` +
+        `<span>Miete ${fmtEUR(Math.round(bruch.miete))} statt gedeckelt; hält nur, solange niemand rügt.</span>` +
+        infoTooltip(bruch.risiko, 'Risiken des Verstoßes gegen die Mietpreisbremse erklären') + `</output>`;
+    }
     monatsbild = `<div class="fin-monatsvergleich"><header><b>Objekt pro Monat ${infoTooltip('Typische Monatswerte für dieses Szenario. Einmalige Kosten, Leerstand und spätere Änderungen sind nicht vollständig enthalten; die Miete ist keine Garantie.', 'Monatsvorschau erklären')}</b></header>` +
       `<div class="fin-szenarien">${szenario(vorschau.leerstand ? 'Bis zur Vermietung' : istEigenheim ? 'Als Eigenheim' : 'Mit Bestandsmiete', aktuellVermietet ? mieteGeplant : 0, aktuellVermietet ? fixVermietet : fixLeer, objektJetzt)}` +
       (vorschau.leerstand ? szenario('Nach geplanter Vermietung', mieteGeplant, fixVermietet, objektGeplant, true) : '') +

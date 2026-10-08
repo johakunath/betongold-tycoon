@@ -69,7 +69,11 @@ function renderNiveauWahl(state, o) {
     `Mietniveau steuert Nachfrage; der Vermietungsweg verändert Ertrag, Aufwand, Wechsel und Rechtsrisiko.</p>` +
     (bremse.gilt
       ? `<p class="mietmodell-recht"><b>Mietpreisbremse:</b> Neuvermietung höchstens ${fmtEUR(Math.round(bremse.obergrenze))} kalt ` +
-        `(${bremse.grund}). Eine umfassende Modernisierung oder ein Neubau ab 2015 ist ausgenommen.</p>`
+        `(${bremse.grund}). Eine umfassende Modernisierung oder ein Neubau ab 2015 ist ausgenommen.</p>` +
+        `<label class="bremse-ignorieren"><input type="checkbox" name="bremse-ignorieren"> ` +
+        `<span><b>Grenze bewusst ignorieren</b> und zur Marktmiete vermieten. Rügt der Mieter, sinkt die Miete auf die Grenze; ` +
+        `kommt die Rüge in den ersten ${state.config.mietpreisbremse.verstoss.rueckforderungMonate} Monaten, zahlt ihr die Differenz seit Mietbeginn zurück. ` +
+        `Liegt die Miete über 120 % der Vergleichsmiete, droht zusätzlich ein Bußgeld.</span></label>`
       : '') +
     `<h3 class="dialog-zwischentitel">1. Vermietungsweg</h3><div class="modell-optionen">${modelle}</div>` +
     `<p class="mietmodell-recht"><b>${state.config.mietrecht?.[stadt]?.label || 'Standard-Mietrecht'}:</b> ` +
@@ -78,18 +82,20 @@ function renderNiveauWahl(state, o) {
     `<div class="niveau-optionen">${optionen}</div>` +
     `<div class="dialog-fuss"><button id="btn-suche-start" class="primaer">Bewerber suchen</button></div>`;
 
+  const ignorieren = () => !!document.querySelector('input[name="bremse-ignorieren"]')?.checked;
   const aktualisiereMieten = () => {
     const modellId = document.querySelector('input[name="modell"]:checked').value;
     document.querySelectorAll('[data-niveau-miete]').forEach((ziel) => {
-      ziel.textContent = fmtEUR(angesetzteMiete(state, o, ziel.dataset.niveauMiete, modellId));
+      ziel.textContent = fmtEUR(angesetzteMiete(state, o, ziel.dataset.niveauMiete, modellId, { bremseIgnorieren: ignorieren() }));
     });
   };
-  document.querySelectorAll('input[name="modell"]').forEach((input) => input.addEventListener('change', aktualisiereMieten));
+  document.querySelectorAll('input[name="modell"], input[name="bremse-ignorieren"]')
+    .forEach((input) => input.addEventListener('change', aktualisiereMieten));
 
   document.getElementById('btn-suche-start').addEventListener('click', () => {
     const niveau = document.querySelector('input[name="niveau"]:checked').value;
     const modell = document.querySelector('input[name="modell"]:checked').value;
-    starteVermietung(state, o, niveau, modell);
+    starteVermietung(state, o, niveau, modell, { bremseIgnorieren: ignorieren() });
     ctx.autosave();
     render();
   });

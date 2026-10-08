@@ -23,6 +23,7 @@ import {
 import {
   starteVermietung, neueBewerber, waehleBewerber, kannErhoehen, erhoeheMiete, marktmiete,
   mietrechtFuer, angesetzteMiete, vermietungsmodell, starteEigenbedarf, mietpreisbremse,
+  senkeAufZulaessigeMiete,
   zahleEigenbedarfAbfindung,
 } from '../js/tenants.js?v=60';
 import { etfVerkaufVorschau, kaufeEtf, setzeSparplanEtfAnteil, verkaufeEtf } from '../js/etf.js?v=60';
@@ -894,6 +895,73 @@ function kaufeGuenstigesEigenheim(state) {
   }).filter((q) => q != null);
   check(quoten.length > 0 && quoten.every((q, i) => Math.abs(q - quotenStart[i]) < 1e-9),
     'Einkommensquote der Bewerber vergleicht Miete und Einkommen im selben Preisniveau');
+}
+
+// --- Bewusster Verstoß gegen die Mietpreisbremse ----------------------------
+{
+  const vermieteIllegal = (seed, ruegeMonat) => {
+    const g = newGame({ seedText: seed });
+    initialisiereMarkt(g);
+    g.config.mietpreisbremse.verstoss.ruegeMonat = { berlin: ruegeMonat, leipzig: ruegeMonat };
+    g.config.mietpreisbremse.verstoss.bussgeldMonat = { berlin: 0, leipzig: 0 };
+    // Zufallsereignisse aus, damit kein Event die Miete im selben Monat verändert.
+    g.config.events.eventChanceBasis = 0;
+    g.config.events.eventChanceJeObjekt = 0;
+    kaufeGuenstiges(g, (l) => l.segment.startsWith('berlin') && !l.mietstatus.vermietet && Number(l.baujahr) < 2015);
+    const o = g.portfolio[0];
+    o.renovierung = null;
+    o.vermietet = false;
+    o.mieter = null;
+    o.kaltmiete = 0;
+    starteVermietung(g, o, 'auf', 'regulaer', { bremseIgnorieren: true });
+    if (!o.suche.bewerber.length) neueBewerber(g, o);
+    waehleBewerber(g, o, o.suche.bewerber[0].id);
+    return { g, o };
+  };
+  const { g: legalG, o: legalO } = (() => {
+    const g = newGame({ seedText: 'bremse-legal' });
+    initialisiereMarkt(g);
+    kaufeGuenstiges(g, (l) => l.segment.startsWith('berlin') && !l.mietstatus.vermietet && Number(l.baujahr) < 2015);
+    return { g, o: g.portfolio[0] };
+  })();
+  check(legalO && mietpreisbremse(legalG, { ...legalO, kaltmiete: 0 }).gilt, 'Testobjekt liegt unter der Mietpreisbremse');
+
+  const { g: a, o: oa } = vermieteIllegal('bremse-ruege', 0);
+  check(oa.bremseVerstoss && oa.kaltmiete > oa.bremseVerstoss.zulaessig,
+    `Ignorierte Bremse: ${oa.kaltmiete} € statt zulässig ${oa.bremseVerstoss?.zulaessig} €`);
+  check(mietpreisbremse(a, oa).obergrenze < oa.kaltmiete, 'Eine unzulässige Vormiete schützt bei der nächsten Vermietung nicht');
+  // 12 Monate ohne Rüge, dann sicher rügen lassen: Erstattung seit Mietbeginn.
+  for (let i = 0; i < 12; i++) advanceMonths(a, 1, auto);
+  const mehr = oa.bremseVerstoss.mehrerloes;
+  a.config.mietpreisbremse.verstoss.ruegeMonat = { berlin: 1, leipzig: 1 };
+  const cashVor = a.cash;
+  const zulaessig = oa.bremseVerstoss.zulaessig;
+  if (oa.mieter) {
+    const vorRuege = oa.kaltmiete - zulaessig;
+    advanceMonths(a, 1, auto);
+    check(oa.bremseVerstoss.geruegt && oa.kaltmiete === zulaessig
+      && Math.abs(oa.bremseVerstoss.kosten - Math.round(mehr + vorRuege)) <= 1,
+      `Rüge nach 13 Monaten: ${oa.bremseVerstoss.kosten} € Rückzahlung seit Mietbeginn, Miete auf ${zulaessig} €`);
+    check(a.cash < cashVor, 'Rückzahlung belastet das Tagesgeld');
+  }
+
+  const { g: b, o: ob } = vermieteIllegal('bremse-spaet', 0);
+  b.config.mieter.auszugBasisRisiko = 0;
+  for (let i = 0; i < 31; i++) advanceMonths(b, 1, auto);
+  b.config.mietpreisbremse.verstoss.ruegeMonat = { berlin: 1, leipzig: 1 };
+  advanceMonths(b, 1, auto);
+  check(!ob.mieter || (ob.bremseVerstoss.geruegt && ob.bremseVerstoss.kosten === 0),
+    'Rüge nach 30 Monaten: keine Rückzahlung, nur Mietsenkung');
+
+  const { g: c, o: oc } = vermieteIllegal('bremse-ausstieg', 0);
+  c.config.mieter.auszugBasisRisiko = 0;
+  advanceMonths(c, 6, auto);
+  const aufgelaufen = oc.bremseVerstoss.mehrerloes;
+  check(senkeAufZulaessigeMiete(c, oc) && oc.kaltmiete === oc.bremseVerstoss.zulaessig, 'Freiwilliger Ausstieg senkt die Miete');
+  advanceMonths(c, 6, auto);
+  check(oc.bremseVerstoss.mehrerloes === aufgelaufen, 'Nach dem Ausstieg läuft kein weiterer Mehrerlös auf');
+  advanceMonths(c, 25, auto);
+  check(!oc.mieter || oc.bremseVerstoss.beendet, 'Nach Ablauf der 30-Monats-Frist ist ein bereinigter Verstoß erledigt');
 }
 
 // --- Entnahmeregel statt Dispo-Falle ----------------------------------------

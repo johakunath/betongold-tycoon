@@ -872,3 +872,10 @@ input, select, textarea,
 .entnahme-regel button { justify-self: start; }
 .sparplan-karte form.entnahme-regel { grid-template-columns: 1fr; align-items: start; }
 .sparplan-karte form.entnahme-regel > button { grid-column: 1; grid-row: auto; justify-self: start; align-self: start; }
+
+/* Bewusster Verstoß gegen die Mietpreisbremse: sichtbar als Risiko markiert. */
+.bremse-ignorieren { display: flex; gap: 9px; align-items: flex-start; margin: 4px 0 10px; padding: 9px 11px; border: 1px solid rgba(214, 120, 90, .45); border-radius: 9px; background: rgba(214, 120, 90, .08); }
+.bremse-ignorieren input { margin-top: 3px; }
+.fin-pfad-urteil.rechtsbruch { border-color: rgba(214, 120, 90, .55); background: rgba(214, 120, 90, .08); }
+.bremse-verstoss { border-color: rgba(214, 120, 90, .55); background: rgba(214, 120, 90, .08); }
+.bremse-verstoss button { margin-top: 8px; }

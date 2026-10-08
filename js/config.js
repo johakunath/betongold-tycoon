@@ -528,6 +528,18 @@ export const DEFAULT_CONFIG = {
     aufschlag: 0.10,
     neubauAbBaujahr: 2015,
     umfassendModernisiertM2: 1000, // € Renovierungsvolumen/m² (Euro des Spielstarts) ≈ ⅓ Neubaukosten
+    // Bewusster Verstoß: über der Grenze vermieten und hoffen, dass niemand
+    // rügt (ECONOMY_MODEL §15b). Ein RNG-Wert je Monat und betroffenem Objekt.
+    verstoss: {
+      ruegeMonat: { berlin: 0.006, leipzig: 0.004 }, // Grundchance pro Monat, dass der Mieter rügt
+      konfliktHebel: 1.5,         // × (1 + Konfliktneigung · Hebel)
+      ueberschussHebel: 2,        // × (1 + Überschreitung in % der Grenze · Hebel)
+      rueckforderungMonate: 30,   // Rüge in den ersten 30 Monaten: Erstattung ab Mietbeginn (§ 556g Abs. 2 BGB)
+      zufriedenheitMalus: 0.4,
+      bussgeldMonat: { berlin: 0.0008, leipzig: 0.0003 }, // Prüfung durch das Amt (§ 5 WiStG)
+      bussgeldSchwelle: 0.20,     // nur über 120 % der ortsüblichen Vergleichsmiete
+      bussgeld: 10000,            // Euro des Spielstarts; dazu Abschöpfung des Mehrerlöses
+    },
   },
 
   // --- Phase 3: Renovierung (ECONOMY_MODEL §17) -------------------------------

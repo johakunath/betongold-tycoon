@@ -364,6 +364,21 @@ export function finanzierungsCashflowPfade(state, angebot) {
     }
   }
 
+  // Bewusster Verstoß gegen die Mietpreisbremse: als eigener, ausdrücklich
+  // rechtswidriger Pfad ausgewiesen, nie als Empfehlung oder im B0-Korridor.
+  let rechtsbruch = null;
+  if (!listing.mietstatus?.vermietet && mietpreisbremse(state, listing).gilt) {
+    const anzahl = pfade.length;
+    fuegePfadHinzu({
+      id: 'ueber-mietpreisbremse',
+      label: 'Über der Mietpreisbremse vermieten',
+      miete: angesetzteMiete(state, listing, 'auf', 'regulaer', { bremseIgnorieren: true }),
+      aktionen: ['Mietpreisbremse ignorieren'],
+      risiko: 'Rechtswidrig. Rügt der Mieter, sinkt die Miete auf die Grenze; in den ersten 30 Monaten wird die Differenz seit Mietbeginn erstattet. Über 120 % der Vergleichsmiete droht ein Bußgeld.',
+    });
+    rechtsbruch = pfade.splice(anzahl, 1)[0];
+  }
+
   const basis = pfade[0];
   const risikoRang = (pfad) => pfad.id.includes('wohnenAufZeit') ? 2 : pfad.id.includes('moebliert') ? 1 : 0;
   const sortiere = (a, b) =>
@@ -378,6 +393,7 @@ export function finanzierungsCashflowPfade(state, angebot) {
     pfade,
     naheNull,
     hatPositivenPfad: pfade.some((pfad) => pfad.cashflow >= 0),
+    rechtsbruch,
     urteil: empfehlung?.urteil || 'negativ',
   };
 }
