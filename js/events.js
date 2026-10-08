@@ -37,9 +37,15 @@ function hatKindImAlter(state, minAlter = 0, maxAlter = Infinity) {
   });
 }
 
+// Gleiche Altersstufen-Auswahl wie monatsWerte(): Ein Faktor von 0 % entfernt
+// das Auto ab dieser Altersstufe.
 function hatAuto(state) {
   const h = state.config.haushalt;
-  return (h.autoKostenMonat || 0) > 0 && state.monat >= (h.autoAbMonat ?? Number.POSITIVE_INFINITY);
+  if (!((h.autoKostenMonat || 0) > 0 && state.monat >= (h.autoAbMonat ?? Number.POSITIVE_INFINITY))) return false;
+  const alter = state.config.zeit.startAlter + state.monat / 12;
+  const stufen = h.autoAltersFaktoren || [];
+  const stufe = stufen.find((s) => alter <= s.bisAlter) ?? stufen.at(-1);
+  return (stufe?.faktor ?? 1) > 0;
 }
 
 function istImRuhestand(state) {

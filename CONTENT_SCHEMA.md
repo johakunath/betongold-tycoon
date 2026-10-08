@@ -143,7 +143,7 @@ Arc-Folgen und 3 Auftaktmomente. 2–3 Optionen, **keine strikt dominante** (PLA
     "cooldownMonate": 24,         // Mindestabstand, falls nicht einmalig
     "kindAlterMin": 9,            // mind. ein Kind im Haushalt in diesem Alter …
     "kindAlterMax": 15,           // … (Jahre, inkl.; Auszugsalter beendet den Haushalt)
-    "autoVorhanden": true,        // nur mit eingeplantem Auto (Pauschale > 0, ab autoAbMonat)
+    "autoVorhanden": true,        // nur mit eingeplantem Auto (Pauschale > 0, ab autoAbMonat, Altersfaktor > 0)
     "vorRuhestand": true,         // nur vor dem Rentenalter
     "nurMieter": true             // nur ohne Eigenheim (z. B. Eigenbedarfskündigung)
   },

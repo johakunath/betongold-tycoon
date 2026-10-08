@@ -1032,6 +1032,25 @@ function kaufeGuenstigesEigenheim(state) {
     `Kinder-, Auto- und Erwerbs-Events respektieren den Haushalt (${kindEvents} Kinder-, ${autoEvents} Auto-Events; Verstöße: ${verstoesse.slice(0, 4).join(', ') || 'keine'})`);
 }
 
+// Auto-Altersfaktor 0 % entfernt das Auto auch für Events.
+{
+  let autoEvents = 0;
+  let monateMitAuto = 0;
+  for (let i = 0; i < 12; i++) {
+    const g = newGame({ schwierigkeit: 'schwer', seedText: `ohne-auto-${i}` });
+    initialisiereMarkt(g);
+    g.config.haushalt.autoAltersFaktoren.forEach((stufe) => { stufe.faktor = 0; });
+    while (!g.beendet && g.monat < 420) {
+      advanceMonths(g, 1, (st) => {
+        if (st.aktivesEvent.eventId === 'auto-kaputt') autoEvents++;
+        resolveEvent(st, 0);
+      });
+      if (monatsWerte(g).auto > 0) monateMitAuto++;
+    }
+  }
+  check(autoEvents === 0 && monateMitAuto === 0, `Auto-Faktor 0 %: keine Autokosten und kein Auto-Event (${autoEvents})`);
+}
+
 console.log(fehler === 0 ? '\nALLE TESTS OK' : `\n${fehler} FEHLER`);
 process.exit(fehler === 0 ? 0 : 1);
 
