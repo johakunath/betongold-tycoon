@@ -397,16 +397,24 @@ export function bremseVerstossRisiko(state, objekt) {
   if (!verstoss || verstoss.geruegt || verstoss.beendet || !cfg || !objekt.mieter) return null;
   const stadt = state.config.segmente[objekt.segment]?.stadt;
   const ueberschuss = Math.max(0, objekt.kaltmiete / Math.max(1, verstoss.zulaessig) - 1);
+  const monate = Math.max(0, state.monat - verstoss.beginn);
+  const zeitFaktor = monate < 12 ? (cfg.fruehFaktor ?? 1)
+    : monate >= cfg.rueckforderungMonate - 3 && monate <= cfg.rueckforderungMonate ? (cfg.fristFaktor ?? 1) : 1;
   const ruege = Math.min(1, (cfg.ruegeMonat?.[stadt] || 0)
     * (1 + (objekt.mieter.konflikt || 0) * cfg.konfliktHebel)
-    * (1 + ueberschuss * cfg.ueberschussHebel));
+    * (1 + ueberschuss * cfg.ueberschussHebel)
+    * zeitFaktor);
   const ueberVergleichsmiete = verstoss.mietspiegel > 0 ? objekt.kaltmiete / verstoss.mietspiegel - 1 : 0;
-  const bussgeld = ueberVergleichsmiete > cfg.bussgeldSchwelle ? (cfg.bussgeldMonat?.[stadt] || 0) : 0;
-  const monate = Math.max(0, state.monat - verstoss.beginn);
+  const bussgeld = ueberVergleichsmiete > cfg.bussgeldSchwelle
+    ? (cfg.bussgeldMonat?.[stadt] || 0) * (ueberVergleichsmiete > (cfg.wucherSchwelle ?? Infinity) ? (cfg.wucherFaktor ?? 1) : 1)
+    : 0;
   const rueckforderbar = monate <= cfg.rueckforderungMonate ? (verstoss.mehrerloes || 0) : 0;
+  const mehrMonat = Math.max(0, objekt.kaltmiete - verstoss.zulaessig);
+  // Zulässige Miete und nichts mehr rückforderbar: Eine Rüge brächte dem
+  // Mieter nichts, also auch kein Risiko mehr.
+  const offen = mehrMonat > 0 || rueckforderbar > 0;
   return {
-    ruege, bussgeld, ueberschuss, monate, rueckforderbar,
-    mehrMonat: Math.max(0, objekt.kaltmiete - verstoss.zulaessig),
+    ruege: offen ? ruege : 0, bussgeld, ueberschuss, monate, rueckforderbar, mehrMonat,
   };
 }
 
@@ -435,8 +443,8 @@ function pruefeBremseVerstoss(state, objekt) {
   const verstoss = objekt.bremseVerstoss;
   // Mehrerlös dieses Monats aufsummieren (kein RNG).
   verstoss.mehrerloes = (verstoss.mehrerloes || 0) + risiko.mehrMonat;
-  // Miete wieder zulässig und Rückforderungsfenster vorbei: Fall ist erledigt.
-  if (risiko.mehrMonat <= 0 && risiko.monate > cfg.rueckforderungMonate) {
+  // Miete wieder zulässig und nichts mehr rückforderbar: Fall ist erledigt.
+  if (risiko.mehrMonat <= 0 && (risiko.monate > cfg.rueckforderungMonate || verstoss.mehrerloes <= 0)) {
     verstoss.beendet = true;
     return;
   }
@@ -446,19 +454,30 @@ function pruefeBremseVerstoss(state, objekt) {
   const durchAmt = r >= risiko.ruege;
   const rueckforderbar = risiko.monate <= cfg.rueckforderungMonate ? verstoss.mehrerloes : 0;
   let kosten;
+  let rueckzahlung;
   let text;
   if (durchAmt) {
-    // § 5 WiStG: Bußgeld und Abschöpfung des gesamten Mehrerlöses.
-    kosten = Math.round(aktuellerBetrag(state, cfg.bussgeld) + verstoss.mehrerloes);
-    text = `${objekt.titel}: Das Wohnungsamt prüft die Miete (Mietpreisüberhöhung). ` +
-      `Bußgeld und Rückzahlung des Mehrerlöses: ${kosten.toLocaleString('de-DE')} €; die Miete sinkt auf ${verstoss.zulaessig.toLocaleString('de-DE')} €.`;
+    // § 5 WiStG: Bußgeld; in etwa jedem zweiten Fall zusätzlich Abschöpfung
+    // des Mehrerlöses (§§ 8/9 WiStG). Dieselbe Zufallszahl entscheidet über
+    // die Hälfte, damit kein weiterer RNG-Wert nötig ist.
+    const mitAbschoepfung = r < risiko.ruege + risiko.bussgeld / 2;
+    const bussgeld = aktuellerBetrag(state, cfg.bussgeld);
+    rueckzahlung = mitAbschoepfung ? Math.round(verstoss.mehrerloes) : 0;
+    kosten = Math.round(bussgeld) + rueckzahlung;
+    text = `${objekt.titel}: Das Wohnungsamt ahndet eine Mietpreisüberhöhung. ` +
+      `Bußgeld ${Math.round(bussgeld).toLocaleString('de-DE')} €` +
+      (mitAbschoepfung ? ` und Rückzahlung des Mehrerlöses, zusammen ${kosten.toLocaleString('de-DE')} €` : '') +
+      `; die Miete sinkt auf ${verstoss.zulaessig.toLocaleString('de-DE')} €.`;
   } else {
-    // § 556g BGB: Rüge in den ersten 30 Monaten → Erstattung ab Mietbeginn, sonst nur künftig.
-    kosten = Math.round(rueckforderbar);
+    // § 556g BGB: Rüge in den ersten 30 Monaten → Erstattung ab Mietbeginn,
+    // sonst nur künftig; dazu vorgerichtliche Kosten des Mieters.
+    const rechtskosten = aktuellerBetrag(state, cfg.rechtskosten || 0);
+    rueckzahlung = Math.round(rueckforderbar);
+    kosten = rueckzahlung + Math.round(rechtskosten);
     text = `${objekt.titel}: ${objekt.mieter.name} rügt die Miete (Mietpreisbremse). ` +
-      (kosten > 0
-        ? `Rückzahlung seit Mietbeginn: ${kosten.toLocaleString('de-DE')} €; `
-        : `Keine Rückzahlung, weil die Rüge nach ${cfg.rueckforderungMonate} Monaten kam; `) +
+      (rueckforderbar > 0
+        ? `Rückzahlung seit Mietbeginn ${Math.round(rueckforderbar).toLocaleString('de-DE')} € plus ${Math.round(rechtskosten).toLocaleString('de-DE')} € Anwaltskosten; `
+        : `Keine Rückzahlung, weil die Rüge nach ${cfg.rueckforderungMonate} Monaten kam, aber ${Math.round(rechtskosten).toLocaleString('de-DE')} € Anwaltskosten; `) +
       `die Miete ${objekt.kaltmiete > verstoss.zulaessig ? 'sinkt auf' : 'bleibt bei'} ${verstoss.zulaessig.toLocaleString('de-DE')} €.`;
   }
   state.cash -= kosten;
@@ -469,6 +488,7 @@ function pruefeBremseVerstoss(state, objekt) {
   verstoss.geruegt = true;
   verstoss.geruegtMonat = state.monat;
   verstoss.kosten = kosten;
+  verstoss.rueckzahlung = rueckzahlung;
   verstoss.durchAmt = durchAmt;
   state.statistik.bremseRuegen = (state.statistik.bremseRuegen || 0) + 1;
   state.log.push({ monat: state.monat, ziel: objekt.listingId, kategorie: 'Objekt', text });

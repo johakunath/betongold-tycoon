@@ -123,7 +123,9 @@ ETF-Abstand über eine Linie „Ohne Käufe". Dazu kommen reale Mietregeln
 (15-%-Kappung, Mietpreisbremse in Berlin/Leipzig mit Modernisierungsausnahme),
 ein Eigenbedarfsrisiko für Mieter statt eines Eigentums-Familienbonus, eine
 Entnahmeregel gegen die Dispo-Falle sowie die Scores „Rentenlücke gedeckt"
-und „Kaufkraft mit 85".
+und „Kaufkraft mit 85". Die Mietpreisbremse lässt sich bei Neuvermietung
+bewusst ignorieren; Rüge, Rückzahlung und seltenes Bußgeld sind an
+recherchierten Zahlen kalibriert (`ECONOMY_MODEL.md` §15b).
 Aktuell: `SAVE_VERSION = 22`, `UI_VERSION = 60`.
 
 Das Spiel ist öffentlich gehostet:

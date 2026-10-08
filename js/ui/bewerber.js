@@ -72,8 +72,8 @@ function renderNiveauWahl(state, o) {
         `(${bremse.grund}). Eine umfassende Modernisierung oder ein Neubau ab 2015 ist ausgenommen.</p>` +
         `<label class="bremse-ignorieren"><input type="checkbox" name="bremse-ignorieren"> ` +
         `<span><b>Grenze bewusst ignorieren</b> und zur Marktmiete vermieten. Rügt der Mieter, sinkt die Miete auf die Grenze; ` +
-        `kommt die Rüge in den ersten ${state.config.mietpreisbremse.verstoss.rueckforderungMonate} Monaten, zahlt ihr die Differenz seit Mietbeginn zurück. ` +
-        `Liegt die Miete über 120 % der Vergleichsmiete, droht zusätzlich ein Bußgeld.</span></label>`
+        `kommt die Rüge in den ersten ${state.config.mietpreisbremse.verstoss.rueckforderungMonate} Monaten, zahlt ihr die Differenz seit Mietbeginn zurück, ` +
+        `dazu die Anwaltskosten des Mieters. Über 120 % der Vergleichsmiete droht selten zusätzlich ein Bußgeld des Wohnungsamts.</span></label>`
       : '') +
     `<h3 class="dialog-zwischentitel">1. Vermietungsweg</h3><div class="modell-optionen">${modelle}</div>` +
     `<p class="mietmodell-recht"><b>${state.config.mietrecht?.[stadt]?.label || 'Standard-Mietrecht'}:</b> ` +

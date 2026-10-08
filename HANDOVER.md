@@ -65,6 +65,16 @@ Testanpassungen mit Begründung: B0 ≥ 5 statt ≥ 6 tragfähige Wohnungen,
 F-Turnaround ≥ 1 statt ≥ 4 Mietprüfungen (Mietspiegel deckelt), fünf
 Renovierungsstufen, Kappungs-Check auf 15 %/15 %/20 %.
 
+**Mietpreisbremse bewusst ignorieren (Owner-Auftrag, 08.10.2026).**
+Checkbox `bremse-ignorieren` in `ui/bewerber.js` → `starteVermietung(...,
+{ bremseIgnorieren })` → `objekt.bremseVerstoss` in `waehleBewerber`.
+`tenants.pruefeBremseVerstoss` läuft im Mieter-Tick vor der Zahlungsziehung
+und zieht nur bei bestehendem Verstoß eine Zufallszahl; reguläre Spiele und
+alle Balance-Gates sind davon unberührt. `bremseVerstossRisiko` liefert die
+Monatsrisiken für die Statusbox in `ui/objekt.js`, `senkeAufZulaessigeMiete`
+den legalen Ausstieg. Finanzierung zeigt `rechtsbruch` getrennt
+(`finanzierungsCashflowPfade`). Formeln, Quellen und Grenzen: §15b.
+
 ## UI v60 — Bugfixes aus dem Gameplay-Review
 
 Alles am Seed `review-1` (Familienstrategie, Normal) beobachtet und behoben.

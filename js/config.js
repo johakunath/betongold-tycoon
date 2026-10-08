@@ -530,15 +530,26 @@ export const DEFAULT_CONFIG = {
     umfassendModernisiertM2: 1000, // € Renovierungsvolumen/m² (Euro des Spielstarts) ≈ ⅓ Neubaukosten
     // Bewusster Verstoß: über der Grenze vermieten und hoffen, dass niemand
     // rügt (ECONOMY_MODEL §15b). Ein RNG-Wert je Monat und betroffenem Objekt.
+    // Kalibrierung (Recherche 10/2026): In München nutzten nur 2,4 % der Mieter
+    // die Bremse; in Berlin ~773 durchgesetzte Fälle 2024. Ziel: kumuliert
+    // 10–25 % Rüge-Risiko über 30 Monate in Berlin, etwa halb so viel in Leipzig.
     verstoss: {
-      ruegeMonat: { berlin: 0.006, leipzig: 0.004 }, // Grundchance pro Monat, dass der Mieter rügt
-      konfliktHebel: 1.5,         // × (1 + Konfliktneigung · Hebel)
-      ueberschussHebel: 2,        // × (1 + Überschreitung in % der Grenze · Hebel)
+      ruegeMonat: { berlin: 0.004, leipzig: 0.002 }, // Grundchance pro Monat, dass der Mieter rügt
+      konfliktHebel: 1.0,         // × (1 + Konfliktneigung · Hebel)
+      ueberschussHebel: 1.5,      // × (1 + Überschreitung in % der Grenze · Hebel)
+      fruehFaktor: 1.3,           // erste 12 Monate: Mieter prüfen ihren neuen Vertrag
+      fristFaktor: 1.5,           // Monate 27–30: letzte Chance auf volle Erstattung
       rueckforderungMonate: 30,   // Rüge in den ersten 30 Monaten: Erstattung ab Mietbeginn (§ 556g Abs. 2 BGB)
+      rechtskosten: 800,          // vorgerichtliche Anwalts-/Inkassokosten des Mieters, trägt der Vermieter
       zufriedenheitMalus: 0.4,
-      bussgeldMonat: { berlin: 0.0008, leipzig: 0.0003 }, // Prüfung durch das Amt (§ 5 WiStG)
-      bussgeldSchwelle: 0.20,     // nur über 120 % der ortsüblichen Vergleichsmiete
-      bussgeld: 10000,            // Euro des Spielstarts; dazu Abschöpfung des Mehrerlöses
+      // Der Verstoß gegen die Bremse selbst ist nicht bußgeldbewehrt. Erst über
+      // 120 % der Vergleichsmiete greift § 5 WiStG (Ausnutzung nötig, selten):
+      // Berlin 7 Bußgelder bei ~5.100 Verfahren seit 2025.
+      bussgeldMonat: { berlin: 0.00015, leipzig: 0.00004 }, // ≈ 0,2 % bzw. 0,05 % pro Jahr
+      bussgeldSchwelle: 0.20,     // über 120 % der ortsüblichen Vergleichsmiete
+      wucherSchwelle: 0.50,       // über 150 %: Mietwucher-Verdacht, dreifaches Prüfrisiko
+      wucherFaktor: 3,
+      bussgeld: 12000,            // Euro des Spielstarts (beobachtet 1.300–26.000 €, Höchstmaß 50.000 €)
     },
   },
 

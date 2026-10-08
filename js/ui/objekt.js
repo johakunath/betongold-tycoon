@@ -3,7 +3,7 @@
 
 import { getListing } from '../content.js?v=60';
 import { fairerWert } from '../market.js?v=60';
-import { preisniveau } from '../preisniveau.js?v=60';
+import { aktuellerBetrag, preisniveau } from '../preisniveau.js?v=60';
 import {
   marktmiete, kannErhoehen, maxMiete, erhoeheMiete, mietrechtFuer, vermietungsmodell,
   bremseVerstossRisiko, senkeAufZulaessigeMiete,
@@ -214,7 +214,10 @@ function objektStatusBadges(state, objekt, istEigenheim) {
     const rest = Math.max(0, objekt.renovierung.endMonat - state.monat);
     status = `<span class="badge blau">in Renovierung — noch ${rest} Mon.</span>`;
   } else if (objekt.vermietet) {
-    status = `<span class="badge gruen">vermietet · ${vermietungsmodell(state, objekt.vermietungsart || objekt.moebliert).label}</span>`;
+    const verstoss = objekt.bremseVerstoss;
+    status = verstoss && !verstoss.geruegt && !verstoss.beendet && objekt.kaltmiete > verstoss.zulaessig
+      ? `<span class="badge warnung">vermietet · über der Mietpreisbremse</span>`
+      : `<span class="badge gruen">vermietet · ${vermietungsmodell(state, objekt.vermietungsart || objekt.moebliert).label}</span>`;
   } else {
     status = `<span class="badge orange">leer</span>`;
   }
@@ -445,6 +448,9 @@ function bremseVerstossHTML(state, objekt) {
       `Kosten ${fmtEUR(verstoss.kosten || 0)}; die Miete liegt jetzt bei der zulässigen Höhe.</p>`;
   }
   const risiko = bremseVerstossRisiko(state, objekt);
+  if (verstoss.beendet || (risiko && risiko.mehrMonat <= 0 && risiko.rueckforderbar <= 0)) {
+    return `<p class="mietrecht-hinweis bremse-verstoss">Mietpreisbremse: Verstoß bereinigt, keine Ansprüche mehr offen.</p>`;
+  }
   if (!risiko) return '';
   const jahr = (p) => Math.round((1 - Math.pow(1 - p, 12)) * 100);
   const frist = state.config.mietpreisbremse.verstoss.rueckforderungMonate;
@@ -452,7 +458,7 @@ function bremseVerstossHTML(state, objekt) {
     (risiko.mehrMonat > 0
       ? `${fmtEUR(risiko.mehrMonat)} pro Monat über der zulässigen Miete von ${fmtEUR(verstoss.zulaessig)}. `
       : `Miete wieder zulässig (${fmtEUR(verstoss.zulaessig)}). `) +
-    `Rückforderbar bei Rüge: ${fmtEUR(Math.round(risiko.rueckforderbar))}` +
+    `Rückforderbar bei Rüge: ${fmtEUR(Math.round(risiko.rueckforderbar))} plus etwa ${fmtEUR(Math.round(aktuellerBetrag(state, state.config.mietpreisbremse.verstoss.rechtskosten || 0)))} Anwaltskosten` +
     (risiko.monate <= frist ? ` (noch ${frist - risiko.monate} Monate rückwirkend)` : ' (Frist vorbei, nur noch künftig)') + '. ' +
     `Risiko im nächsten Jahr: Rüge etwa ${jahr(risiko.ruege)} %` + (risiko.bussgeld > 0 ? `, Bußgeld etwa ${jahr(risiko.bussgeld)} %` : '') + '.' +
     (risiko.mehrMonat > 0 ? `<br><button type="button" id="btn-bremse-senken">Miete auf zulässige Höhe senken</button>` : '') +

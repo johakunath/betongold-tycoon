@@ -940,8 +940,9 @@ function kaufeGuenstigesEigenheim(state) {
     const vorRuege = oa.kaltmiete - zulaessig;
     advanceMonths(a, 1, auto);
     check(oa.bremseVerstoss.geruegt && oa.kaltmiete === zulaessig
-      && Math.abs(oa.bremseVerstoss.kosten - Math.round(mehr + vorRuege)) <= 1,
-      `Rüge nach 13 Monaten: ${oa.bremseVerstoss.kosten} € Rückzahlung seit Mietbeginn, Miete auf ${zulaessig} €`);
+      && Math.abs(oa.bremseVerstoss.rueckzahlung - Math.round(mehr + vorRuege)) <= 1
+      && oa.bremseVerstoss.kosten > oa.bremseVerstoss.rueckzahlung,
+      `Rüge nach 13 Monaten: ${oa.bremseVerstoss.rueckzahlung} € Rückzahlung seit Mietbeginn plus Anwaltskosten, Miete auf ${zulaessig} €`);
     check(a.cash < cashVor, 'Rückzahlung belastet das Tagesgeld');
   }
 
@@ -950,7 +951,7 @@ function kaufeGuenstigesEigenheim(state) {
   for (let i = 0; i < 31; i++) advanceMonths(b, 1, auto);
   b.config.mietpreisbremse.verstoss.ruegeMonat = { berlin: 1, leipzig: 1 };
   advanceMonths(b, 1, auto);
-  check(!ob.mieter || (ob.bremseVerstoss.geruegt && ob.bremseVerstoss.kosten === 0),
+  check(!ob.mieter || (ob.bremseVerstoss.geruegt && ob.bremseVerstoss.rueckzahlung === 0),
     'Rüge nach 30 Monaten: keine Rückzahlung, nur Mietsenkung');
 
   const { g: c, o: oc } = vermieteIllegal('bremse-ausstieg', 0);
@@ -962,6 +963,11 @@ function kaufeGuenstigesEigenheim(state) {
   check(oc.bremseVerstoss.mehrerloes === aufgelaufen, 'Nach dem Ausstieg läuft kein weiterer Mehrerlös auf');
   advanceMonths(c, 25, auto);
   check(!oc.mieter || oc.bremseVerstoss.beendet, 'Nach Ablauf der 30-Monats-Frist ist ein bereinigter Verstoß erledigt');
+
+  const { g: d, o: od } = vermieteIllegal('bremse-sofort', 0);
+  senkeAufZulaessigeMiete(d, od);
+  advanceMonths(d, 1, auto);
+  check(!od.mieter || od.bremseVerstoss.beendet, 'Sofortiger Ausstieg ohne Mehrerlös: kein Rüge-Risiko mehr');
 }
 
 // --- Entnahmeregel statt Dispo-Falle ----------------------------------------

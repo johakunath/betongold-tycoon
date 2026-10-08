@@ -3,6 +3,14 @@
 Kompaktes, chronologisches Log. Ältere Einträge sind verdichtet; Details
 bleiben in `DECISIONS.md` und den Fachdocs nachvollziehbar.
 
+## 2026-10-08 (3)
+
+- **Mietpreisbremse bewusst ignorieren.** Checkbox in der Mietersuche,
+  Statusbox mit Rückforderungsbetrag und Jahresrisiko im Objekt, Ausstieg auf
+  die zulässige Miete, getrennter Pfad „Nur mit Rechtsbruch" in der
+  Finanzierung. Wahrscheinlichkeiten und Bußgeld an Recherche kalibriert
+  (`ECONOMY_MODEL.md` §15b).
+
 ## 2026-10-08 (2)
 
 - **Owner-Delegation, sechs Modellentscheidungen.** Reale Berliner Kappung

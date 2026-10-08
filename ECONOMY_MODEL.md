@@ -633,6 +633,56 @@ Folge: Berliner und Leipziger Altbau-Kapitalanlagen sind ohne Modernisierung
 selten tragfähig; die 40-Listing-Matrix (B0) behält je Markt mindestens einen
 positiven Pfad, meist über Modernisierung, Neubau oder günstigen Bestand.
 
+### 15b. Mietpreisbremse bewusst ignorieren (Save v22)
+
+Bei einer Neuvermietung unter der Bremse kann der Spieler die Grenze bewusst
+ignorieren (`starteVermietung(..., { bremseIgnorieren: true })`). Die Miete
+folgt dann der Marktmiete; `objekt.bremseVerstoss` merkt sich Beginn,
+zulässige Miete, vereinbarte Miete, Mietspiegel und aufgelaufenen Mehrerlös.
+Eine unzulässige Vormiete schützt bei der nächsten Vermietung nicht.
+
+Jeden Monat mit laufendem Verstoß (eine RNG-Ziehung im Mieter-Tick, nur wenn
+ein Verstoß existiert; reguläre Spiele ziehen keine zusätzliche Zahl):
+
+```
+ueberschuss = vereinbart / zulaessig − 1
+zeitFaktor  = 1,3 in Monat 0–11, 1,5 in Monat 27–30, sonst 1
+p_ruege     = ruegeMonat[stadt] · (1 + konflikt · 1,0) · (1 + ueberschuss · 1,5) · zeitFaktor
+ueberVM     = miete / mietspiegel − 1
+p_bussgeld  = ueberVM > 20 % ? bussgeldMonat[stadt] · (ueberVM > 50 % ? 3 : 1) : 0
+```
+
+| Folge | Bedingung | Kosten |
+|---|---|---|
+| Rüge (§ 556g BGB) | Rüge in Monat ≤ 30, Mietverhältnis läuft | gesamter Mehrerlös seit Mietbeginn + 800 € Anwaltskosten |
+| späte Rüge | nach Monat 30 | nur 800 € Anwaltskosten, Rückzahlung erst ab Rüge (= 0) |
+| Bußgeld (§ 5 WiStG) | > 120 % der Vergleichsmiete | 12.000 €; in der Hälfte der Fälle zusätzlich Abschöpfung des Mehrerlöses (§§ 8/9 WiStG) |
+
+In jedem Fall sinkt die Miete auf die zulässige Höhe, die Kappungsbasis
+startet neu und die Mieterzufriedenheit sinkt um 0,4. Alle Beträge in Euro des
+Spielstarts, indexiert mit §1a. Freiwilliger Ausstieg
+(`senkeAufZulaessigeMiete`) stoppt neuen Mehrerlös, das bisherige bleibt bis
+Monat 30 rückforderbar. Danach ist der Fall erledigt (`beendet`). Zieht der
+Mieter aus, verfällt der Anspruch im Modell. Die Finanzierung zeigt den Pfad
+„Nur mit Rechtsbruch" getrennt; er wird nie empfohlen und zählt nicht für B0.
+
+Kalibrierung (Rechercheauftrag 10/2026, alle Werte tunbar):
+
+| Annahme | Wert | Anker |
+|---|---|---|
+| Rüge Berlin | 0,4 %/Monat Basis → 17–34 % in 30 Monaten | Nur 2,4 % der Mieter nutzten die Bremse je (TU/LMU-Befragung); DMB: 45,7 % der Berliner Altbauinserate über der Grenze; Berlin ~773 durchgesetzte Absenkungen 2024 ([Drs. 19/26859](https://pardok.parlament-berlin.de/starweb/adis/citat/VT/19/SchrAnfr/S19-26859.pdf), [DMB-Mietenmonitor](https://mieterbund.de/aktuelles/meldungen/mietenmonitor-deutlich-ueberhoehte-mieten-in-berlin-und-ulm/)) |
+| Rüge Leipzig | 0,2 %/Monat Basis → 9–19 % | kleinere Mietervereinsdichte, kein öffentliches Prüfangebot; Bremse bis 30.06.2027 ([Sachsen](https://medienservice.sachsen.de/medien/news/1092960/download_pdf)) |
+| Rückforderung | 30 Monate ab Mietbeginn | [§ 556g Abs. 2 BGB](https://www.gesetze-im-internet.de/bgb/__556g.html) |
+| Bußgeld | Berlin 0,015 %/Monat, Leipzig 0,004 %/Monat; 12.000 € | Berlin: 7 Bußgelder bei ~5.100 Prüfverfahren, 1.300–26.000 €, Höchstmaß 50.000 € ([berlin.de](https://www.berlin.de/aktuelles/10237006-958090-pruefstelle-deckt-hunderte-wuchermieten-.html), [§ 5 WiStG](https://dejure.org/gesetze/WiStG/5.html), [§ 8](https://dejure.org/gesetze/WiStG/8.html)) |
+| Verstoß gegen die Bremse selbst | kein Bußgeld | Die Bremse ist zivilrechtlich; erst § 5 WiStG ab 20 % über Vergleichsmiete |
+
+Bewusst vereinfacht: Möblierung und Wohnen auf Zeit stehen weiter unter der
+Bremse, ihre Grauzone trägt das bestehende Rechtsrisiko aus §25
+([§ 549 Abs. 2 BGB](https://www.gesetze-im-internet.de/bgb/__549.html)
+nimmt nur echten vorübergehenden Gebrauch aus). Nicht modelliert: Mietwucher
+nach § 291 StGB, Klagekosten bei verlorenem Prozess, die geplante
+Mietrecht-II-Reform und ein mögliches Auslaufen der Bremse.
+
 ## 16. Mieterwahl & Vermietung (Phase 3)
 
 **Vermietung starten** (leeres Objekt): Spieler wählt Mietniveau relativ zur
