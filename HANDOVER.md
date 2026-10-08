@@ -30,6 +30,10 @@ zählte nur Mietobjekte; „Nur Miete/ETF" bekam dort immer 0 und lag im Schnitt
 4. Umschalter „nominal / heutige €" in Zentrale-Chart und Endauswertung
    (`localStorage`-Vorliebe `betongold.euroModus`, nur UI).
 5. Kleinfix: „19,3 Mon." im Familienpanel bricht nicht mehr um.
+6. Review-Fixes (Codex auf PR #2): Bewerber-Einkommen laufen mit dem
+   Preisniveau (Einkommensquote sonst nach 55 Jahren ~89 %), das Renovierungs-
+   Mietplus nutzt die indexierte Vergleichsmiete, und alle Vergleichsläufe
+   spielen den Sparplan-Anteil aus `historie[m].sparplanEtfAnteil` nach.
 
 **Messung (Normal, 120 Seeds, vorher → nachher).** Score „Nur Miete/ETF"
 64,5 → 84,5; „Invest 25 %" 73,6 → 85,4; „2 Investments, dann Heim"

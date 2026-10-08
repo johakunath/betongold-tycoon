@@ -3,7 +3,7 @@
 
 import { rngFloat, zahleReparatur, entnimmRuecklage } from './state.js?v=60';
 import { meldeWartemoment } from './signals.js?v=60';
-import { fairerWert } from './market.js?v=60';
+import { fairerWert, vergleichsmiete } from './market.js?v=60';
 import { protokolliereWirkung } from './gameplay.js?v=60';
 import { aktuellerBetrag, preisniveau } from './preisniveau.js?v=60';
 
@@ -58,7 +58,8 @@ export function renovierungsOptionen(state, objekt, eigenleistungAktiv = false) 
     };
     const wertHeute = fairerWert(state, objekt);
     const wertDanach = fairerWert(state, nachher);
-    const mieteBasis = objekt.flaeche * state.config.segmente[objekt.segment].vergleichsmieteM2;
+    // Gleiche, mit dem Preisniveau fortgeschriebene Basis wie die Bewerbersuche.
+    const mieteBasis = vergleichsmiete(state, objekt);
     const mieteHeute = mieteBasis * state.config.mieter.zustandMietFaktor[objekt.zustand];
     const mieteDanach = mieteBasis * state.config.mieter.zustandMietFaktor[ziel];
     return {

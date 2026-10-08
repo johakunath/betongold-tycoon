@@ -144,7 +144,7 @@ export function berechneEndauswertung(state) {
 // danach; Invest-first priorisiert Bruttorendite. Beide bieten den Angebotspreis,
 // wählen 2 % Tilgung und vermieten leer gekaufte Objekte zur Marktmiete.
 // Ohne-Käufe hält nur die Startlage (inkl. eines Startbestands) und spart mit
-// der zuletzt gewählten Sparplan-Aufteilung weiter.
+// der monatsgenau nachgespielten Sparplan-Aufteilung des Spielers weiter.
 function simuliereStrategie(original, strategie) {
   const sim = newGame({
     schwierigkeit: original.schwierigkeit,
@@ -179,6 +179,10 @@ function simuliereStrategie(original, strategie) {
     ) {
       versucheKauf(sim, 'kapitalanlage');
     }
+    // Sparplan-Wechsel des Spielers monatsgenau nachspielen, damit „Ohne Käufe"
+    // dieselbe Aufteilungshistorie hat und die Zerlegung sauber bleibt.
+    const anteil = original.historie[sim.monat + 1]?.sparplanEtfAnteil;
+    if (Number.isFinite(anteil)) sim.config.haushalt.sparplanEtfAnteil = anteil;
     advanceMonths(sim, 1, auto);
     linie.push({ monat: sim.monat, wert: nettovermoegen(sim) });
   }

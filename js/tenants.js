@@ -76,7 +76,8 @@ export function neueBewerber(state, objekt) {
   suche.bewerber = bewertet.slice(0, n).map(({ t }) => ({
     id: t.id,
     miete: suche.miete,
-    einkommensquote: t.nettoEinkommen ? suche.miete / t.nettoEinkommen : null,
+    // Dossier-Einkommen stehen wie die Mieten in Euro des Spielstarts.
+    einkommensquote: t.nettoEinkommen ? suche.miete / aktuellerBetrag(state, t.nettoEinkommen) : null,
   }));
   return suche;
 }

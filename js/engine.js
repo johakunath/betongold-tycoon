@@ -358,6 +358,8 @@ export function tick(state) {
     etf: etf.wert,
     cashflow: state.letzterCashflow,
     preisniveau: state.preisniveau,
+    // Im Monat genutzter Sparplan-Anteil; Vergleichsläufe spielen ihn nach.
+    sparplanEtfAnteil: w.sparplanEtfAnteil,
   });
 
   const lebensende = lebensendeVorschau(state);

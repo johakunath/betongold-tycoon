@@ -11,7 +11,7 @@ import {
   advanceMonths, alterGenau, gesamtMonate, istImRuhestand,
   lebensendeVorschau, monatsWerte, nettovermoegen,
 } from '../js/engine.js?v=60';
-import { setzeInhalte, getListing } from '../js/content.js?v=60';
+import { setzeInhalte, getListing, getTenant } from '../js/content.js?v=60';
 import {
   initialisiereMarkt, sichtbareListings, gebotAbgeben, fairerWert,
   besichtigen, dokumenteAnfordern, gutachterBeauftragen,
@@ -837,6 +837,42 @@ function kaufeGuenstigesEigenheim(state) {
   check(Math.abs(ende.zerlegung.entscheidungen + ende.zerlegung.sparaufteilung - (ende.endwerte.spieler - ende.endwerte.etf)) < 1
     && Math.abs(ende.zerlegung.entscheidungen) < 1,
     'Zerlegung des ETF-Abstands summiert sich; ohne eigene Käufe liegt der Spieler auf der Ohne-Käufe-Linie');
+
+  // Sparplanwechsel mitten im Lauf: Die Ohne-Käufe-Linie spielt ihn nach.
+  const wechsel = newGame({ seedText: 'score-sparplan-wechsel' });
+  initialisiereMarkt(wechsel);
+  advanceMonths(wechsel, 120, auto);
+  setzeSparplanEtfAnteil(wechsel, 1);
+  advanceMonths(wechsel, 10000, auto);
+  const wechselEnde = berechneEndauswertung(wechsel);
+  check(wechsel.portfolio.length === 0 && Math.abs(wechselEnde.zerlegung.entscheidungen) < 1,
+    'Ohne Käufe, aber mit Sparplanwechsel bleiben „eure Entscheidungen" bei 0 €');
+
+  // Spätere Mietersuche und Renovierung rechnen in denselben laufenden Euro.
+  const spaet = newGame({ seedText: 'preisniveau-spaet' });
+  initialisiereMarkt(spaet);
+  kaufeGuenstiges(spaet, () => true);
+  advanceMonths(spaet, 360, auto);
+  const objekt = spaet.portfolio[0];
+  const reno = renovierungsOptionen(spaet, objekt).find((o) => o.moeglich !== false);
+  const pn = spaet.preisniveau;
+  const basis = objekt.flaeche * spaet.config.segmente[objekt.segment].vergleichsmieteM2;
+  const istNeubau = objekt.stil === 'neubau' || Number(objekt.baujahr) >= 2020;
+  check(istNeubau || !reno || Math.abs(reno.mieteDelta - Math.round(basis * pn *
+    (spaet.config.mieter.zustandMietFaktor[reno.zielZustand] - spaet.config.mieter.zustandMietFaktor[objekt.zustand]))) <= 1,
+    'Renovierungs-Mietplus läuft mit dem Preisniveau wie die Kosten');
+  objekt.vermietet = false;
+  objekt.mieter = null;
+  objekt.suche = null;
+  starteVermietung(spaet, objekt, 'auf', false);
+  neueBewerber(spaet, objekt);
+  const quoten = objekt.suche.bewerber.map((b) => b.einkommensquote).filter((q) => q != null);
+  const quotenStart = objekt.suche.bewerber.map((b) => {
+    const t = getTenant(b.id);
+    return t?.nettoEinkommen ? (b.miete / pn) / t.nettoEinkommen : null;
+  }).filter((q) => q != null);
+  check(quoten.length > 0 && quoten.every((q, i) => Math.abs(q - quotenStart[i]) < 1e-9),
+    'Einkommensquote der Bewerber vergleicht Miete und Einkommen im selben Preisniveau');
 }
 
 // --- Haushaltsbedingungen der Events (Kindesalter, Auto, Ruhestand) ---------

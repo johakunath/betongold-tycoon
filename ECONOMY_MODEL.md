@@ -54,7 +54,8 @@ Angebote beim Kauf, Hausgeld bzw. Grundsteuer/Versicherung/Grundstück (§14),
 Instandhaltungsrücklage, Renovierungskosten und Eigenleistungsdeckel (§17),
 Mängel und Sonderumlagen beim Kauf (§13), Gutachterhonorar, Möblierung,
 Eigenbedarfsabfindung, Bewirtschaftungspauschale der Bank (§10) und
-Event-Beträge samt der Zahlen in Event-Texten (§18). Die Arbeitszeit einer
+Event-Beträge samt der Zahlen in Event-Texten (§18) sowie die Dossier-Einkommen
+der Bewerber für die Einkommensquote (§16). Die Arbeitszeit einer
 Eigenleistung hängt am realen, nicht am inflationierten Volumen.
 
 Nicht doppelt indexiert werden Reihen mit eigener nominaler Rate: Einkommen,
@@ -864,8 +865,10 @@ Objekt halten darf. Diese Linien sind Lern-Benchmarks, keine Aussage über die
 einzig richtige Strategie; ihre Regeln stehen in `js/endgame.js`.
 
 Eine vierte Vergleichslinie **„Ohne Käufe"** spielt dieselbe Startlage
-(einschließlich eines Startbestands) ohne Käufe und mit der zuletzt gewählten
-Sparplan-Aufteilung. Damit zerlegt die Endauswertung den Abstand zur
+(einschließlich eines Startbestands) ohne Käufe; der Sparplan-Anteil wird aus
+`historie[m].sparplanEtfAnteil` monatsgenau nachgespielt (gilt für alle
+Vergleichsläufe). Manuelle Umschichtungen und Admin-Änderungen anderer Werte
+werden nicht nachgespielt und zählen zu „eigenen Entscheidungen". Damit zerlegt die Endauswertung den Abstand zur
 ETF-Linie in zwei getrennte Fragen:
 
 ```
