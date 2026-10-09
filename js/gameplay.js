@@ -2,8 +2,8 @@
 // Fachmodule protokollieren hier bewusst getroffene Entscheidungen; die UI
 // leitet daraus Monatsanlass, Prüfstand und kurze Vorher/Nachher-Momente ab.
 
-import { getListing } from './content.js?v=59';
-import { naechsteLebensphase } from './life.js?v=59';
+import { getListing } from './content.js?v=60';
+import { naechsteLebensphase } from './life.js?v=60';
 
 function historie(state) {
   if (!Array.isArray(state.entscheidungsHistorie)) state.entscheidungsHistorie = [];
@@ -40,7 +40,7 @@ export function pruefstand(state, id) {
   const cfg = state.config.dueDiligence;
   const zeit = (dd.besichtigt ? cfg.besichtigungZeit : 0) +
     (dd.dokumente ? cfg.dokumenteZeit : 0) + (dd.gutachten ? cfg.gutachterZeit : 0);
-  const kosten = dd.gutachten ? cfg.gutachterKosten : 0;
+  const kosten = dd.gutachten ? (dd.gutachtenKosten ?? cfg.gutachterKosten) : 0;
   const funde = (dd.aufgedeckteMaengel || []).length + (dd.sonderumlageBekannt ? 1 : 0);
   // DD reduziert Unsicherheit sichtbar, verspricht aber auch vollständig nie
   // Mangelfreiheit. Die Stufen sind UI-Sprache, keine Kaufwahrscheinlichkeit.
@@ -70,7 +70,7 @@ export function setzeDealEntscheidung(state, id, typ, preis) {
     typ: verworfen ? 'weggegangen' : 'beobachtet',
     titel: verworfen ? 'Guter Weggang' : 'Bewusst beobachten',
     text: verworfen
-      ? `${listing.titel} verworfen: ${stand.schritte}/3 Prüfungen, ${stand.funde} Risikohinweise; kein Kapital gebunden.`
+      ? `${listing.titel} verworfen: ${stand.schritte}/3 Prüfungen, ${stand.funde === 1 ? '1 beziffertes Risiko' : `${stand.funde} bezifferte Risiken`}; kein Kapital gebunden.`
       : `${listing.titel} auf Beobachtung: Preis und Marktzeit werden zur nächsten Chance vergleichbar.`,
     ziel: id,
     route: 'expose',

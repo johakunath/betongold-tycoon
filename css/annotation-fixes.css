@@ -832,3 +832,50 @@ input, select, textarea,
   .ressourcenleiste > :is(div, button) { height: 46px; min-height: 46px; max-height: 46px; }
   .resource-finanzgruppe > button { height: 46px; min-height: 46px; max-height: 46px; gap: 8px; }
 }
+
+/* Toast über dem Dock (UI v60): Die rechte Toast-Spalte (≤ 420 px) passt erst
+   ab ~1013 px neben die Bottom-Navigation (bis ~575 px). Darunter lag der Toast
+   auf der Navigation (gemessen bei 390/700/701 px); er rückt deshalb über sie. */
+@media (max-width: 1023.98px) {
+  .toast { bottom: calc(88px + env(safe-area-inset-bottom, 0px)); }
+}
+
+/* ETF-Panel im Finanzierungsdialog (UI v60): Die Reglerspalte war fest 130 px
+   breit, der Regler selbst verlangt aber min. 190 px. Er lief deshalb unter
+   „Ins Tagesgeld" und der Hinweistext lag unter dem Button. */
+@media (min-width: 701px) {
+  .fin-etf-panel { grid-template-columns: minmax(150px, 1fr) minmax(190px, 1fr) auto; }
+}
+
+/* Umschalter nominal / heutige Euro (P1-Inflationspaket). */
+.euro-umschalter { display: inline-flex; border: 1px solid var(--hairline); border-radius: 999px; overflow: hidden; }
+.euro-umschalter button {
+  min-height: 30px; padding: 3px 11px; border: 0; border-radius: 0;
+  background: transparent; color: var(--gedimmt); font-size: 13px; box-shadow: none;
+}
+.euro-umschalter button[aria-pressed="true"] { background: var(--karte-weich, rgba(255,255,255,.08)); color: var(--tinte, inherit); font-weight: 700; }
+
+/* Fünfte Vergleichslinie „Ohne Käufe": gestrichelt, neutral, damit sie als
+   Referenz und nicht als Strategie gelesen wird. */
+.end-ohne { stroke: #b9bcb6; stroke-dasharray: 6 5; }
+.serie-ohne { background: #b9bcb6; }
+.endgame-vergleich { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+.endgame-hauptwert .euro-umschalter { margin-top: 8px; justify-self: end; }
+
+/* „19,3 Mon." brach im Familienpanel um (UI v60): Werte bleiben einzeilig. */
+.sims-zeile > b { white-space: nowrap; }
+
+/* Entnahmeregel unter dem Sparplan (Save v22). */
+.entnahme-regel { display: grid; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--hairline); }
+.entnahme-regel label { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.entnahme-regel input[type="number"] { width: 5.5em; }
+.entnahme-regel button { justify-self: start; }
+.sparplan-karte form.entnahme-regel { grid-template-columns: 1fr; align-items: start; }
+.sparplan-karte form.entnahme-regel > button { grid-column: 1; grid-row: auto; justify-self: start; align-self: start; }
+
+/* Bewusster Verstoß gegen die Mietpreisbremse: sichtbar als Risiko markiert. */
+.bremse-ignorieren { display: flex; gap: 9px; align-items: flex-start; margin: 4px 0 10px; padding: 9px 11px; border: 1px solid rgba(214, 120, 90, .45); border-radius: 9px; background: rgba(214, 120, 90, .08); }
+.bremse-ignorieren input { margin-top: 3px; }
+.fin-pfad-urteil.rechtsbruch { border-color: rgba(214, 120, 90, .55); background: rgba(214, 120, 90, .08); }
+.bremse-verstoss { border-color: rgba(214, 120, 90, .55); background: rgba(214, 120, 90, .08); }
+.bremse-verstoss button { margin-top: 8px; }

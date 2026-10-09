@@ -1,10 +1,11 @@
 ﻿// renovation.js — Renovierungsstufen: Optionen, Start, Abschluss (mit
 // Kostenüberziehung). Formeln: ECONOMY_MODEL §17. DOM-frei, RNG über state.js.
 
-import { rngFloat, zahleReparatur, entnimmRuecklage } from './state.js?v=59';
-import { meldeWartemoment } from './signals.js?v=59';
-import { fairerWert } from './market.js?v=59';
-import { protokolliereWirkung } from './gameplay.js?v=59';
+import { rngFloat, zahleReparatur, entnimmRuecklage } from './state.js?v=60';
+import { meldeWartemoment } from './signals.js?v=60';
+import { fairerWert, vergleichsmiete } from './market.js?v=60';
+import { protokolliereWirkung } from './gameplay.js?v=60';
+import { aktuellerBetrag, preisniveau } from './preisniveau.js?v=60';
 
 const ENERGIEKLASSEN = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 
@@ -27,9 +28,10 @@ function eigenleistungsPlan(state, basisSchaetzung, dauer, aktiv) {
   const cfg = state.config.renovierung.eigenleistung;
   const handwerklich = !!state.startProfil?.beruf?.handwerklich;
   const rabatt = handwerklich ? cfg.rabattHandwerklich : cfg.rabatt;
-  const ersparnis = Math.min(cfg.ersparnisMax, Math.round(basisSchaetzung * rabatt));
+  const ersparnis = Math.min(aktuellerBetrag(state, cfg.ersparnisMax), Math.round(basisSchaetzung * rabatt));
+  // Arbeitszeit hängt am realen Volumen, nicht an inflationierten Euro.
   const zeitProMonat = Math.min(cfg.zeitMonatMax, Math.max(1,
-    Math.ceil(basisSchaetzung / 1000 * cfg.zeitJe1000Euro / dauer)
+    Math.ceil(basisSchaetzung / preisniveau(state) / 1000 * cfg.zeitJe1000Euro / dauer)
   ));
   return {
     ersparnis,
@@ -44,7 +46,7 @@ function eigenleistungsPlan(state, basisSchaetzung, dauer, aktiv) {
 export function renovierungsOptionen(state, objekt, eigenleistungAktiv = false) {
   const r = state.config.renovierung;
   return Object.entries(r.stufen).map(([id, stufe]) => {
-    const basisSchaetzung = Math.round(objekt.flaeche * stufe.kostenM2 * (r.kostenFaktor ?? 1));
+    const basisSchaetzung = Math.round(objekt.flaeche * stufe.kostenM2 * (r.kostenFaktor ?? 1) * preisniveau(state));
     const dauer = Math.max(1, Math.ceil(stufe.dauer * (r.dauerFaktor ?? 1)));
     const eigenleistung = eigenleistungsPlan(state, basisSchaetzung, dauer, eigenleistungAktiv);
     const schaetzung = basisSchaetzung - (eigenleistung?.ersparnis || 0);
@@ -56,7 +58,8 @@ export function renovierungsOptionen(state, objekt, eigenleistungAktiv = false) 
     };
     const wertHeute = fairerWert(state, objekt);
     const wertDanach = fairerWert(state, nachher);
-    const mieteBasis = objekt.flaeche * state.config.segmente[objekt.segment].vergleichsmieteM2;
+    // Gleiche, mit dem Preisniveau fortgeschriebene Basis wie die Bewerbersuche.
+    const mieteBasis = vergleichsmiete(state, objekt);
     const mieteHeute = mieteBasis * state.config.mieter.zustandMietFaktor[objekt.zustand];
     const mieteDanach = mieteBasis * state.config.mieter.zustandMietFaktor[ziel];
     return {
@@ -128,6 +131,9 @@ export function renovierungAbschluss(state, objekt) {
     if (i >= 0) objekt.energieklasse = ENERGIEKLASSEN[Math.max(0, i - stufe.energieBonus)];
   }
   if (stufe.wertBonus > 0) objekt.wertBonus = (objekt.wertBonus || 0) + stufe.wertBonus;
+  // Kumuliertes Modernisierungsvolumen (Euro des Spielstarts je m²): ab
+  // `mietpreisbremse.umfassendModernisiertM2` gilt die Mietpreisbremse nicht mehr.
+  objekt.modernisierungM2 = (objekt.modernisierungM2 || 0) + stufe.kostenM2;
 
   const risiko = Math.max(0,
     (state.config.renovierung.ueberziehungBasis +

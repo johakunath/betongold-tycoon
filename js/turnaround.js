@@ -3,11 +3,11 @@
 // die regulären Fachwerte; nur das auf zwölf Monate begrenzte Bankgespräch ist
 // ein eigener, kostenpflichtiger Hebel.
 
-import { fairerWert } from './market.js?v=59';
-import { kannErhoehen, maxMiete } from './tenants.js?v=59';
-import { fixkostenMonat, instandhaltungMonat } from './immobilie.js?v=59';
-import { verkaufsVorschau } from './verkauf.js?v=59';
-import { protokolliereWirkung } from './gameplay.js?v=59';
+import { fairerWert } from './market.js?v=60';
+import { kannErhoehen, maxMiete } from './tenants.js?v=60';
+import { fixkostenMonat, instandhaltungMonat } from './immobilie.js?v=60';
+import { verkaufsVorschau } from './verkauf.js?v=60';
+import { protokolliereWirkung } from './gameplay.js?v=60';
 
 export function turnaroundAktiv(state) {
   return state.startPreset === state.config.turnaround.preset && state.portfolio.length > 0;

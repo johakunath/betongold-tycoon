@@ -145,14 +145,26 @@
   },
   {
     "id": "auto-kaputt",
-    "titel": "Das Familienauto gibt den Geist auf",
-    "text": "Der alte Kombi ist nicht mehr zu retten. Ohne Auto wird der Alltag mit zwei Kindern zäh.",
+    "titel": "Motorschaden am Familienauto",
+    "text": "Die Werkstatt meldet einen Motorschaden. Die Auto-Pauschale deckt Anschaffung, laufende Kosten und planmäßigen Wertverlust, aber keinen vorzeitigen Schaden.",
     "kategorie": "haushalt",
     "gewicht": 1.0,
-    "bedingung": { "einmalig": false, "cooldownMonate": 96 },
+    "bedingung": { "einmalig": false, "cooldownMonate": 96, "autoVorhanden": true },
     "optionen": [
-      { "text": "Solider Gebrauchter (ca. 12.000 €)", "effekt": { "cash": -12000, "familie": 2 }, "folge": "Mobil und zuverlässig – die Familie atmet auf." },
-      { "text": "Günstiger Notnagel (ca. 4.000 €)", "effekt": { "cash": -4000, "familie": -1 }, "folge": "Billig, aber die nächste Reparatur kommt bestimmt." }
+      { "text": "Reparieren lassen (ca. 3.500 €)", "effekt": { "cash": -3500 }, "folge": "Das Auto läuft wieder; die Monatspauschale bleibt unverändert." },
+      { "text": "Vorzeitig ersetzen (ca. 7.000 € Mehrkosten)", "effekt": { "cash": -7000, "familie": 1 }, "folge": "Ein verlässlicher Gebrauchter; der Restwert des alten Wagens ist bereits verrechnet." }
+    ]
+  },
+  {
+    "id": "eigenbedarf-vermieter",
+    "titel": "Eigenbedarf: Euer Vermieter kündigt",
+    "text": "Euer Vermieter meldet Eigenbedarf für eure Wohnung an. Nach der Kündigungsfrist müsst ihr ausziehen; ein neuer Vertrag liegt beim heutigen Mietniveau.",
+    "kategorie": "haushalt",
+    "gewicht": 0.6,
+    "bedingung": { "einmalig": false, "cooldownMonate": 120, "nurMieter": true },
+    "optionen": [
+      { "text": "Gleich große Wohnung suchen (ca. 5.000 € Umzug, Miete +15 %)", "effekt": { "cash": -5000, "familie": -4, "haushaltsMiete": 0.15 }, "folge": "Gleiche Größe, neue Nachbarschaft; der neue Vertrag kostet spürbar mehr." },
+      { "text": "Kleiner wohnen (ca. 3.500 € Umzug, Miete bleibt)", "effekt": { "cash": -3500, "familie": -8 }, "folge": "Die Miete bleibt im Rahmen, aber es wird enger und der Alltag holpriger." }
     ]
   },
   {
@@ -161,7 +173,7 @@
     "text": "Einer von euch bekommt ein Jobangebot mit Wechselbonus – aber auch deutlich mehr Verantwortung und Reisen. Das Modell verbucht nur den Bonus, keine dauerhafte Gehaltsänderung.",
     "kategorie": "haushalt",
     "gewicht": 0.8,
-    "bedingung": { "einmalig": true },
+    "bedingung": { "einmalig": true, "vorRuhestand": true },
     "optionen": [
       { "text": "Annehmen (4.000 € Wechselbonus, mehr Stress)", "effekt": { "cash": 4000, "familie": -4 }, "folge": "Der Einmalbonus landet auf dem Konto; die Umstellung belastet die Familie." },
       { "text": "Ablehnen, Balance halten", "effekt": { "familie": 3 }, "folge": "Kein Bonus, dafür bleibt der vertraute Familienrhythmus." }
@@ -173,7 +185,7 @@
     "text": "Ihr überlegt, ob eine/r von euch für ein paar Monate kürzertritt, um mehr für die Kinder da zu sein.",
     "kategorie": "haushalt",
     "gewicht": 0.7,
-    "bedingung": { "einmalig": true },
+    "bedingung": { "einmalig": true, "vorRuhestand": true, "kindAlterMax": 12 },
     "optionen": [
       { "text": "Auszeit nehmen (weniger Einkommen)", "effekt": { "cash": -3500, "familie": 5 }, "folge": "Finanziell ein Einschnitt, für die Familie ein Geschenk." },
       { "text": "Weiter Vollgas arbeiten", "effekt": { "familie": -2 }, "folge": "Das Einkommen bleibt, die Sehnsucht auch." }
@@ -185,7 +197,7 @@
     "text": "Der Kieferorthopäde empfiehlt eine Zahnspange. Die Kasse zahlt nur einen Teil.",
     "kategorie": "kind",
     "gewicht": 1.0,
-    "bedingung": { "einmalig": true },
+    "bedingung": { "einmalig": true, "kindAlterMin": 9, "kindAlterMax": 15 },
     "optionen": [
       { "text": "Beste Versorgung zahlen (ca. 2.400 €)", "effekt": { "cash": -2400, "familie": 2 }, "folge": "Ein schönes Lächeln ist es euch wert." },
       { "text": "Nur die Kassenleistung", "effekt": { "cash": -300, "familie": -1 }, "folge": "Reicht medizinisch, aber ihr habt ein leises schlechtes Gewissen." }
@@ -197,7 +209,7 @@
     "text": "Ein Kind möchte unbedingt mit auf die teure Klassenfahrt ins Ausland.",
     "kategorie": "kind",
     "gewicht": 0.9,
-    "bedingung": { "einmalig": true },
+    "bedingung": { "einmalig": true, "kindAlterMin": 12, "kindAlterMax": 18 },
     "optionen": [
       { "text": "Mitfahren lassen (ca. 800 €)", "effekt": { "cash": -800, "familie": 3 }, "folge": "Strahlende Augen und viele Geschichten danach." },
       { "text": "Diesmal nicht", "effekt": { "familie": -3 }, "folge": "Enttäuschung am Küchentisch." }

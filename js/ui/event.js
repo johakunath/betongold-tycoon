@@ -1,7 +1,8 @@
 ﻿// event.js — Screen 8: Event-Modal. Zeigt das Dilemma mit 2–3 Optionen; nach
 // der Wahl die Folge, dann weiter. Blockiert (die Zeit ist ohnehin pausiert).
 
-import { aktivesEventInfo, resolveEvent } from '../events.js?v=59';
+import { aktivesEventInfo, resolveEvent } from '../events.js?v=60';
+import { textInLaufendenEuro } from '../preisniveau.js?v=60';
 
 let ctx = null;
 
@@ -29,10 +30,10 @@ export function zeigeEvent() {
     `<span aria-hidden="true">${meta.icon}</span> ${meta.label}`;
   document.getElementById('event-titel').textContent = ev.titel;
   document.getElementById('event-text').textContent =
-    (objekt ? `${objekt.titel}: ` : '') + ev.text;
+    textInLaufendenEuro(state, (objekt ? `${objekt.titel}: ` : '') + ev.text);
 
   document.getElementById('event-optionen').innerHTML = ev.optionen
-    .map((opt, i) => `<button class="event-option" data-opt="${i}">${opt.text}</button>`)
+    .map((opt, i) => `<button class="event-option" data-opt="${i}">${textInLaufendenEuro(state, opt.text)}</button>`)
     .join('');
   document.getElementById('event-optionen').hidden = false;
   document.getElementById('event-folge').hidden = true;
@@ -57,7 +58,7 @@ function waehle(optionIndex) {
   const folge = document.getElementById('event-folge');
   document.getElementById('dlg-event').classList.add('event-aufgeloest');
   folge.querySelector('.event-folge-text').textContent =
-    ergebnis?.opt?.folge || 'Erledigt.';
+    textInLaufendenEuro(state, ergebnis?.opt?.folge || 'Erledigt.');
   folge.hidden = false;
 }
 

@@ -2,13 +2,14 @@
 // Dossierkarten sichten, einziehen lassen oder weitersuchen (kostet einen
 // Leerstandsmonat). Dossiers sind Hinweise, kein Score (PLAN §5.6).
 
-import { getTenant } from '../content.js?v=59';
+import { getTenant } from '../content.js?v=60';
 import {
-  angesetzteMiete, marktmiete, starteVermietung, waehleBewerber,
+  angesetzteMiete, marktmiete, mietpreisbremse, starteVermietung, waehleBewerber,
   vermietungsmodell,
-} from '../tenants.js?v=59';
-import { fmtEUR } from './util.js?v=59';
-import { fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=59';
+} from '../tenants.js?v=60';
+import { fmtEUR } from './util.js?v=60';
+import { aktuellerBetrag } from '../preisniveau.js?v=60';
+import { fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=60';
 
 let ctx = null;
 let index = -1;
@@ -59,12 +60,21 @@ function renderNiveauWahl(state, o) {
     const risiko = modell.rechtsrisiko?.[stadt] || 0;
     const risikoText = risiko === 0 ? 'kein zusätzliches Modellrisiko' : risiko >= .01 ? 'hohes Prüf-/Rückzahlungsrisiko' : risiko >= .002 ? 'erhöhtes Prüf-/Rückzahlungsrisiko' : 'geringes Prüf-/Rückzahlungsrisiko';
     return `<label class="modell-option"><input type="radio" name="modell" value="${id}" ${i === 0 ? 'checked' : ''}>` +
-      `<span><b>${modell.label}</b><small>${modell.kurz}</small><small>${modell.aufschlag ? `+${Math.round(modell.aufschlag * 100)} % Mietansatz · ` : ''}${modell.moebelKosten ? `${fmtEUR(modell.moebelKosten)} Einrichtung · ` : ''}${risikoText}</small></span></label>`;
+      `<span><b>${modell.label}</b><small>${modell.kurz}</small><small>${modell.aufschlag ? `+${Math.round(modell.aufschlag * 100)} % Mietansatz · ` : ''}${modell.moebelKosten ? `${fmtEUR(Math.round(aktuellerBetrag(state, modell.moebelKosten)))} Einrichtung · ` : ''}${risikoText}</small></span></label>`;
   }).join('');
 
+  const bremse = mietpreisbremse(state, o);
   document.getElementById('bewerber-inhalt').innerHTML =
-    `<p class="muted">Reguläre Vergleichsmiete für diesen Zustand: <b>${fmtEUR(markt)}</b> kalt. ` +
+    `<p class="muted">Marktübliche Angebotsmiete für diesen Zustand: <b>${fmtEUR(markt)}</b> kalt. ` +
     `Mietniveau steuert Nachfrage; der Vermietungsweg verändert Ertrag, Aufwand, Wechsel und Rechtsrisiko.</p>` +
+    (bremse.gilt
+      ? `<p class="mietmodell-recht"><b>Mietpreisbremse:</b> Neuvermietung höchstens ${fmtEUR(Math.round(bremse.obergrenze))} kalt ` +
+        `(${bremse.grund}). Eine umfassende Modernisierung oder ein Neubau ab 2015 ist ausgenommen.</p>` +
+        `<label class="bremse-ignorieren"><input type="checkbox" name="bremse-ignorieren"> ` +
+        `<span><b>Grenze bewusst ignorieren</b> und zur Marktmiete vermieten. Rügt der Mieter, sinkt die Miete auf die Grenze; ` +
+        `kommt die Rüge in den ersten ${state.config.mietpreisbremse.verstoss.rueckforderungMonate} Monaten, zahlt ihr die Differenz seit Mietbeginn zurück, ` +
+        `dazu die Anwaltskosten des Mieters. Über 120 % der Vergleichsmiete droht selten zusätzlich ein Bußgeld des Wohnungsamts.</span></label>`
+      : '') +
     `<h3 class="dialog-zwischentitel">1. Vermietungsweg</h3><div class="modell-optionen">${modelle}</div>` +
     `<p class="mietmodell-recht"><b>${state.config.mietrecht?.[stadt]?.label || 'Standard-Mietrecht'}:</b> ` +
     `${stadt === 'berlin' ? 'Möblierung und Befristung sind kein automatischer Ausweg aus dem Mietrecht; Prüfungen können teuer werden.' : stadt === 'leipzig' ? 'Reguliert, aber im Spiel weniger restriktiv als Berlin.' : 'Geringerer Nachfragedruck und weniger Restriktion, dafür schwächere Mietaufschläge und Nachfrage.'}</p>` +
@@ -72,18 +82,20 @@ function renderNiveauWahl(state, o) {
     `<div class="niveau-optionen">${optionen}</div>` +
     `<div class="dialog-fuss"><button id="btn-suche-start" class="primaer">Bewerber suchen</button></div>`;
 
+  const ignorieren = () => !!document.querySelector('input[name="bremse-ignorieren"]')?.checked;
   const aktualisiereMieten = () => {
     const modellId = document.querySelector('input[name="modell"]:checked').value;
     document.querySelectorAll('[data-niveau-miete]').forEach((ziel) => {
-      ziel.textContent = fmtEUR(angesetzteMiete(state, o, ziel.dataset.niveauMiete, modellId));
+      ziel.textContent = fmtEUR(angesetzteMiete(state, o, ziel.dataset.niveauMiete, modellId, { bremseIgnorieren: ignorieren() }));
     });
   };
-  document.querySelectorAll('input[name="modell"]').forEach((input) => input.addEventListener('change', aktualisiereMieten));
+  document.querySelectorAll('input[name="modell"], input[name="bremse-ignorieren"]')
+    .forEach((input) => input.addEventListener('change', aktualisiereMieten));
 
   document.getElementById('btn-suche-start').addEventListener('click', () => {
     const niveau = document.querySelector('input[name="niveau"]:checked').value;
     const modell = document.querySelector('input[name="modell"]:checked').value;
-    starteVermietung(state, o, niveau, modell);
+    starteVermietung(state, o, niveau, modell, { bremseIgnorieren: ignorieren() });
     ctx.autosave();
     render();
   });

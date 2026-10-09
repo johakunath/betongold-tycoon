@@ -113,7 +113,20 @@ UI v59 schließt die letzte ungeprüfte Kopfzeilen-Lücke: Zwischen
 Grenzen sind auf das Paar `1200.98px`/`1201px` gezogen; der Browser-Smoke
 prüft jetzt zusätzlich bei 1200 px, ob Datum, HUD, Zeitsteuerung und Menü sich
 weder überlappen noch aus dem Viewport laufen.
-Aktuell: `SAVE_VERSION = 21`, `UI_VERSION = 59`.
+UI v60 behebt die Befunde des Gameplay-Reviews: Events prüfen Kindesalter,
+Auto und Ruhestand, Kindergeld endet mit 25, der Finanzierungsdialog lässt
+einen Restpuffer, und das Exposé beginnt wieder bei der Prüfung.
+Save v22 setzt Arbeitspaket D um: ein Preisniveauindex (2 %) schreibt Mieten,
+Objektkosten und Eventbeträge fort, Scores rechnen in heutigen Euro, sichere
+Entnahme zählt als passiver Cashflow, und die Endauswertung zerlegt den
+ETF-Abstand über eine Linie „Ohne Käufe". Dazu kommen reale Mietregeln
+(15-%-Kappung, Mietpreisbremse in Berlin/Leipzig mit Modernisierungsausnahme),
+ein Eigenbedarfsrisiko für Mieter statt eines Eigentums-Familienbonus, eine
+Entnahmeregel gegen die Dispo-Falle sowie die Scores „Rentenlücke gedeckt"
+und „Kaufkraft mit 85". Die Mietpreisbremse lässt sich bei Neuvermietung
+bewusst ignorieren; Rüge, Rückzahlung und seltenes Bußgeld sind an
+recherchierten Zahlen kalibriert (`ECONOMY_MODEL.md` §15b).
+Aktuell: `SAVE_VERSION = 22`, `UI_VERSION = 60`.
 
 Das Spiel ist öffentlich gehostet:
 <https://johakunath.github.io/betongold-tycoon/> (GitHub Pages aus `main`).

@@ -1,26 +1,28 @@
 ﻿// objekt.js — Screen 7: Objekt-Detail. Cutaway, Monats-P&L, Mieter/Leerstand,
 // Rücklage, Hausverwaltung, Mieterhöhung, Renovieren. Nabe der Phase-3-Loop.
 
-import { getListing } from '../content.js?v=59';
-import { fairerWert } from '../market.js?v=59';
+import { getListing } from '../content.js?v=60';
+import { fairerWert } from '../market.js?v=60';
+import { aktuellerBetrag, preisniveau } from '../preisniveau.js?v=60';
 import {
   marktmiete, kannErhoehen, maxMiete, erhoeheMiete, mietrechtFuer, vermietungsmodell,
+  bremseVerstossRisiko, senkeAufZulaessigeMiete,
   starteEigenbedarf, zieheEigenbedarfZurueck, zahleEigenbedarfAbfindung,
-} from '../tenants.js?v=59';
-import { bildHTML, cutawayHTML } from '../iso.js?v=59';
-import { faktenLabel, fmtEUR, fmtEURSigniert } from './util.js?v=59';
-import { oeffneBewerber } from './bewerber.js?v=59';
-import { oeffneRenovieren } from './renovieren.js?v=59';
-import { oeffneVerkauf } from './verkaufen.js?v=59';
+} from '../tenants.js?v=60';
+import { bildHTML, cutawayHTML } from '../iso.js?v=60';
+import { faktenLabel, fmtEUR, fmtEURSigniert } from './util.js?v=60';
+import { oeffneBewerber } from './bewerber.js?v=60';
+import { oeffneRenovieren } from './renovieren.js?v=60';
+import { oeffneVerkauf } from './verkaufen.js?v=60';
 import {
   fixkostenMonat, instandhaltungMonat, objektartConfig, fixkostenAufschluesselung,
-} from '../immobilie.js?v=59';
-import { bezieheBestandsobjekt } from '../eigenheim.js?v=59';
-import { protokolliereWirkung } from '../gameplay.js?v=59';
-import { bankAnpassungVorschau, turnaroundAktiv } from '../turnaround.js?v=59';
-import { oeffneBankAnpassung } from './turnaround.js?v=59';
-import { objektArcsFuerObjekt } from '../arcs.js?v=59';
-import { sondertilgen, sondertilgungRahmen, sondertilgungVorschau } from '../finance.js?v=59';
+} from '../immobilie.js?v=60';
+import { bezieheBestandsobjekt } from '../eigenheim.js?v=60';
+import { protokolliereWirkung } from '../gameplay.js?v=60';
+import { bankAnpassungVorschau, turnaroundAktiv } from '../turnaround.js?v=60';
+import { oeffneBankAnpassung } from './turnaround.js?v=60';
+import { objektArcsFuerObjekt } from '../arcs.js?v=60';
+import { sondertilgen, sondertilgungRahmen, sondertilgungVorschau } from '../finance.js?v=60';
 
 let ctx = null;
 let auswahl = null; // stabile listingId oder 'eigenheim'
@@ -129,10 +131,13 @@ export function renderObjekt(state) {
       `<div><dt>Wert heute</dt><dd class="wert-gold">${fmtEUR(Math.round(wert))}</dd></div>` +
       `<div><dt>Restschuld (Bank)</dt><dd class="wert-negativ">${fmtEUR(Math.round(objekt.darlehen.restschuld))}</dd></div>` +
       `<div><dt>${istEigenheim ? 'Wohnkosten jetzt' : 'Objekt-Cashflow jetzt'}</dt><dd class="${netto >= 0 ? 'wert-positiv' : 'wert-negativ'}">${fmtEURSigniert(Math.round(netto))}/Mon.</dd></div>` +
-      (!istEigenheim ? `<div><dt>Cashflow nach Vermietung</dt><dd class="${nettoNachVermietung >= 0 ? 'wert-positiv' : 'wert-negativ'}">${fmtEURSigniert(Math.round(nettoNachVermietung))}/Mon.</dd></div>` : '') +
+      // Bei laufender Vermietung wäre die zweite Zeile identisch: nur zeigen,
+      // solange sie etwas anderes aussagt (Leerstand oder Umbau).
+      (!istEigenheim && Math.round(nettoNachVermietung) !== Math.round(netto) ? `<div><dt>Cashflow nach Vermietung</dt><dd class="${nettoNachVermietung >= 0 ? 'wert-positiv' : 'wert-negativ'}">${fmtEURSigniert(Math.round(nettoNachVermietung))}/Mon.</dd></div>` : '') +
     `</dl><details class="objekt-daten"><summary>Objektdaten &amp; Finanzierung</summary>` +
     statusHTML(state, objekt, wert, markt, istEigenheim) + `</details>` +
     (!istEigenheim ? `<p class="mietrecht-hinweis"><b>${mietrecht.label}</b><br>${mietrecht.kurz}</p>` : '') +
+    (!istEigenheim ? bremseVerstossHTML(state, objekt) : '') +
     `</div></div>` +
 
     `<div class="objekt-spalten">` +
@@ -192,7 +197,7 @@ function statusHTML(state, objekt, wert, markt, istEigenheim) {
     `<tr><td>${faktenLabel('Objekt / Eigentum', 'Objektart und Eigentumsform bestimmen laufende Kosten, Entscheidungsfreiheit und Instandhaltungsrisiko.')}</td><td>${objektartConfig(state, objekt).label} · ${objekt.eigentumsform === 'weg' ? 'WEG' : 'Alleineigentum'}</td></tr>` +
     `<tr><td>${faktenLabel('Fläche', 'Wohnfläche; sie beeinflusst Miete, Kaufpreis und laufende Instandhaltung.')}</td><td>${objekt.flaeche} m²</td></tr>` +
     (objekt.objektart === 'haus' ? `<tr><td>${faktenLabel('Grundstück / Außenraum', 'Grundstücksgröße und nutzbarer Außenraum; relevant für Wert und Familien-Eignung.')}</td><td>${objekt.grundstueck} / ${objekt.aussenflaeche} m²</td></tr>` : '') +
-    fixkostenAufschluesselung(objekt).map((k) => `<tr><td>${faktenLabel(k.label, 'Monatlicher Eigentümeranteil an nicht auf den Mieter umlegbaren Objektkosten.')}</td><td>${fmtEUR(k.betrag)}/Monat</td></tr>`).join('') +
+    fixkostenAufschluesselung(objekt, preisniveau(state)).map((k) => `<tr><td>${faktenLabel(k.label, 'Monatlicher Eigentümeranteil an nicht auf den Mieter umlegbaren Objektkosten.')}</td><td>${fmtEUR(k.betrag)}/Monat</td></tr>`).join('') +
     `<tr><td>${faktenLabel('Zustand', 'Technischer und optischer Zustand von 1 bis 5. Wirkt auf Miete, Wert und Reparaturbedarf.')}</td><td>${objekt.zustand}/5</td></tr>` +
     `<tr><td>${faktenLabel('Energieklasse', 'Vereinfachter Effizienzindikator. Schlechtere Klassen erhöhen das Risiko künftiger Maßnahmen.')}</td><td>${objekt.energieklasse}</td></tr>` +
     `<tr><td>${faktenLabel('Restschuld', 'Noch offener Darlehensbetrag. Er sinkt durch den Tilgungsanteil der Kreditrate.')}</td><td>${fmtEUR(Math.round(objekt.darlehen.restschuld))}</td></tr>` +
@@ -209,7 +214,10 @@ function objektStatusBadges(state, objekt, istEigenheim) {
     const rest = Math.max(0, objekt.renovierung.endMonat - state.monat);
     status = `<span class="badge blau">in Renovierung — noch ${rest} Mon.</span>`;
   } else if (objekt.vermietet) {
-    status = `<span class="badge gruen">vermietet · ${vermietungsmodell(state, objekt.vermietungsart || objekt.moebliert).label}</span>`;
+    const verstoss = objekt.bremseVerstoss;
+    status = verstoss && !verstoss.geruegt && !verstoss.beendet && objekt.kaltmiete > verstoss.zulaessig
+      ? `<span class="badge warnung">vermietet · über der Mietpreisbremse</span>`
+      : `<span class="badge gruen">vermietet · ${vermietungsmodell(state, objekt.vermietungsart || objekt.moebliert).label}</span>`;
   } else {
     status = `<span class="badge orange">leer</span>`;
   }
@@ -359,6 +367,14 @@ function wire(state, objekt, index, istEigenheim) {
   });
   document.getElementById('btn-banktermin')?.addEventListener('click', () => oeffneBankAnpassung(objekt));
 
+  document.getElementById('btn-bremse-senken')?.addEventListener('click', () => {
+    if (senkeAufZulaessigeMiete(state, objekt)) {
+      ctx.toast('Miete auf die zulässige Höhe gesenkt. Bereits zu viel gezahlte Miete bleibt bis zum Fristende rückforderbar.');
+      ctx.autosave();
+      renderObjekt(state);
+    }
+  });
+
   document.getElementById('btn-erhoehen')?.addEventListener('click', () => {
     if (erhoeheMiete(state, objekt)) {
       ctx.toast('Miete erhöht.');
@@ -420,5 +436,32 @@ function wire(state, objekt, index, istEigenheim) {
     ctx.autosave();
     renderObjekt(state);
   });
+}
+
+// Status eines bewussten Verstoßes gegen die Mietpreisbremse: Mehrmiete,
+// aufgelaufene Rückforderung, Jahresrisiko und der legale Ausstieg.
+function bremseVerstossHTML(state, objekt) {
+  const verstoss = objekt.bremseVerstoss;
+  if (!verstoss) return '';
+  if (verstoss.geruegt) {
+    return `<p class="mietrecht-hinweis bremse-verstoss"><b>${verstoss.durchAmt ? 'Bußgeld' : 'Rüge'} wegen Mietpreisbremse</b><br>` +
+      `Kosten ${fmtEUR(verstoss.kosten || 0)}; die Miete liegt jetzt bei der zulässigen Höhe.</p>`;
+  }
+  const risiko = bremseVerstossRisiko(state, objekt);
+  if (verstoss.beendet || (risiko && risiko.mehrMonat <= 0 && risiko.rueckforderbar <= 0)) {
+    return `<p class="mietrecht-hinweis bremse-verstoss">Mietpreisbremse: Verstoß bereinigt, keine Ansprüche mehr offen.</p>`;
+  }
+  if (!risiko) return '';
+  const jahr = (p) => Math.round((1 - Math.pow(1 - p, 12)) * 100);
+  const frist = state.config.mietpreisbremse.verstoss.rueckforderungMonate;
+  return `<div class="mietrecht-hinweis bremse-verstoss"><b>Über der Mietpreisbremse vermietet</b><br>` +
+    (risiko.mehrMonat > 0
+      ? `${fmtEUR(risiko.mehrMonat)} pro Monat über der zulässigen Miete von ${fmtEUR(verstoss.zulaessig)}. `
+      : `Miete wieder zulässig (${fmtEUR(verstoss.zulaessig)}). `) +
+    `Rückforderbar bei Rüge: ${fmtEUR(Math.round(risiko.rueckforderbar))} plus etwa ${fmtEUR(Math.round(aktuellerBetrag(state, state.config.mietpreisbremse.verstoss.rechtskosten || 0)))} Anwaltskosten` +
+    (risiko.monate <= frist ? ` (noch ${frist - risiko.monate} Monate rückwirkend)` : ' (Frist vorbei, nur noch künftig)') + '. ' +
+    `Risiko im nächsten Jahr: Rüge etwa ${jahr(risiko.ruege)} %` + (risiko.bussgeld > 0 ? `, Bußgeld etwa ${jahr(risiko.bussgeld)} %` : '') + '.' +
+    (risiko.mehrMonat > 0 ? `<br><button type="button" id="btn-bremse-senken">Miete auf zulässige Höhe senken</button>` : '') +
+    `</div>`;
 }
 

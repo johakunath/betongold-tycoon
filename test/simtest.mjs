@@ -5,39 +5,40 @@
 // Bei neuen Systemen (Phase 2+) hier Checks ergänzen.
 
 import { readFile } from 'node:fs/promises';
-import { SAVE_VERSION, DEFAULT_CONFIG } from '../js/config.js?v=59';
-import { newGame, exportString, importString, rngFloat } from '../js/state.js?v=59';
+import { SAVE_VERSION, DEFAULT_CONFIG } from '../js/config.js?v=60';
+import { newGame, exportString, importString, rngFloat } from '../js/state.js?v=60';
 import {
   advanceMonths, alterGenau, gesamtMonate, istImRuhestand,
   lebensendeVorschau, monatsWerte, nettovermoegen,
-} from '../js/engine.js?v=59';
-import { setzeInhalte, getListing } from '../js/content.js?v=59';
+} from '../js/engine.js?v=60';
+import { setzeInhalte, getListing, getTenant } from '../js/content.js?v=60';
 import {
   initialisiereMarkt, sichtbareListings, gebotAbgeben, fairerWert,
   besichtigen, dokumenteAnfordern, gutachterBeauftragen,
-} from '../js/market.js?v=59';
+} from '../js/market.js?v=60';
 import {
   finanzierungsCashflowVorschau, kreditAngebot, kaufeObjekt, restschuldNach, nebenkostenFuer,
   sondertilgen, sondertilgungRahmen, sondertilgungVorschau,
-} from '../js/finance.js?v=59';
+} from '../js/finance.js?v=60';
 import {
   starteVermietung, neueBewerber, waehleBewerber, kannErhoehen, erhoeheMiete, marktmiete,
-  mietrechtFuer, angesetzteMiete, vermietungsmodell, starteEigenbedarf,
+  mietrechtFuer, angesetzteMiete, vermietungsmodell, starteEigenbedarf, mietpreisbremse,
+  senkeAufZulaessigeMiete,
   zahleEigenbedarfAbfindung,
-} from '../js/tenants.js?v=59';
-import { etfVerkaufVorschau, kaufeEtf, setzeSparplanEtfAnteil, verkaufeEtf } from '../js/etf.js?v=59';
-import { renovierungsOptionen, starteRenovierung } from '../js/renovation.js?v=59';
-import { resolveEvent } from '../js/events.js?v=59';
-import { kaufeEigenheim, wohnortWechselVorschau } from '../js/eigenheim.js?v=59';
-import { starteVerkauf } from '../js/verkauf.js?v=59';
-import { zieheWartemomente } from '../js/signals.js?v=59';
-import { leerstandsKosten } from '../js/ui/bewerber.js?v=59';
-import { berechneEndauswertung } from '../js/endgame.js?v=59';
-import { initialisiereStartbestand } from '../js/starter.js?v=59';
+} from '../js/tenants.js?v=60';
+import { etfVerkaufVorschau, kaufeEtf, setzeSparplanEtfAnteil, verkaufeEtf } from '../js/etf.js?v=60';
+import { renovierungsOptionen, starteRenovierung } from '../js/renovation.js?v=60';
+import { resolveEvent } from '../js/events.js?v=60';
+import { kaufeEigenheim, wohnortWechselVorschau } from '../js/eigenheim.js?v=60';
+import { starteVerkauf } from '../js/verkauf.js?v=60';
+import { zieheWartemomente } from '../js/signals.js?v=60';
+import { leerstandsKosten } from '../js/ui/bewerber.js?v=60';
+import { berechneEndauswertung } from '../js/endgame.js?v=60';
+import { initialisiereStartbestand } from '../js/starter.js?v=60';
 import {
   aktuelleAdminWerte, standardAdminWerte, wendeAdminWerteAn, planeAdminWerte,
-} from '../js/admin.js?v=59';
-import { kapitalertragVorschau, kapitalsteuerStatus } from '../js/kapitalsteuer.js?v=59';
+} from '../js/admin.js?v=60';
+import { kapitalertragVorschau, kapitalsteuerStatus } from '../js/kapitalsteuer.js?v=60';
 
 const lade = async (name) =>
   JSON.parse(await readFile(new URL(`../data/${name}`, import.meta.url), 'utf8'));
@@ -77,13 +78,13 @@ check(monatsWerte(autoProbe).auto === 0, 'Vor dem ersten Geburtstag von Kind 2 b
 autoProbe.monat = 5;
 check(monatsWerte(autoProbe).auto > 600,
   'Ab dem ersten Geburtstag von Kind 2 greift die fortgeschriebene 600-Euro-Autopauschale');
-const kindergeldProbe = newGame({ seedText: 'kindergeld-bis-27' });
-kindergeldProbe.monat = 282;
+const kindergeldProbe = newGame({ seedText: 'kindergeld-bis-25' });
+kindergeldProbe.monat = 258;
 check(monatsWerte(kindergeldProbe).kindergeld === 260,
-  'Kindergeld endet je Kind monatsscharf mit dem 27. Geburtstag');
-kindergeldProbe.monat = 317;
+  'Kindergeld endet je Kind monatsscharf mit dem 25. Geburtstag');
+kindergeldProbe.monat = 293;
 check(monatsWerte(kindergeldProbe).kindergeld === 0,
-  'Nach dem 27. Geburtstag beider Kinder fließt kein Kindergeld mehr');
+  'Nach dem 25. Geburtstag beider Kinder fließt kein Kindergeld mehr');
 
 check(gesamtMonate(s) === 720, 'Default-Kampagne besitzt eine harte Obergrenze von 720 Monaten (40 bis 100)');
 advanceMonths(s, 10000, auto); // stoppt selbst am Ende (Events werden auto-aufgelöst)
@@ -317,10 +318,25 @@ check(monatsWerte(klassisch).einkommen === 3200 && monatsWerte(klassisch).etfEin
   const berlin = mietrechtFuer(regional, { segment: 'berlin-rand' });
   const leipzig = mietrechtFuer(regional, { segment: 'leipzig' });
   const meissen = mietrechtFuer(regional, { segment: 'meissen-umland' });
-  check(berlin.kappungProzent === 0.10 && leipzig.kappungProzent === 0.15
+  check(berlin.kappungProzent === 0.15 && leipzig.kappungProzent === 0.15
     && meissen.kappungProzent === 0.20
     && berlin.mieterhoehungUnzufriedenheit > leipzig.mieterhoehungUnzufriedenheit,
-  'Berlin ist restriktiver als Leipzig; Meißen nutzt die allgemeine 20-%-Grenze');
+  'Berlin und Leipzig nutzen die reale 15-%-Kappung, Meißen die allgemeine 20-%-Grenze');
+
+  // Mietpreisbremse (§ 556d BGB): Altbau in Berlin gedeckelt, Neubau,
+  // umfassende Modernisierung und Meißen nicht.
+  const altbau = { ...getListing('bi-02'), zustand: 3 };
+  const bremse = mietpreisbremse(regional, altbau);
+  const angesetzt = angesetzteMiete(regional, altbau, 'auf', 'regulaer');
+  check(bremse.gilt && Math.abs(angesetzt - Math.round(bremse.obergrenze)) <= 1
+    && angesetzt < marktmiete(regional, altbau),
+    `Berliner Altbau: Neuvermietung höchstens Mietspiegel + 10 % (${angesetzt} € statt ${Math.round(marktmiete(regional, altbau))} €)`);
+  check(!mietpreisbremse(regional, getListing('bi-03')).gilt
+    && !mietpreisbremse(regional, { ...altbau, modernisierungM2: 1400 }).gilt
+    && !mietpreisbremse(regional, getListing('me-07')).gilt,
+    'Ausnahmen: Neubau ab 2015, umfassend modernisiert, Markt ohne Mietpreisbremse');
+  check(mietpreisbremse(regional, { ...altbau, kaltmiete: 2000, vermietungsart: 'regulaer' }).obergrenze === 2000,
+    'Höhere Vormiete bleibt bei der Neuvermietung zulässig');
 }
 
 // --- Marktphasen-Verteilung über viele Seeds -------------------------------
@@ -608,7 +624,7 @@ check(leer && !leer.vermietet && leer.mieter === null, `leeres Objekt gekauft: $
 // --- Renovierung ------------------------------------------------------------
 const zustandVor = leer.zustand;
 const optionen = renovierungsOptionen(p3, leer);
-check(optionen.length === 4 && optionen.every((o) => o.schaetzung > 0), 'vier Renovierungsstufen mit Schätzung');
+check(optionen.length === 5 && optionen.every((o) => o.schaetzung > 0), 'fünf Renovierungsstufen (inkl. umfassender Modernisierung) mit Schätzung');
 const cashVorReno = p3.cash;
 starteRenovierung(p3, leer, 'kuecheBad');
 check(leer.renovierung && p3.cash < cashVorReno, 'Renovierung gestartet, Schätzsumme fällig');
@@ -811,6 +827,228 @@ function kaufeGuenstigesEigenheim(state) {
     Object.keys(e1.eventHistorie).length === Object.keys(e2.eventHistorie).length,
     'Event-Auflösung ist deterministisch (Seed + Optionsfolge)');
   check(e1.familienzufriedenheit >= 0 && e1.familienzufriedenheit <= 100, 'Familienzufriedenheit in [0,100]');
+}
+
+// --- Preisniveau (ECONOMY_MODEL §1a) und faire Endauswertung ---------------
+{
+  const p = newGame({ seedText: 'preisniveau' });
+  initialisiereMarkt(p);
+  const listing = getListing('bi-01');
+  const miete0 = marktmiete(p, { ...listing, zustand: 3 });
+  advanceMonths(p, 120, auto);
+  const erwartet = Math.pow(1 + p.config.preisniveau.inflation, 10);
+  check(Math.abs(p.preisniveau - erwartet) < 1e-9 && Math.abs(p.historie[120].preisniveau - erwartet) < 1e-9,
+    `Preisniveau nach 10 Jahren = ${erwartet.toFixed(4)} (2 % p.a.) und steht in der Historie`);
+  check(Math.abs(marktmiete(p, { ...listing, zustand: 3 }) / miete0 - erwartet) < 1e-9,
+    'Marktmieten laufen mit dem Preisniveau statt eingefroren zu bleiben');
+  const geladen = importString(exportString(p));
+  check(geladen.preisniveau === p.preisniveau, 'Preisniveau übersteht Export/Import');
+
+  const ohneKauf = newGame({ seedText: 'score-ohne-kauf' });
+  initialisiereMarkt(ohneKauf);
+  advanceMonths(ohneKauf, 10000, auto);
+  const ende = berechneEndauswertung(ohneKauf);
+  const m85 = (85 - ohneKauf.config.zeit.startAlter) * 12;
+  check(ende.ruhestand && ende.ruhestand.lueckeReal > 0
+    && Math.abs(ende.scores.cashflow - Math.min(100, ende.ruhestand.passivReal / ende.ruhestand.lueckeReal * 100)) < 1e-6
+    && Math.abs(ende.vermoegenBewertungReal - ohneKauf.historie[m85].nettovermoegen / ohneKauf.historie[m85].preisniveau) < 1e-6
+    && Math.abs(ende.vermoegenZiel - 40 * 12 * (ohneKauf.startConfig.haushalt.nettoEinkommenPerson1 + ohneKauf.startConfig.haushalt.nettoEinkommenPerson2)) < 1e-6,
+    'Scores: Rentenlücke zum Rentenbeginn, Vermögen mit 85 gegen 40 Start-Jahresnettos');
+  check(ohneKauf.portfolio.length === 0 && ende.scores.cashflow > 0 && ende.entnahme > 0,
+    `Ohne Mietobjekt erreicht der Cashflow-Score über die sichere Entnahme ${Math.round(ende.scores.cashflow)}/100`);
+  check(Math.abs(ende.zerlegung.entscheidungen + ende.zerlegung.sparaufteilung - (ende.endwerte.spieler - ende.endwerte.etf)) < 1
+    && Math.abs(ende.zerlegung.entscheidungen) < 1,
+    'Zerlegung des ETF-Abstands summiert sich; ohne eigene Käufe liegt der Spieler auf der Ohne-Käufe-Linie');
+
+  // Sparplanwechsel mitten im Lauf: Die Ohne-Käufe-Linie spielt ihn nach.
+  const wechsel = newGame({ seedText: 'score-sparplan-wechsel' });
+  initialisiereMarkt(wechsel);
+  advanceMonths(wechsel, 120, auto);
+  setzeSparplanEtfAnteil(wechsel, 1);
+  advanceMonths(wechsel, 10000, auto);
+  const wechselEnde = berechneEndauswertung(wechsel);
+  check(wechsel.portfolio.length === 0 && Math.abs(wechselEnde.zerlegung.entscheidungen) < 1,
+    'Ohne Käufe, aber mit Sparplanwechsel bleiben „eure Entscheidungen" bei 0 €');
+
+  // Spätere Mietersuche und Renovierung rechnen in denselben laufenden Euro.
+  const spaet = newGame({ seedText: 'preisniveau-spaet' });
+  initialisiereMarkt(spaet);
+  kaufeGuenstiges(spaet, () => true);
+  advanceMonths(spaet, 360, auto);
+  const objekt = spaet.portfolio[0];
+  const reno = renovierungsOptionen(spaet, objekt).find((o) => o.moeglich !== false);
+  const pn = spaet.preisniveau;
+  const basis = objekt.flaeche * spaet.config.segmente[objekt.segment].vergleichsmieteM2;
+  const istNeubau = objekt.stil === 'neubau' || Number(objekt.baujahr) >= 2020;
+  check(istNeubau || !reno || Math.abs(reno.mieteDelta - Math.round(basis * pn *
+    (spaet.config.mieter.zustandMietFaktor[reno.zielZustand] - spaet.config.mieter.zustandMietFaktor[objekt.zustand]))) <= 1,
+    'Renovierungs-Mietplus läuft mit dem Preisniveau wie die Kosten');
+  objekt.vermietet = false;
+  objekt.mieter = null;
+  objekt.suche = null;
+  starteVermietung(spaet, objekt, 'auf', false);
+  neueBewerber(spaet, objekt);
+  const quoten = objekt.suche.bewerber.map((b) => b.einkommensquote).filter((q) => q != null);
+  const quotenStart = objekt.suche.bewerber.map((b) => {
+    const t = getTenant(b.id);
+    return t?.nettoEinkommen ? (b.miete / pn) / t.nettoEinkommen : null;
+  }).filter((q) => q != null);
+  check(quoten.length > 0 && quoten.every((q, i) => Math.abs(q - quotenStart[i]) < 1e-9),
+    'Einkommensquote der Bewerber vergleicht Miete und Einkommen im selben Preisniveau');
+}
+
+// --- Bewusster Verstoß gegen die Mietpreisbremse ----------------------------
+{
+  const vermieteIllegal = (seed, ruegeMonat) => {
+    const g = newGame({ seedText: seed });
+    initialisiereMarkt(g);
+    g.config.mietpreisbremse.verstoss.ruegeMonat = { berlin: ruegeMonat, leipzig: ruegeMonat };
+    g.config.mietpreisbremse.verstoss.bussgeldMonat = { berlin: 0, leipzig: 0 };
+    // Zufallsereignisse aus, damit kein Event die Miete im selben Monat verändert.
+    g.config.events.eventChanceBasis = 0;
+    g.config.events.eventChanceJeObjekt = 0;
+    kaufeGuenstiges(g, (l) => l.segment.startsWith('berlin') && !l.mietstatus.vermietet && Number(l.baujahr) < 2015);
+    const o = g.portfolio[0];
+    o.renovierung = null;
+    o.vermietet = false;
+    o.mieter = null;
+    o.kaltmiete = 0;
+    starteVermietung(g, o, 'auf', 'regulaer', { bremseIgnorieren: true });
+    if (!o.suche.bewerber.length) neueBewerber(g, o);
+    waehleBewerber(g, o, o.suche.bewerber[0].id);
+    return { g, o };
+  };
+  const { g: legalG, o: legalO } = (() => {
+    const g = newGame({ seedText: 'bremse-legal' });
+    initialisiereMarkt(g);
+    kaufeGuenstiges(g, (l) => l.segment.startsWith('berlin') && !l.mietstatus.vermietet && Number(l.baujahr) < 2015);
+    return { g, o: g.portfolio[0] };
+  })();
+  check(legalO && mietpreisbremse(legalG, { ...legalO, kaltmiete: 0 }).gilt, 'Testobjekt liegt unter der Mietpreisbremse');
+
+  const { g: a, o: oa } = vermieteIllegal('bremse-ruege', 0);
+  check(oa.bremseVerstoss && oa.kaltmiete > oa.bremseVerstoss.zulaessig,
+    `Ignorierte Bremse: ${oa.kaltmiete} € statt zulässig ${oa.bremseVerstoss?.zulaessig} €`);
+  check(mietpreisbremse(a, oa).obergrenze < oa.kaltmiete, 'Eine unzulässige Vormiete schützt bei der nächsten Vermietung nicht');
+  // 12 Monate ohne Rüge, dann sicher rügen lassen: Erstattung seit Mietbeginn.
+  for (let i = 0; i < 12; i++) advanceMonths(a, 1, auto);
+  const mehr = oa.bremseVerstoss.mehrerloes;
+  a.config.mietpreisbremse.verstoss.ruegeMonat = { berlin: 1, leipzig: 1 };
+  const cashVor = a.cash;
+  const zulaessig = oa.bremseVerstoss.zulaessig;
+  if (oa.mieter) {
+    const vorRuege = oa.kaltmiete - zulaessig;
+    advanceMonths(a, 1, auto);
+    check(oa.bremseVerstoss.geruegt && oa.kaltmiete === zulaessig
+      && Math.abs(oa.bremseVerstoss.rueckzahlung - Math.round(mehr + vorRuege)) <= 1
+      && oa.bremseVerstoss.kosten > oa.bremseVerstoss.rueckzahlung,
+      `Rüge nach 13 Monaten: ${oa.bremseVerstoss.rueckzahlung} € Rückzahlung seit Mietbeginn plus Anwaltskosten, Miete auf ${zulaessig} €`);
+    check(a.cash < cashVor, 'Rückzahlung belastet das Tagesgeld');
+  }
+
+  const { g: b, o: ob } = vermieteIllegal('bremse-spaet', 0);
+  b.config.mieter.auszugBasisRisiko = 0;
+  for (let i = 0; i < 31; i++) advanceMonths(b, 1, auto);
+  b.config.mietpreisbremse.verstoss.ruegeMonat = { berlin: 1, leipzig: 1 };
+  advanceMonths(b, 1, auto);
+  check(!ob.mieter || (ob.bremseVerstoss.geruegt && ob.bremseVerstoss.rueckzahlung === 0),
+    'Rüge nach 30 Monaten: keine Rückzahlung, nur Mietsenkung');
+
+  const { g: c, o: oc } = vermieteIllegal('bremse-ausstieg', 0);
+  c.config.mieter.auszugBasisRisiko = 0;
+  advanceMonths(c, 6, auto);
+  const aufgelaufen = oc.bremseVerstoss.mehrerloes;
+  check(senkeAufZulaessigeMiete(c, oc) && oc.kaltmiete === oc.bremseVerstoss.zulaessig, 'Freiwilliger Ausstieg senkt die Miete');
+  advanceMonths(c, 6, auto);
+  check(oc.bremseVerstoss.mehrerloes === aufgelaufen, 'Nach dem Ausstieg läuft kein weiterer Mehrerlös auf');
+  advanceMonths(c, 25, auto);
+  check(!oc.mieter || oc.bremseVerstoss.beendet, 'Nach Ablauf der 30-Monats-Frist ist ein bereinigter Verstoß erledigt');
+
+  const { g: d, o: od } = vermieteIllegal('bremse-sofort', 0);
+  senkeAufZulaessigeMiete(d, od);
+  advanceMonths(d, 1, auto);
+  check(!od.mieter || od.bremseVerstoss.beendet, 'Sofortiger Ausstieg ohne Mehrerlös: kein Rüge-Risiko mehr');
+}
+
+// --- Entnahmeregel statt Dispo-Falle ----------------------------------------
+{
+  const lauf = (aktiv) => {
+    const g = newGame({ seedText: 'balance-1' });
+    initialisiereMarkt(g);
+    setzeSparplanEtfAnteil(g, 1);
+    kaufeEtf(g, g.cash - 30000);
+    g.config.kapital.entnahme.aktiv = aktiv;
+    advanceMonths(g, 10000, auto);
+    return g;
+  };
+  const mitRegel = lauf(true);
+  const ohneRegel = lauf(false);
+  check(mitRegel.statistik.monateNegativCash === 0 && ohneRegel.statistik.monateNegativCash > 100,
+    `Entnahmeregel verhindert die Dispo-Falle bei 100 % ETF (${mitRegel.statistik.monateNegativCash} statt ${ohneRegel.statistik.monateNegativCash} Dispo-Monate)`);
+}
+
+// --- Eigenbedarf trifft Mieter, nicht Eigentümer ---------------------------
+{
+  const mieter = newGame({ seedText: 'eigenbedarf-mieter' });
+  initialisiereMarkt(mieter);
+  const mieteVor = mieter.config.haushalt.miete;
+  mieter.aktivesEvent = { eventId: 'eigenbedarf-vermieter', objektIndex: -1, monat: 0 };
+  resolveEvent(mieter, 0);
+  check(mieter.config.haushalt.miete === Math.round(mieteVor * 1.15) && mieter.config.eigenheim.familieNeutralBonus === 0,
+    'Eigenbedarf erhöht die Familienmiete per neuem Vertrag; Eigentum hat keinen pauschalen Familien-Dauerbonus');
+}
+
+// --- Haushaltsbedingungen der Events (Kindesalter, Auto, Ruhestand) ---------
+{
+  const verstoesse = [];
+  let kindEvents = 0;
+  let autoEvents = 0;
+  for (let i = 0; i < 24; i++) {
+    for (const startPreset of ['heute', 'klassisch']) {
+      const g = newGame({ schwierigkeit: 'schwer', startPreset, seedText: `event-bedingung-${i}` });
+      initialisiereMarkt(g);
+      const h = g.config.haushalt;
+      const rente = (g.config.zeit.rentenAlter - g.config.zeit.startAlter) * 12;
+      const kindAlter = (m) => h.kinder.map((k) => k.alter + m / 12).filter((a) => a < h.auszugsAlter);
+      while (!g.beendet && g.monat < 420) {
+        if (g.portfolio.length === 0) kaufeGuenstiges(g, () => true);
+        advanceMonths(g, 1, (s) => {
+          const id = s.aktivesEvent.eventId;
+          const m = s.monat;
+          const alter = kindAlter(m);
+          if (id === 'kind-zahnspange' && !alter.some((a) => a >= 9 && a <= 15)) verstoesse.push(`${id}@${m}`);
+          if (id === 'kind-klassenfahrt' && !alter.some((a) => a >= 12 && a <= 18)) verstoesse.push(`${id}@${m}`);
+          if (id === 'elternzeit' && (!alter.some((a) => a <= 12) || m >= rente)) verstoesse.push(`${id}@${m}`);
+          if (id === 'job-angebot' && m >= rente) verstoesse.push(`${id}@${m}`);
+          if (id === 'auto-kaputt' && !((h.autoKostenMonat || 0) > 0 && m >= h.autoAbMonat)) verstoesse.push(`${id}@${m}`);
+          if (id.startsWith('kind-')) kindEvents++;
+          if (id === 'auto-kaputt') autoEvents++;
+          resolveEvent(s, 0);
+        });
+      }
+    }
+  }
+  check(verstoesse.length === 0 && kindEvents > 0 && autoEvents > 0,
+    `Kinder-, Auto- und Erwerbs-Events respektieren den Haushalt (${kindEvents} Kinder-, ${autoEvents} Auto-Events; Verstöße: ${verstoesse.slice(0, 4).join(', ') || 'keine'})`);
+}
+
+// Auto-Altersfaktor 0 % entfernt das Auto auch für Events.
+{
+  let autoEvents = 0;
+  let monateMitAuto = 0;
+  for (let i = 0; i < 12; i++) {
+    const g = newGame({ schwierigkeit: 'schwer', seedText: `ohne-auto-${i}` });
+    initialisiereMarkt(g);
+    g.config.haushalt.autoAltersFaktoren.forEach((stufe) => { stufe.faktor = 0; });
+    while (!g.beendet && g.monat < 420) {
+      advanceMonths(g, 1, (st) => {
+        if (st.aktivesEvent.eventId === 'auto-kaputt') autoEvents++;
+        resolveEvent(st, 0);
+      });
+      if (monatsWerte(g).auto > 0) monateMitAuto++;
+    }
+  }
+  check(autoEvents === 0 && monateMitAuto === 0, `Auto-Faktor 0 %: keine Autokosten und kein Auto-Event (${autoEvents})`);
 }
 
 console.log(fehler === 0 ? '\nALLE TESTS OK' : `\n${fehler} FEHLER`);

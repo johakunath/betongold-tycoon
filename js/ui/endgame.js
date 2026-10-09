@@ -1,7 +1,9 @@
 ﻿// ui/endgame.js — Screen 9: fünf Scores, Seed-Benchmarks und Timeline.
 
-import { berechneEndauswertung } from '../endgame.js?v=59';
-import { fmtEUR, fmtEURSigniert, fmtDatum } from './util.js?v=59';
+import { berechneEndauswertung } from '../endgame.js?v=60';
+import {
+  fmtEUR, fmtEURSigniert, fmtDatum, fmtProzent, euroModus, euroUmschalterHTML, inAnzeigeEuro,
+} from './util.js?v=60';
 
 const PHASEN_LABEL = {
   boom: 'Boom — Rückenwind für Märkte',
@@ -10,17 +12,24 @@ const PHASEN_LABEL = {
 };
 
 const SCORE_META = {
-  vermoegen: ['Nettovermögen', 'Vermögen am Lebensende'],
-  cashflow: ['Passiver Cashflow', 'nach Kosten und Steuer-Schätzung'],
+  vermoegen: ['Nettovermögen', 'Kaufkraft mit 85 gegenüber 40 Jahresnettos'],
+  cashflow: ['Rentenlücke gedeckt', 'passives Einkommen zum Rentenbeginn'],
   resilienz: ['Resilienz', 'Beleihung und liquide Puffer'],
   stress: ['Stress', 'Zeitüberzug und Monate im Dispo'],
   familie: ['Familie', 'Schlussstand und Kampagnenschnitt'],
 };
 
 let ctx = null;
+let letzteAuswertung = null;
 
 export function initEndgame(context) {
   ctx = context;
+  document.addEventListener('euromodus', () => {
+    const state = ctx.getState();
+    if (letzteAuswertung && state && !document.getElementById('screen-endgame').hidden) {
+      renderEndgame(state, letzteAuswertung);
+    }
+  });
   document.getElementById('btn-endgame-dashboard').addEventListener('click', () => ctx.zeigeScreen('dashboard'));
   document.getElementById('btn-endgame-neu').addEventListener('click', () =>
     document.getElementById('btn-neu').click());
@@ -29,23 +38,32 @@ export function initEndgame(context) {
 export function zeigeEnde(state) {
   ctx.setSpeed(0);
   const auswertung = berechneEndauswertung(state);
+  letzteAuswertung = auswertung;
   renderEndgame(state, auswertung);
   ctx.zeigeScreen('endgame');
 }
 
 function renderEndgame(state, a) {
+  // Alle Bestandsgrößen wahlweise nominal oder in heutigen Euro (Endpreisniveau).
+  const eur = (wert) => inAnzeigeEuro(wert, a.preisniveau);
+  const heute = euroModus() === 'heute';
+  const einheit = heute ? ' (heutige Euro)' : '';
   const objekte = [...state.portfolio, ...(state.eigenheim ? [state.eigenheim] : [])];
-  const schulden = objekte.reduce((summe, o) => summe + (o.darlehen?.restschuld || 0), 0);
-  const liquideMittel = Math.max(0, state.cash) + state.etfDepot.wert;
-  const benchmarkSpanne = Math.max(a.endwerte.etf, a.endwerte.eigenheim, a.endwerte.invest) -
-    Math.min(a.endwerte.etf, a.endwerte.eigenheim, a.endwerte.invest);
+  const schulden = eur(objekte.reduce((summe, o) => summe + (o.darlehen?.restschuld || 0), 0));
+  const liquideMittel = eur(Math.max(0, state.cash) + state.etfDepot.wert);
+  const ende = Object.fromEntries(Object.entries(a.endwerte).map(([id, wert]) => [id, eur(wert)]));
+  const benchmarkSpanne = Math.max(ende.etf, ende.eigenheim, ende.invest) -
+    Math.min(ende.etf, ende.eigenheim, ende.invest);
   document.getElementById('endgame-zusammenfassung').innerHTML =
     `<div><span class="eyebrow">Lebensbilanz · ${Math.floor(a.lebensalter)} Jahre</span>` +
     `<h1>${urteil(a.scores.gesamt)}</h1>` +
     `<p>Gesamtscore <b>${Math.round(a.scores.gesamt)}/100</b> · ` +
     `${PHASEN_LABEL[state.marktphase] || state.marktphase} · Seed ${state.seedText || state.seed}</p></div>` +
-    `<div class="endgame-hauptwert"><span>Nettovermögen</span><b>${fmtEUR(a.vermoegen)}</b>` +
-    `<small>${fmtEURSigniert(a.vermoegen - a.endwerte.etf)} gegenüber reinem ETF</small></div>`;
+    `<div class="endgame-hauptwert"><span>Nettovermögen${einheit}</span><b>${fmtEUR(ende.spieler)}</b>` +
+    `<small>${fmtEURSigniert(ende.spieler - ende.etf)} gegenüber reinem ETF</small>` +
+    `<small>davon eure Entscheidungen ${fmtEURSigniert(eur(a.zerlegung.entscheidungen))} · ` +
+    `Sparplan-Aufteilung Tagesgeld/ETF ${fmtEURSigniert(eur(a.zerlegung.sparaufteilung))}</small>` +
+    `${euroUmschalterHTML()}</div>`;
 
   document.getElementById('endgame-scores').innerHTML = Object.entries(SCORE_META)
     .map(([id, [label, sub]]) => {
@@ -57,9 +75,19 @@ function renderEndgame(state, a) {
   document.getElementById('endgame-details').innerHTML =
     `<div><span>Liquide Mittel</span><b>${fmtEUR(liquideMittel)}</b></div>` +
     `<div><span>Restschulden</span><b>${fmtEUR(schulden)}</b></div>` +
-    `<div><span>Nachhaltiger Cashflow</span><b>${fmtEURSigniert(a.cashflow)}/Mon.</b></div>` +
+    (a.bewertungsAlter
+      ? `<div><span>Vermögen mit ${a.bewertungsAlter} (heutige Euro)</span><b>${fmtEUR(a.vermoegenBewertungReal)}</b></div>` +
+        `<div><span>Vermögensziel (heutige Euro)</span><b>${fmtEUR(a.vermoegenZiel)}</b></div>`
+      : '') +
+    (a.ruhestand
+      ? `<div><span>Rentenlücke mit ${Math.floor(a.ruhestand.alter)} (heutige Euro)</span><b>${fmtEUR(a.ruhestand.lueckeReal)}/Mon.</b></div>` +
+        `<div><span>Passives Einkommen mit ${Math.floor(a.ruhestand.alter)}</span><b>${fmtEUR(a.ruhestand.passivReal)}/Mon.</b></div>`
+      : '') +
+    `<div><span>Mietobjekte netto am Ende${einheit}</span><b>${fmtEURSigniert(eur(a.cashflow))}/Mon.</b></div>` +
+    `<div><span>Sichere Entnahme ${fmtProzent((state.config.endgame.entnahmeRate || 0) * 100)} am Ende${einheit}</span><b>${fmtEURSigniert(eur(a.entnahme))}/Mon.</b></div>` +
     `<div><span>Finanzierungsquote</span><b>${Math.round(a.ltv * 100)} %</b></div>` +
-    `<div><span>Puffer</span><b>${a.deckungMonate.toFixed(1).replace('.', ',')} Monate</b></div>` +
+    // Über zehn Jahre Deckung ist keine sinnvolle Monatsangabe mehr (vorher z. B. „955,2 Monate").
+    `<div><span>Puffer für Objektpflichten</span><b>${a.deckungMonate > 120 ? 'über 10 Jahre' : `${a.deckungMonate.toFixed(1).replace('.', ',')} Monate`}</b></div>` +
     `<div><span>Ø Familie</span><b>${Math.round(a.familieSchnitt)}/100</b></div>` +
     `<div><span>Jahre im Ruhestand</span><b>${a.ruhestandsdauer.toFixed(1).replace('.', ',')}</b></div>` +
     `<div><span>Langzeit-Stress</span><b>${Math.round(a.lebensstress * 100)} %</b></div>` +
@@ -67,14 +95,22 @@ function renderEndgame(state, a) {
     `<div><span>Monate im Dispo</span><b>${Math.round(a.negativCashAnteil * 100)} %</b></div>` +
     `<p class="endgame-einordnung"><b>Einordnung:</b> Die drei Referenzstrategien liegen in diesem Seed ` +
     `${fmtEUR(benchmarkSpanne)} auseinander. Vermögen ist deshalb nur eine von fünf Perspektiven; ` +
-    `Liquidität, Schulden, verlässlicher Cashflow, Zeitstress und Familienalltag bleiben getrennt sichtbar.</p>`;
+    `Liquidität, Schulden, verlässlicher Cashflow, Zeitstress und Familienalltag bleiben getrennt sichtbar. ` +
+    `Der Abstand zum reinen ETF teilt sich in zwei Fragen: Was haben eure Käufe, Umschichtungen und ` +
+    `Arbeitsentscheidungen gegenüber derselben Startlage ohne Käufe gebracht? Und was kostet oder bringt ` +
+    `die Sparplan-Aufteilung zwischen Tagesgeld und ETF? Preisniveau am Ende: ` +
+    `${a.preisniveau.toLocaleString('de-DE', { maximumFractionDigits: 2 })} × Spielstart.</p>`;
 
-  renderChart(a.linien);
+  const verlauf = a.preisniveauVerlauf || [];
+  const linien = Object.fromEntries(Object.entries(a.linien).map(([id, punkte]) => [id,
+    punkte.map((p) => ({ monat: p.monat, wert: inAnzeigeEuro(p.wert, verlauf[p.monat] ?? a.preisniveau) }))]));
+  renderChart(linien);
   document.getElementById('endgame-vergleich').innerHTML = [
-    ['Deine Entscheidungen', a.endwerte.spieler, 'spieler'],
-    ['Reiner ETF', a.endwerte.etf, 'etf'],
-    ['Eigenheim-first', a.endwerte.eigenheim, 'eigenheim'],
-    ['Invest-first', a.endwerte.invest, 'invest'],
+    ['Deine Entscheidungen', ende.spieler, 'spieler'],
+    ['Ohne Käufe, gleiche Sparaufteilung', ende.ohneKaeufe, 'ohne'],
+    ['Reiner ETF', ende.etf, 'etf'],
+    ['Eigenheim-first', ende.eigenheim, 'eigenheim'],
+    ['Invest-first', ende.invest, 'invest'],
   ].map(([name, wert, id]) => `<div class="vergleich-endwert"><i class="serie-${id}"></i>` +
     `<span>${name}</span><b>${fmtEUR(wert)}</b></div>`).join('');
 
@@ -106,7 +142,7 @@ function renderChart(linien) {
   const x = (m) => pad.l + m / maxMonat * (breite - pad.l - pad.r);
   const y = (v) => pad.o + (maxWert - v) / (maxWert - minWert || 1) * (hoehe - pad.o - pad.u);
   const serien = [
-    ['spieler', 'end-spieler'], ['etf', 'end-etf'],
+    ['ohneKaeufe', 'end-ohne'], ['spieler', 'end-spieler'], ['etf', 'end-etf'],
     ['eigenheim', 'end-eigenheim'], ['invest', 'end-invest'],
   ];
   let html = '';
@@ -124,8 +160,8 @@ function renderChart(linien) {
     Object.entries(linien).map(([id, punkte]) => [id, punkte.at(-1)?.wert || 0])
   );
   svg.setAttribute('aria-label',
-    `Endvergleich: Spieler ${fmtEUR(endwerte.spieler)}, ETF ${fmtEUR(endwerte.etf)}, ` +
-    `Eigenheim-first ${fmtEUR(endwerte.eigenheim)}, Invest-first ${fmtEUR(endwerte.invest)}.`
+    `Endvergleich: Spieler ${fmtEUR(endwerte.spieler)}, ohne Käufe ${fmtEUR(endwerte.ohneKaeufe)}, ` +
+    `ETF ${fmtEUR(endwerte.etf)}, Eigenheim-first ${fmtEUR(endwerte.eigenheim)}, Invest-first ${fmtEUR(endwerte.invest)}.`
   );
   svg.innerHTML = html;
 }

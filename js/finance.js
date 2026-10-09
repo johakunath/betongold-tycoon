@@ -3,17 +3,20 @@
 // DOM-frei; zirkulärer Import mit engine.js (monatsWerte) ist auf Funktions-
 // ebene unkritisch.
 
-import { rngFloat, rngNormal, bestandsMieter, entnimmRuecklage } from './state.js?v=59';
-import { getListing } from './content.js?v=59';
-import { monatsWerte } from './engine.js?v=59';
-import { fairerWert } from './market.js?v=59';
-import { angesetzteMiete, marktmiete, mieterMonat, neueBewerber } from './tenants.js?v=59';
-import { renovierungAbschluss, renovierungsOptionen } from './renovation.js?v=59';
-import { meldeWartemoment } from './signals.js?v=59';
-import { protokolliereWirkung, pruefstand } from './gameplay.js?v=59';
+import { rngFloat, rngNormal, bestandsMieter, entnimmRuecklage } from './state.js?v=60';
+import { getListing } from './content.js?v=60';
+import { monatsWerte } from './engine.js?v=60';
+import { fairerWert, angebotsBestandsmiete } from './market.js?v=60';
+import { aktuellerBetrag } from './preisniveau.js?v=60';
+import {
+  angesetzteMiete, erhoehungsObergrenze, mieterMonat, mietpreisbremse, neueBewerber,
+} from './tenants.js?v=60';
+import { renovierungAbschluss, renovierungsOptionen } from './renovation.js?v=60';
+import { meldeWartemoment } from './signals.js?v=60';
+import { protokolliereWirkung, pruefstand } from './gameplay.js?v=60';
 import {
   eigenheimEignung, fixkostenMonat, instandhaltungMonat, gebaeudeAnteil,
-} from './immobilie.js?v=59';
+} from './immobilie.js?v=60';
 
 // ---------------------------------------------------------------------------
 // Basiszins: mean-reverting Random Walk (monatlich, aus engine.tick)
@@ -101,7 +104,7 @@ export function kreditAngebot(state, {
   // Check 1: Haushaltsrechnung
   const w = monatsWerte(state);
   const mietenBestand = state.portfolio.reduce((s, o) => s + (o.vermietet ? o.kaltmiete : 0), 0);
-  const mieteNeu = !eigenheimKauf && listing.mietstatus.vermietet ? listing.mietstatus.kaltmiete : 0;
+  const mieteNeu = !eigenheimKauf && listing.mietstatus.vermietet ? angebotsBestandsmiete(state, listing) : 0;
   const ratenBestand = state.portfolio.reduce(
     (s, o) => s + (o.darlehen && o.darlehen.restschuld > 0 ? o.darlehen.rate : 0), 0) +
     (state.eigenheim?.darlehen?.restschuld > 0 ? state.eigenheim.darlehen.rate : 0);
@@ -115,7 +118,7 @@ export function kreditAngebot(state, {
   const belastung =
     (eigenheimKauf ? 0 : w.miete) + w.lebenshaltung + w.kinder + ratenBestand +
     eigenheimNebenkosten +
-    k.bewirtschaftungsPauschale * (state.portfolio.length + (eigenheimKauf ? 0 : 1));
+    aktuellerBetrag(state, k.bewirtschaftungsPauschale) * (state.portfolio.length + (eigenheimKauf ? 0 : 1));
   const spielraum = Math.max(0, (anrechenbar - belastung) * bank.puffersatz);
 
   if (rate !== null && rate > spielraum) {
@@ -212,7 +215,7 @@ export function finanzierungsCashflowVorschau(state, angebot) {
   const listing = angebot.listing;
   const eigenheim = angebot.nutzung === 'eigenheim';
   const vermietet = !eigenheim && !!listing.mietstatus?.vermietet;
-  const mieteinnahmen = vermietet ? Number(listing.mietstatus.kaltmiete) || 0 : 0;
+  const mieteinnahmen = vermietet ? angebotsBestandsmiete(state, listing) : 0;
   const mietersparnis = eigenheim ? monatsWerte(state).miete : 0;
   const fixkosten = fixkostenMonat(state, listing, vermietet);
   const ruecklage = instandhaltungMonat(state, listing);
@@ -288,13 +291,13 @@ export function finanzierungsCashflowPfade(state, angebot) {
   };
 
   if (listing.mietstatus?.vermietet) {
-    const bestandsmiete = Number(listing.mietstatus.kaltmiete) || 0;
+    const bestandsmiete = angebotsBestandsmiete(state, listing);
     fuegePfadHinzu({
       id: 'bestand', label: 'Bestandsmiete fortführen', miete: bestandsmiete, aktionen: [],
     });
     const recht = state.config.mietrecht[stadt];
     const rechtssicher = Math.floor(Math.min(
-      marktmiete(state, listing),
+      erhoehungsObergrenze(state, listing),
       bestandsmiete * (1 + recht.kappungProzent)
     ));
     if (rechtssicher > bestandsmiete + 1) {
@@ -316,15 +319,21 @@ export function finanzierungsCashflowPfade(state, angebot) {
     const fuegeVermietungHinzu = (objekt, modellId, renovierung = null) => {
       const modell = state.config.mieter.vermietungsmodelle[modellId];
       const aktionen = [];
-      if (renovierung) aktionen.push(`Kosmetisch renovieren (${renovierung.schaetzung.toLocaleString('de-DE')} €, ${renovierung.dauer} Mon.)`);
+      const umfassend = renovierung?.id === 'umfassend';
+      if (renovierung) {
+        aktionen.push(`${umfassend ? 'Umfassend modernisieren' : 'Kosmetisch renovieren'} ` +
+          `(${renovierung.schaetzung.toLocaleString('de-DE')} €, ${renovierung.dauer} Mon.)`);
+      }
       aktionen.push(modell.label);
       fuegePfadHinzu({
-        id: `${renovierung ? 'kosmetisch-' : ''}${modellId}`,
-        label: renovierung ? `Nach Renovierung · ${modell.label}` : modell.label,
+        id: `${renovierung ? `${renovierung.id}-` : ''}${modellId}`,
+        label: renovierung
+          ? `${umfassend ? 'Nach Modernisierung ohne Mietpreisbremse' : 'Nach Renovierung'} · ${modell.label}`
+          : modell.label,
         miete: angesetzteMiete(state, objekt, 'auf', modellId),
         aktionen,
         risiko: modellRisiko[modellId],
-        einmalig: (renovierung?.schaetzung || 0) + (modell.moebelKosten || 0),
+        einmalig: (renovierung?.schaetzung || 0) + aktuellerBetrag(state, modell.moebelKosten || 0),
         dauer: renovierung?.dauer || 0,
       });
     };
@@ -337,6 +346,37 @@ export function finanzierungsCashflowPfade(state, angebot) {
       const nachRenovierung = { ...listing, zustand: kosmetisch.zielZustand };
       for (const modellId of modelle) fuegeVermietungHinzu(nachRenovierung, modellId, kosmetisch);
     }
+
+    // Unter der Mietpreisbremse ist die umfassende Modernisierung der legale
+    // Weg zur Marktmiete: hoher Einmalbetrag, danach reguläre Vermietung.
+    if (mietpreisbremse(state, listing).gilt) {
+      const umfassend = renovierungsOptionen(state, listing)
+        .find((option) => option.id === 'umfassend' && option.moeglich);
+      if (umfassend) {
+        const stufe = state.config.renovierung.stufen.umfassend;
+        const modernisiert = {
+          ...listing,
+          zustand: umfassend.zielZustand,
+          modernisierungM2: (listing.modernisierungM2 || 0) + stufe.kostenM2,
+        };
+        fuegeVermietungHinzu(modernisiert, 'regulaer', umfassend);
+      }
+    }
+  }
+
+  // Bewusster Verstoß gegen die Mietpreisbremse: als eigener, ausdrücklich
+  // rechtswidriger Pfad ausgewiesen, nie als Empfehlung oder im B0-Korridor.
+  let rechtsbruch = null;
+  if (!listing.mietstatus?.vermietet && mietpreisbremse(state, listing).gilt) {
+    const anzahl = pfade.length;
+    fuegePfadHinzu({
+      id: 'ueber-mietpreisbremse',
+      label: 'Über der Mietpreisbremse vermieten',
+      miete: angesetzteMiete(state, listing, 'auf', 'regulaer', { bremseIgnorieren: true }),
+      aktionen: ['Mietpreisbremse ignorieren'],
+      risiko: 'Rechtswidrig. Rügt der Mieter, sinkt die Miete auf die Grenze; in den ersten 30 Monaten wird die Differenz seit Mietbeginn erstattet. Über 120 % der Vergleichsmiete droht ein Bußgeld.',
+    });
+    rechtsbruch = pfade.splice(anzahl, 1)[0];
   }
 
   const basis = pfade[0];
@@ -353,6 +393,7 @@ export function finanzierungsCashflowPfade(state, angebot) {
     pfade,
     naheNull,
     hatPositivenPfad: pfade.some((pfad) => pfad.cashflow >= 0),
+    rechtsbruch,
     urteil: empfehlung?.urteil || 'negativ',
   };
 }
@@ -388,7 +429,7 @@ export function kaufeObjekt(state, angebot) {
     faellig.push({
       name: m.name,
       // Unentdeckte Mängel treffen als Notreparatur (Überraschungsfaktor)
-      kosten: Math.round(m.kosten * (entdeckt ? 1 : ddCfg.ueberraschungsFaktor)),
+      kosten: Math.round(aktuellerBetrag(state, m.kosten) * (entdeckt ? 1 : ddCfg.ueberraschungsFaktor)),
       monat: state.monat + ddCfg.mangelFaelligMin +
         Math.floor(rngFloat(state) * (ddCfg.mangelFaelligMax - ddCfg.mangelFaelligMin + 1)),
       ueberraschung: !entdeckt,
@@ -397,7 +438,7 @@ export function kaufeObjekt(state, angebot) {
   if (existenz.sonderumlage) {
     faellig.push({
       name: `Sonderumlage: ${listing.sonderumlage.anlass}`,
-      kosten: listing.sonderumlage.betrag,
+      kosten: Math.round(aktuellerBetrag(state, listing.sonderumlage.betrag)),
       monat: state.monat + ddCfg.sonderumlageFaelligMin +
         Math.floor(rngFloat(state) * (ddCfg.sonderumlageFaelligMax - ddCfg.sonderumlageFaelligMin + 1)),
       ueberraschung: !(state.dd[id]?.sonderumlageBekannt),
@@ -411,6 +452,8 @@ export function kaufeObjekt(state, angebot) {
     flaeche: listing.flaeche,
     lageScore: listing.lageScore,
     zustand: listing.zustand,
+    baujahr: listing.baujahr,
+    stil: listing.stil,
     gekauftMonat: state.monat,
     kaufpreis: angebot.kaufpreis,
     nebenkosten: angebot.nebenkosten.summe,
@@ -424,14 +467,14 @@ export function kaufeObjekt(state, angebot) {
     kartenposition: listing.kartenposition ? structuredClone(listing.kartenposition) : null,
     nutzung: angebot.nutzung || 'kapitalanlage',
     vermietet: listing.mietstatus.vermietet,
-    kaltmiete: listing.mietstatus.vermietet ? listing.mietstatus.kaltmiete : 0,
+    kaltmiete: listing.mietstatus.vermietet ? angebotsBestandsmiete(state, listing) : 0,
     hausgeld: listing.hausgeld,
     laufendeKosten: listing.laufendeKosten ? structuredClone(listing.laufendeKosten) : null,
     faellig,
     // --- Phase 3 ---
-    mieter: listing.mietstatus.vermietet ? bestandsMieter(listing.mietstatus.kaltmiete) : null,
+    mieter: listing.mietstatus.vermietet ? bestandsMieter(angebotsBestandsmiete(state, listing)) : null,
     kappungFensterStart: state.monat,
-    kappungBasis: listing.mietstatus.vermietet ? listing.mietstatus.kaltmiete : 0,
+    kappungBasis: listing.mietstatus.vermietet ? angebotsBestandsmiete(state, listing) : 0,
     vermietungsart: 'regulaer',
     moebliert: false,
     ruecklage: 0,

@@ -4,19 +4,19 @@
 
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { newGame, exportString, importString } from '../js/state.js?v=59';
-import { setzeInhalte } from '../js/content.js?v=59';
-import { initialisiereMarkt } from '../js/market.js?v=59';
-import { initialisiereStartbestand } from '../js/starter.js?v=59';
-import { kannErhoehen, erhoeheMiete } from '../js/tenants.js?v=59';
-import { advanceMonths } from '../js/engine.js?v=59';
-import { resolveEvent } from '../js/events.js?v=59';
-import { starteVerkauf } from '../js/verkauf.js?v=59';
-import { haushaltsUeberschussMonat } from '../js/ui/kennzahlen.js?v=59';
+import { newGame, exportString, importString } from '../js/state.js?v=60';
+import { setzeInhalte } from '../js/content.js?v=60';
+import { initialisiereMarkt } from '../js/market.js?v=60';
+import { initialisiereStartbestand } from '../js/starter.js?v=60';
+import { kannErhoehen, erhoeheMiete } from '../js/tenants.js?v=60';
+import { advanceMonths } from '../js/engine.js?v=60';
+import { resolveEvent } from '../js/events.js?v=60';
+import { starteVerkauf } from '../js/verkauf.js?v=60';
+import { haushaltsUeberschussMonat } from '../js/ui/kennzahlen.js?v=60';
 import {
   bankAnpassungVorschau, objektCashflow, portfolioTriage,
   stabilisierungsLinien, wendeBankAnpassungAn,
-} from '../js/turnaround.js?v=59';
+} from '../js/turnaround.js?v=60';
 
 const lade = async (name) => JSON.parse(await readFile(new URL(`../data/${name}`, import.meta.url), 'utf8'));
 setzeInhalte({
@@ -80,7 +80,9 @@ for (const objekt of halten.portfolio) {
     mietpruefungen += 1;
   }
 }
-assert.ok(mietpruefungen >= 4, `Mindestens vier rechtssichere Mietprüfungen erwartet, erhalten: ${mietpruefungen}`);
+// Seit Save v22 begrenzt der Mietspiegel Erhöhungen (§ 558 BGB). Die Bestandsmieten
+// der Altbauten liegen schon darüber; nur der Neubau hat noch Spielraum.
+assert.ok(mietpruefungen >= 1, `Mindestens eine rechtssichere Mietprüfung erwartet, erhalten: ${mietpruefungen}`);
 for (let i = 0; i < halten.config.turnaround.bankMaxAnpassungen; i++) {
   const naechster = portfolioTriage(halten).objekte
     .filter((o) => o.bank.moeglich)

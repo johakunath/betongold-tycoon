@@ -124,8 +124,8 @@ alles andere ist Menschenkenntnis.
 
 ## data/events.json (Phase 3)
 
-30 Dilemma-Events: 25 zufällig ziehbare Inhalte und 5 ausschließlich
-terminierte Arc-Folgen. 2–3 Optionen, **keine strikt dominante** (PLAN §14).
+34 Events: 26 zufällig ziehbare Inhalte, 5 ausschließlich terminierte
+Arc-Folgen und 3 Auftaktmomente. 2–3 Optionen, **keine strikt dominante** (PLAN §14).
 
 ```jsonc
 {
@@ -140,7 +140,12 @@ terminierte Arc-Folgen. 2–3 Optionen, **keine strikt dominante** (PLAN §14).
     "zustandMax": 3,              // nur bei Zielobjekt-Zustand ≤ 3
     "jahreszeit": null,           // null | "winter" | "sommer" (Monat-basiert)
     "einmalig": true,             // pro Run nur einmal
-    "cooldownMonate": 24          // Mindestabstand, falls nicht einmalig
+    "cooldownMonate": 24,         // Mindestabstand, falls nicht einmalig
+    "kindAlterMin": 9,            // mind. ein Kind im Haushalt in diesem Alter …
+    "kindAlterMax": 15,           // … (Jahre, inkl.; Auszugsalter beendet den Haushalt)
+    "autoVorhanden": true,        // nur mit eingeplantem Auto (Pauschale > 0, ab autoAbMonat, Altersfaktor > 0)
+    "vorRuhestand": true,         // nur vor dem Rentenalter
+    "nurMieter": true             // nur ohne Eigenheim (z. B. Eigenbedarfskündigung)
   },
   "optionen": [
     {
@@ -169,8 +174,14 @@ Effekt-Schlüssel (alle optional, werden ohne RNG verrechnet):
 `miete` (± Kaltmiete am Zielobjekt), `mieterZufriedenheit` (±, beeinflusst
 Auszug), `mieterKonflikt` (±), `auszug` (true → Mieter kündigt),
 `familie` (± Punkte), `zeit` (± h einmalig), `ruecklage` (±€ direkt),
-`sondertilgung` (+€; zieht denselben Betrag aus Cash und Restschuld).
-`kategorie:"kind"` zählt gegen das Max-2-Kinder-Event-Limit (PLAN §5.9).
+`sondertilgung` (+€; zieht denselben Betrag aus Cash und Restschuld),
+`haushaltsMiete` (relative Änderung der eigenen Familienmiete, z. B. 0,15 =
+neuer Vertrag +15 %). Eurobeträge stehen in Euro des Spielstarts und laufen
+mit dem Preisniveau.
+`kategorie:"kind"` zählt gegen das Max-2-Kinder-Event-Limit (PLAN §5.9) und
+braucht immer mindestens ein Kind im Haushalt; `kindAlterMin/-Max` grenzen das
+zusätzlich ein. Die Haushaltsbedingungen filtern nur die Kandidatenliste nach dem
+festen Event-Roll; die RNG-Position im Tick bleibt unverändert.
 Zielobjekt-Wahl: seeded unter den passenden Objekten; ohne Zielbezug
 (`haushalt`/`kind`) wirkt der Effekt auf den Haushalt.
 

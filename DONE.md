@@ -3,6 +3,39 @@
 Kompaktes, chronologisches Log. Ältere Einträge sind verdichtet; Details
 bleiben in `DECISIONS.md` und den Fachdocs nachvollziehbar.
 
+## 2026-10-08 (3)
+
+- **Mietpreisbremse bewusst ignorieren.** Checkbox in der Mietersuche,
+  Statusbox mit Rückforderungsbetrag und Jahresrisiko im Objekt, Ausstieg auf
+  die zulässige Miete, getrennter Pfad „Nur mit Rechtsbruch" in der
+  Finanzierung. Wahrscheinlichkeiten und Bußgeld an Recherche kalibriert
+  (`ECONOMY_MODEL.md` §15b).
+
+## 2026-10-08 (2)
+
+- **Owner-Delegation, sechs Modellentscheidungen.** Reale Berliner Kappung
+  und Mietpreisbremse mit Modernisierungsausnahme, Eigenbedarfsrisiko statt
+  Eigentums-Familienbonus, Entnahmeregel gegen die Dispo-Falle, Score
+  „Rentenlücke gedeckt", Vermögensscore mit 85 relativ zum Starteinkommen,
+  Vergleichsläufe mit Startconfig und nachgespielten Einstellungen. Details in
+  `HANDOVER.md` und `DECISIONS.md`.
+
+## 2026-10-08
+
+- **Save v22 — Arbeitspaket D (Inflation/heutige Euro) und faire
+  Endauswertung.** Kumulativer Preisniveauindex (2 %) für Mieten, Objektkosten,
+  Renovierung, Mängel und Events; Scores in heutigen Euro; sichere Entnahme
+  zählt als passiver Cashflow; fünfte Linie „Ohne Käufe" mit Zerlegung des
+  ETF-Abstands; Umschalter nominal/heutige Euro. Details in `HANDOVER.md`.
+
+## 2026-10-07
+
+- **UI v60 — Bugfixes aus dem Gameplay-Review.** Haushaltsbedingungen für
+  Events (Kindesalter, Auto, vor Rente), Auto-Event ohne Doppelzählung,
+  Kindergeld bis 25, Finanzierungsdialog mit Restpuffer-Startwert und
+  korrekter ETF-Meldung, Exposé springt nicht mehr am Prüfen vorbei, Toast
+  über dem Dock, Label-/Doku-Korrekturen. Details in `HANDOVER.md`.
+
 ## 2026-07-27 (1)
 
 - **UI v59 — Kopfzeile bei ~1200 px repariert.** Owner-Screenshot vom echten

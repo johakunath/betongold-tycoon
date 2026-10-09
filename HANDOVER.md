@@ -1,11 +1,120 @@
 # HANDOVER.md — aktueller Projektstand
 
-**Stand:** 27.07.2026 (UI v59 — Kopfzeilen-Breakpoint-Lücke bei ~1200 px geschlossen)
+**Stand:** 08.10.2026 (Save v22 / UI v60 — Preisniveau, faire Endauswertung)
 
-**Versionen:** SAVE_VERSION = 21, UI_VERSION = 59
+**Versionen:** SAVE_VERSION = 22, UI_VERSION = 60
 
 Das Spiel ist öffentlich gehostet: <https://johakunath.github.io/betongold-tycoon/>
 (GitHub Pages aus `main`/Wurzel, Deployment = `git push`).
+
+## Save v22 — Preisniveau und faire Endauswertung (P1 aus dem Gameplay-Review)
+
+**Warum.** Der Review fand zwei strukturelle Probleme: (1) Marktmieten,
+Hausgeld, Instandhaltung, Renovierungs-, Mängel- und Eventbeträge waren 55
+Jahre lang nominal eingefroren, während Haushalt, ETF und Kaufpreise wuchsen
+(Bruttorendite bi-01: 3,75 % → 1,23 % nach 30 Jahren). (2) Der Cashflow-Score
+zählte nur Mietobjekte; „Nur Miete/ETF" bekam dort immer 0 und lag im Schnitt
+9 Punkte hinter Kaufstrategien, obwohl Nichtkaufen laut PLAN valide ist.
+
+**Was.**
+1. `js/preisniveau.js` + `state.preisniveau` + `config.preisniveau.inflation`
+   (2 %, Admin „Inflation"). Tick: nach `monat++` (kein RNG). Indexiert sind
+   alle in `ECONOMY_MODEL.md` §1a gelisteten Beträge; Haushalt, ETF,
+   Segmentpreise und Kredite nicht (eigene nominale Raten). Event-Texte rechnen
+   „ca. 12.000 €" für die Anzeige in laufende Euro um.
+2. Endscores in heutigen Euro: `nettovermoegenZiel` 5 Mio. heutige Euro (statt
+   15 Mio. nominal), `cashflowZiel` 2.000 heutige Euro, neu
+   `endgame.entnahmeRate` 3,5 % aus Tagesgeld + ETF netto.
+3. Fünfte Vergleichslinie „Ohne Käufe" und Zerlegung des ETF-Abstands in
+   „eure Entscheidungen" und „Sparplan-Aufteilung Tagesgeld/ETF".
+4. Umschalter „nominal / heutige €" in Zentrale-Chart und Endauswertung
+   (`localStorage`-Vorliebe `betongold.euroModus`, nur UI).
+5. Kleinfix: „19,3 Mon." im Familienpanel bricht nicht mehr um.
+6. Review-Fixes (Codex auf PR #2): Bewerber-Einkommen laufen mit dem
+   Preisniveau (Einkommensquote sonst nach 55 Jahren ~89 %), das Renovierungs-
+   Mietplus nutzt die indexierte Vergleichsmiete, und alle Vergleichsläufe
+   spielen den Sparplan-Anteil aus `historie[m].sparplanEtfAnteil` nach.
+
+**Messung (Normal, 120 Seeds, vorher → nachher).** Score „Nur Miete/ETF"
+64,5 → 84,5; „Invest 25 %" 73,6 → 85,4; „2 Investments, dann Heim"
+75,1 → 88,0. Vermögen der Kaufstrategien +1–4 % (Harness erhöht keine
+Mieten; mit Mietprüfung mehr). Alle 13 Balance-Gates, Familienmarkt und
+5 Regressionen bei 300 Seeds grün.
+
+**Owner-Delegation umgesetzt (08.10.2026, alle sechs offenen Punkte).**
+1. Mietrecht: Berlin 15 % Kappung; Mietspiegel-Anker je Segment;
+   Mietpreisbremse in Berlin/Leipzig (`tenants.mietpreisbremse`,
+   `config.mietpreisbremse`), Erhöhungen bis Mietspiegel
+   (`erhoehungsObergrenze`); neue Stufe „Umfassende Modernisierung" und ein
+   entsprechender Finanzierungspfad. Gefundener Altfehler: Portfolio-Objekte
+   trugen kein Baujahr/Stil, Neubauten zählten als Bestand
+   (`market.stammdaten` + Felder in `kaufeObjekt`).
+2. Familie: kein Dauerbonus/keine Kinder-Event-Dämpfung für Eigentum; neues
+   Event `eigenbedarf-vermieter` (`nurMieter`, Effekt `haushaltsMiete`).
+3. Entnahmeregel (`etf.wendeEntnahmeregelAn`, Finanzen-Formular,
+   Ruhestands-Hinweis).
+4. Score „Rentenlücke gedeckt" über `state.ruhestandsCheck` (`passiv.js`).
+5. Vermögensscore mit 85 gegen 40 Start-Jahresnettos.
+6. Vergleichsläufe starten bei `state.startConfig` und spielen
+   Einstellungsänderungen (`state.adminVerlauf`) nach; sonst hätte ein
+   Event-geänderter Config-Wert (Familienmiete) schon ab Monat 0 gewirkt.
+
+Typische Gesamtscores (40 Seeds): Familie 81–84, Klassisch 74–83,
+Azubi 77–90, Schuldenberg 62–76; Rentenlücken-Score P10 55–84.
+Testanpassungen mit Begründung: B0 ≥ 5 statt ≥ 6 tragfähige Wohnungen,
+F-Turnaround ≥ 1 statt ≥ 4 Mietprüfungen (Mietspiegel deckelt), fünf
+Renovierungsstufen, Kappungs-Check auf 15 %/15 %/20 %.
+
+**Mietpreisbremse bewusst ignorieren (Owner-Auftrag, 08.10.2026).**
+Checkbox `bremse-ignorieren` in `ui/bewerber.js` → `starteVermietung(...,
+{ bremseIgnorieren })` → `objekt.bremseVerstoss` in `waehleBewerber`.
+`tenants.pruefeBremseVerstoss` läuft im Mieter-Tick vor der Zahlungsziehung
+und zieht nur bei bestehendem Verstoß eine Zufallszahl; reguläre Spiele und
+alle Balance-Gates sind davon unberührt. `bremseVerstossRisiko` liefert die
+Monatsrisiken für die Statusbox in `ui/objekt.js`, `senkeAufZulaessigeMiete`
+den legalen Ausstieg. Finanzierung zeigt `rechtsbruch` getrennt
+(`finanzierungsCashflowPfade`). Formeln, Quellen und Grenzen: §15b.
+
+## UI v60 — Bugfixes aus dem Gameplay-Review
+
+Alles am Seed `review-1` (Familienstrategie, Normal) beobachtet und behoben.
+
+1. **Events respektieren den Haushalt.** Neue `bedingung`-Felder
+   `kindAlterMin/-Max`, `autoVorhanden`, `vorRuhestand` (`js/events.js`,
+   `CONTENT_SCHEMA.md`). `kategorie:"kind"` braucht immer ein Kind im Haushalt.
+   Vorher: „Der alte Kombi" in Monat 4 ohne Auto, Auslands-Klassenfahrt mit
+   Kindern von 4,5/1,6 Jahren, Kinder-Events auch für kinderlose Presets.
+   Zuordnung: Zahnspange 9–15, Klassenfahrt 12–18, Auszeit ≤ 12 und vor Rente,
+   Jobangebot vor Rente. Die Filter wirken nach dem festen Event-Roll; die
+   RNG-Position bleibt, nur die Kandidatenliste ändert sich (gezogene Events je
+   Seed können sich deshalb ändern; alle Balance-Gates grün).
+2. **Auto-Event ohne Doppelzählung.** Die 600-€-Pauschale bündelt laut
+   `ECONOMY_MODEL.md` §2b Anschaffung und laufende Kosten. Das Event ist jetzt
+   ein vorzeitiger Motorschaden: reparieren 3.500 € oder vorzeitig ersetzen
+   7.000 € Mehrkosten (+1 Familie) statt 12.000/4.000 € Neukauf.
+3. **Kindergeld bis zum 25. Geburtstag** (§ 32 Abs. 4 EStG) statt 27. Die
+   direkten Kinderkosten laufen weiter bis `auszugsAlter = 27`.
+4. **Finanzierungsdialog.** Startwert Eigenkapital lässt mindestens
+   `kredit.vorschlagRestpufferMonate` (3) Monatsausgaben auf dem Tagesgeld
+   (vorher: bei Nebenkosten + 20 % > Tagesgeld alles, „Restpuffer 0 €"). Die
+   ETF-Vorschau meldet bei 0 € nicht mehr „Betrag liegt über dem verfügbaren
+   ETF-Wert"; das ETF-Panel überlappt den Button „Ins Tagesgeld" nicht mehr.
+   Die Quote im Dialog heißt „Finanzierungsquote zum Kaufpreis" und erklärt,
+   warum die Zentrale (Restschuld ÷ Marktwert) danach höher sein kann.
+5. **Marktplatz → Exposé.** „Prüfen & entscheiden" fokussierte das
+   Gebotsfeld und sprang am Bild und an der Prüfung vorbei nach unten. Erst
+   nach 3/3 Prüfungen heißt der Button „Gebot vorbereiten" und springt zum Gebot.
+6. **Kleinigkeiten.** Toast liegt bis 1023 px über der Bottom-Navigation statt
+   auf ihr (neues Smoke-Gate); „Puffer 18,5 M." → „Mon."; Endbilanz zeigt
+   „über 10 Jahre" statt „955,2 Monate"; Objektkarte ohne doppelte
+   Cashflow-Zeile bei laufender Vermietung; „0 Risikohinweise" heißt
+   „0 bezifferte Risiken", weil nur Mängel/Sonderumlagen gezählt werden.
+7. **Doku-Drift.** `PLAN.md` nennt jetzt die Konfigurationswerte (4.860 €
+   Ausgaben, 3.960 € Sparrate, 300 € Kinder, 115/100/80 % Startvermögen).
+
+Bewusst nicht geändert: Der Stadt-„Anlass" bleibt der globale Monatszug
+(auch wenn er ein anderes Segment betrifft); Familienavatar und le-07-Cutaway
+brauchen neue Bildassets (Roadmap J).
 
 ## UI v59 — Kopfzeilen-Breakpoint-Lücke bei ~1200 px
 

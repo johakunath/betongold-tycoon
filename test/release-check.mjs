@@ -5,7 +5,7 @@ import { readFile, readdir, stat } from 'node:fs/promises';
 import { extname, join, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
-import { DEFAULT_CONFIG, SAVE_VERSION, UI_VERSION, START_PRESETS } from '../js/config.js?v=59';
+import { DEFAULT_CONFIG, SAVE_VERSION, UI_VERSION, START_PRESETS } from '../js/config.js?v=60';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 let fehler = 0;
@@ -93,7 +93,7 @@ for (const [id, preset] of Object.entries(START_PRESETS)) {
   check(typeof preset.bild === 'string' && await existiert(join(root, preset.bild)),
     `Startpreset-Bild existiert: ${id}`);
 }
-check(SAVE_VERSION === 21
+check(SAVE_VERSION === 22
   && DEFAULT_CONFIG.kapitalsteuer.pauschbetragProPerson === 1000
   && DEFAULT_CONFIG.kapitalsteuer.personen === 2
   && DEFAULT_CONFIG.kapitalsteuer.etfTeilfreistellung === 0.30

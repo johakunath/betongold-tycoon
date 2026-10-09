@@ -1,7 +1,7 @@
 ﻿// state.js — Spielzustand, Save-Slots (localStorage), JSON-Export/-Import, seeded RNG.
 // Kein DOM-Zugriff auf Top-Level: das Modul läuft auch unter Node (Simulationstests).
 
-import { DEFAULT_CONFIG, SAVE_VERSION, START_PRESETS } from './config.js?v=59';
+import { DEFAULT_CONFIG, SAVE_VERSION, START_PRESETS } from './config.js?v=60';
 
 // ---------------------------------------------------------------------------
 // Seeded RNG (mulberry32). state.rngState treibt die allgemeine Spielwelt;
@@ -154,6 +154,8 @@ export function newGame({
 
     monat: 0,            // gelebte Monate seit Start
     beendet: false,
+    // Kumulativer Preisniveauindex, 1,0 = Euro des Spielstarts (preisniveau.js).
+    preisniveau: 1,
 
     cash: profil.cash,
     letzterCashflow: 0,
@@ -249,6 +251,8 @@ export function newGame({
       rentenbeginnGeloggt: false,
     },
     adminPending: null,     // Phase 5: Configänderungen, wirksam zu Beginn des nächsten Ticks
+    ruhestandsCheck: null,  // einmal zum Rentenbeginn: passives Einkommen vs. Rentenlücke
+    adminVerlauf: [],       // [{monat, werte}] angewandte Einstellungsänderungen; Vergleichsläufe spielen sie nach
 
     // Verlauf für den Chart: ein Eintrag pro Monat, Eintrag 0 = Startzustand.
     historie: [],
@@ -271,7 +275,13 @@ export function newGame({
     nettovermoegen: state.cash + state.etfDepot.wert,
     etf: state.etfVergleich.wert,
     cashflow: 0,
+    preisniveau: 1,
   });
+
+  // Unveränderte Startannahmen: Vergleichsläufe der Endauswertung starten
+  // hier statt bei der zuletzt gültigen Config (Events, Sparplan und
+  // Einstellungen ändern sie im Lauf).
+  state.startConfig = structuredClone(config);
 
   return state;
 }
@@ -393,7 +403,7 @@ function requireCurrentSave(huelle) {
 // ein beschädigter Import kontrolliert hier statt später mitten im UI-Render.
 function validiereState(state) {
   if (!state || typeof state !== 'object') throw new Error('Spielzustand fehlt.');
-  const zahlen = ['monat', 'cash', 'rngState', 'etfRngState', 'lebensRngState', 'familienzufriedenheit', 'einkommensRegionalfaktor'];
+  const zahlen = ['monat', 'cash', 'rngState', 'etfRngState', 'lebensRngState', 'familienzufriedenheit', 'einkommensRegionalfaktor', 'preisniveau'];
   for (const feld of zahlen) {
     if (!Number.isFinite(state[feld])) throw new Error(`Ungültiger Spielstand: ${feld} fehlt oder ist keine Zahl.`);
   }

@@ -1,9 +1,10 @@
 ﻿// events.js — Dilemma-Events: monatlicher Roll (feste RNG-Position im Tick)
 // und Auflösung ohne RNG. Formeln: ECONOMY_MODEL §18. DOM-frei.
 
-import { rngFloat, zahleReparatur } from './state.js?v=59';
-import { alleEvents, getEvent } from './content.js?v=59';
-import { planeObjektArc, schliesseAktivenArc } from './arcs.js?v=59';
+import { rngFloat, zahleReparatur } from './state.js?v=60';
+import { alleEvents, getEvent } from './content.js?v=60';
+import { planeObjektArc, schliesseAktivenArc } from './arcs.js?v=60';
+import { aktuellerBetrag, textInLaufendenEuro } from './preisniveau.js?v=60';
 
 function kalendermonat(state) {
   return ((state.config.zeit.startMonat - 1 + state.monat) % 12) + 1;
@@ -26,6 +27,32 @@ function passendeObjekte(state, ev) {
   });
 }
 
+// Haushaltsbedingungen (CONTENT_SCHEMA): Kinder im Haushalt mit passendem
+// Alter, ein laufend eingeplantes Auto, Erwerbsphase vor dem Ruhestand.
+function hatKindImAlter(state, minAlter = 0, maxAlter = Infinity) {
+  const h = state.config.haushalt;
+  return (h.kinder || []).some((kind) => {
+    const alter = kind.alter + state.monat / 12;
+    return alter < h.auszugsAlter && alter >= minAlter && alter <= maxAlter;
+  });
+}
+
+// Gleiche Altersstufen-Auswahl wie monatsWerte(): Ein Faktor von 0 % entfernt
+// das Auto ab dieser Altersstufe.
+function hatAuto(state) {
+  const h = state.config.haushalt;
+  if (!((h.autoKostenMonat || 0) > 0 && state.monat >= (h.autoAbMonat ?? Number.POSITIVE_INFINITY))) return false;
+  const alter = state.config.zeit.startAlter + state.monat / 12;
+  const stufen = h.autoAltersFaktoren || [];
+  const stufe = stufen.find((s) => alter <= s.bisAlter) ?? stufen.at(-1);
+  return (stufe?.faktor ?? 1) > 0;
+}
+
+function istImRuhestand(state) {
+  const z = state.config.zeit;
+  return z.startAlter + state.monat / 12 >= z.rentenAlter;
+}
+
 function istErfuellbar(state, ev) {
   const b = ev.bedingung || {};
   if (b.nurArc) return false;
@@ -35,6 +62,11 @@ function istErfuellbar(state, ev) {
   if (b.cooldownMonate && hist !== undefined && state.monat - hist < b.cooldownMonate) return false;
   if (ev.kategorie === 'kind' && state.kinderEventsGezeigt >= state.config.events.maxKinderEvents) return false;
   if (b.jahreszeit && b.jahreszeit !== jahreszeit(state)) return false;
+  const brauchtKind = ev.kategorie === 'kind' || b.kindAlterMin != null || b.kindAlterMax != null;
+  if (brauchtKind && !hatKindImAlter(state, b.kindAlterMin ?? 0, b.kindAlterMax ?? Infinity)) return false;
+  if (b.autoVorhanden && !hatAuto(state)) return false;
+  if (b.vorRuhestand && istImRuhestand(state)) return false;
+  if (b.nurMieter && state.eigenheim) return false;
 
   const brauchtObjekt = b.brauchtObjekt || ev.kategorie === 'objekt' || ev.kategorie === 'mieter';
   if (brauchtObjekt && passendeObjekte(state, ev).length === 0) return false;
@@ -126,15 +158,17 @@ export function resolveEvent(state, optionIndex) {
 
   if (aktiv.arcId) schliesseAktivenArc(state, aktiv.arcId);
 
+  // Eventbeträge stehen in Euro des Spielstarts und laufen mit dem Preisniveau.
+  const euro = (betrag) => Math.round(aktuellerBetrag(state, betrag));
   if (typeof eff.cash === 'number') {
-    if (eff.cash < 0) zahleReparatur(state, objekt, -eff.cash);
-    else state.cash += eff.cash;
+    if (eff.cash < 0) zahleReparatur(state, objekt, euro(-eff.cash));
+    else state.cash += euro(eff.cash);
   }
   if (typeof eff.ruecklage === 'number' && objekt) {
-    objekt.ruecklage = Math.max(0, objekt.ruecklage + eff.ruecklage);
+    objekt.ruecklage = Math.max(0, objekt.ruecklage + euro(eff.ruecklage));
   }
   if (typeof eff.sondertilgung === 'number' && objekt?.darlehen) {
-    const betrag = Math.min(objekt.darlehen.restschuld, Math.max(0, eff.sondertilgung));
+    const betrag = Math.min(objekt.darlehen.restschuld, Math.max(0, euro(eff.sondertilgung)));
     state.cash -= betrag;
     objekt.darlehen.restschuld -= betrag;
     if (objekt.darlehen.restschuld <= 0) objekt.darlehen.rate = 0;
@@ -142,8 +176,15 @@ export function resolveEvent(state, optionIndex) {
   if (typeof eff.zustand === 'number' && objekt) {
     objekt.zustand = Math.max(1, Math.min(5, objekt.zustand + eff.zustand));
   }
+  // Neuer Mietvertrag der Familie (z. B. nach Eigenbedarf): relative Änderung
+  // der eigenen Wohnmiete ab dem Folgemonat; gilt auch für den ETF-Gegenfall.
+  if (typeof eff.haushaltsMiete === 'number') {
+    const h = state.config.haushalt;
+    h.miete = Math.round(h.miete * (1 + eff.haushaltsMiete));
+    h.mieteKalt = Math.round((h.mieteKalt || 0) * (1 + eff.haushaltsMiete));
+  }
   if (typeof eff.miete === 'number' && objekt) {
-    objekt.kaltmiete = Math.max(0, objekt.kaltmiete + eff.miete);
+    objekt.kaltmiete = Math.max(0, objekt.kaltmiete + euro(eff.miete));
   }
   if (objekt && objekt.mieter) {
     if (typeof eff.mieterZufriedenheit === 'number') objekt.mieter.zufriedenheit += eff.mieterZufriedenheit;
@@ -164,7 +205,7 @@ export function resolveEvent(state, optionIndex) {
 
   state.log.push({
     monat: state.monat,
-    text: `${ev.titel}: ${opt.text}${opt.folge ? ' — ' + opt.folge : ''}`,
+    text: textInLaufendenEuro(state, `${ev.titel}: ${opt.text}${opt.folge ? ' — ' + opt.folge : ''}`),
   });
   state.aktivesEvent = null;
   return { ev, opt, objekt };

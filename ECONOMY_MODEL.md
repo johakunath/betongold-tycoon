@@ -36,6 +36,43 @@ zielAlter        = clamp(basisAlter − stressMalus, minAlter, maxAlter)
 verändert keine Markt-, ETF- oder Eventfolge. Default: 90–100 Jahre,
 höchstens vier Jahre Stressmalus und nie ein Ende vor 90.
 
+## 1a. Preisniveau (Save v22)
+
+Ein kumulativer Index übersetzt alle Beträge, die in Euro des Spielstarts
+(Januar 2026) vorliegen, in laufende Euro. Default `preisniveau.inflation =
+2 % p.a.` (EZB-Ziel, DECISIONS 2026-07-16), im Admin-Panel editierbar.
+
+```
+preisniveau(0)   = 1
+preisniveau(m+1) = preisniveau(m) · (1 + inflation)^(1/12)   // nach monat++
+laufend(betrag)  = betrag₂₀₂₆ · preisniveau
+heutigeEuro(x)   = x / preisniveau
+```
+
+Indexiert werden: Vergleichs-/Marktmieten (§15), Bestandsmieten vermieteter
+Angebote beim Kauf, Hausgeld bzw. Grundsteuer/Versicherung/Grundstück (§14),
+Instandhaltungsrücklage, Renovierungskosten und Eigenleistungsdeckel (§17),
+Mängel und Sonderumlagen beim Kauf (§13), Gutachterhonorar, Möblierung,
+Eigenbedarfsabfindung, Bewirtschaftungspauschale der Bank (§10) und
+Event-Beträge samt der Zahlen in Event-Texten (§18) sowie die Dossier-Einkommen
+der Bewerber für die Einkommensquote (§16). Die Arbeitszeit einer
+Eigenleistung hängt am realen, nicht am inflationierten Volumen.
+
+Nicht doppelt indexiert werden Reihen mit eigener nominaler Rate: Einkommen,
+Lebenshaltung, Kinderkosten und Familienmiete (§2, jeweils Default 2 %),
+Segmentpreise (§7, Drift je Marktphase) und das ETF (§4). Kredite bleiben
+nominal; das Kindergeld bleibt eine feste Owner-Annahme. Wer die Inflation
+ändert, passt diese Raten bei Bedarf separat an.
+
+Laufende Mieten im Bestand steigen nicht automatisch: Bestehende Mieter
+zahlen ihre vereinbarte Miete, bis der Spieler eine Mietprüfung im Rahmen der
+Kappungsgrenze durchführt oder neu vermietet. Die Marktmiete läuft davon weg;
+das macht die Mietprüfung zu einer wiederkehrenden Entscheidung.
+
+Endscores (§23) vergleichen Kaufkraft in heutigen Euro. Zentrale und
+Endauswertung können Vermögenswerte nominal oder in heutigen Euro zeigen
+(Anzeigevorliebe je Browser, keine Spiellogik).
+
 ## 2. Haushalt (Phase 1)
 
 Monatliche Wachstumsanwendung stetig: `wert(m) = basis · (1 + p.a.)^(m/12)`.
@@ -63,8 +100,12 @@ sparrate(m)      = einkommen + kindergeld − miete − lebenshaltung − kinder
 Kinderkosten-Staffel nach Alter (`kinderKosten`, letzte Stufe gilt bis
 `auszugsAlter`, danach 0). Das Alter läuft ab dem Dezimal-Startalter
 monatsscharf weiter. `kindergeldProKind = 260 €` und
-`kindergeldBisAlter = 27` sind feste Owner-Szenarioannahmen: Das Kindergeld
-wächst nicht nominal und endet mit dem 27. Geburtstag. Es wird als eigene
+`kindergeldBisAlter = 25` sind feste Szenarioannahmen: Das Kindergeld
+wächst nicht nominal und endet mit dem 25. Geburtstag; das entspricht der
+gesetzlichen Grenze für Kinder in Ausbildung
+([§ 32 Abs. 4 EStG](https://www.gesetze-im-internet.de/estg/__32.html)).
+Die direkten Kinderkosten laufen davon unabhängig bis `auszugsAlter = 27`
+weiter. Es wird als eigene
 Einnahme ausgewiesen, nie still von den Brutto-Kinderkosten abgezogen.
 Die direkten Monatswerte je Kind steigen sichtbar mit der Lebensphase:
 150 € (0–5), 250 € (6–11), 300 € (12–17) und 400 € (18–26).
@@ -225,6 +266,22 @@ ETF-Teilfreistellung und 26,375 % Steuer, dabei bewusst ohne Pauschbetrag und
 ohne Steuerstundung. Der echte Depotwert und die gelbe Benchmark bleiben
 Brutto-Marktwerte; „Netto bei Verkauf“ zeigt für das echte Depot die aktuell
 verfügbare Liquidität nach realisierter Steuer.
+
+### 4b. Entnahmeregel (Save v22)
+
+Ein Sicherheitsnetz gegen die Dispo-Falle, besonders im Ruhestand:
+
+```
+untergrenze = mindestpufferMonate · (miete + lebenshaltung + kinder)
+wenn aktiv und cash < untergrenze und Depot > 0:
+  ETF-Verkauf brutto so, dass netto ≈ untergrenze − cash  (Steuer wie §4a)
+```
+
+Default: aktiv, 1 Monat; in Finanzen einstellbar (0–24 Monate oder aus). Die
+Buchung läuft im Tick nach der Monatsrendite, ist ein Transfer (kein
+Cashflow) und zieht keinen RNG. Ein Logeintrag je Kalenderjahr. Vorher gab es
+keinen automatischen Verkauf; ein 100-%-ETF-Haushalt lief im Ruhestand in den
+11-%-Dispo, obwohl Millionen im Depot lagen.
 
 ### 4a. Gemeinsamer Kapitalsteuervertrag
 
@@ -534,8 +591,97 @@ marktmiete(objekt) = vergleichsmiete(segment, flaeche) · zustandMietFaktor(zust
 5→1,12. Renovierung hebt den Zustand → mehr Miete UND (über `zustandsFaktor`,
 §8) mehr Wert. Die Berliner Segmentbasen sind Angebotsmieten 2025: 19,22 €/m²
 innerer Stadtraum und 13,01 €/m² äußerer Stadtraum; Neubau nutzt 19,97 €/m².
+Alle Segmentbasen sind Euro des Spielstarts und laufen mit dem Preisniveau
+(§1a); vorher blieben sie 55 Jahre nominal eingefroren.
 Möblierung und Wohnen auf Zeit werden über die getrennten Wege in §25
 aufgeschlagen.
+
+### 15a. Mietspiegel, Mieterhöhung und Mietpreisbremse (Save v22)
+
+Die Segmentwerte aus §15 sind **Angebotsmieten**. Rechtlich zählt für
+Erhöhungen und in Berlin/Leipzig auch für Neuvermietungen die **ortsübliche
+Vergleichsmiete** (Mietspiegel):
+
+```
+mietspiegel(objekt) = flaeche · mietspiegelM2(segment) · zustandMietFaktor
+                      · lageFaktor(lageScore, relativ zu Lage 5) · preisniveau
+erhöhungsgrenze     = min(mietspiegel · (1 + Möblierungsaufschlag),
+                          kappungsBasis · (1 + kappung))           // § 558 BGB
+neuvermietung (Mietpreisbremse, Berlin + Leipzig):
+  obergrenze = max(mietspiegel · 1,10, Vormiete)                   // § 556d BGB
+  angesetzt  = min(marktmiete · niveau, obergrenze) · (1 + Aufschlag)
+```
+
+Ausnahmen von der Mietpreisbremse: Baujahr ab 2015 (vereinfacht für
+„Erstvermietung nach Oktober 2014"), kumuliertes Renovierungsvolumen ab
+`umfassendModernisiertM2` = 1.000 €/m² (≈ ⅓ Neubaukosten; die neue Stufe
+„Umfassende Modernisierung" erreicht es allein) und eine höhere Vormiete.
+Neubauten haben im Modell keine eigene Mietspiegelstufe; ihre Erhöhungsgrenze
+ist die Marktmiete. Unter der Bremse bringt „über Marktmiete" keine höhere
+Miete, nur mehr Leerstandsrisiko. Der Möblierungsaufschlag bleibt obendrauf
+und trägt weiter das regionale Rechtsrisiko aus §25.
+
+Anker (Näherung, tunbar): Berlin Innenstadt 8,0 €/m², Berlin Rand 7,0 €/m²
+(Berliner Mietspiegel 2024 Ø 7,21 €/m² laut BBU), Leipzig 6,8 €/m²
+(Mieterverein Ø 6,56 €/m², Spanne 6,50–10 €/m²), Meißen 6,4 €/m² (Mietspiegel
+2025–2027, identisch mit der Marktmiete). Kappung: Berlin und Leipzig 15 %,
+Meißen 20 % in 36 Monaten. Annahme: Die Mietpreisbremse gilt über die ganze
+Spielzeit; rechtlich läuft sie derzeit in Berlin längstens bis Ende 2029, in
+Leipzig bis 30.06.2027.
+
+Folge: Berliner und Leipziger Altbau-Kapitalanlagen sind ohne Modernisierung
+selten tragfähig; die 40-Listing-Matrix (B0) behält je Markt mindestens einen
+positiven Pfad, meist über Modernisierung, Neubau oder günstigen Bestand.
+
+### 15b. Mietpreisbremse bewusst ignorieren (Save v22)
+
+Bei einer Neuvermietung unter der Bremse kann der Spieler die Grenze bewusst
+ignorieren (`starteVermietung(..., { bremseIgnorieren: true })`). Die Miete
+folgt dann der Marktmiete; `objekt.bremseVerstoss` merkt sich Beginn,
+zulässige Miete, vereinbarte Miete, Mietspiegel und aufgelaufenen Mehrerlös.
+Eine unzulässige Vormiete schützt bei der nächsten Vermietung nicht.
+
+Jeden Monat mit laufendem Verstoß (eine RNG-Ziehung im Mieter-Tick, nur wenn
+ein Verstoß existiert; reguläre Spiele ziehen keine zusätzliche Zahl):
+
+```
+ueberschuss = vereinbart / zulaessig − 1
+zeitFaktor  = 1,3 in Monat 0–11, 1,5 in Monat 27–30, sonst 1
+p_ruege     = ruegeMonat[stadt] · (1 + konflikt · 1,0) · (1 + ueberschuss · 1,5) · zeitFaktor
+ueberVM     = miete / mietspiegel − 1
+p_bussgeld  = ueberVM > 20 % ? bussgeldMonat[stadt] · (ueberVM > 50 % ? 3 : 1) : 0
+```
+
+| Folge | Bedingung | Kosten |
+|---|---|---|
+| Rüge (§ 556g BGB) | Rüge in Monat ≤ 30, Mietverhältnis läuft | gesamter Mehrerlös seit Mietbeginn + 800 € Anwaltskosten |
+| späte Rüge | nach Monat 30 | nur 800 € Anwaltskosten, Rückzahlung erst ab Rüge (= 0) |
+| Bußgeld (§ 5 WiStG) | > 120 % der Vergleichsmiete | 12.000 €; in der Hälfte der Fälle zusätzlich Abschöpfung des Mehrerlöses (§§ 8/9 WiStG) |
+
+In jedem Fall sinkt die Miete auf die zulässige Höhe, die Kappungsbasis
+startet neu und die Mieterzufriedenheit sinkt um 0,4. Alle Beträge in Euro des
+Spielstarts, indexiert mit §1a. Freiwilliger Ausstieg
+(`senkeAufZulaessigeMiete`) stoppt neuen Mehrerlös, das bisherige bleibt bis
+Monat 30 rückforderbar. Danach ist der Fall erledigt (`beendet`). Zieht der
+Mieter aus, verfällt der Anspruch im Modell. Die Finanzierung zeigt den Pfad
+„Nur mit Rechtsbruch" getrennt; er wird nie empfohlen und zählt nicht für B0.
+
+Kalibrierung (Rechercheauftrag 10/2026, alle Werte tunbar):
+
+| Annahme | Wert | Anker |
+|---|---|---|
+| Rüge Berlin | 0,4 %/Monat Basis → 17–34 % in 30 Monaten | Nur 2,4 % der Mieter nutzten die Bremse je (TU/LMU-Befragung); DMB: 45,7 % der Berliner Altbauinserate über der Grenze; Berlin ~773 durchgesetzte Absenkungen 2024 ([Drs. 19/26859](https://pardok.parlament-berlin.de/starweb/adis/citat/VT/19/SchrAnfr/S19-26859.pdf), [DMB-Mietenmonitor](https://mieterbund.de/aktuelles/meldungen/mietenmonitor-deutlich-ueberhoehte-mieten-in-berlin-und-ulm/)) |
+| Rüge Leipzig | 0,2 %/Monat Basis → 9–19 % | kleinere Mietervereinsdichte, kein öffentliches Prüfangebot; Bremse bis 30.06.2027 ([Sachsen](https://medienservice.sachsen.de/medien/news/1092960/download_pdf)) |
+| Rückforderung | 30 Monate ab Mietbeginn | [§ 556g Abs. 2 BGB](https://www.gesetze-im-internet.de/bgb/__556g.html) |
+| Bußgeld | Berlin 0,015 %/Monat, Leipzig 0,004 %/Monat; 12.000 € | Berlin: 7 Bußgelder bei ~5.100 Prüfverfahren, 1.300–26.000 €, Höchstmaß 50.000 € ([berlin.de](https://www.berlin.de/aktuelles/10237006-958090-pruefstelle-deckt-hunderte-wuchermieten-.html), [§ 5 WiStG](https://dejure.org/gesetze/WiStG/5.html), [§ 8](https://dejure.org/gesetze/WiStG/8.html)) |
+| Verstoß gegen die Bremse selbst | kein Bußgeld | Die Bremse ist zivilrechtlich; erst § 5 WiStG ab 20 % über Vergleichsmiete |
+
+Bewusst vereinfacht: Möblierung und Wohnen auf Zeit stehen weiter unter der
+Bremse, ihre Grauzone trägt das bestehende Rechtsrisiko aus §25
+([§ 549 Abs. 2 BGB](https://www.gesetze-im-internet.de/bgb/__549.html)
+nimmt nur echten vorübergehenden Gebrauch aus). Nicht modelliert: Mietwucher
+nach § 291 StGB, Klagekosten bei verlorenem Prozess, die geplante
+Mietrecht-II-Reform und ein mögliches Auslaufen der Bremse.
 
 ## 16. Mieterwahl & Vermietung (Phase 3)
 
@@ -580,7 +726,7 @@ senkt die Mieterzufriedenheit (höheres Auszugsrisiko temporär).
 
 ## 17. Renovierung (Phase 3)
 
-Vier Stufen (config `renovierung.stufen`), nur bei leerem Objekt startbar
+Fünf Stufen (config `renovierung.stufen`), nur bei leerem Objekt startbar
 (Umbau = Leerstand):
 
 | Stufe | Kosten €/m² | Dauer (Mon.) | Zustandsziel | Miet-Uplift | Effekt |
@@ -589,6 +735,10 @@ Vier Stufen (config `renovierung.stufen`), nur bei leerem Objekt startbar
 | kuecheBad | 450 | 4 | ≥4 | via Zustand | — |
 | grundriss | 800 | 6 | 5 | via Zustand | zusätzlicher Wert-Bonus |
 | energetisch | 600 | 5 | +1 | via Zustand | Energieklasse +2 Stufen, senkt Kosten-Events |
+| umfassend | 1.400 | 9 | 5 | via Zustand | Grundriss + Energetik; hebt die Mietpreisbremse auf (§15a) |
+
+Jede abgeschlossene Stufe addiert ihre `kostenM2` (Euro des Spielstarts) zu
+`objekt.modernisierungM2`.
 
 ```
 kostenSchaetzung = flaeche · kostenM2 · kostenFaktor
@@ -735,9 +885,13 @@ Nettovermögen   += Marktwert Eigenheim − Restschuld + Rücklage
 Die Bankrechnung ersetzt bei einem Eigenheimkauf die bisherige Wohnmiete durch
 artabhängige Fixkosten, Instandhaltung und die neue Rate. Ein bestehendes Eigenheim zählt
 bei späteren Kapitalanlage-Krediten vollständig als Belastung. Der Kauf gibt
-einmalig `familieSofortBonus`; solange das Eigenheim gehalten wird, driftet die
-Familienzufriedenheit zu `neutral + familieNeutralBonus`. Negative Folgen von
-Kinder-Events werden mit `kinderEventMalusFaktor` multipliziert.
+einmalig `familieSofortBonus` (+6, Ankommen); ein Verkauf kostet
+`verkaufFamilieMalus`. Seit Save v22 gibt es keinen pauschalen Dauerbonus
+(`familieNeutralBonus = 0`) und keine Abmilderung von Kinder-Events
+(`kinderEventMalusFaktor = 1`). Stattdessen trägt das Mieten ein eigenes
+Risiko: Das Event „Eigenbedarf: Euer Vermieter kündigt" (nur ohne Eigenheim)
+kostet Umzug und Familienzufriedenheit und erhöht bei gleich großer Wohnung
+die Familienmiete um 15 % (neuer Vertrag).
 
 ## 21. Jahressteuerbescheid (Phase 4, bewusst stark vereinfacht)
 
@@ -797,9 +951,19 @@ UI-Auswahl erfolgt deshalb über die stabile Listing-ID, nicht über Array-Indiz
 
 Fünf Scores, jeweils 0–100:
 
-1. **Nettovermögen:** linear bis `nettovermoegenZiel`.
-2. **Nachhaltiger Cashflow:** aktuelle vermietete Objekt-P&Ls abzüglich einer
-   monatlichen Steuer-Schätzung, linear bis 2.000 €/Monat.
+1. **Nettovermögen:** Kaufkraft in heutigen Euro (§1a) **mit 85**
+   (`vermoegenBewertungAlter`), nicht am zufälligen Lebensende; linear bis
+   `vermoegenZielJahresnetto` = 40 × Start-Jahresnetto des Haushalts
+   (inklusive geplanter Einkommenssprünge). Familienstart: 3,98 Mio.,
+   klassischer Einstieg: 1,54 Mio. heutige Euro. So hat jede Startlage
+   dieselbe Chance auf einen guten Wert.
+2. **Rentenlücke gedeckt:** Im ersten Rentenmonat speichert der Tick einmal
+   `state.ruhestandsCheck`: passives Einkommen (vermietete Objekt-P&Ls nach
+   Steuer-Schätzung **plus** sichere Entnahme `entnahmeRate` 3,5 % p.a. aus
+   Tagesgeld und ETF netto) gegen die Rentenlücke (letztes Erwerbsnetto −
+   Rente), beides in heutigen Euro. Score = Deckungsgrad, höchstens 100.
+   Nichtkaufen kann ihn über die Entnahme erreichen (PLAN Säule 1). Ohne
+   Ruhestand im Lauf gilt der Endstand gegen `cashflowZiel` 2.000 €/Monat.
 3. **Resilienz:** Mittel aus LTV-Score und Rücklagenabdeckung in Monaten.
 4. **Stresshistorie:** Abzug für durchschnittlichen Zeitüberzug und Anteil der
    Monate mit negativem Cash.
@@ -812,6 +976,22 @@ Invest-first. `benchmarkMaxObjekte` begrenzt die **Gesamtzahl** aus Eigenheim
 plus Mietobjekten, damit Eigenheim-first nicht automatisch ein zusätzliches
 Objekt halten darf. Diese Linien sind Lern-Benchmarks, keine Aussage über die
 einzig richtige Strategie; ihre Regeln stehen in `js/endgame.js`.
+
+Eine vierte Vergleichslinie **„Ohne Käufe"** spielt dieselbe Startlage
+(einschließlich eines Startbestands) ohne Käufe; der Sparplan-Anteil wird aus
+`historie[m].sparplanEtfAnteil` monatsgenau nachgespielt (gilt für alle
+Vergleichsläufe). Manuelle Umschichtungen und Admin-Änderungen anderer Werte
+werden nicht nachgespielt und zählen zu „eigenen Entscheidungen". Damit zerlegt die Endauswertung den Abstand zur
+ETF-Linie in zwei getrennte Fragen:
+
+```
+Spieler − ETF = (Spieler − OhneKäufe)      // eigene Entscheidungen: Käufe,
+                                           // Umschichtungen, Arbeitsmodell
+              + (OhneKäufe − ETF)          // Sparplan-Aufteilung Tagesgeld/ETF
+```
+
+Ohne eigene Käufe ist der erste Term ≈ 0 (simtest). Beide Wertangaben sind
+Brutto-Marktwerte; das gilt für ETF-Linie und echtes Depot gleichermaßen.
 
 ## 24. Familienmarkt-Gate
 

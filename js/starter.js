@@ -2,10 +2,10 @@
 // Läuft nach market.initialisiereMarkt(), damit Listingdaten, Mängel und
 // Feedstatus existieren. DOM-frei und vollständig im Save abbildbar.
 
-import { getListing } from './content.js?v=59';
-import { fairerWert } from './market.js?v=59';
-import { kaufeObjekt, nebenkostenFuer } from './finance.js?v=59';
-import { initialisiereTurnaround } from './turnaround.js?v=59';
+import { getListing } from './content.js?v=60';
+import { fairerWert } from './market.js?v=60';
+import { kaufeObjekt, nebenkostenFuer } from './finance.js?v=60';
+import { initialisiereTurnaround } from './turnaround.js?v=60';
 
 export function initialisiereStartbestand(state) {
   if (state.startbestandInitialisiert) return { angewendet: false, anzahl: 0 };

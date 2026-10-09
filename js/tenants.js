@@ -1,11 +1,12 @@
 ﻿// tenants.js — Mieterwahl, Neuvermietung, monatliches Mieterverhalten,
 // Mieterhöhung. Formeln: ECONOMY_MODEL §15–16. DOM-frei, RNG nur über state.js.
 
-import { rngFloat, rngNormal } from './state.js?v=59';
-import { vergleichsmiete } from './market.js?v=59';
-import { alleTenants, getTenant } from './content.js?v=59';
-import { meldeWartemoment } from './signals.js?v=59';
-import { protokolliereWirkung } from './gameplay.js?v=59';
+import { rngFloat, rngNormal } from './state.js?v=60';
+import { stammdaten, vergleichsmiete } from './market.js?v=60';
+import { alleTenants, getTenant } from './content.js?v=60';
+import { meldeWartemoment } from './signals.js?v=60';
+import { protokolliereWirkung } from './gameplay.js?v=60';
+import { aktuellerBetrag, preisniveau } from './preisniveau.js?v=60';
 
 // Erzielbare Marktmiete (kalt) für ein Objekt: Vergleichsmiete × Zustandsfaktor.
 export function marktmiete(state, objekt) {
@@ -18,12 +19,82 @@ export function vermietungsmodell(state, modellId = 'regulaer') {
   return { id, ...(state.config.mieter.vermietungsmodelle?.[id] || state.config.mieter.vermietungsmodelle.regulaer) };
 }
 
+function istNeubau(objekt) {
+  const daten = stammdaten(objekt);
+  return daten.stil === 'neubau' || Number(daten.baujahr) >= 2020;
+}
+
+function lageFaktor(state, objekt) {
+  const b = state.config.bewertung;
+  const referenz = b.lageBasis + 5 * b.lageJePunkt;
+  return (b.lageBasis + (Number(objekt.lageScore) || 5) * b.lageJePunkt) / referenz;
+}
+
+// Ortsübliche Vergleichsmiete laut Mietspiegel (kalt, €/Monat, laufende Euro):
+// Segmentanker × Zustand × Lage. Grundlage für Mieterhöhungen (§ 558 BGB) und
+// die Mietpreisbremse (§ 556d BGB). ECONOMY_MODEL §15a.
+export function mietspiegelMiete(state, objekt) {
+  const segment = state.config.segmente[objekt.segment];
+  if (!Number.isFinite(segment?.mietspiegelM2)) return marktmiete(state, objekt);
+  const f = state.config.mieter.zustandMietFaktor[objekt.zustand] ?? 1;
+  return objekt.flaeche * segment.mietspiegelM2 * f * lageFaktor(state, objekt) * preisniveau(state);
+}
+
+// Zuletzt vereinbarte Kaltmiete ohne Möblierungsaufschlag (Vormiete). Für ein
+// noch nicht gekauftes, vermietetes Angebot ist es dessen Bestandsmiete.
+function vormieteBasis(state, objekt) {
+  if (objekt.mietstatus?.vermietet && objekt.kaltmiete === undefined) {
+    return (Number(objekt.mietstatus.kaltmiete) || 0) * preisniveau(state);
+  }
+  // Eine selbst unzulässige Vormiete schützt nicht (§ 556e BGB): Es zählt die
+  // damals zulässige Miete.
+  const verstoss = objekt.bremseVerstoss;
+  const vorher = verstoss && !verstoss.geruegt ? verstoss.zulaessig : Number(objekt.kaltmiete) || 0;
+  if (!vorher) return 0;
+  return vorher / (1 + (vermietungsmodell(state, objekt.vermietungsart || objekt.moebliert).aufschlag || 0));
+}
+
+// Gilt bei einer Neuvermietung die Mietpreisbremse, und bis zu welcher
+// Kaltmiete (ohne Möblierungsaufschlag)?
+export function mietpreisbremse(state, objekt) {
+  const cfg = state.config.mietpreisbremse;
+  const stadt = state.config.segmente[objekt.segment]?.stadt;
+  if (!cfg?.staedte?.[stadt]) return { gilt: false, grund: 'keine Mietpreisbremse in diesem Markt' };
+  if (Number(stammdaten(objekt).baujahr) >= cfg.neubauAbBaujahr) return { gilt: false, grund: 'Neubau, Erstvermietung nach 2014' };
+  if ((objekt.modernisierungM2 || 0) >= cfg.umfassendModernisiertM2) {
+    return { gilt: false, grund: 'umfassend modernisiert' };
+  }
+  const mietspiegel = mietspiegelMiete(state, objekt);
+  const grenze = mietspiegel * (1 + cfg.aufschlag);
+  const vormiete = vormieteBasis(state, objekt);
+  return {
+    gilt: true,
+    mietspiegel,
+    vormiete,
+    obergrenze: Math.max(grenze, vormiete),
+    grund: vormiete > grenze ? 'höhere Vormiete bleibt zulässig' : `Mietspiegel + ${Math.round(cfg.aufschlag * 100)} %`,
+  };
+}
+
 // Angesetzte Miete für eine geplante Vermietung (Mietniveau + Vermietungsweg).
-export function angesetzteMiete(state, objekt, niveauId, modellId = 'regulaer') {
+// Unter der Mietpreisbremse ist „über Marktmiete" nicht mehr als die
+// Obergrenze; der Möblierungsaufschlag kommt wie bisher obendrauf und trägt
+// das regionale Rechtsrisiko (§25).
+export function angesetzteMiete(state, objekt, niveauId, modellId = 'regulaer', { bremseIgnorieren = false } = {}) {
   const m = state.config.mieter;
   const niveau = m.mietNiveaus[niveauId];
-  const basis = marktmiete(state, objekt) * niveau.faktor;
+  const bremse = bremseIgnorieren ? { gilt: false } : mietpreisbremse(state, objekt);
+  const markt = bremse.gilt ? Math.min(marktmiete(state, objekt), bremse.obergrenze) : marktmiete(state, objekt);
+  const basis = bremse.gilt ? Math.min(markt * niveau.faktor, bremse.obergrenze) : markt * niveau.faktor;
   return Math.round(basis * (1 + vermietungsmodell(state, modellId).aufschlag));
+}
+
+// Obergrenze einer Mieterhöhung im Bestand: ortsübliche Vergleichsmiete
+// (§ 558 BGB). Neubauten haben im Modell keine eigene Mietspiegelstufe und
+// orientieren sich an der Marktmiete.
+export function erhoehungsObergrenze(state, objekt) {
+  const basis = istNeubau(objekt) ? marktmiete(state, objekt) : mietspiegelMiete(state, objekt);
+  return basis * (1 + vermietungsmodell(state, objekt.vermietungsart || objekt.moebliert).aufschlag);
 }
 
 function qualiWert(t) {
@@ -33,13 +104,15 @@ function qualiWert(t) {
 // --- Bewerbersuche ----------------------------------------------------------
 
 // Startet eine Suche am gewählten Mietniveau (Objekt muss leer sein).
-export function starteVermietung(state, objekt, niveauId, modellId = 'regulaer') {
+export function starteVermietung(state, objekt, niveauId, modellId = 'regulaer', { bremseIgnorieren = false } = {}) {
   const modell = vermietungsmodell(state, modellId);
+  const ignoriert = !!bremseIgnorieren && mietpreisbremse(state, objekt).gilt;
   objekt.suche = {
     niveau: niveauId,
     modell: modell.id,
     moebliert: modell.id !== 'regulaer', // Rückwärtskompatibilität in Anzeigen/Tests
-    miete: angesetzteMiete(state, objekt, niveauId, modell.id),
+    bremseIgnoriert: ignoriert,
+    miete: angesetzteMiete(state, objekt, niveauId, modell.id, { bremseIgnorieren: ignoriert }),
     bewerber: [],
     generiertMonat: -1,
   };
@@ -75,7 +148,8 @@ export function neueBewerber(state, objekt) {
   suche.bewerber = bewertet.slice(0, n).map(({ t }) => ({
     id: t.id,
     miete: suche.miete,
-    einkommensquote: t.nettoEinkommen ? suche.miete / t.nettoEinkommen : null,
+    // Dossier-Einkommen stehen wie die Mieten in Euro des Spielstarts.
+    einkommensquote: t.nettoEinkommen ? suche.miete / aktuellerBetrag(state, t.nettoEinkommen) : null,
   }));
   return suche;
 }
@@ -88,11 +162,19 @@ export function waehleBewerber(state, objekt, tenantId) {
   if (!t) throw new Error(`Unbekannter Bewerber: ${tenantId}`);
 
   const modell = vermietungsmodell(state, suche.modell || suche.moebliert);
+  // Verstoß gegen die Mietpreisbremse festhalten, bevor die neue Miete die
+  // Vormiete überschreibt. Zulässig ist die Grenze inklusive Möblierungsaufschlag.
+  const bremse = suche.bremseIgnoriert ? mietpreisbremse(state, objekt) : null;
+  const zulaessig = bremse?.gilt ? Math.round(bremse.obergrenze * (1 + (modell.aufschlag || 0))) : null;
+  objekt.bremseVerstoss = zulaessig !== null && suche.miete > zulaessig
+    ? { beginn: state.monat, zulaessig, vereinbart: suche.miete, mietspiegel: Math.round(bremse.mietspiegel), geruegt: false }
+    : null;
   if (modell.moebelKosten > 0 && !objekt.moebliert) {
-    state.cash -= modell.moebelKosten;
+    const moebel = Math.round(aktuellerBetrag(state, modell.moebelKosten));
+    state.cash -= moebel;
     state.log.push({
       monat: state.monat,
-      text: `${objekt.titel}: für ${modell.label} mit ${modell.moebelKosten.toLocaleString('de-DE')} € eingerichtet.`,
+      text: `${objekt.titel}: für ${modell.label} mit ${moebel.toLocaleString('de-DE')} € eingerichtet.`,
     });
   }
   objekt.vermietungsart = modell.id;
@@ -139,7 +221,7 @@ export function mietrechtFuer(state, objekt) {
   };
 }
 
-// Obergrenze: min(Marktmiete inkl. möbliert, Kappungsbasis × (1+Kappung)).
+// Obergrenze: min(ortsübliche Vergleichsmiete inkl. möbliert, Kappungsbasis × (1+Kappung)).
 export function maxMiete(state, objekt) {
   const m = state.config.mieter;
   const recht = mietrechtFuer(state, objekt);
@@ -148,7 +230,7 @@ export function maxMiete(state, objekt) {
     objekt.kappungFensterStart = state.monat;
     objekt.kappungBasis = objekt.kaltmiete;
   }
-  const markt = marktmiete(state, objekt) * (1 + vermietungsmodell(state, objekt.vermietungsart || objekt.moebliert).aufschlag);
+  const markt = erhoehungsObergrenze(state, objekt);
   const kappe = objekt.kappungBasis * (1 + recht.kappungProzent);
   return Math.floor(Math.min(markt, kappe));
 }
@@ -235,7 +317,9 @@ function tickEigenbedarf(state, objekt) {
   const konflikt = Math.min(.55, .12 + (objekt.mieter?.konflikt || .15) * .25 + regional);
   if (rngFloat(state) < konflikt) {
     vorgang.status = 'klage';
-    vorgang.abfindung = Math.max(6000, Math.round(objekt.kaltmiete * 6 + 2000));
+    const eb = state.config.mieter.eigenbedarf || {};
+    vorgang.abfindung = Math.round(Math.max(aktuellerBetrag(state, eb.abfindungMin ?? 6000),
+      objekt.kaltmiete * (eb.abfindungMonatsmieten ?? 6) + aktuellerBetrag(state, eb.abfindungSockel ?? 2000)));
     state.log.push({ monat: state.monat, text: `${objekt.titel}: Widerspruch gegen Eigenbedarf; eine Einigung würde ${vorgang.abfindung.toLocaleString('de-DE')} € kosten.` });
     meldeWartemoment(state, `${objekt.titel}: Mieter widerspricht dem Eigenbedarf. Entscheidet über Abfindung oder Rückzug.`, objekt.listingId);
     return false;
@@ -260,12 +344,17 @@ export function mieterMonat(state, objekt) {
   if (rechtsrisiko > 0 && rngFloat(state) < rechtsrisiko) {
     const rueckzahlung = Math.round(objekt.kaltmiete * modell.rueckzahlungMonate);
     state.cash -= rueckzahlung;
+    const bremse = mietpreisbremse(state, { ...objekt, kaltmiete: 0 });
+    const regulaer = bremse.gilt ? bremse.obergrenze : marktmiete(state, objekt);
     objekt.vermietungsart = 'regulaer';
     objekt.moebliert = false;
-    objekt.kaltmiete = Math.min(objekt.kaltmiete, Math.round(marktmiete(state, objekt)));
+    objekt.kaltmiete = Math.min(objekt.kaltmiete, Math.round(regulaer));
     state.log.push({ monat: state.monat, text: `${objekt.titel}: Mietmodell wurde geprüft; ${rueckzahlung.toLocaleString('de-DE')} € Rückzahlung/Kosten und Umstellung auf reguläre Vermietung.` });
     meldeWartemoment(state, `${objekt.titel}: Prüfung des Mietmodells. Rückzahlung fällig; Vermietung läuft regulär weiter.`, objekt.listingId);
   }
+
+  // Nur wer die Mietpreisbremse bewusst ignoriert, zieht diesen RNG-Wert.
+  pruefeBremseVerstoss(state, objekt);
 
   const ausfall = rngFloat(state) < (1 - mieter.zahlungsmoral) * m.zahlungsausfallBasis;
   if (ausfall) {
@@ -297,5 +386,119 @@ export function mieterMonat(state, objekt) {
     }
   }
   return { ausfall };
+}
+
+// --- Bewusster Verstoß gegen die Mietpreisbremse (ECONOMY_MODEL §15b) -------
+
+// Monatliche Chancen, dass der Mieter rügt oder das Amt ein Bußgeld verhängt.
+export function bremseVerstossRisiko(state, objekt) {
+  const verstoss = objekt.bremseVerstoss;
+  const cfg = state.config.mietpreisbremse?.verstoss;
+  if (!verstoss || verstoss.geruegt || verstoss.beendet || !cfg || !objekt.mieter) return null;
+  const stadt = state.config.segmente[objekt.segment]?.stadt;
+  const ueberschuss = Math.max(0, objekt.kaltmiete / Math.max(1, verstoss.zulaessig) - 1);
+  const monate = Math.max(0, state.monat - verstoss.beginn);
+  const zeitFaktor = monate < 12 ? (cfg.fruehFaktor ?? 1)
+    : monate >= cfg.rueckforderungMonate - 3 && monate <= cfg.rueckforderungMonate ? (cfg.fristFaktor ?? 1) : 1;
+  const ruege = Math.min(1, (cfg.ruegeMonat?.[stadt] || 0)
+    * (1 + (objekt.mieter.konflikt || 0) * cfg.konfliktHebel)
+    * (1 + ueberschuss * cfg.ueberschussHebel)
+    * zeitFaktor);
+  const ueberVergleichsmiete = verstoss.mietspiegel > 0 ? objekt.kaltmiete / verstoss.mietspiegel - 1 : 0;
+  const bussgeld = ueberVergleichsmiete > cfg.bussgeldSchwelle
+    ? (cfg.bussgeldMonat?.[stadt] || 0) * (ueberVergleichsmiete > (cfg.wucherSchwelle ?? Infinity) ? (cfg.wucherFaktor ?? 1) : 1)
+    : 0;
+  const rueckforderbar = monate <= cfg.rueckforderungMonate ? (verstoss.mehrerloes || 0) : 0;
+  const mehrMonat = Math.max(0, objekt.kaltmiete - verstoss.zulaessig);
+  // Zulässige Miete und nichts mehr rückforderbar: Eine Rüge brächte dem
+  // Mieter nichts, also auch kein Risiko mehr.
+  const offen = mehrMonat > 0 || rueckforderbar > 0;
+  return {
+    ruege: offen ? ruege : 0, bussgeld, ueberschuss, monate, rueckforderbar, mehrMonat,
+  };
+}
+
+// Legaler Ausstieg: Miete freiwillig auf die zulässige Höhe senken. Bereits
+// zu viel gezahlte Miete bleibt bis zum Ende des 30-Monats-Fensters
+// rückforderbar.
+export function senkeAufZulaessigeMiete(state, objekt) {
+  const verstoss = objekt.bremseVerstoss;
+  if (!verstoss || verstoss.geruegt || verstoss.beendet || objekt.kaltmiete <= verstoss.zulaessig) return false;
+  const alt = objekt.kaltmiete;
+  objekt.kaltmiete = verstoss.zulaessig;
+  objekt.kappungBasis = verstoss.zulaessig;
+  objekt.kappungFensterStart = state.monat;
+  state.log.push({
+    monat: state.monat,
+    ziel: objekt.listingId,
+    text: `${objekt.titel}: Miete freiwillig auf die zulässige Höhe gesenkt (${Math.round(alt).toLocaleString('de-DE')} → ${verstoss.zulaessig.toLocaleString('de-DE')} €).`,
+  });
+  return true;
+}
+
+function pruefeBremseVerstoss(state, objekt) {
+  const risiko = bremseVerstossRisiko(state, objekt);
+  if (!risiko) return;
+  const cfg = state.config.mietpreisbremse.verstoss;
+  const verstoss = objekt.bremseVerstoss;
+  // Mehrerlös dieses Monats aufsummieren (kein RNG).
+  verstoss.mehrerloes = (verstoss.mehrerloes || 0) + risiko.mehrMonat;
+  // Miete wieder zulässig und nichts mehr rückforderbar: Fall ist erledigt.
+  if (risiko.mehrMonat <= 0 && (risiko.monate > cfg.rueckforderungMonate || verstoss.mehrerloes <= 0)) {
+    verstoss.beendet = true;
+    return;
+  }
+  const r = rngFloat(state);
+  if (r >= risiko.ruege + risiko.bussgeld) return;
+
+  const durchAmt = r >= risiko.ruege;
+  const rueckforderbar = risiko.monate <= cfg.rueckforderungMonate ? verstoss.mehrerloes : 0;
+  let kosten;
+  let rueckzahlung;
+  let text;
+  if (durchAmt) {
+    // § 5 WiStG: Bußgeld; in etwa jedem zweiten Fall zusätzlich Abschöpfung
+    // des Mehrerlöses (§§ 8/9 WiStG). Dieselbe Zufallszahl entscheidet über
+    // die Hälfte, damit kein weiterer RNG-Wert nötig ist.
+    const mitAbschoepfung = r < risiko.ruege + risiko.bussgeld / 2;
+    const bussgeld = aktuellerBetrag(state, cfg.bussgeld);
+    rueckzahlung = mitAbschoepfung ? Math.round(verstoss.mehrerloes) : 0;
+    kosten = Math.round(bussgeld) + rueckzahlung;
+    text = `${objekt.titel}: Das Wohnungsamt ahndet eine Mietpreisüberhöhung. ` +
+      `Bußgeld ${Math.round(bussgeld).toLocaleString('de-DE')} €` +
+      (mitAbschoepfung ? ` und Rückzahlung des Mehrerlöses, zusammen ${kosten.toLocaleString('de-DE')} €` : '') +
+      `; die Miete sinkt auf ${verstoss.zulaessig.toLocaleString('de-DE')} €.`;
+  } else {
+    // § 556g BGB: Rüge in den ersten 30 Monaten → Erstattung ab Mietbeginn,
+    // sonst nur künftig; dazu vorgerichtliche Kosten des Mieters.
+    const rechtskosten = aktuellerBetrag(state, cfg.rechtskosten || 0);
+    rueckzahlung = Math.round(rueckforderbar);
+    kosten = rueckzahlung + Math.round(rechtskosten);
+    text = `${objekt.titel}: ${objekt.mieter.name} rügt die Miete (Mietpreisbremse). ` +
+      (rueckforderbar > 0
+        ? `Rückzahlung seit Mietbeginn ${Math.round(rueckforderbar).toLocaleString('de-DE')} € plus ${Math.round(rechtskosten).toLocaleString('de-DE')} € Anwaltskosten; `
+        : `Keine Rückzahlung, weil die Rüge nach ${cfg.rueckforderungMonate} Monaten kam, aber ${Math.round(rechtskosten).toLocaleString('de-DE')} € Anwaltskosten; `) +
+      `die Miete ${objekt.kaltmiete > verstoss.zulaessig ? 'sinkt auf' : 'bleibt bei'} ${verstoss.zulaessig.toLocaleString('de-DE')} €.`;
+  }
+  state.cash -= kosten;
+  objekt.kaltmiete = verstoss.zulaessig;
+  objekt.kappungBasis = verstoss.zulaessig;
+  objekt.kappungFensterStart = state.monat;
+  objekt.mieter.zufriedenheit -= cfg.zufriedenheitMalus;
+  verstoss.geruegt = true;
+  verstoss.geruegtMonat = state.monat;
+  verstoss.kosten = kosten;
+  verstoss.rueckzahlung = rueckzahlung;
+  verstoss.durchAmt = durchAmt;
+  state.statistik.bremseRuegen = (state.statistik.bremseRuegen || 0) + 1;
+  state.log.push({ monat: state.monat, ziel: objekt.listingId, kategorie: 'Objekt', text });
+  meldeWartemoment(state, text, objekt.listingId);
+  protokolliereWirkung(state, {
+    typ: 'mietpreisbremse-ruege',
+    titel: durchAmt ? 'Bußgeld wegen Mietpreisüberhöhung' : 'Rüge der Mietpreisbremse',
+    text,
+    ziel: objekt.listingId,
+    route: 'objekt',
+  });
 }
 

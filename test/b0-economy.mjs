@@ -4,13 +4,13 @@
 // zusätzliche Hürden und sind nicht Teil dieser isolierten Objektmatrix.
 
 import { readFile } from 'node:fs/promises';
-import { newGame } from '../js/state.js?v=59';
-import { setzeInhalte } from '../js/content.js?v=59';
-import { fairerWert } from '../js/market.js?v=59';
+import { newGame } from '../js/state.js?v=60';
+import { setzeInhalte } from '../js/content.js?v=60';
+import { fairerWert } from '../js/market.js?v=60';
 import {
   finanzierungsCashflowPfade, kreditAngebot, nebenkostenFuer,
-} from '../js/finance.js?v=59';
-import { fixkostenMonat, instandhaltungMonat } from '../js/immobilie.js?v=59';
+} from '../js/finance.js?v=60';
+import { fixkostenMonat, instandhaltungMonat } from '../js/immobilie.js?v=60';
 
 const listings = JSON.parse(await readFile(new URL('../data/listings.json', import.meta.url), 'utf8'));
 setzeInhalte({ listings });
@@ -76,7 +76,9 @@ for (const segment of Object.keys(state.config.segmente)) {
 }
 
 const positiveWohnungen = matrix.filter(({ listing, besterPfad }) => listing.objektart === 'wohnung' && besterPfad >= 0);
-check(positiveWohnungen.length >= 6,
+// Seit der Mietpreisbremse (Save v22) fallen Altbau-Wege in Berlin/Leipzig weg;
+// fünf Wohnungen über mehrere Märkte bleiben als „mehrere" Wege bestehen.
+check(positiveWohnungen.length >= 5,
   `mehrere Investmentwohnungen erreichen aktiv Break-even (${positiveWohnungen.map((z) => z.listing.id).join(', ')})`);
 check(pfadPositiv < matrix.length, 'keine Renditegarantie: nicht jedes Objekt wird positiv');
 

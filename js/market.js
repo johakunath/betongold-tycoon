@@ -1,11 +1,12 @@
 ﻿// market.js — Feed-Lifecycle, Preisformel, Segment-Drift, Verhandlung,
 // Due Diligence. Formeln: ECONOMY_MODEL.md §7–8, §11, §13. DOM-frei.
 
-import { rngFloat, rngNormal } from './state.js?v=59';
-import { alleListings, getListing } from './content.js?v=59';
+import { rngFloat, rngNormal } from './state.js?v=60';
+import { alleListings, getListing } from './content.js?v=60';
+import { aktuellerBetrag, preisniveau } from './preisniveau.js?v=60';
 import {
   oeffneDealEntscheidung, setzeDealEntscheidung,
-} from './gameplay.js?v=59';
+} from './gameplay.js?v=60';
 
 // ---------------------------------------------------------------------------
 // Initialisierung: einmal pro Spielstand (nach newGame bzw. aktuellem Save-Import).
@@ -147,14 +148,32 @@ export function angebotsPreis(state, id) {
   return fairerWert(state, getListing(id)) * eintrag.aufschlag;
 }
 
-// Vergleichsmiete (kalt, €/Monat) — Phase 2 statisch je Segment.
+// Vergleichsmiete (kalt, €/Monat): Segmentanker in Euro des Spielstarts,
+// fortgeschrieben mit dem Preisniveau (ECONOMY_MODEL §1a, §15).
+// Stammdaten (Baujahr, Stil) eines Listings oder eines daraus gekauften
+// Objekts; ältere Objekte ohne diese Felder lesen sie aus dem Katalog.
+export function stammdaten(objekt) {
+  if (objekt?.baujahr !== undefined) return objekt;
+  const listing = objekt?.listingId ? getListing(objekt.listingId) : null;
+  return listing ? { ...listing, ...objekt, baujahr: listing.baujahr, stil: listing.stil } : objekt;
+}
+
 export function vergleichsmiete(state, listing) {
   const segment = state.config.segmente[listing.segment];
-  const istNeubau = listing.stil === 'neubau' || Number(listing.baujahr) >= 2020;
+  const daten = stammdaten(listing);
+  const istNeubau = daten.stil === 'neubau' || Number(daten.baujahr) >= 2020;
   const mieteM2 = istNeubau && Number.isFinite(segment.neubauMieteM2)
     ? segment.neubauMieteM2
     : segment.vergleichsmieteM2;
-  return listing.flaeche * mieteM2;
+  return listing.flaeche * mieteM2 * preisniveau(state);
+}
+
+// Bestandsmiete eines vermieteten Angebots in laufenden Euro (Listingdaten
+// stehen in Euro des Spielstarts).
+export function angebotsBestandsmiete(state, listing) {
+  return listing.mietstatus?.vermietet
+    ? Math.round((Number(listing.mietstatus.kaltmiete) || 0) * preisniveau(state))
+    : 0;
 }
 
 // Listings, die aktuell am Markt sind (für Feed-UI), inkl. Laufzeitdaten.
@@ -312,10 +331,11 @@ export function dokumenteAnfordern(state, id) {
 
 export function gutachterBeauftragen(state, id) {
   const dd = ddEintrag(state, id);
-  const kosten = state.config.dueDiligence.gutachterKosten;
+  const kosten = Math.round(aktuellerBetrag(state, state.config.dueDiligence.gutachterKosten));
   if (dd.gutachten) return { dd };
   if (state.cash < kosten) return { dd, fehler: 'Nicht genug Cash für den Gutachter.' };
   dd.gutachten = true;
+  dd.gutachtenKosten = kosten;
   state.cash -= kosten;
   state.zeitbudget.verbraucht += state.config.dueDiligence.gutachterZeit;
   // Jeder existierende Mangel wird unabhängig mit Trefferquote entdeckt.

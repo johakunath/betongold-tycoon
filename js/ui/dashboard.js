@@ -1,19 +1,21 @@
 ﻿// dashboard.js — Screen 1: Kennzahlen-Kacheln, Haushaltsrechnung,
 // Nettovermögen-vs-ETF-Chart (Design-Säule 4: die ETF-Linie bleibt sichtbar).
 
-import { monatsWerte, nettovermoegen, datum } from '../engine.js?v=59';
-import { fairerWert } from '../market.js?v=59';
-import { getListing } from '../content.js?v=59';
-import { bildHTML } from '../iso.js?v=59';
-import { eigenheimMonatskosten } from '../eigenheim.js?v=59';
-import { setzeGrenzsteuersatz, steuerVorschau } from '../tax.js?v=59';
-import { fmtEUR, fmtEURKompakt, fmtEURSigniert, fmtDatum } from './util.js?v=59';
-import { fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=59';
-import { vermietungsmodell } from '../tenants.js?v=59';
-import { haushaltsUeberschussMonat, naechsterZugEmpfehlung } from './kennzahlen.js?v=59';
-import { aktualisiereNavMarkierung } from './shell.js?v=59';
-import { portfolioTriage, stabilisierungsLinien, turnaroundAktiv } from '../turnaround.js?v=59';
-import { renderStrategy } from './strategy.js?v=59';
+import { monatsWerte, nettovermoegen, datum } from '../engine.js?v=60';
+import { fairerWert } from '../market.js?v=60';
+import { getListing } from '../content.js?v=60';
+import { bildHTML } from '../iso.js?v=60';
+import { eigenheimMonatskosten } from '../eigenheim.js?v=60';
+import { setzeGrenzsteuersatz, steuerVorschau } from '../tax.js?v=60';
+import {
+  fmtEUR, fmtEURKompakt, fmtEURSigniert, fmtDatum, euroModus, euroUmschalterHTML, inAnzeigeEuro,
+} from './util.js?v=60';
+import { fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=60';
+import { vermietungsmodell } from '../tenants.js?v=60';
+import { haushaltsUeberschussMonat, naechsterZugEmpfehlung } from './kennzahlen.js?v=60';
+import { aktualisiereNavMarkierung } from './shell.js?v=60';
+import { portfolioTriage, stabilisierungsLinien, turnaroundAktiv } from '../turnaround.js?v=60';
+import { renderStrategy } from './strategy.js?v=60';
 
 let getState = null;
 let onObjekt = null;   // Callback: Portfolio-Objekt anklicken → Objekt-Detail
@@ -30,6 +32,13 @@ export function initDashboard(stateAccessor, objektHandler, aenderungsHandler, e
   onAenderung = aenderungsHandler;
   onExpose = exposeHandler;
   const svg = document.getElementById('chart');
+  document.querySelector('#zentrale-panel-chart .legende')?.insertAdjacentHTML('beforeend', euroUmschalterHTML());
+  document.addEventListener('euromodus', () => {
+    document.querySelectorAll('[data-euro-modus]').forEach((knopf) =>
+      knopf.setAttribute('aria-pressed', String(knopf.dataset.euroModus === euroModus())));
+    const state = getState();
+    if (state) renderDashboard(state);
+  });
   svg.addEventListener('mousemove', onHover);
   svg.addEventListener('mouseleave', () => {
     hoverMonat = null;
@@ -112,8 +121,10 @@ function setKachel(id, wert, sub, klasse = '') {
 }
 
 function renderKacheln(state) {
-  const netto = nettovermoegen(state);
-  const etf = state.etfVergleich.wert;
+  const pn = state.preisniveau || 1;
+  const heute = euroModus() === 'heute';
+  const netto = inAnzeigeEuro(nettovermoegen(state), pn);
+  const etf = inAnzeigeEuro(state.etfVergleich.wert, pn);
   const diff = netto - etf;
   const haushaltsUeberschuss = haushaltsUeberschussMonat(state);
 
@@ -128,7 +139,7 @@ function renderKacheln(state) {
       ? `Cash + ${state.eigenheim ? 'Eigenheim' : ''}` +
         `${state.eigenheim && state.portfolio.length ? ' + ' : ''}` +
         `${state.portfolio.length ? `${state.portfolio.length} Mietobjekt${state.portfolio.length > 1 ? 'e' : ''}` : ''} − Schulden`
-      : 'Tagesgeld + ETF-Depot — noch keine Immobilien');
+      : 'Tagesgeld + ETF-Depot — noch keine Immobilien' + (heute ? ' · heutige Euro' : ''));
 
   setKachel('tile-etf', fmtEUR(etf),
     diff >= 0 ? `Du liegst ${fmtEUR(diff)} vorn` : `ETF liegt ${fmtEUR(-diff)} vorn`,
@@ -436,10 +447,17 @@ function chartHistorie(state) {
     nettovermoegen: nettovermoegen(state),
     etf: state.etfVergleich.wert,
     cashflow: state.letzterCashflow,
+    preisniveau: state.preisniveau || 1,
   };
-  if (!letzter) return [aktuell];
-  if (letzter.monat === state.monat) return [...historie.slice(0, -1), aktuell];
-  return [...historie, aktuell];
+  const roh = !letzter ? [aktuell]
+    : letzter.monat === state.monat ? [...historie.slice(0, -1), aktuell]
+      : [...historie, aktuell];
+  // Nominal oder in heutigen Euro; jeder Monat mit seinem eigenen Preisniveau.
+  return roh.map((h) => ({
+    ...h,
+    nettovermoegen: inAnzeigeEuro(h.nettovermoegen, h.preisniveau ?? 1),
+    etf: inAnzeigeEuro(h.etf, h.preisniveau ?? 1),
+  }));
 }
 
 function renderChart(state) {
@@ -563,7 +581,7 @@ function renderZusatzCharts(state) {
     `<section class="mini-chart" aria-label="Schuldenquote ${Math.round(ltv)} Prozent, Liquiditätspuffer ${pufferMonate.toLocaleString('de-DE', { maximumFractionDigits: 1 })} Monate">` +
       `<header><h3>Schulden &amp; Puffer</h3><b>${fmtEURKompakt(schulden)} Restschuld</b></header>` +
       `<div class="risiko-zeilen">` +
-        `<div class="risiko-zeile"><span>Finanzierungsquote</span><div class="risiko-track"><i style="width:${ltvBreite.toFixed(1)}%"></i></div><b>${immobilien ? `${Math.round(ltv)} %` : '—'}</b></div>` +
+        `<div class="risiko-zeile"><span title="Restschuld ÷ heutiger Marktwert aller Objekte (der Finanzierungsdialog rechnet Darlehen ÷ Kaufpreis)">Finanzierungsquote</span><div class="risiko-track"><i style="width:${ltvBreite.toFixed(1)}%"></i></div><b>${immobilien ? `${Math.round(ltv)} %` : '—'}</b></div>` +
         `<div class="risiko-zeile"><span>Liquidität</span><div class="risiko-track"><i class="puffer" style="width:${pufferBreite.toFixed(1)}%"></i></div><b>${pufferMonate.toLocaleString('de-DE', { maximumFractionDigits: 1 })} Mon.</b></div>` +
       `</div></section>`;
 }

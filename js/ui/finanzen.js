@@ -1,12 +1,12 @@
 ﻿// finanzen.js — UI für Tagesgeldkonto, echtes ETF-Depot und Sparplan.
 // Die vermögensneutralen Buchungen selbst bleiben DOM-frei in etf.js.
 
-import { monatsWerte, nettovermoegen } from '../engine.js?v=59';
-import { fmtEUR, fmtEURSigniert } from './util.js?v=59';
-import { etfVerkaufVorschau } from '../etf.js?v=59';
-import { kapitalertragVorschau, renditeNachSteuer } from '../kapitalsteuer.js?v=59';
-import { fairerWert } from '../market.js?v=59';
-import { haushaltsUeberschussMonat, liquiditaetsPufferMonate } from './kennzahlen.js?v=59';
+import { monatsWerte, nettovermoegen } from '../engine.js?v=60';
+import { fmtEUR, fmtEURSigniert } from './util.js?v=60';
+import { etfVerkaufVorschau } from '../etf.js?v=60';
+import { kapitalertragVorschau, renditeNachSteuer } from '../kapitalsteuer.js?v=60';
+import { fairerWert } from '../market.js?v=60';
+import { haushaltsUeberschussMonat, liquiditaetsPufferMonate } from './kennzahlen.js?v=60';
 
 let ctx;
 
@@ -30,6 +30,12 @@ export function initFinanzen(context) {
   document.getElementById('form-sparplan').addEventListener('submit', (event) => {
     event.preventDefault();
     ctx.sparplanSetzen(Number(sparplan.value) / 100);
+  });
+
+  const entnahme = document.getElementById('form-entnahme');
+  entnahme.addEventListener('submit', (event) => {
+    event.preventDefault();
+    ctx.entnahmeSetzen(entnahme.elements.aktiv.checked, Number(entnahme.elements.monate.value));
   });
 
 }
@@ -93,6 +99,12 @@ export function renderFinanzen(state) {
   text('fin-etf-rate', fmtEUR(werte.etfEinzahlung));
   renderTransferVorschau(state);
 
+  const entnahme = document.getElementById('form-entnahme');
+  if (entnahme && !entnahme.contains(document.activeElement)) {
+    const regel = state.config.kapital?.entnahme || { aktiv: false, mindestpufferMonate: 0 };
+    entnahme.elements.aktiv.checked = !!regel.aktiv;
+    entnahme.elements.monate.value = String(regel.mindestpufferMonate ?? 0);
+  }
   const sparplan = document.getElementById('fin-sparplan');
   if (document.activeElement !== sparplan) {
     sparplan.value = String(Math.round((state.config.haushalt.sparplanEtfAnteil || 0) * 100));
