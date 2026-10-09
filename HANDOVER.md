@@ -1,8 +1,8 @@
 # HANDOVER.md — aktueller Projektstand
 
-**Stand:** 08.10.2026 (Save v22 / UI v60 — Preisniveau, faire Endauswertung)
+**Stand:** 09.10.2026 (Save v23 / UI v60 — Hauszuschlag auf den Mietspiegel)
 
-**Versionen:** SAVE_VERSION = 22, UI_VERSION = 60
+**Versionen:** SAVE_VERSION = 23, UI_VERSION = 60
 
 Das Spiel ist öffentlich gehostet: <https://johakunath.github.io/betongold-tycoon/>
 (GitHub Pages aus `main`/Wurzel, Deployment = `git push`).
@@ -65,9 +65,9 @@ Testanpassungen mit Begründung: B0 ≥ 5 statt ≥ 6 tragfähige Wohnungen,
 F-Turnaround ≥ 1 statt ≥ 4 Mietprüfungen (Mietspiegel deckelt), fünf
 Renovierungsstufen, Kappungs-Check auf 15 %/15 %/20 %.
 
-**Hauszuschlag (09.10.2026).** `tenants.mietspiegelMiete` multipliziert bei
-`objektart === 'haus'` mit `config.mietrecht[stadt].hausFaktor`; fehlt der
-Wert (alte Saves), gilt 1. Offen und bewusst nicht modelliert: Das Listing
+**Hauszuschlag (09.10.2026, Save v23).** `tenants.mietspiegelMiete` multipliziert bei
+`objektart === 'haus'` mit `config.mietrecht[stadt].hausFaktor`. Weil
+`state.config` mitgespeichert wird, lehnt v23 ältere Saves ohne den Wert ab. Offen und bewusst nicht modelliert: Das Listing
 br-05 liegt in Falkensee (Brandenburg), wird aber als Berlin geführt.
 
 **Mietpreisbremse bewusst ignorieren (Owner-Auftrag, 08.10.2026).**

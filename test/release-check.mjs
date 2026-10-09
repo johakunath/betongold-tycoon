@@ -93,7 +93,7 @@ for (const [id, preset] of Object.entries(START_PRESETS)) {
   check(typeof preset.bild === 'string' && await existiert(join(root, preset.bild)),
     `Startpreset-Bild existiert: ${id}`);
 }
-check(SAVE_VERSION === 22
+check(SAVE_VERSION === 23
   && DEFAULT_CONFIG.kapitalsteuer.pauschbetragProPerson === 1000
   && DEFAULT_CONFIG.kapitalsteuer.personen === 2
   && DEFAULT_CONFIG.kapitalsteuer.etfTeilfreistellung === 0.30

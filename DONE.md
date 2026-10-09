@@ -5,7 +5,7 @@ bleiben in `DECISIONS.md` und den Fachdocs nachvollziehbar.
 
 ## 2026-10-09
 
-- **Hauszuschlag auf den Mietspiegel.** Häuser nutzen den Wohnungs-Mietspiegel
+- **Save v23 — Hauszuschlag auf den Mietspiegel.** Häuser nutzen den Wohnungs-Mietspiegel
   × `mietrecht[stadt].hausFaktor` (Berlin/Meißen 1,10, Leipzig 1,22) für
   Mietpreisbremse und Erhöhungsgrenze (`ECONOMY_MODEL.md` §15a).
 

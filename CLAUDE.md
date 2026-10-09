@@ -125,9 +125,11 @@ ein Eigenbedarfsrisiko für Mieter statt eines Eigentums-Familienbonus, eine
 Entnahmeregel gegen die Dispo-Falle sowie die Scores „Rentenlücke gedeckt"
 und „Kaufkraft mit 85". Die Mietpreisbremse lässt sich bei Neuvermietung
 bewusst ignorieren; Rüge, Rückzahlung und seltenes Bußgeld sind an
-recherchierten Zahlen kalibriert (`ECONOMY_MODEL.md` §15b). Häuser bekommen
-einen städtischen Zuschlag auf den Wohnungs-Mietspiegel (§15a).
-Aktuell: `SAVE_VERSION = 22`, `UI_VERSION = 60`.
+recherchierten Zahlen kalibriert (`ECONOMY_MODEL.md` §15b).
+Save v23: Häuser bekommen einen städtischen Zuschlag auf den
+Wohnungs-Mietspiegel (§15a); ältere Saves ohne diesen Config-Wert werden
+abgelehnt.
+Aktuell: `SAVE_VERSION = 23`, `UI_VERSION = 60`.
 
 Das Spiel ist öffentlich gehostet:
 <https://johakunath.github.io/betongold-tycoon/> (GitHub Pages aus `main`).

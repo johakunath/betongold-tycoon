@@ -616,7 +616,7 @@ Ausnahmen von der Mietpreisbremse: Baujahr ab 2015 (vereinfacht für
 „Erstvermietung nach Oktober 2014"), kumuliertes Renovierungsvolumen ab
 `umfassendModernisiertM2` = 1.000 €/m² (≈ ⅓ Neubaukosten; die neue Stufe
 „Umfassende Modernisierung" erreicht es allein) und eine höhere Vormiete.
-Häuser (Einfamilien-, Doppel-, Reihenhaus) nutzen `mietrecht[stadt].hausFaktor`.
+Häuser (Einfamilien-, Doppel-, Reihenhaus) nutzen `mietrecht[stadt].hausFaktor` (Save v23).
 Die Mietpreisbremse gilt auch für sie ([§ 556d BGB](https://www.gesetze-im-internet.de/bgb/__556d.html)
 unterscheidet keine Gebäudeart), aber der Wohnungs-Mietspiegel unterschätzt sie:
 
