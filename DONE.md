@@ -3,6 +3,12 @@
 Kompaktes, chronologisches Log. Ältere Einträge sind verdichtet; Details
 bleiben in `DECISIONS.md` und den Fachdocs nachvollziehbar.
 
+## 2026-10-09
+
+- **Save v23 — Hauszuschlag auf den Mietspiegel.** Häuser nutzen den Wohnungs-Mietspiegel
+  × `mietrecht[stadt].hausFaktor` (Berlin/Meißen 1,10, Leipzig 1,22) für
+  Mietpreisbremse und Erhöhungsgrenze (`ECONOMY_MODEL.md` §15a).
+
 ## 2026-10-08 (3)
 
 - **Mietpreisbremse bewusst ignorieren.** Checkbox in der Mietersuche,

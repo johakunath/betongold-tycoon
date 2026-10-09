@@ -3,7 +3,7 @@
 // Änderungen greifen zum nächsten Tick. Werte sind plausible Defaults, keine Fakten —
 // vor Release gegen reale Daten prüfen (siehe PLAN.md §4).
 
-export const SAVE_VERSION = 22;
+export const SAVE_VERSION = 23;
 // UI-/Cache-Version ist unabhängig vom Save-Format. Bei reinen CSS-/UI-Reworks
 // erhöhen, ohne unnötig Spielstände zu migrieren.
 export const UI_VERSION = 60;
@@ -501,6 +501,11 @@ export const DEFAULT_CONFIG = {
       kappungProzent: 0.15,     // Berliner Kappungsgrenzen-Verordnung, gültig bis 10.05.2028
       kappungMonate: 36,
       mieterhoehungUnzufriedenheit: 0.35,
+      // Vergleichsmiete von Häusern relativ zum Wohnungs-Mietspiegel. Berlin
+      // schließt Ein-/Zweifamilien- und Reihenhäuser aus; Rechtsprechung und
+      // Gutachterpraxis setzen rund 10 % Einfamilienhauszuschlag an
+      // (BGH VIII ZR 357/12, FG Berlin-Brandenburg 10 K 10303/19).
+      hausFaktor: 1.10,
     },
     leipzig: {
       label: 'Leipzig · Mietpreisbremse und 15-%-Kappung',
@@ -508,6 +513,9 @@ export const DEFAULT_CONFIG = {
       kappungProzent: 0.15,
       kappungMonate: 36,
       mieterhoehungUnzufriedenheit: 0.22,
+      // Leipziger Mietspiegel 2025–2027: eigener Grundbetrag 7,05 €/m² für
+      // Ein-/Zweifamilienhäuser, ≈ 1,18–1,30 × Wohnungswert bei 96–178 m².
+      hausFaktor: 1.22,
     },
     meissen: {
       label: 'Meißen · Mietspiegel, keine Mietpreisbremse',
@@ -515,6 +523,9 @@ export const DEFAULT_CONFIG = {
       kappungProzent: 0.20,
       kappungMonate: 36,
       mieterhoehungUnzufriedenheit: 0.18,
+      // Meißner Mietspiegel gilt nur für Mehrfamilienhäuser; ohne lokale Daten
+      // derselbe Einfamilienhauszuschlag wie Berlin (geringe Sicherheit).
+      hausFaktor: 1.10,
     },
   },
 

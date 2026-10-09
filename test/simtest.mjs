@@ -22,7 +22,7 @@ import {
 } from '../js/finance.js?v=60';
 import {
   starteVermietung, neueBewerber, waehleBewerber, kannErhoehen, erhoeheMiete, marktmiete,
-  mietrechtFuer, angesetzteMiete, vermietungsmodell, starteEigenbedarf, mietpreisbremse,
+  mietrechtFuer, angesetzteMiete, vermietungsmodell, starteEigenbedarf, mietpreisbremse, mietspiegelMiete,
   senkeAufZulaessigeMiete,
   zahleEigenbedarfAbfindung,
 } from '../js/tenants.js?v=60';
@@ -895,6 +895,23 @@ function kaufeGuenstigesEigenheim(state) {
   }).filter((q) => q != null);
   check(quoten.length > 0 && quoten.every((q, i) => Math.abs(q - quotenStart[i]) < 1e-9),
     'Einkommensquote der Bewerber vergleicht Miete und Einkommen im selben Preisniveau');
+}
+
+// --- Häuser: eigene Vergleichsmiete statt Wohnungs-Mietspiegel ------------
+{
+  const g = newGame({ seedText: 'haus-mietspiegel' });
+  const fehlerHaus = [];
+  for (const id of ['br-06', 'br-10', 'le-07', 'me-05']) {
+    const haus = { ...getListing(id) };
+    const alsWohnung = { ...haus, objektart: 'wohnung' };
+    const stadt = g.config.segmente[haus.segment].stadt;
+    const faktor = mietspiegelMiete(g, haus) / mietspiegelMiete(g, alsWohnung);
+    if (Math.abs(faktor - g.config.mietrecht[stadt].hausFaktor) > 1e-9 || faktor <= 1) fehlerHaus.push(`${id}: ${faktor}`);
+  }
+  check(fehlerHaus.length === 0, `Häuser bekommen den städtischen Hauszuschlag auf den Mietspiegel (${fehlerHaus.join(', ') || 'Berlin/Meißen 1,10, Leipzig 1,22'})`);
+  const br06 = { ...getListing('br-06') };
+  check(mietpreisbremse(g, br06).obergrenze > mietpreisbremse(g, { ...br06, objektart: 'wohnung' }).obergrenze,
+    'Mietpreisbremse eines Berliner Hauses liegt über der Grenze einer gleich großen Wohnung');
 }
 
 // --- Bewusster Verstoß gegen die Mietpreisbremse ----------------------------
