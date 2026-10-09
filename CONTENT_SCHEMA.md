@@ -177,6 +177,8 @@ Effekt-Schlüssel (alle optional, werden ohne RNG verrechnet):
 Auszug), `mieterKonflikt` (±), `auszug` (true → Mieter kündigt),
 `familie` (± Punkte), `zeit` (± h einmalig), `ruecklage` (±€ direkt),
 `sondertilgung` (+€; zieht denselben Betrag aus Cash und Restschuld),
+`mietausfall` (+€ entgangene Miete, direkt aus dem Tagesgeld, nie aus der
+Objektrücklage),
 `haushaltsMiete` (relative Änderung der eigenen Familienmiete, z. B. 0,15 =
 neuer Vertrag +15 %). Eurobeträge stehen in Euro des Spielstarts und laufen
 mit dem Preisniveau. Der Event-Dialog zeigt diese Effekte vor der Wahl als
@@ -189,7 +191,9 @@ festen Event-Roll; die RNG-Position im Tick bleibt unverändert.
 Zielobjekt-Wahl: seeded unter den passenden Objekten; ohne Zielbezug
 (`haushalt`/`kind`) wirkt der Effekt auf den Haushalt.
 
-`option.arc` plant eine persistente Objektgeschichte. `folgeEventId` muss auf
+`option.arc` plant eine persistente Objektgeschichte; mit
+`"mieterGebunden": true` endet sie still, wenn bis zur Fälligkeit ein anderes
+oder kein Mietverhältnis besteht. `folgeEventId` muss auf
 ein vorhandenes Event mit `gewicht: 0` und `bedingung.nurArc: true` zeigen.
 Solche Folgeevents sind vom zufälligen Pool ausgeschlossen und werden nur im
 gespeicherten Fälligkeitsmonat aktiviert. Arc-IDs, Folgeevent-IDs und

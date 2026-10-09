@@ -1077,24 +1077,37 @@ function kaufeGuenstigesEigenheim(state) {
   check(verstoesse.length === 0 && fehlend.length === 0,
     `Content-Paket: Ruhestands-/Eigenheim-Bedingungen eingehalten (fehlend: ${fehlend.join(', ') || 'keine'}; Verstöße: ${verstoesse.slice(0, 3).join(', ') || 'keine'})`);
 
-  // Stundung: 900 € vorstrecken, nach sechs Monaten kommt die Rückzahlung als Arc.
-  const g = newGame({ seedText: 'stundung-arc' });
-  initialisiereMarkt(g);
-  g.config.events.eventChanceBasis = 0;
-  g.config.events.eventChanceJeObjekt = 0;
-  g.config.mieter.auszugBasisRisiko = 0;
-  kaufeGuenstiges(g, (l) => l.mietstatus.vermietet);
-  const o = g.portfolio[0];
-  g.aktivesEvent = { eventId: 'mieter-jobverlust', objektIndex: 0, monat: g.monat };
-  const cashVor = g.cash;
-  resolveEvent(g, 0);
-  const vorgestreckt = cashVor - g.cash;
+  // Stundung: 900 € Mietausfall direkt aus dem Tagesgeld (Rücklage bleibt),
+  // nach sechs Monaten kommt die Rückzahlung als Arc – nur beim selben Mieter.
+  const stundung = (seed) => {
+    const g = newGame({ seedText: seed });
+    initialisiereMarkt(g);
+    g.config.events.eventChanceBasis = 0;
+    g.config.events.eventChanceJeObjekt = 0;
+    g.config.mieter.auszugBasisRisiko = 0;
+    kaufeGuenstiges(g, (l) => l.mietstatus.vermietet);
+    const o = g.portfolio[0];
+    o.ruecklage = 5000;
+    g.aktivesEvent = { eventId: 'mieter-jobverlust', objektIndex: 0, monat: g.monat };
+    const cashVor = g.cash;
+    resolveEvent(g, 0);
+    return { g, o, ausfall: cashVor - g.cash };
+  };
+  const { g, o, ausfall } = stundung('stundung-arc');
+  const ruecklageNachher = o.ruecklage;
   for (let m = 0; m < 6 && !g.aktivesEvent; m++) advanceMonths(g, 1, () => {});
   const faellig = g.aktivesEvent?.eventId === 'arc-stundung-rueckzahlung';
   const cashArc = g.cash;
   if (faellig) resolveEvent(g, 0);
-  check(o.mieter && vorgestreckt >= 900 && faellig && g.cash - cashArc >= 900,
-    `Stundung: ${vorgestreckt} € vorgestreckt, nach sechs Monaten Rückzahlung als Folgeentscheidung`);
+  check(o.mieter && ausfall === 900 && ruecklageNachher === 5000 && faellig && g.cash - cashArc >= 900,
+    `Stundung: ${ausfall} € Mietausfall aus dem Tagesgeld, Rücklage unberührt, nach sechs Monaten Rückzahlung als Folgeentscheidung`);
+
+  const { g: g2, o: o2 } = stundung('stundung-nachmieter');
+  o2.mieter = { ...o2.mieter, id: 'nachmieter', eingezogen: g2.monat + 1 };
+  for (let m = 0; m < 8; m++) advanceMonths(g2, 1, () => {});
+  const arc2 = g2.objektArcs.find((a) => a.typ === 'stundung');
+  check(!g2.aktivesEvent && arc2?.status === 'beendet',
+    'Stundungs-Arc endet still, wenn bis zur Fälligkeit ein anderer Mieter eingezogen ist');
 }
 
 // Wirkungs-Chips: zeigen die Effekte einer Option vor der Wahl, im laufenden Preisniveau.
@@ -1106,7 +1119,7 @@ function kaufeGuenstigesEigenheim(state) {
   const aufhebung = texte(jobverlust.optionen[2]);
   g.preisniveau = 1.5;
   const spaeter = texte(getEvent('erbschaft-klein').optionen[0]);
-  check(stundung.join('|') === 'minus:−900 €|plus:Mieter zufriedener|neutral:Folge in 6 Monaten'
+  check(stundung.join('|') === 'minus:−900 € Mietausfall|plus:Mieter zufriedener|neutral:Folge in 6 Monaten'
     && aufhebung.includes('minus:Mieter zieht aus')
     && spaeter.join('|') === 'plus:+13.500 €|minus:Familie −2'
     && texte({ effekt: {} }).join('') === 'neutral:keine direkte Wirkung',

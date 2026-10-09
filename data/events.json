@@ -619,7 +619,7 @@
     "gewicht": 0.7,
     "bedingung": { "vermietet": true, "einmalig": false, "cooldownMonate": 72 },
     "optionen": [
-      {"text": "Stundung gewähren", "effekt": {"cash": -900, "mieterZufriedenheit": 0.4}, "arc": {"id": "stundung", "titel": "Gestundete Miete klären", "nachMonaten": 6, "folgeEventId": "arc-stundung-rueckzahlung", "entscheidung": "Stundung"}, "folge": "Du streckst 900 € vor; in sechs Monaten wird über die Rückzahlung gesprochen."},
+      {"text": "Stundung gewähren", "effekt": {"mietausfall": 900, "mieterZufriedenheit": 0.4}, "arc": {"id": "stundung", "titel": "Gestundete Miete klären", "nachMonaten": 6, "folgeEventId": "arc-stundung-rueckzahlung", "entscheidung": "Stundung", "mieterGebunden": true}, "folge": "Du streckst 900 € vor; in sechs Monaten wird über die Rückzahlung gesprochen."},
       {"text": "Auf voller Zahlung bestehen", "effekt": {"mieterZufriedenheit": -0.3, "mieterKonflikt": 0.35}, "folge": "Rechtlich korrekt; ob er zahlen kann, ist offen."},
       {"text": "Aufhebungsvertrag mit Umzugshilfe", "effekt": {"cash": -1200, "auszug": true}, "folge": "Sauberer Schnitt mit Kosten; danach steht die Wohnung leer."}
     ]

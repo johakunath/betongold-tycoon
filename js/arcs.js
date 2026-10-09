@@ -2,6 +2,12 @@
 
 import { getEvent } from './content.js?v=61';
 
+// Kennung eines konkreten Mietverhältnisses (Dossier + Einzugsmonat), damit
+// mietergebundene Geschichten nicht beim Nachmieter weiterlaufen.
+function mieterKennung(objekt) {
+  return objekt?.mieter ? `${objekt.mieter.id}:${objekt.mieter.eingezogen ?? ''}` : null;
+}
+
 export function planeObjektArc(state, objekt, plan) {
   if (!plan?.id || !plan.folgeEventId || !objekt) return null;
   const arc = {
@@ -15,6 +21,7 @@ export function planeObjektArc(state, objekt, plan) {
     entscheidung: plan.entscheidung || '',
     status: 'laufend',
   };
+  if (plan.mieterGebunden) arc.mieter = mieterKennung(objekt);
   state.objektArcs.push(arc);
   state.log.push({ monat: state.monat, text: `${objekt.titel}: „${arc.titel}“ läuft weiter; nächste Klärung in ${arc.faelligMonat - state.monat} Monaten.` });
   return arc;
@@ -37,6 +44,12 @@ export function tickObjektArcs(state) {
     arc.status = 'beendet';
     arc.abgeschlossenMonat = state.monat;
     state.log.push({ monat: state.monat, text: `Objektgeschichte „${arc.titel}“ endet, weil das Objekt nicht mehr im Bestand ist.` });
+    return tickObjektArcs(state);
+  }
+  if (arc.mieter && mieterKennung(state.portfolio[index]) !== arc.mieter) {
+    arc.status = 'beendet';
+    arc.abgeschlossenMonat = state.monat;
+    state.log.push({ monat: state.monat, text: `${state.portfolio[index].titel}: „${arc.titel}“ endet, weil das Mietverhältnis nicht mehr besteht.` });
     return tickObjektArcs(state);
   }
   if (!getEvent(arc.folgeEventId)) {

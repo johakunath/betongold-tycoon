@@ -167,6 +167,9 @@ export function resolveEvent(state, optionIndex) {
     if (eff.cash < 0) zahleReparatur(state, objekt, euro(-eff.cash));
     else state.cash += euro(eff.cash);
   }
+  // Entgangene Miete ist keine Reparatur: direkt aus dem Tagesgeld, die
+  // Objektrücklage bleibt unberührt.
+  if (typeof eff.mietausfall === 'number' && eff.mietausfall > 0) state.cash -= euro(eff.mietausfall);
   if (typeof eff.ruecklage === 'number' && objekt) {
     objekt.ruecklage = Math.max(0, objekt.ruecklage + euro(eff.ruecklage));
   }
@@ -222,6 +225,7 @@ export function optionWirkungen(state, opt) {
   const zeichen = (n) => (n > 0 ? '+' : '−');
   const liste = [];
   if (typeof eff.cash === 'number' && eff.cash !== 0) liste.push({ text: `${zeichen(eff.cash)}${euro(eff.cash)}`, ton: eff.cash > 0 ? 'plus' : 'minus' });
+  if (typeof eff.mietausfall === 'number' && eff.mietausfall > 0) liste.push({ text: `−${euro(eff.mietausfall)} Mietausfall`, ton: 'minus' });
   if (typeof eff.ruecklage === 'number' && eff.ruecklage !== 0) liste.push({ text: `Rücklage ${zeichen(eff.ruecklage)}${euro(eff.ruecklage)}`, ton: eff.ruecklage > 0 ? 'plus' : 'minus' });
   if (typeof eff.sondertilgung === 'number' && eff.sondertilgung > 0) liste.push({ text: `Sondertilgung ${euro(eff.sondertilgung)}`, ton: 'neutral' });
   if (typeof eff.miete === 'number' && eff.miete !== 0) liste.push({ text: `Miete ${zeichen(eff.miete)}${euro(eff.miete)}/Monat`, ton: eff.miete > 0 ? 'plus' : 'minus' });
