@@ -217,35 +217,67 @@ export function resolveEvent(state, optionIndex) {
   return { ev, opt, objekt };
 }
 
-// Sichtbare Wirkung einer Option vor der Wahl (dieselben Effekt-Schlüssel wie
-// resolveEvent, ohne RNG und ohne State-Änderung). ton: plus | minus | neutral.
-// Mit Zielobjekt zeigt der Zustand die tatsächlich angewandte Änderung (1–5).
-export function optionWirkungen(state, opt, objekt = null) {
+// Sichtbare Wirkung einer Option vor der Wahl (ohne RNG und ohne
+// State-Änderung). ton: plus | minus | neutral. Mit bekanntem Ziel
+// (objekt = Zielobjekt oder null bei Haushaltsevents) spiegelt die Vorschau
+// genau die Grenzen von resolveEvent: Zustand 1–5, Familie 0–100, Rücklage und
+// Miete ≥ 0, Sondertilgung höchstens Restschuld, Mietereffekte nur mit Mieter,
+// Folge-Arcs nur mit Objekt. Ohne objekt-Argument: Rohwerte (Dokumentation).
+export function optionWirkungen(state, opt, objekt, ev = null) {
   const eff = opt?.effekt || {};
-  const euro = (betrag) => `${Math.round(aktuellerBetrag(state, Math.abs(betrag))).toLocaleString('de-DE')} €`;
+  const zielBekannt = objekt !== undefined;
+  const ziel = objekt || null;
+  const runde = (betrag) => Math.round(aktuellerBetrag(state, betrag));
+  const fmt = (betrag) => `${Math.abs(betrag).toLocaleString('de-DE')} €`;
   const zeichen = (n) => (n > 0 ? '+' : '−');
+  const ton = (n) => (n > 0 ? 'plus' : 'minus');
   const liste = [];
-  if (typeof eff.cash === 'number' && eff.cash !== 0) liste.push({ text: `${zeichen(eff.cash)}${euro(eff.cash)}`, ton: eff.cash > 0 ? 'plus' : 'minus' });
-  if (typeof eff.mietausfall === 'number' && eff.mietausfall > 0) liste.push({ text: `−${euro(eff.mietausfall)} Mietausfall`, ton: 'minus' });
-  if (typeof eff.ruecklage === 'number' && eff.ruecklage !== 0) liste.push({ text: `Rücklage ${zeichen(eff.ruecklage)}${euro(eff.ruecklage)}`, ton: eff.ruecklage > 0 ? 'plus' : 'minus' });
-  if (typeof eff.sondertilgung === 'number' && eff.sondertilgung > 0) liste.push({ text: `Sondertilgung ${euro(eff.sondertilgung)}`, ton: 'neutral' });
-  if (typeof eff.miete === 'number' && eff.miete !== 0) liste.push({ text: `Miete ${zeichen(eff.miete)}${euro(eff.miete)}/Monat`, ton: eff.miete > 0 ? 'plus' : 'minus' });
+  const ohneZielErlaubt = (bedarf) => !zielBekannt || bedarf;
+
+  if (typeof eff.cash === 'number' && eff.cash !== 0) {
+    const betrag = eff.cash < 0 ? -runde(-eff.cash) : runde(eff.cash);
+    liste.push({ text: `${zeichen(betrag)}${fmt(betrag)}`, ton: ton(betrag) });
+  }
+  if (typeof eff.mietausfall === 'number' && eff.mietausfall > 0) {
+    liste.push({ text: `−${fmt(runde(eff.mietausfall))} Mietausfall`, ton: 'minus' });
+  }
+  if (typeof eff.ruecklage === 'number' && eff.ruecklage !== 0 && ohneZielErlaubt(ziel)) {
+    const betrag = ziel ? Math.max(0, ziel.ruecklage + runde(eff.ruecklage)) - ziel.ruecklage : runde(eff.ruecklage);
+    if (betrag !== 0) liste.push({ text: `Rücklage ${zeichen(betrag)}${fmt(betrag)}`, ton: ton(betrag) });
+  }
+  if (typeof eff.sondertilgung === 'number' && eff.sondertilgung > 0 && ohneZielErlaubt(ziel?.darlehen)) {
+    const betrag = ziel ? Math.min(ziel.darlehen.restschuld, Math.max(0, runde(eff.sondertilgung))) : runde(eff.sondertilgung);
+    if (betrag > 0) liste.push({ text: `Sondertilgung ${fmt(Math.round(betrag))}`, ton: 'neutral' });
+  }
+  if (typeof eff.miete === 'number' && eff.miete !== 0 && ohneZielErlaubt(ziel)) {
+    const betrag = ziel ? Math.max(0, ziel.kaltmiete + runde(eff.miete)) - ziel.kaltmiete : runde(eff.miete);
+    if (betrag !== 0) liste.push({ text: `Miete ${zeichen(betrag)}${fmt(Math.round(betrag))}/Monat`, ton: ton(betrag) });
+  }
   if (typeof eff.haushaltsMiete === 'number' && eff.haushaltsMiete !== 0) {
     liste.push({ text: `eigene Miete ${zeichen(eff.haushaltsMiete)}${Math.round(Math.abs(eff.haushaltsMiete) * 100)} %`, ton: eff.haushaltsMiete > 0 ? 'minus' : 'plus' });
   }
-  if (typeof eff.zustand === 'number' && eff.zustand !== 0) {
-    const delta = objekt ? Math.max(1, Math.min(5, objekt.zustand + eff.zustand)) - objekt.zustand : eff.zustand;
-    if (delta !== 0) liste.push({ text: `Zustand ${zeichen(delta)}${Math.abs(delta)}`, ton: delta > 0 ? 'plus' : 'minus' });
+  if (typeof eff.zustand === 'number' && eff.zustand !== 0 && ohneZielErlaubt(ziel)) {
+    const delta = ziel ? Math.max(1, Math.min(5, ziel.zustand + eff.zustand)) - ziel.zustand : eff.zustand;
+    if (delta !== 0) liste.push({ text: `Zustand ${zeichen(delta)}${Math.abs(delta)}`, ton: ton(delta) });
   }
-  if (typeof eff.familie === 'number' && eff.familie !== 0) liste.push({ text: `Familie ${zeichen(eff.familie)}${Math.abs(eff.familie)}`, ton: eff.familie > 0 ? 'plus' : 'minus' });
-  if (typeof eff.mieterZufriedenheit === 'number' && eff.mieterZufriedenheit !== 0) {
+  if (typeof eff.familie === 'number' && eff.familie !== 0) {
+    const roh = ev?.kategorie === 'kind' && state.eigenheim && eff.familie < 0
+      ? eff.familie * state.config.eigenheim.kinderEventMalusFaktor
+      : eff.familie;
+    const aktuell = state.familienzufriedenheit;
+    const delta = zielBekannt && Number.isFinite(aktuell) ? Math.max(0, Math.min(100, aktuell + roh)) - aktuell : roh;
+    const anzeige = Math.round(delta * 10) / 10;
+    if (anzeige !== 0) liste.push({ text: `Familie ${zeichen(anzeige)}${Math.abs(anzeige).toLocaleString('de-DE')}`, ton: ton(anzeige) });
+  }
+  const mitMieter = ohneZielErlaubt(ziel?.mieter);
+  if (mitMieter && typeof eff.mieterZufriedenheit === 'number' && eff.mieterZufriedenheit !== 0) {
     liste.push(eff.mieterZufriedenheit > 0 ? { text: 'Mieter zufriedener', ton: 'plus' } : { text: 'Mieter unzufriedener', ton: 'minus' });
   }
-  if (typeof eff.mieterKonflikt === 'number' && eff.mieterKonflikt !== 0) {
+  if (mitMieter && typeof eff.mieterKonflikt === 'number' && eff.mieterKonflikt !== 0) {
     liste.push(eff.mieterKonflikt > 0 ? { text: 'mehr Konfliktrisiko', ton: 'minus' } : { text: 'weniger Konflikt', ton: 'plus' });
   }
-  if (eff.auszug) liste.push({ text: 'Mieter zieht aus', ton: 'minus' });
-  if (opt?.arc) liste.push({ text: `Folge in ${opt.arc.nachMonaten} Monaten`, ton: 'neutral' });
+  if (mitMieter && eff.auszug) liste.push({ text: 'Mieter zieht aus', ton: 'minus' });
+  if (opt?.arc && ohneZielErlaubt(ziel)) liste.push({ text: `Folge in ${opt.arc.nachMonaten} Monaten`, ton: 'neutral' });
   if (!liste.length) liste.push({ text: 'keine direkte Wirkung', ton: 'neutral' });
   return liste;
 }
