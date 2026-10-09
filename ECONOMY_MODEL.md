@@ -603,8 +603,8 @@ Erhöhungen und in Berlin/Leipzig auch für Neuvermietungen die **ortsübliche
 Vergleichsmiete** (Mietspiegel):
 
 ```
-mietspiegel(objekt) = flaeche · mietspiegelM2(segment) · zustandMietFaktor
-                      · lageFaktor(lageScore, relativ zu Lage 5) · preisniveau
+mietspiegel(objekt) = flaeche · mietspiegelM2(segment) · hausFaktor(stadt, nur Häuser)
+                      · zustandMietFaktor · lageFaktor(lageScore, relativ zu Lage 5) · preisniveau
 erhöhungsgrenze     = min(mietspiegel · (1 + Möblierungsaufschlag),
                           kappungsBasis · (1 + kappung))           // § 558 BGB
 neuvermietung (Mietpreisbremse, Berlin + Leipzig):
@@ -616,6 +616,16 @@ Ausnahmen von der Mietpreisbremse: Baujahr ab 2015 (vereinfacht für
 „Erstvermietung nach Oktober 2014"), kumuliertes Renovierungsvolumen ab
 `umfassendModernisiertM2` = 1.000 €/m² (≈ ⅓ Neubaukosten; die neue Stufe
 „Umfassende Modernisierung" erreicht es allein) und eine höhere Vormiete.
+Häuser (Einfamilien-, Doppel-, Reihenhaus) nutzen `mietrecht[stadt].hausFaktor`.
+Die Mietpreisbremse gilt auch für sie ([§ 556d BGB](https://www.gesetze-im-internet.de/bgb/__556d.html)
+unterscheidet keine Gebäudeart), aber der Wohnungs-Mietspiegel unterschätzt sie:
+
+| Stadt | hausFaktor | Grundlage | Sicherheit |
+|---|---|---|---|
+| Berlin | 1,10 | [Mietspiegel 2024](https://www.berlin.de/sen/wohnen/_assets/service/mietspiegel2024.pdf) schließt Ein-/Zweifamilien- und Reihenhäuser aus; Einfamilienhauszuschlag bis 10 % (BGH VIII ZR 357/12; [FG Berlin-Brandenburg 10 K 10303/19](https://gerichtsentscheidungen.brandenburg.de/gerichtsentscheidung/1768)); Gutachterausschuss Dahme-Spreewald: Häuser ≈ 1,13–1,17 × Wohnungen ([PDF](https://gutachterausschuss.brandenburg.de/sixcms/media.php/9/Mietauswertung_LDS_2022-2024.pdf)) | mittel |
+| Leipzig | 1,22 | [Mietspiegel 2025–2027](https://static.leipzig.de/fileadmin/mediendatenbank/leipzig-de/Stadt/02.5_Dez5_Jugend_Soziales_Gesundheit_Schule/50_Sozialamt/Mietspiegel/Broschuere_zum_Leipziger_Mietspiegel_2025-2027_01.pdf) enthält Häuser: Grundbetrag 7,05 €/m² flächenunabhängig, ≈ 1,18–1,30 × Wohnungswert bei 96–178 m²; 1,22 trifft die Spiel-Häuser (110–130 m²) | hoch |
+| Meißen | 1,10 | [Mietspiegel](https://www.stadt-meissen.de/de/datei/anzeigen/id/41609,24/mietspiegel_fortgeschrieben_01_07_2025.pdf) gilt nur für Mehrfamilienhäuser; ohne lokale Daten wie Berlin | gering |
+
 Neubauten haben im Modell keine eigene Mietspiegelstufe; ihre Erhöhungsgrenze
 ist die Marktmiete. Unter der Bremse bringt „über Marktmiete" keine höhere
 Miete, nur mehr Leerstandsrisiko. Der Möblierungsaufschlag bleibt obendrauf

@@ -31,13 +31,17 @@ function lageFaktor(state, objekt) {
 }
 
 // Ortsübliche Vergleichsmiete laut Mietspiegel (kalt, €/Monat, laufende Euro):
-// Segmentanker × Zustand × Lage. Grundlage für Mieterhöhungen (§ 558 BGB) und
-// die Mietpreisbremse (§ 556d BGB). ECONOMY_MODEL §15a.
+// Segmentanker × Zustand × Lage, bei Häusern × hausFaktor der Stadt.
+// Grundlage für Mieterhöhungen (§ 558 BGB) und die Mietpreisbremse
+// (§ 556d BGB). ECONOMY_MODEL §15a.
 export function mietspiegelMiete(state, objekt) {
   const segment = state.config.segmente[objekt.segment];
   if (!Number.isFinite(segment?.mietspiegelM2)) return marktmiete(state, objekt);
   const f = state.config.mieter.zustandMietFaktor[objekt.zustand] ?? 1;
-  return objekt.flaeche * segment.mietspiegelM2 * f * lageFaktor(state, objekt) * preisniveau(state);
+  const haus = stammdaten(objekt).objektart === 'haus'
+    ? (state.config.mietrecht?.[segment.stadt]?.hausFaktor ?? 1)
+    : 1;
+  return objekt.flaeche * segment.mietspiegelM2 * haus * f * lageFaktor(state, objekt) * preisniveau(state);
 }
 
 // Zuletzt vereinbarte Kaltmiete ohne Möblierungsaufschlag (Vormiete). Für ein
