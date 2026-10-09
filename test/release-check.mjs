@@ -5,7 +5,7 @@ import { readFile, readdir, stat } from 'node:fs/promises';
 import { extname, join, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
-import { DEFAULT_CONFIG, SAVE_VERSION, UI_VERSION, START_PRESETS } from '../js/config.js?v=60';
+import { DEFAULT_CONFIG, SAVE_VERSION, UI_VERSION, START_PRESETS } from '../js/config.js?v=61';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 let fehler = 0;

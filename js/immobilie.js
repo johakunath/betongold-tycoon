@@ -1,7 +1,7 @@
 ﻿// immobilie.js — gemeinsamer Vertrag für Wohnung, Haus und Eigenheim-Eignung.
 // DOM-frei; UI und Engine verwenden dieselben laufenden Kosten.
 
-import { preisniveau } from './preisniveau.js?v=60';
+import { preisniveau } from './preisniveau.js?v=61';
 
 export function objektartVon(objekt) {
   return objekt?.objektart === 'haus' ? 'haus' : 'wohnung';

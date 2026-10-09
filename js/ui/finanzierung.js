@@ -2,19 +2,19 @@
 // Tilgung, Zinsbindung; live berechnetes Angebot + Haushaltsrechnungs-Verdikt.
 // Modus 'szenario' = reiner Rechner, Modus 'kauf' = mit Kaufabschluss.
 
-import { getListing } from '../content.js?v=60';
+import { getListing } from '../content.js?v=61';
 import {
   finanzierungsCashflowPfade, finanzierungsCashflowVorschau, kreditAngebot, kaufeObjekt, nebenkostenFuer,
-} from '../finance.js?v=60';
-import { kaufeEigenheim, wohnortWechselVorschau } from '../eigenheim.js?v=60';
-import { fmtEUR, fmtEURSigniert } from './util.js?v=60';
-import { eigenheimEignung, fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=60';
-import { etfVerkaufVorschau } from '../etf.js?v=60';
-import { angesetzteMiete } from '../tenants.js?v=60';
-import { fixkostenAufschluesselung } from '../immobilie.js?v=60';
-import { angebotsBestandsmiete } from '../market.js?v=60';
-import { aktuellerBetrag, preisniveau } from '../preisniveau.js?v=60';
-import { haushaltsUeberschussMonat, liquiditaetsBasisMonat, liquiditaetsPufferMonate } from './kennzahlen.js?v=60';
+} from '../finance.js?v=61';
+import { kaufeEigenheim, wohnortWechselVorschau } from '../eigenheim.js?v=61';
+import { fmtEUR, fmtEURSigniert } from './util.js?v=61';
+import { eigenheimEignung, fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=61';
+import { etfVerkaufVorschau } from '../etf.js?v=61';
+import { angesetzteMiete } from '../tenants.js?v=61';
+import { fixkostenAufschluesselung } from '../immobilie.js?v=61';
+import { angebotsBestandsmiete } from '../market.js?v=61';
+import { aktuellerBetrag, preisniveau } from '../preisniveau.js?v=61';
+import { haushaltsUeberschussMonat, liquiditaetsBasisMonat, liquiditaetsPufferMonate } from './kennzahlen.js?v=61';
 
 let ctx = null;
 let lage = null; // { listingId, kaufpreis, modus }

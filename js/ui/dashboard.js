@@ -1,21 +1,21 @@
 ﻿// dashboard.js — Screen 1: Kennzahlen-Kacheln, Haushaltsrechnung,
 // Nettovermögen-vs-ETF-Chart (Design-Säule 4: die ETF-Linie bleibt sichtbar).
 
-import { monatsWerte, nettovermoegen, datum } from '../engine.js?v=60';
-import { fairerWert } from '../market.js?v=60';
-import { getListing } from '../content.js?v=60';
-import { bildHTML } from '../iso.js?v=60';
-import { eigenheimMonatskosten } from '../eigenheim.js?v=60';
-import { setzeGrenzsteuersatz, steuerVorschau } from '../tax.js?v=60';
+import { monatsWerte, nettovermoegen, datum } from '../engine.js?v=61';
+import { fairerWert } from '../market.js?v=61';
+import { getListing } from '../content.js?v=61';
+import { bildHTML } from '../iso.js?v=61';
+import { eigenheimMonatskosten } from '../eigenheim.js?v=61';
+import { setzeGrenzsteuersatz, steuerVorschau } from '../tax.js?v=61';
 import {
   fmtEUR, fmtEURKompakt, fmtEURSigniert, fmtDatum, euroModus, euroUmschalterHTML, inAnzeigeEuro,
-} from './util.js?v=60';
-import { fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=60';
-import { vermietungsmodell } from '../tenants.js?v=60';
-import { haushaltsUeberschussMonat, naechsterZugEmpfehlung } from './kennzahlen.js?v=60';
-import { aktualisiereNavMarkierung } from './shell.js?v=60';
-import { portfolioTriage, stabilisierungsLinien, turnaroundAktiv } from '../turnaround.js?v=60';
-import { renderStrategy } from './strategy.js?v=60';
+} from './util.js?v=61';
+import { fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=61';
+import { vermietungsmodell } from '../tenants.js?v=61';
+import { haushaltsUeberschussMonat, naechsterZugEmpfehlung } from './kennzahlen.js?v=61';
+import { aktualisiereNavMarkierung } from './shell.js?v=61';
+import { portfolioTriage, stabilisierungsLinien, turnaroundAktiv } from '../turnaround.js?v=61';
+import { renderStrategy } from './strategy.js?v=61';
 
 let getState = null;
 let onObjekt = null;   // Callback: Portfolio-Objekt anklicken → Objekt-Detail

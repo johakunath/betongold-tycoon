@@ -3,15 +3,15 @@
 
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { newGame, exportString, importString } from '../js/state.js?v=60';
-import { setzeInhalte } from '../js/content.js?v=60';
+import { newGame, exportString, importString } from '../js/state.js?v=61';
+import { setzeInhalte } from '../js/content.js?v=61';
 import {
   initialisiereMarkt, sichtbareListings, besichtigen, dokumenteAnfordern,
   gutachterBeauftragen, angebotBeobachten, angebotVerwerfen, angebotNeuPruefen,
-} from '../js/market.js?v=60';
+} from '../js/market.js?v=61';
 import {
   dealEntscheidung, letzteWirkung, monatsAnlass, pruefstand,
-} from '../js/gameplay.js?v=60';
+} from '../js/gameplay.js?v=61';
 
 setzeInhalte({ listings: JSON.parse(fs.readFileSync(new URL('../data/listings.json', import.meta.url), 'utf8')) });
 

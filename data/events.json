@@ -403,5 +403,249 @@
       { "text": "Ein konkretes Angebot ernsthaft prüfen", "effekt": {}, "folge": "Anlass, Prüfung, Entscheidung, Wirkung: Due Diligence senkt das Risiko — nie auf null." },
       { "text": "Weiter sparen und beobachten", "effekt": {}, "folge": "Auch bewusst zu warten ist eine Entscheidung; der Markt öffnet regelmäßig neue Chancen." }
     ]
+  },
+  {
+    "id": "zahnersatz",
+    "titel": "Eine Krone steht an",
+    "text": "Beim Zahnarzt ist eine Krone fällig. Die Kasse zahlt den Festzuschuss, der Eigenanteil hängt vom Material ab.",
+    "kategorie": "haushalt",
+    "gewicht": 0.6,
+    "bedingung": { "einmalig": false, "cooldownMonate": 120 },
+    "optionen": [
+      {"text": "Vollkeramik, hält lange", "effekt": {"cash": -2200}, "folge": "Teurer, dafür ist das Thema für viele Jahre erledigt."},
+      {"text": "Regelversorgung", "effekt": {"cash": -700, "familie": -1}, "folge": "Günstig und solide, aber sichtbar und weniger komfortabel."}
+    ]
+  },
+  {
+    "id": "waschmaschine",
+    "titel": "Die Waschmaschine streikt",
+    "text": "Die Waschmaschine pumpt nicht mehr ab. Der Kundendienst kommt frühestens in neun Tagen.",
+    "kategorie": "haushalt",
+    "gewicht": 0.8,
+    "bedingung": { "einmalig": false, "cooldownMonate": 84 },
+    "optionen": [
+      {"text": "Neues Gerät liefern lassen", "effekt": {"cash": -650}, "folge": "Morgen läuft wieder alles; das alte Gerät nimmt der Händler mit."},
+      {"text": "Reparatur abwarten", "effekt": {"cash": -220, "familie": -2}, "folge": "Deutlich billiger, aber eine Woche Waschsalon und Wäscheberge."}
+    ]
+  },
+  {
+    "id": "familienfeier",
+    "titel": "Hochzeit im Freundeskreis",
+    "text": "Gute Freunde heiraten, 600 km entfernt, mit zwei Übernachtungen. Ihr seid fest eingeplant.",
+    "kategorie": "haushalt",
+    "gewicht": 0.7,
+    "bedingung": { "einmalig": false, "cooldownMonate": 48 },
+    "optionen": [
+      {"text": "Hinfahren und mitfeiern", "effekt": {"cash": -900, "familie": 3}, "folge": "Ein langes Wochenende, das noch lange nachklingt."},
+      {"text": "Absagen und ein Geschenk schicken", "effekt": {"cash": -150, "familie": -1}, "folge": "Vernünftig fürs Budget; die Enttäuschung bleibt kurz spürbar."}
+    ]
+  },
+  {
+    "id": "pflege-eltern",
+    "titel": "Ein Elternteil braucht Hilfe",
+    "text": "Nach einem Sturz kommt ein Elternteil aus der Klinik nach Hause. Für etwa drei Monate braucht es Unterstützung im Alltag.",
+    "kategorie": "haushalt",
+    "gewicht": 0.5,
+    "bedingung": { "einmalig": true, "vorRuhestand": true },
+    "optionen": [
+      {"text": "Pflegedienst zuzahlen", "effekt": {"cash": -3600, "familie": -1}, "folge": "Professionell versorgt; euer Alltag bleibt weitgehend stabil."},
+      {"text": "Kurzzeitpflege und Besuche", "effekt": {"cash": -2200, "familie": -3}, "folge": "Ein Mittelweg: weniger Kosten, aber viele Fahrten und Absprachen."},
+      {"text": "Selbst übernehmen mit Urlaub und Überstundenabbau", "effekt": {"cash": -600, "familie": -5}, "folge": "Kaum Kosten, aber drei sehr anstrengende Monate für alle."}
+    ]
+  },
+  {
+    "id": "erbschaft-klein",
+    "titel": "Ein kleines Erbe",
+    "text": "Eine Großtante hinterlässt testamentarisch einen Betrag von 9.000 €. Die Geschwister gehen leer aus und erwarten eine faire Lösung.",
+    "kategorie": "haushalt",
+    "gewicht": 0.3,
+    "bedingung": { "einmalig": true },
+    "optionen": [
+      {"text": "Nach Testament annehmen", "effekt": {"cash": 9000, "familie": -2}, "folge": "Rechtlich klar; bei Familienfeiern bleibt es eine Weile kühl."},
+      {"text": "Freiwillig mit den Geschwistern teilen", "effekt": {"cash": 5000, "familie": 2}, "folge": "Weniger Geld, dafür bleibt das Verhältnis entspannt."}
+    ]
+  },
+  {
+    "id": "lastenrad-gestohlen",
+    "titel": "Das Rad ist weg",
+    "text": "Das Fahrrad für Einkauf und Arbeitsweg ist trotz Schloss aus dem Hof verschwunden. Die Hausratversicherung deckt nur einen Teil.",
+    "kategorie": "haushalt",
+    "gewicht": 0.6,
+    "bedingung": { "einmalig": false, "cooldownMonate": 72 },
+    "optionen": [
+      {"text": "Gebraucht ersetzen", "effekt": {"cash": -700}, "folge": "Nach einer Woche ist der Alltag wieder wie vorher."},
+      {"text": "Vorerst ohne Rad", "effekt": {"cash": -120, "familie": -2}, "folge": "Spart Geld, kostet aber jeden Tag Zeit und Nerven."}
+    ]
+  },
+  {
+    "id": "familie-umzugshilfe",
+    "titel": "Bitte um Umzugshilfe",
+    "text": "Jüngere Verwandte ziehen mit Kind in eine größere Wohnung und fragen, ob ihr bei Kaution und Umzug helfen könnt.",
+    "kategorie": "haushalt",
+    "gewicht": 0.8,
+    "bedingung": { "einmalig": false, "cooldownMonate": 60, "nachRuhestand": true },
+    "optionen": [
+      {"text": "Kaution und Umzug übernehmen", "effekt": {"cash": -4000, "familie": 4}, "folge": "Großzügig; die Dankbarkeit ist echt, das Depot spürt es."},
+      {"text": "Mit Zeit helfen, nicht mit Geld", "effekt": {"familie": 1}, "folge": "Kisten tragen statt Geld geben: kostet nichts, hilft trotzdem."}
+    ]
+  },
+  {
+    "id": "bad-barrierearm",
+    "titel": "Das Bad wird mühsam",
+    "text": "Die Badewanne wird im Alter zur Hürde. Eine bodengleiche Dusche ist möglich; Zuschüsse gibt es nur mit Pflegegrad.",
+    "kategorie": "haushalt",
+    "gewicht": 0.8,
+    "bedingung": { "einmalig": true, "nachRuhestand": true },
+    "optionen": [
+      {"text": "Jetzt barrierearm umbauen", "effekt": {"cash": -7000, "familie": 3}, "folge": "Teuer, aber der Alltag bleibt für viele Jahre sicher und selbstständig."},
+      {"text": "Haltegriffe und Wannenlift", "effekt": {"cash": -900, "familie": -1}, "folge": "Eine günstige Übergangslösung mit spürbaren Abstrichen."}
+    ]
+  },
+  {
+    "id": "reise-ruhestand",
+    "titel": "Gemeinsame Reise",
+    "text": "Freunde planen im Ruhestand eine dreiwöchige Reise und fragen, ob ihr mitkommt.",
+    "kategorie": "haushalt",
+    "gewicht": 0.7,
+    "bedingung": { "einmalig": false, "cooldownMonate": 36, "nachRuhestand": true },
+    "optionen": [
+      {"text": "Mitreisen", "effekt": {"cash": -3500, "familie": 4}, "folge": "Drei Wochen, von denen ihr noch lange erzählt."},
+      {"text": "Kurzurlaub in der Nähe", "effekt": {"cash": -600, "familie": 1}, "folge": "Kleiner und günstiger, aber auch eine Pause vom Alltag."}
+    ]
+  },
+  {
+    "id": "heizung-eigenheim",
+    "titel": "Heizungsausfall zu Hause",
+    "text": "Im eigenen Zuhause fällt mitten im Winter die Heizung aus. Der Kessel ist über 20 Jahre alt.",
+    "kategorie": "haushalt",
+    "gewicht": 0.8,
+    "bedingung": { "einmalig": false, "cooldownMonate": 120, "jahreszeit": "winter", "mitEigenheim": true },
+    "optionen": [
+      {"text": "Reparieren lassen", "effekt": {"cash": -900, "familie": -1}, "folge": "Wieder warm, aber der nächste Ausfall ist nur eine Frage der Zeit."},
+      {"text": "Heizung tauschen, Förderung beantragen", "effekt": {"cash": -9000, "familie": 2}, "folge": "Großer Betrag nach Abzug der Förderung; danach ist Ruhe im Heizungskeller."}
+    ]
+  },
+  {
+    "id": "grundsteuer-bescheid",
+    "titel": "Neuer Grundsteuerbescheid",
+    "text": "Nach der Grundsteuerreform kommt für eines deiner Objekte ein Bescheid mit Nachzahlung. Der angesetzte Bodenwert wirkt hoch.",
+    "kategorie": "objekt",
+    "gewicht": 0.6,
+    "bedingung": { "brauchtObjekt": true, "einmalig": true },
+    "optionen": [
+      {"text": "Nachzahlung leisten", "effekt": {"cash": -650}, "folge": "Erledigt, ohne weiteren Aufwand."},
+      {"text": "Einspruch mit Bodenwertgutachten", "effekt": {"cash": -400, "familie": -1}, "folge": "Das Gutachten kostet, die Nachzahlung fällt kleiner aus; dazu kommt Papierkram."}
+    ]
+  },
+  {
+    "id": "sturmschaden",
+    "titel": "Sturm reißt Ziegel herunter",
+    "text": "Ein Wintersturm hat Ziegel vom Dach geholt. Noch dringt kein Wasser ein, der Eigentümeranteil an der Reparatur liegt bei dir.",
+    "kategorie": "objekt",
+    "gewicht": 0.8,
+    "bedingung": { "brauchtObjekt": true, "einmalig": false, "cooldownMonate": 48, "jahreszeit": "winter" },
+    "optionen": [
+      {"text": "Dachdecker sofort, mit Eilzuschlag", "effekt": {"cash": -1600}, "folge": "Schnell dicht; der Zuschlag schmerzt."},
+      {"text": "Provisorisch abdecken, Reparatur im Frühjahr", "effekt": {"cash": -350, "zustand": -1}, "folge": "Günstig für den Moment, aber Feuchtigkeit hinterlässt Spuren."}
+    ]
+  },
+  {
+    "id": "hitzewelle",
+    "titel": "Hitze in der Wohnung",
+    "text": "In der Hitzewelle steigt die Raumtemperatur auf über 30 Grad. Deine Mieterin bittet um außenliegenden Sonnenschutz.",
+    "kategorie": "objekt",
+    "gewicht": 0.8,
+    "bedingung": { "vermietet": true, "einmalig": false, "cooldownMonate": 48, "jahreszeit": "sommer" },
+    "optionen": [
+      {"text": "Außenjalousien einbauen", "effekt": {"cash": -2400, "mieterZufriedenheit": 0.3}, "folge": "Spürbar kühler; die Mieterin plant zu bleiben."},
+      {"text": "Ventilator und Verdunkelung bezahlen", "effekt": {"cash": -200, "mieterZufriedenheit": 0.05}, "folge": "Eine kleine Geste, die Hitze bleibt."},
+      {"text": "Ablehnen", "effekt": {"mieterZufriedenheit": -0.2, "mieterKonflikt": 0.1}, "folge": "Kostet nichts, aber die Mieterin fühlt sich nicht ernst genommen."}
+    ]
+  },
+  {
+    "id": "winterdienst",
+    "titel": "Mahnung zum Winterdienst",
+    "text": "Die Gemeinde mahnt: Vor dem Haus wurde bei Glätte nicht geräumt. Im Schadensfall haftet der Eigentümer.",
+    "kategorie": "objekt",
+    "gewicht": 0.6,
+    "bedingung": { "brauchtObjekt": true, "einmalig": false, "cooldownMonate": 36, "jahreszeit": "winter" },
+    "optionen": [
+      {"text": "Räumdienst beauftragen", "effekt": {"cash": -450}, "folge": "Ab jetzt zuverlässig geräumt."},
+      {"text": "Selbst räumen", "effekt": {"familie": -2}, "folge": "Spart Geld, kostet aber frühe Wintermorgen."}
+    ]
+  },
+  {
+    "id": "rauchmelder",
+    "titel": "Rauchwarnmelder abgelaufen",
+    "text": "Bei einer Kontrolle fällt auf, dass die Rauchwarnmelder in einem deiner Objekte abgelaufen sind. Der Austausch ist Eigentümerpflicht.",
+    "kategorie": "objekt",
+    "gewicht": 0.6,
+    "bedingung": { "brauchtObjekt": true, "einmalig": true },
+    "optionen": [
+      {"text": "Funkmelder mit Wartungsvertrag", "effekt": {"cash": -380}, "folge": "Rechtssicher dokumentiert, ohne weiteren Aufwand."},
+      {"text": "Einfache Melder selbst montieren", "effekt": {"cash": -90, "familie": -1}, "folge": "Günstig; die jährliche Prüfung bleibt an dir hängen."}
+    ]
+  },
+  {
+    "id": "wallbox-anfrage",
+    "titel": "Wallbox gewünscht",
+    "text": "Dein Mieter fährt elektrisch und möchte am Stellplatz eine Wallbox. Die Kosten trägt er; Zustimmung und Abstimmung mit dem Haus bleiben bei dir.",
+    "kategorie": "mieter",
+    "gewicht": 0.6,
+    "bedingung": { "vermietet": true, "einmalig": true },
+    "optionen": [
+      {"text": "Zustimmen und koordinieren", "effekt": {"cash": -300, "mieterZufriedenheit": 0.3}, "folge": "Etwas Abstimmungsaufwand; der Mieter richtet sich langfristig ein."},
+      {"text": "Hinhalten", "effekt": {"mieterZufriedenheit": -0.2, "mieterKonflikt": 0.2}, "folge": "Eine Zustimmung kann er meist verlangen; das Verhältnis leidet."}
+    ]
+  },
+  {
+    "id": "untervermietung",
+    "titel": "Untervermietung angefragt",
+    "text": "Deine Mieterin möchte ein Zimmer untervermieten, weil sich ihre Lebenslage geändert hat. Ein Anspruch besteht oft, ein Zuschlag ist verhandelbar.",
+    "kategorie": "mieter",
+    "gewicht": 0.7,
+    "bedingung": { "vermietet": true, "einmalig": false, "cooldownMonate": 60 },
+    "optionen": [
+      {"text": "Zustimmen mit Untermietzuschlag", "effekt": {"miete": 40, "mieterZufriedenheit": 0.1}, "folge": "Etwas mehr Miete; die Mieterin bleibt."},
+      {"text": "Ohne Zuschlag zustimmen", "effekt": {"mieterZufriedenheit": 0.3}, "folge": "Großzügig; das Mietverhältnis wird stabiler."},
+      {"text": "Ablehnen", "effekt": {"mieterZufriedenheit": -0.2, "mieterKonflikt": 0.3}, "folge": "Rechtlich heikel und schlecht fürs Verhältnis."}
+    ]
+  },
+  {
+    "id": "mieter-jobverlust",
+    "titel": "Mieter verliert den Job",
+    "text": "Dein Mieter hat seine Stelle verloren und bittet, einen Teil der Miete für drei Monate zu stunden, bis das Arbeitslosengeld läuft.",
+    "kategorie": "mieter",
+    "gewicht": 0.7,
+    "bedingung": { "vermietet": true, "einmalig": false, "cooldownMonate": 72 },
+    "optionen": [
+      {"text": "Stundung gewähren", "effekt": {"cash": -900, "mieterZufriedenheit": 0.4}, "arc": {"id": "stundung", "titel": "Gestundete Miete klären", "nachMonaten": 6, "folgeEventId": "arc-stundung-rueckzahlung", "entscheidung": "Stundung"}, "folge": "Du streckst 900 € vor; in sechs Monaten wird über die Rückzahlung gesprochen."},
+      {"text": "Auf voller Zahlung bestehen", "effekt": {"mieterZufriedenheit": -0.3, "mieterKonflikt": 0.35}, "folge": "Rechtlich korrekt; ob er zahlen kann, ist offen."},
+      {"text": "Aufhebungsvertrag mit Umzugshilfe", "effekt": {"cash": -1200, "auszug": true}, "folge": "Sauberer Schnitt mit Kosten; danach steht die Wohnung leer."}
+    ]
+  },
+  {
+    "id": "arc-stundung-rueckzahlung",
+    "titel": "Gestundete Miete",
+    "text": "Sechs Monate nach der Stundung hat dein Mieter wieder Arbeit und bietet an, den Rückstand in Raten zu begleichen.",
+    "kategorie": "mieter",
+    "gewicht": 0,
+    "bedingung": { "nurArc": true },
+    "optionen": [
+      {"text": "Rückzahlung annehmen", "effekt": {"cash": 900}, "folge": "Das Geld kommt zurück; das Vertrauen ist gewachsen."},
+      {"text": "Den Rückstand erlassen", "effekt": {"mieterZufriedenheit": 0.4, "familie": 1}, "folge": "Großzügig; der Mieter wird dir lange treu bleiben."}
+    ]
+  },
+  {
+    "id": "mieterverein-auskunft",
+    "titel": "Post vom Mieterverein",
+    "text": "Der Mieterverein bittet im Auftrag deiner Mieterin um Auskunft zur Miethöhe und zur Vormiete (§ 556g BGB).",
+    "kategorie": "mieter",
+    "gewicht": 0.5,
+    "bedingung": { "vermietet": true, "einmalig": false, "cooldownMonate": 60 },
+    "optionen": [
+      {"text": "Vollständig und fristgerecht antworten", "effekt": {"cash": -150, "mieterZufriedenheit": 0.1}, "folge": "Etwas Aufwand mit Unterlagen; danach ist das Thema geklärt."},
+      {"text": "Nicht reagieren", "effekt": {"mieterZufriedenheit": -0.2, "mieterKonflikt": 0.25}, "folge": "Spart Zeit, aber der Ton wird schärfer."}
+    ]
   }
 ]

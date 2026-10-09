@@ -1,19 +1,19 @@
 ﻿// expose.js — Screen 3: Exposé-Detail mit Due Diligence, Notizen,
 // Szenariorechner, Gebot / Weggehen.
 
-import { getListing } from '../content.js?v=60';
+import { getListing } from '../content.js?v=61';
 import {
   angebotsPreis, vergleichsmiete, gebotAbgeben, kaufAbbrechen,
   besichtigen, dokumenteAnfordern, gutachterBeauftragen,
   angebotBeobachten, angebotVerwerfen, angebotNeuPruefen, angebotsBestandsmiete,
-} from '../market.js?v=60';
-import { dealEntscheidung, pruefstand } from '../gameplay.js?v=60';
-import { bildHTML, cutawayHTML } from '../iso.js?v=60';
-import { fmtEUR, fmtProzent } from './util.js?v=60';
-import { aktuellerBetrag, preisniveau } from '../preisniveau.js?v=60';
-import { mietpreisbremse } from '../tenants.js?v=60';
-import { oeffneFinanzierung } from './finanzierung.js?v=60';
-import { eigenheimEignung, fixkostenAufschluesselung, instandhaltungMonat, objektartConfig } from '../immobilie.js?v=60';
+} from '../market.js?v=61';
+import { dealEntscheidung, pruefstand } from '../gameplay.js?v=61';
+import { bildHTML, cutawayHTML } from '../iso.js?v=61';
+import { fmtEUR, fmtProzent } from './util.js?v=61';
+import { aktuellerBetrag, preisniveau } from '../preisniveau.js?v=61';
+import { mietpreisbremse } from '../tenants.js?v=61';
+import { oeffneFinanzierung } from './finanzierung.js?v=61';
+import { eigenheimEignung, fixkostenAufschluesselung, instandhaltungMonat, objektartConfig } from '../immobilie.js?v=61';
 
 let ctx = null;
 let aktuelleId = null;

@@ -1,8 +1,8 @@
 // passiv.js — passive Monatseinkommen aus Mietobjekten und liquidem Vermögen.
 // DOM-frei; genutzt vom Tick (Ruhestands-Check) und der Endauswertung.
 
-import { fixkostenMonat, instandhaltungMonat } from './immobilie.js?v=60';
-import { etfVerkaufVorschau } from './etf.js?v=60';
+import { fixkostenMonat, instandhaltungMonat } from './immobilie.js?v=61';
+import { etfVerkaufVorschau } from './etf.js?v=61';
 
 export function nachhaltigerCashflow(state) {
   const bw = state.config.bewirtschaftung;

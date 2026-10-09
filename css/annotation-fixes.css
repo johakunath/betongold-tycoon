@@ -879,3 +879,12 @@ input, select, textarea,
 .fin-pfad-urteil.rechtsbruch { border-color: rgba(214, 120, 90, .55); background: rgba(214, 120, 90, .08); }
 .bremse-verstoss { border-color: rgba(214, 120, 90, .55); background: rgba(214, 120, 90, .08); }
 .bremse-verstoss button { margin-top: 8px; }
+
+/* Event-Optionen zeigen ihre direkte Wirkung vor der Wahl (UI v61). */
+.event-option-text { display: block; }
+.event-wirkung { display: flex; flex-wrap: wrap; gap: 5px 6px; margin-top: 7px; font-size: 13px; line-height: 1.35; }
+.event-wirkung > span { padding: 1px 8px; border: 1px solid var(--hairline); border-radius: 999px; background: rgba(255, 255, 255, .04); color: var(--tinte-2); }
+.event-wirkung > .event-wirkung-plus { color: var(--positiv); border-color: rgba(158, 209, 158, .35); }
+.event-wirkung > .event-wirkung-minus { color: var(--negativ); border-color: rgba(224, 160, 132, .38); }
+.event-option { position: relative; padding-right: 40px; }
+.event-option::after { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); float: none; }

@@ -1,7 +1,7 @@
 ﻿// ui/turnaround.js — bestätigter Banktermin für das Turnaround-Paket.
 
-import { bankAnpassungVorschau, wendeBankAnpassungAn } from '../turnaround.js?v=60';
-import { fmtEUR } from './util.js?v=60';
+import { bankAnpassungVorschau, wendeBankAnpassungAn } from '../turnaround.js?v=61';
+import { fmtEUR } from './util.js?v=61';
 
 let ctx = null;
 let ziel = null;

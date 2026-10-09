@@ -6,7 +6,7 @@
 export const SAVE_VERSION = 23;
 // UI-/Cache-Version ist unabhängig vom Save-Format. Bei reinen CSS-/UI-Reworks
 // erhöhen, ohne unnötig Spielstände zu migrieren.
-export const UI_VERSION = 60;
+export const UI_VERSION = 61;
 
 // Startlage und Schwierigkeit sind bewusst getrennt. Das Preset beschreibt
 // Haushalt, Vermögensaufteilung und optionale besondere Startbedingungen;

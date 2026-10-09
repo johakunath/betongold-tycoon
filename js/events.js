@@ -1,10 +1,10 @@
 ﻿// events.js — Dilemma-Events: monatlicher Roll (feste RNG-Position im Tick)
 // und Auflösung ohne RNG. Formeln: ECONOMY_MODEL §18. DOM-frei.
 
-import { rngFloat, zahleReparatur } from './state.js?v=60';
-import { alleEvents, getEvent } from './content.js?v=60';
-import { planeObjektArc, schliesseAktivenArc } from './arcs.js?v=60';
-import { aktuellerBetrag, textInLaufendenEuro } from './preisniveau.js?v=60';
+import { rngFloat, zahleReparatur } from './state.js?v=61';
+import { alleEvents, getEvent } from './content.js?v=61';
+import { planeObjektArc, schliesseAktivenArc } from './arcs.js?v=61';
+import { aktuellerBetrag, textInLaufendenEuro } from './preisniveau.js?v=61';
 
 function kalendermonat(state) {
   return ((state.config.zeit.startMonat - 1 + state.monat) % 12) + 1;
@@ -28,7 +28,8 @@ function passendeObjekte(state, ev) {
 }
 
 // Haushaltsbedingungen (CONTENT_SCHEMA): Kinder im Haushalt mit passendem
-// Alter, ein laufend eingeplantes Auto, Erwerbsphase vor dem Ruhestand.
+// Alter, ein laufend eingeplantes Auto, Erwerbsphase oder Ruhestand,
+// Mieter- oder Eigenheimhaushalt.
 function hatKindImAlter(state, minAlter = 0, maxAlter = Infinity) {
   const h = state.config.haushalt;
   return (h.kinder || []).some((kind) => {
@@ -66,7 +67,9 @@ function istErfuellbar(state, ev) {
   if (brauchtKind && !hatKindImAlter(state, b.kindAlterMin ?? 0, b.kindAlterMax ?? Infinity)) return false;
   if (b.autoVorhanden && !hatAuto(state)) return false;
   if (b.vorRuhestand && istImRuhestand(state)) return false;
+  if (b.nachRuhestand && !istImRuhestand(state)) return false;
   if (b.nurMieter && state.eigenheim) return false;
+  if (b.mitEigenheim && !state.eigenheim) return false;
 
   const brauchtObjekt = b.brauchtObjekt || ev.kategorie === 'objekt' || ev.kategorie === 'mieter';
   if (brauchtObjekt && passendeObjekte(state, ev).length === 0) return false;
@@ -209,6 +212,34 @@ export function resolveEvent(state, optionIndex) {
   });
   state.aktivesEvent = null;
   return { ev, opt, objekt };
+}
+
+// Sichtbare Wirkung einer Option vor der Wahl (dieselben Effekt-Schlüssel wie
+// resolveEvent, ohne RNG und ohne State-Änderung). ton: plus | minus | neutral.
+export function optionWirkungen(state, opt) {
+  const eff = opt?.effekt || {};
+  const euro = (betrag) => `${Math.round(aktuellerBetrag(state, Math.abs(betrag))).toLocaleString('de-DE')} €`;
+  const zeichen = (n) => (n > 0 ? '+' : '−');
+  const liste = [];
+  if (typeof eff.cash === 'number' && eff.cash !== 0) liste.push({ text: `${zeichen(eff.cash)}${euro(eff.cash)}`, ton: eff.cash > 0 ? 'plus' : 'minus' });
+  if (typeof eff.ruecklage === 'number' && eff.ruecklage !== 0) liste.push({ text: `Rücklage ${zeichen(eff.ruecklage)}${euro(eff.ruecklage)}`, ton: eff.ruecklage > 0 ? 'plus' : 'minus' });
+  if (typeof eff.sondertilgung === 'number' && eff.sondertilgung > 0) liste.push({ text: `Sondertilgung ${euro(eff.sondertilgung)}`, ton: 'neutral' });
+  if (typeof eff.miete === 'number' && eff.miete !== 0) liste.push({ text: `Miete ${zeichen(eff.miete)}${euro(eff.miete)}/Monat`, ton: eff.miete > 0 ? 'plus' : 'minus' });
+  if (typeof eff.haushaltsMiete === 'number' && eff.haushaltsMiete !== 0) {
+    liste.push({ text: `eigene Miete ${zeichen(eff.haushaltsMiete)}${Math.round(Math.abs(eff.haushaltsMiete) * 100)} %`, ton: eff.haushaltsMiete > 0 ? 'minus' : 'plus' });
+  }
+  if (typeof eff.zustand === 'number' && eff.zustand !== 0) liste.push({ text: `Zustand ${zeichen(eff.zustand)}${Math.abs(eff.zustand)}`, ton: eff.zustand > 0 ? 'plus' : 'minus' });
+  if (typeof eff.familie === 'number' && eff.familie !== 0) liste.push({ text: `Familie ${zeichen(eff.familie)}${Math.abs(eff.familie)}`, ton: eff.familie > 0 ? 'plus' : 'minus' });
+  if (typeof eff.mieterZufriedenheit === 'number' && eff.mieterZufriedenheit !== 0) {
+    liste.push(eff.mieterZufriedenheit > 0 ? { text: 'Mieter zufriedener', ton: 'plus' } : { text: 'Mieter unzufriedener', ton: 'minus' });
+  }
+  if (typeof eff.mieterKonflikt === 'number' && eff.mieterKonflikt !== 0) {
+    liste.push(eff.mieterKonflikt > 0 ? { text: 'mehr Konfliktrisiko', ton: 'minus' } : { text: 'weniger Konflikt', ton: 'plus' });
+  }
+  if (eff.auszug) liste.push({ text: 'Mieter zieht aus', ton: 'minus' });
+  if (opt?.arc) liste.push({ text: `Folge in ${opt.arc.nachMonaten} Monaten`, ton: 'neutral' });
+  if (!liste.length) liste.push({ text: 'keine direkte Wirkung', ton: 'neutral' });
+  return liste;
 }
 
 // Für die UI: das aktive Event mit aufgelöstem Objekt-Titel.

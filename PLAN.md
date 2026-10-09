@@ -232,7 +232,7 @@ des kanonischen Meldungsarchivs; ein drittes abweichendes Ereignislog entfällt.
 - 40 handgefertigte Listings: 20 in Berlin sowie je 10 in Leipzig und Meißen +
   Umland, einschließlich Wohnungen, Reihen-/Doppelhäusern, freistehenden EFH,
   Neubauten, gutem Bestand und klaren Sanierungsfällen. 18 Mieterdossiers und
-  26 zufällig ziehbare Events plus 5 ausschließlich terminierte Arc-Folgen
+  45 zufällig ziehbare Events plus 6 ausschließlich terminierte Arc-Folgen
   liegen als JSON vor. Jedes Listing besitzt eine eigene
   Außenansicht und zwei passende Zustands-Cutaways.
 - Seeded Markt-, Zins-, Event- und ETF-Pfade; Autosave, benannte Slots und

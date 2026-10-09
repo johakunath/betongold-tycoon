@@ -124,7 +124,7 @@ alles andere ist Menschenkenntnis.
 
 ## data/events.json (Phase 3)
 
-34 Events: 26 zufällig ziehbare Inhalte, 5 ausschließlich terminierte
+54 Events: 45 zufällig ziehbare Inhalte, 6 ausschließlich terminierte
 Arc-Folgen und 3 Auftaktmomente. 2–3 Optionen, **keine strikt dominante** (PLAN §14).
 
 ```jsonc
@@ -145,7 +145,9 @@ Arc-Folgen und 3 Auftaktmomente. 2–3 Optionen, **keine strikt dominante** (PLA
     "kindAlterMax": 15,           // … (Jahre, inkl.; Auszugsalter beendet den Haushalt)
     "autoVorhanden": true,        // nur mit eingeplantem Auto (Pauschale > 0, ab autoAbMonat, Altersfaktor > 0)
     "vorRuhestand": true,         // nur vor dem Rentenalter
-    "nurMieter": true             // nur ohne Eigenheim (z. B. Eigenbedarfskündigung)
+    "nachRuhestand": true,        // nur ab dem Rentenalter (Ruhestandsthemen)
+    "nurMieter": true,            // nur ohne Eigenheim (z. B. Eigenbedarfskündigung)
+    "mitEigenheim": true          // nur mit Eigenheim (z. B. Heizungsausfall zu Hause)
   },
   "optionen": [
     {
@@ -177,7 +179,9 @@ Auszug), `mieterKonflikt` (±), `auszug` (true → Mieter kündigt),
 `sondertilgung` (+€; zieht denselben Betrag aus Cash und Restschuld),
 `haushaltsMiete` (relative Änderung der eigenen Familienmiete, z. B. 0,15 =
 neuer Vertrag +15 %). Eurobeträge stehen in Euro des Spielstarts und laufen
-mit dem Preisniveau.
+mit dem Preisniveau. Der Event-Dialog zeigt diese Effekte vor der Wahl als
+Wirkungs-Chips (`optionWirkungen`); `zeit` wird derzeit nicht verrechnet und
+daher nicht angezeigt.
 `kategorie:"kind"` zählt gegen das Max-2-Kinder-Event-Limit (PLAN §5.9) und
 braucht immer mindestens ein Kind im Haushalt; `kindAlterMin/-Max` grenzen das
 zusätzlich ein. Die Haushaltsbedingungen filtern nur die Kandidatenliste nach dem
