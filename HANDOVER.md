@@ -1,8 +1,8 @@
 # HANDOVER.md — aktueller Projektstand
 
-**Stand:** 09.10.2026 (Save v23 / UI v61 — Event-Wirkungs-Chips, Content-Paket)
+**Stand:** 09.10.2026 (Save v24 / UI v61 — Event-Wirkungs-Chips, Content-Paket)
 
-**Versionen:** SAVE_VERSION = 23, UI_VERSION = 61
+**Versionen:** SAVE_VERSION = 24, UI_VERSION = 61
 
 ## UI v61 — Event-Wirkungs-Chips und Content-Paket (09.10.2026)
 
@@ -15,6 +15,9 @@
 - `data/events.json`: 19 neue Zufallsevents und das Arc
   `mieter-jobverlust` → `arc-stundung-rueckzahlung`. Neue Bedingungen
   `nachRuhestand` und `mitEigenheim` in `events.istErfuellbar`.
+- Save v24: Arcs mit `mieterGebunden` speichern `arc.mieter` (Dossier +
+  Einzug) und enden still bei einem anderen Mietverhältnis; neuer Effekt
+  `mietausfall` zieht entgangene Miete direkt aus dem Tagesgeld.
 - Balance (300 Seeds) 13/13, Familienmarkt und Regressionen grün; die
   Event-Wahrscheinlichkeit pro Monat ist unverändert, nur der Pool breiter.
 

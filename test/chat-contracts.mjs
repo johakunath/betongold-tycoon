@@ -57,7 +57,7 @@ function vertrag(name, pruefung) {
 }
 
 vertrag('Versionen und Wegwerf-Saves', () => {
-  assert.equal(SAVE_VERSION, 23);
+  assert.equal(SAVE_VERSION, 24);
   assert.equal(UI_VERSION, 61);
   assert.match(state, /Versionskonflikt|Version/);
   assert.doesNotMatch(state, /(?:export\s+)?function\s+migrier/i);

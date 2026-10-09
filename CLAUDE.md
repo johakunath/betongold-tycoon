@@ -133,7 +133,8 @@ UI v61 zeigt im Event-Dialog die direkte Wirkung jeder Option als Chips und
 öffnet ein beim Laden offenes Event sofort; ein Content-Paket erweitert den
 Pool auf 45 Zufallsevents plus 6 Arc-Folgen, inklusive Ruhestands- und
 Eigenheimthemen.
-Aktuell: `SAVE_VERSION = 23`, `UI_VERSION = 61`.
+Save v24 bindet Objektgeschichten optional an das Mietverhältnis.
+Aktuell: `SAVE_VERSION = 24`, `UI_VERSION = 61`.
 
 Das Spiel ist öffentlich gehostet:
 <https://johakunath.github.io/betongold-tycoon/> (GitHub Pages aus `main`).

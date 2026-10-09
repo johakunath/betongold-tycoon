@@ -1122,7 +1122,10 @@ function kaufeGuenstigesEigenheim(state) {
   check(stundung.join('|') === 'minus:−900 € Mietausfall|plus:Mieter zufriedener|neutral:Folge in 6 Monaten'
     && aufhebung.includes('minus:Mieter zieht aus')
     && spaeter.join('|') === 'plus:+13.500 €|minus:Familie −2'
-    && texte({ effekt: {} }).join('') === 'neutral:keine direkte Wirkung',
+    && texte({ effekt: {} }).join('') === 'neutral:keine direkte Wirkung'
+    && optionWirkungen(g, { effekt: { zustand: 1 } }, { zustand: 5 }).every((w) => !w.text.startsWith('Zustand'))
+    && optionWirkungen(g, { effekt: { zustand: -1 } }, { zustand: 1 }).every((w) => !w.text.startsWith('Zustand'))
+    && optionWirkungen(g, { effekt: { zustand: 2 } }, { zustand: 4 })[0].text === 'Zustand +1',
   `Wirkungs-Chips: ${stundung.join(', ')} · später ${spaeter.join(', ')}`);
 }
 

@@ -36,7 +36,7 @@ export function zeigeEvent() {
   // kommt wie bisher erst danach.
   document.getElementById('event-optionen').innerHTML = ev.optionen
     .map((opt, i) => {
-      const wirkung = optionWirkungen(state, opt)
+      const wirkung = optionWirkungen(state, opt, objekt)
         .map((w) => `<span class="event-wirkung-${w.ton}">${w.text}</span>`)
         .join('');
       return `<button class="event-option" data-opt="${i}">` +

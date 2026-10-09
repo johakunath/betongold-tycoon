@@ -219,7 +219,8 @@ export function resolveEvent(state, optionIndex) {
 
 // Sichtbare Wirkung einer Option vor der Wahl (dieselben Effekt-Schlüssel wie
 // resolveEvent, ohne RNG und ohne State-Änderung). ton: plus | minus | neutral.
-export function optionWirkungen(state, opt) {
+// Mit Zielobjekt zeigt der Zustand die tatsächlich angewandte Änderung (1–5).
+export function optionWirkungen(state, opt, objekt = null) {
   const eff = opt?.effekt || {};
   const euro = (betrag) => `${Math.round(aktuellerBetrag(state, Math.abs(betrag))).toLocaleString('de-DE')} €`;
   const zeichen = (n) => (n > 0 ? '+' : '−');
@@ -232,7 +233,10 @@ export function optionWirkungen(state, opt) {
   if (typeof eff.haushaltsMiete === 'number' && eff.haushaltsMiete !== 0) {
     liste.push({ text: `eigene Miete ${zeichen(eff.haushaltsMiete)}${Math.round(Math.abs(eff.haushaltsMiete) * 100)} %`, ton: eff.haushaltsMiete > 0 ? 'minus' : 'plus' });
   }
-  if (typeof eff.zustand === 'number' && eff.zustand !== 0) liste.push({ text: `Zustand ${zeichen(eff.zustand)}${Math.abs(eff.zustand)}`, ton: eff.zustand > 0 ? 'plus' : 'minus' });
+  if (typeof eff.zustand === 'number' && eff.zustand !== 0) {
+    const delta = objekt ? Math.max(1, Math.min(5, objekt.zustand + eff.zustand)) - objekt.zustand : eff.zustand;
+    if (delta !== 0) liste.push({ text: `Zustand ${zeichen(delta)}${Math.abs(delta)}`, ton: delta > 0 ? 'plus' : 'minus' });
+  }
   if (typeof eff.familie === 'number' && eff.familie !== 0) liste.push({ text: `Familie ${zeichen(eff.familie)}${Math.abs(eff.familie)}`, ton: eff.familie > 0 ? 'plus' : 'minus' });
   if (typeof eff.mieterZufriedenheit === 'number' && eff.mieterZufriedenheit !== 0) {
     liste.push(eff.mieterZufriedenheit > 0 ? { text: 'Mieter zufriedener', ton: 'plus' } : { text: 'Mieter unzufriedener', ton: 'minus' });
