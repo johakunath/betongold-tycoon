@@ -601,14 +601,13 @@
   {
     "id": "untervermietung",
     "titel": "Untervermietung angefragt",
-    "text": "Deine Mieterin möchte ein Zimmer untervermieten, weil sich ihre Lebenslage geändert hat. Ein Anspruch besteht oft, ein Zuschlag ist verhandelbar.",
+    "text": "Deine Mieterin möchte ein Zimmer untervermieten, weil sich ihre Lebenslage geändert hat. Bei berechtigtem Interesse hat sie einen Anspruch auf Zustimmung (§ 553 BGB); verhandelbar ist nur ein Zuschlag.",
     "kategorie": "mieter",
     "gewicht": 0.7,
     "bedingung": { "vermietet": true, "einmalig": false, "cooldownMonate": 60 },
     "optionen": [
       {"text": "Zustimmen mit Untermietzuschlag", "effekt": {"miete": 40, "mieterZufriedenheit": 0.1}, "folge": "Etwas mehr Miete; die Mieterin bleibt."},
-      {"text": "Ohne Zuschlag zustimmen", "effekt": {"mieterZufriedenheit": 0.3}, "folge": "Großzügig; das Mietverhältnis wird stabiler."},
-      {"text": "Ablehnen", "effekt": {"mieterZufriedenheit": -0.2, "mieterKonflikt": 0.3}, "folge": "Rechtlich heikel und schlecht fürs Verhältnis."}
+      {"text": "Ohne Zuschlag zustimmen", "effekt": {"mieterZufriedenheit": 0.3}, "folge": "Großzügig; das Mietverhältnis wird stabiler."}
     ]
   },
   {
