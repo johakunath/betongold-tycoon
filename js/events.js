@@ -159,7 +159,7 @@ export function resolveEvent(state, optionIndex) {
   const objekt = aktiv.objektIndex >= 0 ? state.portfolio[aktiv.objektIndex] : null;
   const eff = opt.effekt || {};
 
-  if (aktiv.arcId) schliesseAktivenArc(state, aktiv.arcId);
+  const aktiverArc = aktiv.arcId ? schliesseAktivenArc(state, aktiv.arcId) : null;
 
   // Eventbeträge stehen in Euro des Spielstarts und laufen mit dem Preisniveau.
   const euro = (betrag) => Math.round(aktuellerBetrag(state, betrag));
@@ -170,6 +170,9 @@ export function resolveEvent(state, optionIndex) {
   // Entgangene Miete ist keine Reparatur: direkt aus dem Tagesgeld, die
   // Objektrücklage bleibt unberührt.
   if (typeof eff.mietausfall === 'number' && eff.mietausfall > 0) state.cash -= euro(eff.mietausfall);
+  // Rückzahlung eines gestundeten Betrags: genau der damals ausgefallene
+  // Nominalbetrag, nicht neu mit dem Preisniveau hochgerechnet.
+  if (eff.rueckstandErstatten && aktiverArc?.betrag) state.cash += aktiverArc.betrag;
   if (typeof eff.ruecklage === 'number' && objekt) {
     objekt.ruecklage = Math.max(0, objekt.ruecklage + euro(eff.ruecklage));
   }
@@ -207,7 +210,10 @@ export function resolveEvent(state, optionIndex) {
       : eff.familie;
     state.familienzufriedenheit = Math.max(0, Math.min(100, state.familienzufriedenheit + familienEffekt));
   }
-  if (opt.arc && objekt) planeObjektArc(state, objekt, opt.arc);
+  if (opt.arc && objekt) {
+    const betrag = typeof eff.mietausfall === 'number' && eff.mietausfall > 0 ? euro(eff.mietausfall) : undefined;
+    planeObjektArc(state, objekt, betrag ? { ...opt.arc, betrag } : opt.arc);
+  }
 
   state.log.push({
     monat: state.monat,
@@ -240,6 +246,10 @@ export function optionWirkungen(state, opt, objekt, ev = null) {
   }
   if (typeof eff.mietausfall === 'number' && eff.mietausfall > 0) {
     liste.push({ text: `−${fmt(runde(eff.mietausfall))} Mietausfall`, ton: 'minus' });
+  }
+  if (eff.rueckstandErstatten) {
+    const arc = state.objektArcs?.find((a) => a.id === state.aktivesEvent?.arcId);
+    if (arc?.betrag) liste.push({ text: `+${fmt(arc.betrag)} Rückzahlung`, ton: 'plus' });
   }
   if (typeof eff.ruecklage === 'number' && eff.ruecklage !== 0 && ohneZielErlaubt(ziel)) {
     const betrag = ziel ? Math.max(0, ziel.ruecklage + runde(eff.ruecklage)) - ziel.ruecklage : runde(eff.ruecklage);

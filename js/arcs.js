@@ -22,6 +22,7 @@ export function planeObjektArc(state, objekt, plan) {
     status: 'laufend',
   };
   if (plan.mieterGebunden) arc.mieter = mieterKennung(objekt);
+  if (plan.betrag) arc.betrag = plan.betrag; // z. B. gestundete Miete in laufenden Euro
   state.objektArcs.push(arc);
   state.log.push({ monat: state.monat, text: `${objekt.titel}: „${arc.titel}“ läuft weiter; nächste Klärung in ${arc.faelligMonat - state.monat} Monaten.` });
   return arc;

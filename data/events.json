@@ -631,7 +631,7 @@
     "gewicht": 0,
     "bedingung": { "nurArc": true },
     "optionen": [
-      {"text": "Rückzahlung annehmen", "effekt": {"cash": 900}, "folge": "Das Geld kommt zurück; das Vertrauen ist gewachsen."},
+      {"text": "Rückzahlung annehmen", "effekt": {"rueckstandErstatten": true}, "folge": "Das Geld kommt zurück; das Vertrauen ist gewachsen."},
       {"text": "Den Rückstand erlassen", "effekt": {"mieterZufriedenheit": 0.4, "familie": 1}, "folge": "Großzügig; der Mieter wird dir lange treu bleiben."}
     ]
   },

@@ -1094,13 +1094,16 @@ function kaufeGuenstigesEigenheim(state) {
     return { g, o, ausfall: cashVor - g.cash };
   };
   const { g, o, ausfall } = stundung('stundung-arc');
+  g.config.preisniveau.inflation = 0.5; // starke Teuerung: die Rückzahlung bleibt trotzdem nominal gleich
   const ruecklageNachher = o.ruecklage;
   for (let m = 0; m < 6 && !g.aktivesEvent; m++) advanceMonths(g, 1, () => {});
   const faellig = g.aktivesEvent?.eventId === 'arc-stundung-rueckzahlung';
   const cashArc = g.cash;
+  const chip = faellig ? optionWirkungen(g, getEvent('arc-stundung-rueckzahlung').optionen[0], o)[0]?.text : '';
   if (faellig) resolveEvent(g, 0);
-  check(o.mieter && ausfall === 900 && ruecklageNachher === 5000 && faellig && g.cash - cashArc >= 900,
-    `Stundung: ${ausfall} € Mietausfall aus dem Tagesgeld, Rücklage unberührt, nach sechs Monaten Rückzahlung als Folgeentscheidung`);
+  check(o.mieter && ausfall === 900 && ruecklageNachher === 5000 && faellig && g.cash - cashArc === ausfall
+    && chip === `+${ausfall.toLocaleString('de-DE')} € Rückzahlung`,
+    `Stundung: ${ausfall} € Mietausfall aus dem Tagesgeld, Rücklage unberührt, nach sechs Monaten Rückzahlung von genau ${g.cash - cashArc} €`);
 
   const { g: g2, o: o2 } = stundung('stundung-nachmieter');
   o2.mieter = { ...o2.mieter, id: 'nachmieter', eingezogen: g2.monat + 1 };

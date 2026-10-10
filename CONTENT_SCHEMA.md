@@ -178,7 +178,9 @@ Auszug), `mieterKonflikt` (±), `auszug` (true → Mieter kündigt),
 `familie` (± Punkte), `zeit` (± h einmalig), `ruecklage` (±€ direkt),
 `sondertilgung` (+€; zieht denselben Betrag aus Cash und Restschuld),
 `mietausfall` (+€ entgangene Miete, direkt aus dem Tagesgeld, nie aus der
-Objektrücklage),
+Objektrücklage; ein Arc derselben Option merkt sich den Betrag),
+`rueckstandErstatten` (true, nur in Arc-Folgen: zahlt genau diesen
+gespeicherten Betrag zurück),
 `haushaltsMiete` (relative Änderung der eigenen Familienmiete, z. B. 0,15 =
 neuer Vertrag +15 %). Eurobeträge stehen in Euro des Spielstarts und laufen
 mit dem Preisniveau. Der Event-Dialog zeigt diese Effekte vor der Wahl als
