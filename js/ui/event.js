@@ -1,8 +1,8 @@
 ﻿// event.js — Screen 8: Event-Modal. Zeigt das Dilemma mit 2–3 Optionen; nach
 // der Wahl die Folge, dann weiter. Blockiert (die Zeit ist ohnehin pausiert).
 
-import { aktivesEventInfo, resolveEvent } from '../events.js?v=60';
-import { textInLaufendenEuro } from '../preisniveau.js?v=60';
+import { aktivesEventInfo, optionWirkungen, resolveEvent } from '../events.js?v=61';
+import { textInLaufendenEuro } from '../preisniveau.js?v=61';
 
 let ctx = null;
 
@@ -32,8 +32,17 @@ export function zeigeEvent() {
   document.getElementById('event-text').textContent =
     textInLaufendenEuro(state, (objekt ? `${objekt.titel}: ` : '') + ev.text);
 
+  // Jede Option zeigt ihre direkte Wirkung vor der Wahl; die Folge-Erzählung
+  // kommt wie bisher erst danach.
   document.getElementById('event-optionen').innerHTML = ev.optionen
-    .map((opt, i) => `<button class="event-option" data-opt="${i}">${textInLaufendenEuro(state, opt.text)}</button>`)
+    .map((opt, i) => {
+      const wirkung = optionWirkungen(state, opt, objekt || null, ev)
+        .map((w) => `<span class="event-wirkung-${w.ton}">${w.text}</span>`)
+        .join('');
+      return `<button class="event-option" data-opt="${i}">` +
+        `<span class="event-option-text">${textInLaufendenEuro(state, opt.text)}</span>` +
+        `<span class="event-wirkung">${wirkung}</span></button>`;
+    })
     .join('');
   document.getElementById('event-optionen').hidden = false;
   document.getElementById('event-folge').hidden = true;

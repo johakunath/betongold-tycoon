@@ -217,6 +217,11 @@ Einzelpositionen sind farbneutral.
 - Benachrichtigungspanel und Menüs verwenden dieselbe dunkle Panelhierarchie
   wie die App. Ausgeblendete sichtbare Menülabels behalten einen zugänglichen
   Namen.
+- Event-Dialog: Jede Option zeigt ihre direkte Wirkung als kleine Chips
+  (`events.optionWirkungen`): Euro, Familie, Zustand, Miete, Mieterstimmung,
+  Auszug, terminierte Folge. Grün = günstig, Terrakotta = belastend, neutral
+  für Folgen. Die erzählte Folge erscheint wie bisher erst nach der Wahl. Ein
+  beim Laden offenes Event öffnet sofort wieder.
 
 ## 5. Bildsprache
 

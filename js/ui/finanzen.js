@@ -1,12 +1,12 @@
 ﻿// finanzen.js — UI für Tagesgeldkonto, echtes ETF-Depot und Sparplan.
 // Die vermögensneutralen Buchungen selbst bleiben DOM-frei in etf.js.
 
-import { monatsWerte, nettovermoegen } from '../engine.js?v=60';
-import { fmtEUR, fmtEURSigniert } from './util.js?v=60';
-import { etfVerkaufVorschau } from '../etf.js?v=60';
-import { kapitalertragVorschau, renditeNachSteuer } from '../kapitalsteuer.js?v=60';
-import { fairerWert } from '../market.js?v=60';
-import { haushaltsUeberschussMonat, liquiditaetsPufferMonate } from './kennzahlen.js?v=60';
+import { monatsWerte, nettovermoegen } from '../engine.js?v=61';
+import { fmtEUR, fmtEURSigniert } from './util.js?v=61';
+import { etfVerkaufVorschau } from '../etf.js?v=61';
+import { kapitalertragVorschau, renditeNachSteuer } from '../kapitalsteuer.js?v=61';
+import { fairerWert } from '../market.js?v=61';
+import { haushaltsUeberschussMonat, liquiditaetsPufferMonate } from './kennzahlen.js?v=61';
 
 let ctx;
 

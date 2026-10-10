@@ -3,6 +3,18 @@
 Kompaktes, chronologisches Log. Ältere Einträge sind verdichtet; Details
 bleiben in `DECISIONS.md` und den Fachdocs nachvollziehbar.
 
+## 2026-10-09 (2)
+
+- **Content-Paket Ereignisse (54 statt 34).** 19 neue Zufallsevents für
+  Haushalt, Ruhestand (`nachRuhestand`), Eigenheim (`mitEigenheim`), Wetter
+  und Mieteranliegen, dazu das Arc „Stundung → Rückzahlung".
+- **Save v24:** mietergebundene Objektgeschichten (Stundung) und Effekt
+  `mietausfall`.
+- **UI v61 — Wirkungs-Chips im Event-Dialog.** Jede Option zeigt Euro,
+  Familie, Zustand, Miete, Mieterstimmung, Auszug und terminierte Folgen vor
+  der Wahl. Ein beim Laden offenes Event öffnet sofort wieder (vorher erst beim
+  nächsten Zeitschritt).
+
 ## 2026-10-09
 
 - **Save v23 — Hauszuschlag auf den Mietspiegel.** Häuser nutzen den Wohnungs-Mietspiegel

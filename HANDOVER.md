@@ -1,8 +1,25 @@
 # HANDOVER.md — aktueller Projektstand
 
-**Stand:** 09.10.2026 (Save v23 / UI v60 — Hauszuschlag auf den Mietspiegel)
+**Stand:** 09.10.2026 (Save v24 / UI v61 — Event-Wirkungs-Chips, Content-Paket)
 
-**Versionen:** SAVE_VERSION = 23, UI_VERSION = 60
+**Versionen:** SAVE_VERSION = 24, UI_VERSION = 61
+
+## UI v61 — Event-Wirkungs-Chips und Content-Paket (09.10.2026)
+
+- `events.optionWirkungen(state, opt)` übersetzt die Effekt-Schlüssel einer
+  Option RNG- und State-frei in Chips `{ text, ton }`; `ui/event.js` rendert
+  sie unter dem Optionstext (`.event-wirkung`). Neue Effekt-Schlüssel dort
+  mitpflegen.
+- `main.js` öffnet ein offenes `state.aktivesEvent` nach Autosave-Laden,
+  Slot-Laden und Import sofort (vorher erst beim nächsten Tick).
+- `data/events.json`: 19 neue Zufallsevents und das Arc
+  `mieter-jobverlust` → `arc-stundung-rueckzahlung`. Neue Bedingungen
+  `nachRuhestand` und `mitEigenheim` in `events.istErfuellbar`.
+- Save v24: Arcs mit `mieterGebunden` speichern `arc.mieter` (Dossier +
+  Einzug) und enden still bei einem anderen Mietverhältnis; neuer Effekt
+  `mietausfall` zieht entgangene Miete direkt aus dem Tagesgeld.
+- Balance (300 Seeds) 13/13, Familienmarkt und Regressionen grün; die
+  Event-Wahrscheinlichkeit pro Monat ist unverändert, nur der Pool breiter.
 
 Das Spiel ist öffentlich gehostet: <https://johakunath.github.io/betongold-tycoon/>
 (GitHub Pages aus `main`/Wurzel, Deployment = `git push`).

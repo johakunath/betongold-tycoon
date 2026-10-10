@@ -2,8 +2,8 @@
 // Fachmodule protokollieren hier bewusst getroffene Entscheidungen; die UI
 // leitet daraus Monatsanlass, Prüfstand und kurze Vorher/Nachher-Momente ab.
 
-import { getListing } from './content.js?v=60';
-import { naechsteLebensphase } from './life.js?v=60';
+import { getListing } from './content.js?v=61';
+import { naechsteLebensphase } from './life.js?v=61';
 
 function historie(state) {
   if (!Array.isArray(state.entscheidungsHistorie)) state.entscheidungsHistorie = [];

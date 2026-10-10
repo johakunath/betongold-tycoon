@@ -3,9 +3,9 @@
 
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { setzeInhalte, getListing } from '../js/content.js?v=60';
-import { newGame } from '../js/state.js?v=60';
-import { initialisiereMarkt, tickMarkt, sichtbareListings } from '../js/market.js?v=60';
+import { setzeInhalte, getListing } from '../js/content.js?v=61';
+import { newGame } from '../js/state.js?v=61';
+import { initialisiereMarkt, tickMarkt, sichtbareListings } from '../js/market.js?v=61';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const listings = JSON.parse(await readFile(`${root}data/listings.json`, 'utf8'));

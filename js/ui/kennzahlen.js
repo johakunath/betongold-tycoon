@@ -2,9 +2,9 @@
 // Die Engine bleibt DOM-frei; diese Ableitungen benennen dieselben Beträge auf
 // HUD, Zentrale, Finanzen, Stadt und Finanzierung identisch.
 
-import { monatsWerte } from '../engine.js?v=60';
-import { fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=60';
-import { monatsAnlass } from '../gameplay.js?v=60';
+import { monatsWerte } from '../engine.js?v=61';
+import { fixkostenMonat, instandhaltungMonat } from '../immobilie.js?v=61';
+import { monatsAnlass } from '../gameplay.js?v=61';
 
 export function objektCashflowMonat(state, objekt, vermietet = objekt.vermietet && !objekt.renovierung) {
   const miete = vermietet ? Number(objekt.kaltmiete) || 0 : 0;

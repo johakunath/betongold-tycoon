@@ -124,7 +124,7 @@ alles andere ist Menschenkenntnis.
 
 ## data/events.json (Phase 3)
 
-34 Events: 26 zufällig ziehbare Inhalte, 5 ausschließlich terminierte
+54 Events: 45 zufällig ziehbare Inhalte, 6 ausschließlich terminierte
 Arc-Folgen und 3 Auftaktmomente. 2–3 Optionen, **keine strikt dominante** (PLAN §14).
 
 ```jsonc
@@ -145,7 +145,10 @@ Arc-Folgen und 3 Auftaktmomente. 2–3 Optionen, **keine strikt dominante** (PLA
     "kindAlterMax": 15,           // … (Jahre, inkl.; Auszugsalter beendet den Haushalt)
     "autoVorhanden": true,        // nur mit eingeplantem Auto (Pauschale > 0, ab autoAbMonat, Altersfaktor > 0)
     "vorRuhestand": true,         // nur vor dem Rentenalter
-    "nurMieter": true             // nur ohne Eigenheim (z. B. Eigenbedarfskündigung)
+    "nachRuhestand": true,        // nur ab dem Rentenalter (Ruhestandsthemen)
+    "nurMieter": true,            // nur ohne Eigenheim (z. B. Eigenbedarfskündigung)
+    "mitEigenheim": true,         // nur mit Eigenheim
+    "eigenheimMindestAlter": 20   // Eigenheim mindestens so viele Jahre alt (Baujahr)
   },
   "optionen": [
     {
@@ -169,15 +172,25 @@ Arc-Folgen und 3 Auftaktmomente. 2–3 Optionen, **keine strikt dominante** (PLA
 }
 ```
 
+`"kostenAmEigenheim": true` (Event-Ebene, neben `kategorie`): Bauarbeiten am
+eigenen Zuhause. Bei Eigentümern laufen negative `cash`-Beträge zuerst über die
+Rücklage des Eigenheims, Mieterhaushalte zahlen aus dem Tagesgeld.
+
 Effekt-Schlüssel (alle optional, werden ohne RNG verrechnet):
 `cash` (±€, aus Rücklage/Cash), `zustand` (± Stufe am Zielobjekt),
 `miete` (± Kaltmiete am Zielobjekt), `mieterZufriedenheit` (±, beeinflusst
 Auszug), `mieterKonflikt` (±), `auszug` (true → Mieter kündigt),
 `familie` (± Punkte), `zeit` (± h einmalig), `ruecklage` (±€ direkt),
 `sondertilgung` (+€; zieht denselben Betrag aus Cash und Restschuld),
+`mietausfall` (+€ entgangene Miete, direkt aus dem Tagesgeld, nie aus der
+Objektrücklage; ein Arc derselben Option merkt sich den Betrag),
+`rueckstandErstatten` (true, nur in Arc-Folgen: zahlt genau diesen
+gespeicherten Betrag zurück),
 `haushaltsMiete` (relative Änderung der eigenen Familienmiete, z. B. 0,15 =
 neuer Vertrag +15 %). Eurobeträge stehen in Euro des Spielstarts und laufen
-mit dem Preisniveau.
+mit dem Preisniveau. Der Event-Dialog zeigt diese Effekte vor der Wahl als
+Wirkungs-Chips (`optionWirkungen`); `zeit` wird derzeit nicht verrechnet und
+daher nicht angezeigt.
 `kategorie:"kind"` zählt gegen das Max-2-Kinder-Event-Limit (PLAN §5.9) und
 braucht immer mindestens ein Kind im Haushalt; `kindAlterMin/-Max` grenzen das
 zusätzlich ein. Die Haushaltsbedingungen filtern nur die Kandidatenliste nach dem
@@ -185,7 +198,9 @@ festen Event-Roll; die RNG-Position im Tick bleibt unverändert.
 Zielobjekt-Wahl: seeded unter den passenden Objekten; ohne Zielbezug
 (`haushalt`/`kind`) wirkt der Effekt auf den Haushalt.
 
-`option.arc` plant eine persistente Objektgeschichte. `folgeEventId` muss auf
+`option.arc` plant eine persistente Objektgeschichte; mit
+`"mieterGebunden": true` endet sie still, wenn bis zur Fälligkeit ein anderes
+oder kein Mietverhältnis besteht. `folgeEventId` muss auf
 ein vorhandenes Event mit `gewicht: 0` und `bedingung.nurArc: true` zeigen.
 Solche Folgeevents sind vom zufälligen Pool ausgeschlossen und werden nur im
 gespeicherten Fälligkeitsmonat aktiviert. Arc-IDs, Folgeevent-IDs und

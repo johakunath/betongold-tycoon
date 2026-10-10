@@ -1294,12 +1294,12 @@ async function main() {
     // Lebensphasen auch im echten Renderpfad: Ruhestands-HUD und private
     // Endbilanz werden mit einem isolierten deterministischen Teststate gezeigt.
     const lebensphasenUi = await auswerten(`(async () => {
-      const { newGame } = await import('/js/state.js?v=60');
-      const { initialisiereMarkt } = await import('/js/market.js?v=60');
-      const { advanceMonths } = await import('/js/engine.js?v=60');
-      const { resolveEvent } = await import('/js/events.js?v=60');
-      const { updateHud } = await import('/js/ui/shell.js?v=60');
-      const { zeigeEnde } = await import('/js/ui/endgame.js?v=60');
+      const { newGame } = await import('/js/state.js?v=61');
+      const { initialisiereMarkt } = await import('/js/market.js?v=61');
+      const { advanceMonths } = await import('/js/engine.js?v=61');
+      const { resolveEvent } = await import('/js/events.js?v=61');
+      const { updateHud } = await import('/js/ui/shell.js?v=61');
+      const { zeigeEnde } = await import('/js/ui/endgame.js?v=61');
       const rente = newGame({ seedText: 'browser-rente' });
       rente.monat = (rente.config.zeit.rentenAlter - rente.config.zeit.startAlter) * 12;
       updateHud(rente, 0);

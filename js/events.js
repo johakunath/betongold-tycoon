@@ -1,10 +1,10 @@
 ﻿// events.js — Dilemma-Events: monatlicher Roll (feste RNG-Position im Tick)
 // und Auflösung ohne RNG. Formeln: ECONOMY_MODEL §18. DOM-frei.
 
-import { rngFloat, zahleReparatur } from './state.js?v=60';
-import { alleEvents, getEvent } from './content.js?v=60';
-import { planeObjektArc, schliesseAktivenArc } from './arcs.js?v=60';
-import { aktuellerBetrag, textInLaufendenEuro } from './preisniveau.js?v=60';
+import { rngFloat, zahleReparatur } from './state.js?v=61';
+import { alleEvents, getEvent, getListing } from './content.js?v=61';
+import { planeObjektArc, schliesseAktivenArc } from './arcs.js?v=61';
+import { aktuellerBetrag, textInLaufendenEuro } from './preisniveau.js?v=61';
 
 function kalendermonat(state) {
   return ((state.config.zeit.startMonat - 1 + state.monat) % 12) + 1;
@@ -28,7 +28,8 @@ function passendeObjekte(state, ev) {
 }
 
 // Haushaltsbedingungen (CONTENT_SCHEMA): Kinder im Haushalt mit passendem
-// Alter, ein laufend eingeplantes Auto, Erwerbsphase vor dem Ruhestand.
+// Alter, ein laufend eingeplantes Auto, Erwerbsphase oder Ruhestand,
+// Mieter- oder Eigenheimhaushalt.
 function hatKindImAlter(state, minAlter = 0, maxAlter = Infinity) {
   const h = state.config.haushalt;
   return (h.kinder || []).some((kind) => {
@@ -48,12 +49,21 @@ function hatAuto(state) {
   return (stufe?.faktor ?? 1) > 0;
 }
 
+// Alter des Eigenheims in Jahren (Baujahr aus dem Objekt oder seinem Listing).
+function eigenheimAlter(state) {
+  const heim = state.eigenheim;
+  if (!heim) return null;
+  const baujahr = Number(heim.baujahr ?? getListing(heim.listingId)?.baujahr);
+  if (!Number.isFinite(baujahr)) return null;
+  return state.config.zeit.startJahr + state.monat / 12 - baujahr;
+}
+
 function istImRuhestand(state) {
   const z = state.config.zeit;
   return z.startAlter + state.monat / 12 >= z.rentenAlter;
 }
 
-function istErfuellbar(state, ev) {
+export function istErfuellbar(state, ev) {
   const b = ev.bedingung || {};
   if (b.nurArc) return false;
   if (ev.kategorie === 'auftakt') return false; // deterministische Auftaktmomente, kein Zufallspool
@@ -66,7 +76,10 @@ function istErfuellbar(state, ev) {
   if (brauchtKind && !hatKindImAlter(state, b.kindAlterMin ?? 0, b.kindAlterMax ?? Infinity)) return false;
   if (b.autoVorhanden && !hatAuto(state)) return false;
   if (b.vorRuhestand && istImRuhestand(state)) return false;
+  if (b.nachRuhestand && !istImRuhestand(state)) return false;
   if (b.nurMieter && state.eigenheim) return false;
+  if (b.mitEigenheim && !state.eigenheim) return false;
+  if (b.eigenheimMindestAlter != null && !(eigenheimAlter(state) >= b.eigenheimMindestAlter)) return false;
 
   const brauchtObjekt = b.brauchtObjekt || ev.kategorie === 'objekt' || ev.kategorie === 'mieter';
   if (brauchtObjekt && passendeObjekte(state, ev).length === 0) return false;
@@ -156,14 +169,24 @@ export function resolveEvent(state, optionIndex) {
   const objekt = aktiv.objektIndex >= 0 ? state.portfolio[aktiv.objektIndex] : null;
   const eff = opt.effekt || {};
 
-  if (aktiv.arcId) schliesseAktivenArc(state, aktiv.arcId);
+  const aktiverArc = aktiv.arcId ? schliesseAktivenArc(state, aktiv.arcId) : null;
 
   // Eventbeträge stehen in Euro des Spielstarts und laufen mit dem Preisniveau.
   const euro = (betrag) => Math.round(aktuellerBetrag(state, betrag));
   if (typeof eff.cash === 'number') {
-    if (eff.cash < 0) zahleReparatur(state, objekt, euro(-eff.cash));
+    // Bauarbeiten am eigenen Zuhause (kostenAmEigenheim) laufen bei
+    // Eigentümern wie Objektkosten zuerst über die Eigenheim-Rücklage;
+    // Mieterhaushalte zahlen aus dem Tagesgeld.
+    const kostenObjekt = objekt ?? (ev.kostenAmEigenheim && state.eigenheim ? state.eigenheim : null);
+    if (eff.cash < 0) zahleReparatur(state, kostenObjekt, euro(-eff.cash));
     else state.cash += euro(eff.cash);
   }
+  // Entgangene Miete ist keine Reparatur: direkt aus dem Tagesgeld, die
+  // Objektrücklage bleibt unberührt.
+  if (typeof eff.mietausfall === 'number' && eff.mietausfall > 0) state.cash -= euro(eff.mietausfall);
+  // Rückzahlung eines gestundeten Betrags: genau der damals ausgefallene
+  // Nominalbetrag, nicht neu mit dem Preisniveau hochgerechnet.
+  if (eff.rueckstandErstatten && aktiverArc?.betrag) state.cash += aktiverArc.betrag;
   if (typeof eff.ruecklage === 'number' && objekt) {
     objekt.ruecklage = Math.max(0, objekt.ruecklage + euro(eff.ruecklage));
   }
@@ -201,7 +224,10 @@ export function resolveEvent(state, optionIndex) {
       : eff.familie;
     state.familienzufriedenheit = Math.max(0, Math.min(100, state.familienzufriedenheit + familienEffekt));
   }
-  if (opt.arc && objekt) planeObjektArc(state, objekt, opt.arc);
+  if (opt.arc && objekt) {
+    const betrag = typeof eff.mietausfall === 'number' && eff.mietausfall > 0 ? euro(eff.mietausfall) : undefined;
+    planeObjektArc(state, objekt, betrag ? { ...opt.arc, betrag } : opt.arc);
+  }
 
   state.log.push({
     monat: state.monat,
@@ -209,6 +235,75 @@ export function resolveEvent(state, optionIndex) {
   });
   state.aktivesEvent = null;
   return { ev, opt, objekt };
+}
+
+// Sichtbare Wirkung einer Option vor der Wahl (ohne RNG und ohne
+// State-Änderung). ton: plus | minus | neutral. Mit bekanntem Ziel
+// (objekt = Zielobjekt oder null bei Haushaltsevents) spiegelt die Vorschau
+// genau die Grenzen von resolveEvent: Zustand 1–5, Familie 0–100, Rücklage und
+// Miete ≥ 0, Sondertilgung höchstens Restschuld, Mietereffekte nur mit Mieter,
+// Folge-Arcs nur mit Objekt. Ohne objekt-Argument: Rohwerte (Dokumentation).
+export function optionWirkungen(state, opt, objekt, ev = null) {
+  const eff = opt?.effekt || {};
+  const zielBekannt = objekt !== undefined;
+  const ziel = objekt || null;
+  const runde = (betrag) => Math.round(aktuellerBetrag(state, betrag));
+  const fmt = (betrag) => `${Math.abs(betrag).toLocaleString('de-DE')} €`;
+  const zeichen = (n) => (n > 0 ? '+' : '−');
+  const ton = (n) => (n > 0 ? 'plus' : 'minus');
+  const liste = [];
+  const ohneZielErlaubt = (bedarf) => !zielBekannt || bedarf;
+
+  if (typeof eff.cash === 'number' && eff.cash !== 0) {
+    const betrag = eff.cash < 0 ? -runde(-eff.cash) : runde(eff.cash);
+    liste.push({ text: `${zeichen(betrag)}${fmt(betrag)}`, ton: ton(betrag) });
+  }
+  if (typeof eff.mietausfall === 'number' && eff.mietausfall > 0) {
+    liste.push({ text: `−${fmt(runde(eff.mietausfall))} Mietausfall`, ton: 'minus' });
+  }
+  if (eff.rueckstandErstatten) {
+    const arc = state.objektArcs?.find((a) => a.id === state.aktivesEvent?.arcId);
+    if (arc?.betrag) liste.push({ text: `+${fmt(arc.betrag)} Rückzahlung`, ton: 'plus' });
+  }
+  if (typeof eff.ruecklage === 'number' && eff.ruecklage !== 0 && ohneZielErlaubt(ziel)) {
+    const betrag = ziel ? Math.max(0, ziel.ruecklage + runde(eff.ruecklage)) - ziel.ruecklage : runde(eff.ruecklage);
+    if (betrag !== 0) liste.push({ text: `Rücklage ${zeichen(betrag)}${fmt(betrag)}`, ton: ton(betrag) });
+  }
+  if (typeof eff.sondertilgung === 'number' && eff.sondertilgung > 0 && ohneZielErlaubt(ziel?.darlehen)) {
+    const betrag = ziel ? Math.min(ziel.darlehen.restschuld, Math.max(0, runde(eff.sondertilgung))) : runde(eff.sondertilgung);
+    if (betrag > 0) liste.push({ text: `Sondertilgung ${fmt(Math.round(betrag))}`, ton: 'neutral' });
+  }
+  if (typeof eff.miete === 'number' && eff.miete !== 0 && ohneZielErlaubt(ziel)) {
+    const betrag = ziel ? Math.max(0, ziel.kaltmiete + runde(eff.miete)) - ziel.kaltmiete : runde(eff.miete);
+    if (betrag !== 0) liste.push({ text: `Miete ${zeichen(betrag)}${fmt(Math.round(betrag))}/Monat`, ton: ton(betrag) });
+  }
+  if (typeof eff.haushaltsMiete === 'number' && eff.haushaltsMiete !== 0) {
+    liste.push({ text: `eigene Miete ${zeichen(eff.haushaltsMiete)}${Math.round(Math.abs(eff.haushaltsMiete) * 100)} %`, ton: eff.haushaltsMiete > 0 ? 'minus' : 'plus' });
+  }
+  if (typeof eff.zustand === 'number' && eff.zustand !== 0 && ohneZielErlaubt(ziel)) {
+    const delta = ziel ? Math.max(1, Math.min(5, ziel.zustand + eff.zustand)) - ziel.zustand : eff.zustand;
+    if (delta !== 0) liste.push({ text: `Zustand ${zeichen(delta)}${Math.abs(delta)}`, ton: ton(delta) });
+  }
+  if (typeof eff.familie === 'number' && eff.familie !== 0) {
+    const roh = ev?.kategorie === 'kind' && state.eigenheim && eff.familie < 0
+      ? eff.familie * state.config.eigenheim.kinderEventMalusFaktor
+      : eff.familie;
+    const aktuell = state.familienzufriedenheit;
+    const delta = zielBekannt && Number.isFinite(aktuell) ? Math.max(0, Math.min(100, aktuell + roh)) - aktuell : roh;
+    const anzeige = Math.round(delta * 10) / 10;
+    if (anzeige !== 0) liste.push({ text: `Familie ${zeichen(anzeige)}${Math.abs(anzeige).toLocaleString('de-DE')}`, ton: ton(anzeige) });
+  }
+  const mitMieter = ohneZielErlaubt(ziel?.mieter);
+  // resolveEvent verrechnet mieterKonflikt als Abzug von der Zufriedenheit;
+  // die Vorschau zeigt deshalb eine einzige Netto-Stimmung.
+  const stimmung = (Number(eff.mieterZufriedenheit) || 0) - (Number(eff.mieterKonflikt) || 0);
+  if (mitMieter && Math.abs(stimmung) > 1e-9) {
+    liste.push(stimmung > 0 ? { text: 'Mieter zufriedener', ton: 'plus' } : { text: 'Mieter unzufriedener', ton: 'minus' });
+  }
+  if (mitMieter && eff.auszug) liste.push({ text: 'Mieter zieht aus', ton: 'minus' });
+  if (opt?.arc && ohneZielErlaubt(ziel)) liste.push({ text: `Folge in ${opt.arc.nachMonaten} Monaten`, ton: 'neutral' });
+  if (!liste.length) liste.push({ text: 'keine direkte Wirkung', ton: 'neutral' });
+  return liste;
 }
 
 // Für die UI: das aktive Event mit aufgelöstem Objekt-Titel.

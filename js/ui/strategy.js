@@ -1,8 +1,8 @@
 ﻿// ui/strategy.js — native Ziel- und Arbeitsmodellwahl für G/H.
 
-import { alleZielStatus, setzeEntwicklungsziel, zielStatus } from '../goals.js?v=60';
-import { arbeitsmodell, arbeitsmodellRestbindung, naechsteLebensphase, setzeArbeitsmodell } from '../life.js?v=60';
-import { fmtEUR, fmtEURSigniert } from './util.js?v=60';
+import { alleZielStatus, setzeEntwicklungsziel, zielStatus } from '../goals.js?v=61';
+import { arbeitsmodell, arbeitsmodellRestbindung, naechsteLebensphase, setzeArbeitsmodell } from '../life.js?v=61';
+import { fmtEUR, fmtEURSigniert } from './util.js?v=61';
 
 let ctx = null;
 

@@ -2,11 +2,11 @@
 // Die Stadtmotive bleiben scharf und normal belichtet; anklickbar sind nur
 // Listing-Assets aus dem tatsächlichen Katalog.
 
-import { alleListings } from '../content.js?v=60';
-import { fairerWert } from '../market.js?v=60';
-import { fmtEURKompakt } from './util.js?v=60';
-import { liquiditaetsPufferMonate, naechsterZugEmpfehlung } from './kennzahlen.js?v=60';
-import { meldungMeta } from './meldungen.js?v=60';
+import { alleListings } from '../content.js?v=61';
+import { fairerWert } from '../market.js?v=61';
+import { fmtEURKompakt } from './util.js?v=61';
+import { liquiditaetsPufferMonate, naechsterZugEmpfehlung } from './kennzahlen.js?v=61';
+import { meldungMeta } from './meldungen.js?v=61';
 
 let ctx = null;
 let filter = 'alle';

@@ -5,40 +5,40 @@
 // Bei neuen Systemen (Phase 2+) hier Checks ergänzen.
 
 import { readFile } from 'node:fs/promises';
-import { SAVE_VERSION, DEFAULT_CONFIG } from '../js/config.js?v=60';
-import { newGame, exportString, importString, rngFloat } from '../js/state.js?v=60';
+import { SAVE_VERSION, DEFAULT_CONFIG } from '../js/config.js?v=61';
+import { newGame, exportString, importString, rngFloat } from '../js/state.js?v=61';
 import {
   advanceMonths, alterGenau, gesamtMonate, istImRuhestand,
   lebensendeVorschau, monatsWerte, nettovermoegen,
-} from '../js/engine.js?v=60';
-import { setzeInhalte, getListing, getTenant } from '../js/content.js?v=60';
+} from '../js/engine.js?v=61';
+import { setzeInhalte, getListing, getTenant, getEvent } from '../js/content.js?v=61';
 import {
   initialisiereMarkt, sichtbareListings, gebotAbgeben, fairerWert,
   besichtigen, dokumenteAnfordern, gutachterBeauftragen,
-} from '../js/market.js?v=60';
+} from '../js/market.js?v=61';
 import {
   finanzierungsCashflowVorschau, kreditAngebot, kaufeObjekt, restschuldNach, nebenkostenFuer,
   sondertilgen, sondertilgungRahmen, sondertilgungVorschau,
-} from '../js/finance.js?v=60';
+} from '../js/finance.js?v=61';
 import {
   starteVermietung, neueBewerber, waehleBewerber, kannErhoehen, erhoeheMiete, marktmiete,
   mietrechtFuer, angesetzteMiete, vermietungsmodell, starteEigenbedarf, mietpreisbremse, mietspiegelMiete,
   senkeAufZulaessigeMiete,
   zahleEigenbedarfAbfindung,
-} from '../js/tenants.js?v=60';
-import { etfVerkaufVorschau, kaufeEtf, setzeSparplanEtfAnteil, verkaufeEtf } from '../js/etf.js?v=60';
-import { renovierungsOptionen, starteRenovierung } from '../js/renovation.js?v=60';
-import { resolveEvent } from '../js/events.js?v=60';
-import { kaufeEigenheim, wohnortWechselVorschau } from '../js/eigenheim.js?v=60';
-import { starteVerkauf } from '../js/verkauf.js?v=60';
-import { zieheWartemomente } from '../js/signals.js?v=60';
-import { leerstandsKosten } from '../js/ui/bewerber.js?v=60';
-import { berechneEndauswertung } from '../js/endgame.js?v=60';
-import { initialisiereStartbestand } from '../js/starter.js?v=60';
+} from '../js/tenants.js?v=61';
+import { etfVerkaufVorschau, kaufeEtf, setzeSparplanEtfAnteil, verkaufeEtf } from '../js/etf.js?v=61';
+import { renovierungsOptionen, starteRenovierung } from '../js/renovation.js?v=61';
+import { istErfuellbar, optionWirkungen, resolveEvent } from '../js/events.js?v=61';
+import { kaufeEigenheim, wohnortWechselVorschau } from '../js/eigenheim.js?v=61';
+import { starteVerkauf } from '../js/verkauf.js?v=61';
+import { zieheWartemomente } from '../js/signals.js?v=61';
+import { leerstandsKosten } from '../js/ui/bewerber.js?v=61';
+import { berechneEndauswertung } from '../js/endgame.js?v=61';
+import { initialisiereStartbestand } from '../js/starter.js?v=61';
 import {
   aktuelleAdminWerte, standardAdminWerte, wendeAdminWerteAn, planeAdminWerte,
-} from '../js/admin.js?v=60';
-import { kapitalertragVorschau, kapitalsteuerStatus } from '../js/kapitalsteuer.js?v=60';
+} from '../js/admin.js?v=61';
+import { kapitalertragVorschau, kapitalsteuerStatus } from '../js/kapitalsteuer.js?v=61';
 
 const lade = async (name) =>
   JSON.parse(await readFile(new URL(`../data/${name}`, import.meta.url), 'utf8'));
@@ -1047,6 +1047,132 @@ function kaufeGuenstigesEigenheim(state) {
   }
   check(verstoesse.length === 0 && kindEvents > 0 && autoEvents > 0,
     `Kinder-, Auto- und Erwerbs-Events respektieren den Haushalt (${kindEvents} Kinder-, ${autoEvents} Auto-Events; Verstöße: ${verstoesse.slice(0, 4).join(', ') || 'keine'})`);
+}
+
+// Ruhestands- und Eigenheim-Events respektieren ihre Haushaltsbedingung;
+// das Stundungs-Arc kommt nach sechs Monaten zurück.
+{
+  const verstoesse = [];
+  const gesehen = new Set();
+  for (let i = 0; i < 16; i++) {
+    const g = newGame({ schwierigkeit: 'schwer', seedText: `content-pack-${i}` });
+    initialisiereMarkt(g);
+    const rente = (g.config.zeit.rentenAlter - g.config.zeit.startAlter) * 12;
+    if (i % 2 === 0) kaufeGuenstigesEigenheim(g);
+    while (!g.beendet && g.monat < 720) {
+      if (g.portfolio.length === 0 && g.monat < 400) kaufeGuenstiges(g, () => true);
+      advanceMonths(g, 1, (st) => {
+        const ev = getEvent(st.aktivesEvent.eventId);
+        gesehen.add(ev.id);
+        const b = ev.bedingung || {};
+        if (b.nachRuhestand && st.monat < rente) verstoesse.push(`${ev.id}@${st.monat}`);
+        if (b.mitEigenheim && !st.eigenheim) verstoesse.push(`${ev.id}@${st.monat}`);
+        resolveEvent(st, 0);
+      });
+    }
+  }
+  const neu = ['familie-umzugshilfe', 'bad-barrierearm', 'reise-ruhestand', 'heizung-eigenheim',
+    'grundsteuer-bescheid', 'untervermietung'];
+  const fehlend = neu.filter((id) => !gesehen.has(id));
+  check(verstoesse.length === 0 && fehlend.length === 0,
+    `Content-Paket: Ruhestands-/Eigenheim-Bedingungen eingehalten (fehlend: ${fehlend.join(', ') || 'keine'}; Verstöße: ${verstoesse.slice(0, 3).join(', ') || 'keine'})`);
+
+  // Stundung: 900 € Mietausfall direkt aus dem Tagesgeld (Rücklage bleibt),
+  // nach sechs Monaten kommt die Rückzahlung als Arc – nur beim selben Mieter.
+  const stundung = (seed) => {
+    const g = newGame({ seedText: seed });
+    initialisiereMarkt(g);
+    g.config.events.eventChanceBasis = 0;
+    g.config.events.eventChanceJeObjekt = 0;
+    g.config.mieter.auszugBasisRisiko = 0;
+    kaufeGuenstiges(g, (l) => l.mietstatus.vermietet);
+    const o = g.portfolio[0];
+    o.ruecklage = 5000;
+    g.aktivesEvent = { eventId: 'mieter-jobverlust', objektIndex: 0, monat: g.monat };
+    const cashVor = g.cash;
+    resolveEvent(g, 0);
+    return { g, o, ausfall: cashVor - g.cash };
+  };
+  const { g, o, ausfall } = stundung('stundung-arc');
+  g.config.preisniveau.inflation = 0.5; // starke Teuerung: die Rückzahlung bleibt trotzdem nominal gleich
+  const ruecklageNachher = o.ruecklage;
+  for (let m = 0; m < 6 && !g.aktivesEvent; m++) advanceMonths(g, 1, () => {});
+  const faellig = g.aktivesEvent?.eventId === 'arc-stundung-rueckzahlung';
+  const cashArc = g.cash;
+  const chip = faellig ? optionWirkungen(g, getEvent('arc-stundung-rueckzahlung').optionen[0], o)[0]?.text : '';
+  if (faellig) resolveEvent(g, 0);
+  check(o.mieter && ausfall === 900 && ruecklageNachher === 5000 && faellig && g.cash - cashArc === ausfall
+    && chip === `+${ausfall.toLocaleString('de-DE')} € Rückzahlung`,
+    `Stundung: ${ausfall} € Mietausfall aus dem Tagesgeld, Rücklage unberührt, nach sechs Monaten Rückzahlung von genau ${g.cash - cashArc} €`);
+
+  const { g: g2, o: o2 } = stundung('stundung-nachmieter');
+  o2.mieter = { ...o2.mieter, id: 'nachmieter', eingezogen: g2.monat + 1 };
+  for (let m = 0; m < 8; m++) advanceMonths(g2, 1, () => {});
+  const arc2 = g2.objektArcs.find((a) => a.typ === 'stundung');
+  check(!g2.aktivesEvent && arc2?.status === 'beendet',
+    'Stundungs-Arc endet still, wenn bis zur Fälligkeit ein anderer Mieter eingezogen ist');
+}
+
+// Heizungsausfall zu Hause: nur bei mindestens 20 Jahre altem Eigenheim, Kosten
+// zuerst aus der Rücklage des Eigenheims.
+{
+  const g = newGame({ seedText: 'heizung-eigenheim' });
+  initialisiereMarkt(g);
+  kaufeGuenstigesEigenheim(g);
+  const heim = g.eigenheim;
+  const ev = getEvent('heizung-eigenheim');
+  const kalendermonat = () => ((g.config.zeit.startMonat - 1 + g.monat) % 12) + 1;
+  while (![12, 1, 2].includes(kalendermonat())) g.monat++; // Event ist an den Winter gebunden
+  heim.baujahr = 2022;
+  const neuGeeignet = istErfuellbar(g, ev);
+  heim.baujahr = 1980;
+  delete g.eventHistorie['heizung-eigenheim'];
+  const altGeeignet = istErfuellbar(g, ev);
+  heim.ruecklage = 5000;
+  const cashVor = g.cash;
+  g.aktivesEvent = { eventId: 'heizung-eigenheim', objektIndex: -1, monat: g.monat };
+  resolveEvent(g, 0);
+  check(heim && !neuGeeignet && altGeeignet && g.cash === cashVor && heim.ruecklage < 5000,
+    `Heizungsausfall: Neubau ausgeschlossen, Altbau möglich, Reparatur aus der Eigenheim-Rücklage (${5000 - heim.ruecklage} €)`);
+
+  // Barrierearmes Bad: Eigentümer zahlen aus der Eigenheim-Rücklage, Mieter aus dem Tagesgeld.
+  heim.ruecklage = 10000;
+  const cashBad = g.cash;
+  g.aktivesEvent = { eventId: 'bad-barrierearm', objektIndex: -1, monat: g.monat };
+  resolveEvent(g, 0);
+  const mieter = newGame({ seedText: 'bad-mieter' });
+  const cashMieter = mieter.cash;
+  mieter.aktivesEvent = { eventId: 'bad-barrierearm', objektIndex: -1, monat: 0 };
+  resolveEvent(mieter, 0);
+  check(g.cash === cashBad && heim.ruecklage < 10000 && mieter.cash < cashMieter,
+    `Barrierearmes Bad: Eigentümer aus der Rücklage (${10000 - heim.ruecklage} €), Mieter aus dem Tagesgeld (${cashMieter - mieter.cash} €)`);
+}
+
+// Wirkungs-Chips: zeigen die Effekte einer Option vor der Wahl, im laufenden Preisniveau.
+{
+  const g = newGame({ seedText: 'chips' });
+  const jobverlust = getEvent('mieter-jobverlust');
+  const texte = (opt) => optionWirkungen(g, opt).map((w) => `${w.ton}:${w.text}`);
+  const stundung = texte(jobverlust.optionen[0]);
+  const aufhebung = texte(jobverlust.optionen[2]);
+  g.preisniveau = 1.5;
+  const spaeter = texte(getEvent('erbschaft-klein').optionen[0]);
+  check(stundung.join('|') === 'minus:−900 € Mietausfall|plus:Mieter zufriedener|neutral:Folge in 6 Monaten'
+    && aufhebung.includes('minus:Mieter zieht aus')
+    && spaeter.join('|') === 'plus:+13.500 €|minus:Familie −2'
+    && texte({ effekt: {} }).join('') === 'neutral:keine direkte Wirkung'
+    && optionWirkungen(g, { effekt: { zustand: 1 } }, { zustand: 5 }).every((w) => !w.text.startsWith('Zustand'))
+    && optionWirkungen(g, { effekt: { zustand: -1 } }, { zustand: 1 }).every((w) => !w.text.startsWith('Zustand'))
+    && optionWirkungen(g, { effekt: { zustand: 2 } }, { zustand: 4 })[0].text === 'Zustand +1'
+    && optionWirkungen(g, { effekt: { sondertilgung: 5000 } }, { darlehen: { restschuld: 1200 } })[0].text === 'Sondertilgung 1.200 €'
+    && optionWirkungen(g, { effekt: { sondertilgung: 5000 } }, { darlehen: { restschuld: 0 } })[0].text === 'keine direkte Wirkung'
+    && optionWirkungen(g, { effekt: { sondertilgung: 5000 } }, { darlehen: null })[0].text === 'keine direkte Wirkung'
+    && optionWirkungen({ ...g, familienzufriedenheit: 99 }, { effekt: { familie: 4 } }, null)[0].text === 'Familie +1'
+    && optionWirkungen({ ...g, familienzufriedenheit: 0 }, { effekt: { familie: -2 } }, null)[0].text === 'keine direkte Wirkung'
+    && optionWirkungen(g, { effekt: { mieterZufriedenheit: 0.3, auszug: true } }, { zustand: 3, mieter: null })[0].text === 'keine direkte Wirkung'
+    && optionWirkungen(g, getEvent('hitzewelle').optionen[2], { zustand: 3, mieter: {} }).map((w) => w.text).join('|') === 'Mieter unzufriedener'
+    && optionWirkungen(g, { effekt: { mieterZufriedenheit: 0.2, mieterKonflikt: 0.2 } }, { zustand: 3, mieter: {} })[0].text === 'keine direkte Wirkung',
+  `Wirkungs-Chips: ${stundung.join(', ')} · später ${spaeter.join(', ')}`);
 }
 
 // Auto-Altersfaktor 0 % entfernt das Auto auch für Events.

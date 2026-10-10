@@ -3,20 +3,20 @@
 // DOM-frei; zirkulärer Import mit engine.js (monatsWerte) ist auf Funktions-
 // ebene unkritisch.
 
-import { rngFloat, rngNormal, bestandsMieter, entnimmRuecklage } from './state.js?v=60';
-import { getListing } from './content.js?v=60';
-import { monatsWerte } from './engine.js?v=60';
-import { fairerWert, angebotsBestandsmiete } from './market.js?v=60';
-import { aktuellerBetrag } from './preisniveau.js?v=60';
+import { rngFloat, rngNormal, bestandsMieter, entnimmRuecklage } from './state.js?v=61';
+import { getListing } from './content.js?v=61';
+import { monatsWerte } from './engine.js?v=61';
+import { fairerWert, angebotsBestandsmiete } from './market.js?v=61';
+import { aktuellerBetrag } from './preisniveau.js?v=61';
 import {
   angesetzteMiete, erhoehungsObergrenze, mieterMonat, mietpreisbremse, neueBewerber,
-} from './tenants.js?v=60';
-import { renovierungAbschluss, renovierungsOptionen } from './renovation.js?v=60';
-import { meldeWartemoment } from './signals.js?v=60';
-import { protokolliereWirkung, pruefstand } from './gameplay.js?v=60';
+} from './tenants.js?v=61';
+import { renovierungAbschluss, renovierungsOptionen } from './renovation.js?v=61';
+import { meldeWartemoment } from './signals.js?v=61';
+import { protokolliereWirkung, pruefstand } from './gameplay.js?v=61';
 import {
   eigenheimEignung, fixkostenMonat, instandhaltungMonat, gebaeudeAnteil,
-} from './immobilie.js?v=60';
+} from './immobilie.js?v=61';
 
 // ---------------------------------------------------------------------------
 // Basiszins: mean-reverting Random Walk (monatlich, aus engine.tick)
