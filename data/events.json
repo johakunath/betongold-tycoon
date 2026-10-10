@@ -494,6 +494,7 @@
     "titel": "Das Bad wird mühsam",
     "text": "Die Badewanne wird im Alter zur Hürde. Eine bodengleiche Dusche ist möglich; Zuschüsse gibt es nur mit Pflegegrad.",
     "kategorie": "haushalt",
+    "kostenAmEigenheim": true,
     "gewicht": 0.8,
     "bedingung": { "einmalig": true, "nachRuhestand": true },
     "optionen": [
@@ -518,6 +519,7 @@
     "titel": "Heizungsausfall zu Hause",
     "text": "Im eigenen Zuhause fällt mitten im Winter die Heizung aus. Der Kessel ist über 20 Jahre alt.",
     "kategorie": "haushalt",
+    "kostenAmEigenheim": true,
     "gewicht": 0.8,
     "bedingung": { "einmalig": false, "cooldownMonate": 120, "jahreszeit": "winter", "mitEigenheim": true, "eigenheimMindestAlter": 20 },
     "optionen": [

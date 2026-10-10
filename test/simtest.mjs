@@ -1134,6 +1134,18 @@ function kaufeGuenstigesEigenheim(state) {
   resolveEvent(g, 0);
   check(heim && !neuGeeignet && altGeeignet && g.cash === cashVor && heim.ruecklage < 5000,
     `Heizungsausfall: Neubau ausgeschlossen, Altbau möglich, Reparatur aus der Eigenheim-Rücklage (${5000 - heim.ruecklage} €)`);
+
+  // Barrierearmes Bad: Eigentümer zahlen aus der Eigenheim-Rücklage, Mieter aus dem Tagesgeld.
+  heim.ruecklage = 10000;
+  const cashBad = g.cash;
+  g.aktivesEvent = { eventId: 'bad-barrierearm', objektIndex: -1, monat: g.monat };
+  resolveEvent(g, 0);
+  const mieter = newGame({ seedText: 'bad-mieter' });
+  const cashMieter = mieter.cash;
+  mieter.aktivesEvent = { eventId: 'bad-barrierearm', objektIndex: -1, monat: 0 };
+  resolveEvent(mieter, 0);
+  check(g.cash === cashBad && heim.ruecklage < 10000 && mieter.cash < cashMieter,
+    `Barrierearmes Bad: Eigentümer aus der Rücklage (${10000 - heim.ruecklage} €), Mieter aus dem Tagesgeld (${cashMieter - mieter.cash} €)`);
 }
 
 // Wirkungs-Chips: zeigen die Effekte einer Option vor der Wahl, im laufenden Preisniveau.

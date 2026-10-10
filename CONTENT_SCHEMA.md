@@ -147,7 +147,7 @@ Arc-Folgen und 3 Auftaktmomente. 2–3 Optionen, **keine strikt dominante** (PLA
     "vorRuhestand": true,         // nur vor dem Rentenalter
     "nachRuhestand": true,        // nur ab dem Rentenalter (Ruhestandsthemen)
     "nurMieter": true,            // nur ohne Eigenheim (z. B. Eigenbedarfskündigung)
-    "mitEigenheim": true,         // nur mit Eigenheim; Kosten laufen zuerst über dessen Rücklage
+    "mitEigenheim": true,         // nur mit Eigenheim
     "eigenheimMindestAlter": 20   // Eigenheim mindestens so viele Jahre alt (Baujahr)
   },
   "optionen": [
@@ -171,6 +171,10 @@ Arc-Folgen und 3 Auftaktmomente. 2–3 Optionen, **keine strikt dominante** (PLA
   ]
 }
 ```
+
+`"kostenAmEigenheim": true` (Event-Ebene, neben `kategorie`): Bauarbeiten am
+eigenen Zuhause. Bei Eigentümern laufen negative `cash`-Beträge zuerst über die
+Rücklage des Eigenheims, Mieterhaushalte zahlen aus dem Tagesgeld.
 
 Effekt-Schlüssel (alle optional, werden ohne RNG verrechnet):
 `cash` (±€, aus Rücklage/Cash), `zustand` (± Stufe am Zielobjekt),

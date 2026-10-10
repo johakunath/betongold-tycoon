@@ -174,8 +174,10 @@ export function resolveEvent(state, optionIndex) {
   // Eventbeträge stehen in Euro des Spielstarts und laufen mit dem Preisniveau.
   const euro = (betrag) => Math.round(aktuellerBetrag(state, betrag));
   if (typeof eff.cash === 'number') {
-    // Kosten am Eigenheim laufen wie Objektkosten zuerst über dessen Rücklage.
-    const kostenObjekt = objekt ?? (ev.bedingung?.mitEigenheim ? state.eigenheim : null);
+    // Bauarbeiten am eigenen Zuhause (kostenAmEigenheim) laufen bei
+    // Eigentümern wie Objektkosten zuerst über die Eigenheim-Rücklage;
+    // Mieterhaushalte zahlen aus dem Tagesgeld.
+    const kostenObjekt = objekt ?? (ev.kostenAmEigenheim && state.eigenheim ? state.eigenheim : null);
     if (eff.cash < 0) zahleReparatur(state, kostenObjekt, euro(-eff.cash));
     else state.cash += euro(eff.cash);
   }
