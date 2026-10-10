@@ -1134,7 +1134,9 @@ function kaufeGuenstigesEigenheim(state) {
     && optionWirkungen(g, { effekt: { sondertilgung: 5000 } }, { darlehen: null })[0].text === 'keine direkte Wirkung'
     && optionWirkungen({ ...g, familienzufriedenheit: 99 }, { effekt: { familie: 4 } }, null)[0].text === 'Familie +1'
     && optionWirkungen({ ...g, familienzufriedenheit: 0 }, { effekt: { familie: -2 } }, null)[0].text === 'keine direkte Wirkung'
-    && optionWirkungen(g, { effekt: { mieterZufriedenheit: 0.3, auszug: true } }, { zustand: 3, mieter: null })[0].text === 'keine direkte Wirkung',
+    && optionWirkungen(g, { effekt: { mieterZufriedenheit: 0.3, auszug: true } }, { zustand: 3, mieter: null })[0].text === 'keine direkte Wirkung'
+    && optionWirkungen(g, getEvent('hitzewelle').optionen[2], { zustand: 3, mieter: {} }).map((w) => w.text).join('|') === 'Mieter unzufriedener'
+    && optionWirkungen(g, { effekt: { mieterZufriedenheit: 0.2, mieterKonflikt: 0.2 } }, { zustand: 3, mieter: {} })[0].text === 'keine direkte Wirkung',
   `Wirkungs-Chips: ${stundung.join(', ')} · später ${spaeter.join(', ')}`);
 }
 

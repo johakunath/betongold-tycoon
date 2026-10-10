@@ -280,11 +280,11 @@ export function optionWirkungen(state, opt, objekt, ev = null) {
     if (anzeige !== 0) liste.push({ text: `Familie ${zeichen(anzeige)}${Math.abs(anzeige).toLocaleString('de-DE')}`, ton: ton(anzeige) });
   }
   const mitMieter = ohneZielErlaubt(ziel?.mieter);
-  if (mitMieter && typeof eff.mieterZufriedenheit === 'number' && eff.mieterZufriedenheit !== 0) {
-    liste.push(eff.mieterZufriedenheit > 0 ? { text: 'Mieter zufriedener', ton: 'plus' } : { text: 'Mieter unzufriedener', ton: 'minus' });
-  }
-  if (mitMieter && typeof eff.mieterKonflikt === 'number' && eff.mieterKonflikt !== 0) {
-    liste.push(eff.mieterKonflikt > 0 ? { text: 'mehr Konfliktrisiko', ton: 'minus' } : { text: 'weniger Konflikt', ton: 'plus' });
+  // resolveEvent verrechnet mieterKonflikt als Abzug von der Zufriedenheit;
+  // die Vorschau zeigt deshalb eine einzige Netto-Stimmung.
+  const stimmung = (Number(eff.mieterZufriedenheit) || 0) - (Number(eff.mieterKonflikt) || 0);
+  if (mitMieter && Math.abs(stimmung) > 1e-9) {
+    liste.push(stimmung > 0 ? { text: 'Mieter zufriedener', ton: 'plus' } : { text: 'Mieter unzufriedener', ton: 'minus' });
   }
   if (mitMieter && eff.auszug) liste.push({ text: 'Mieter zieht aus', ton: 'minus' });
   if (opt?.arc && ohneZielErlaubt(ziel)) liste.push({ text: `Folge in ${opt.arc.nachMonaten} Monaten`, ton: 'neutral' });
