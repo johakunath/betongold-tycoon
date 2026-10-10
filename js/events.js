@@ -2,7 +2,7 @@
 // und Auflösung ohne RNG. Formeln: ECONOMY_MODEL §18. DOM-frei.
 
 import { rngFloat, zahleReparatur } from './state.js?v=61';
-import { alleEvents, getEvent } from './content.js?v=61';
+import { alleEvents, getEvent, getListing } from './content.js?v=61';
 import { planeObjektArc, schliesseAktivenArc } from './arcs.js?v=61';
 import { aktuellerBetrag, textInLaufendenEuro } from './preisniveau.js?v=61';
 
@@ -49,12 +49,21 @@ function hatAuto(state) {
   return (stufe?.faktor ?? 1) > 0;
 }
 
+// Alter des Eigenheims in Jahren (Baujahr aus dem Objekt oder seinem Listing).
+function eigenheimAlter(state) {
+  const heim = state.eigenheim;
+  if (!heim) return null;
+  const baujahr = Number(heim.baujahr ?? getListing(heim.listingId)?.baujahr);
+  if (!Number.isFinite(baujahr)) return null;
+  return state.config.zeit.startJahr + state.monat / 12 - baujahr;
+}
+
 function istImRuhestand(state) {
   const z = state.config.zeit;
   return z.startAlter + state.monat / 12 >= z.rentenAlter;
 }
 
-function istErfuellbar(state, ev) {
+export function istErfuellbar(state, ev) {
   const b = ev.bedingung || {};
   if (b.nurArc) return false;
   if (ev.kategorie === 'auftakt') return false; // deterministische Auftaktmomente, kein Zufallspool
@@ -70,6 +79,7 @@ function istErfuellbar(state, ev) {
   if (b.nachRuhestand && !istImRuhestand(state)) return false;
   if (b.nurMieter && state.eigenheim) return false;
   if (b.mitEigenheim && !state.eigenheim) return false;
+  if (b.eigenheimMindestAlter != null && !(eigenheimAlter(state) >= b.eigenheimMindestAlter)) return false;
 
   const brauchtObjekt = b.brauchtObjekt || ev.kategorie === 'objekt' || ev.kategorie === 'mieter';
   if (brauchtObjekt && passendeObjekte(state, ev).length === 0) return false;
@@ -164,7 +174,9 @@ export function resolveEvent(state, optionIndex) {
   // Eventbeträge stehen in Euro des Spielstarts und laufen mit dem Preisniveau.
   const euro = (betrag) => Math.round(aktuellerBetrag(state, betrag));
   if (typeof eff.cash === 'number') {
-    if (eff.cash < 0) zahleReparatur(state, objekt, euro(-eff.cash));
+    // Kosten am Eigenheim laufen wie Objektkosten zuerst über dessen Rücklage.
+    const kostenObjekt = objekt ?? (ev.bedingung?.mitEigenheim ? state.eigenheim : null);
+    if (eff.cash < 0) zahleReparatur(state, kostenObjekt, euro(-eff.cash));
     else state.cash += euro(eff.cash);
   }
   // Entgangene Miete ist keine Reparatur: direkt aus dem Tagesgeld, die

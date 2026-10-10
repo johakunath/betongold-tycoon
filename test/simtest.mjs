@@ -28,7 +28,7 @@ import {
 } from '../js/tenants.js?v=61';
 import { etfVerkaufVorschau, kaufeEtf, setzeSparplanEtfAnteil, verkaufeEtf } from '../js/etf.js?v=61';
 import { renovierungsOptionen, starteRenovierung } from '../js/renovation.js?v=61';
-import { optionWirkungen, resolveEvent } from '../js/events.js?v=61';
+import { istErfuellbar, optionWirkungen, resolveEvent } from '../js/events.js?v=61';
 import { kaufeEigenheim, wohnortWechselVorschau } from '../js/eigenheim.js?v=61';
 import { starteVerkauf } from '../js/verkauf.js?v=61';
 import { zieheWartemomente } from '../js/signals.js?v=61';
@@ -1111,6 +1111,29 @@ function kaufeGuenstigesEigenheim(state) {
   const arc2 = g2.objektArcs.find((a) => a.typ === 'stundung');
   check(!g2.aktivesEvent && arc2?.status === 'beendet',
     'Stundungs-Arc endet still, wenn bis zur Fälligkeit ein anderer Mieter eingezogen ist');
+}
+
+// Heizungsausfall zu Hause: nur bei mindestens 20 Jahre altem Eigenheim, Kosten
+// zuerst aus der Rücklage des Eigenheims.
+{
+  const g = newGame({ seedText: 'heizung-eigenheim' });
+  initialisiereMarkt(g);
+  kaufeGuenstigesEigenheim(g);
+  const heim = g.eigenheim;
+  const ev = getEvent('heizung-eigenheim');
+  const kalendermonat = () => ((g.config.zeit.startMonat - 1 + g.monat) % 12) + 1;
+  while (![12, 1, 2].includes(kalendermonat())) g.monat++; // Event ist an den Winter gebunden
+  heim.baujahr = 2022;
+  const neuGeeignet = istErfuellbar(g, ev);
+  heim.baujahr = 1980;
+  delete g.eventHistorie['heizung-eigenheim'];
+  const altGeeignet = istErfuellbar(g, ev);
+  heim.ruecklage = 5000;
+  const cashVor = g.cash;
+  g.aktivesEvent = { eventId: 'heizung-eigenheim', objektIndex: -1, monat: g.monat };
+  resolveEvent(g, 0);
+  check(heim && !neuGeeignet && altGeeignet && g.cash === cashVor && heim.ruecklage < 5000,
+    `Heizungsausfall: Neubau ausgeschlossen, Altbau möglich, Reparatur aus der Eigenheim-Rücklage (${5000 - heim.ruecklage} €)`);
 }
 
 // Wirkungs-Chips: zeigen die Effekte einer Option vor der Wahl, im laufenden Preisniveau.

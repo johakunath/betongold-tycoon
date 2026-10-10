@@ -519,7 +519,7 @@
     "text": "Im eigenen Zuhause fällt mitten im Winter die Heizung aus. Der Kessel ist über 20 Jahre alt.",
     "kategorie": "haushalt",
     "gewicht": 0.8,
-    "bedingung": { "einmalig": false, "cooldownMonate": 120, "jahreszeit": "winter", "mitEigenheim": true },
+    "bedingung": { "einmalig": false, "cooldownMonate": 120, "jahreszeit": "winter", "mitEigenheim": true, "eigenheimMindestAlter": 20 },
     "optionen": [
       {"text": "Reparieren lassen", "effekt": {"cash": -900, "familie": -1}, "folge": "Wieder warm, aber der nächste Ausfall ist nur eine Frage der Zeit."},
       {"text": "Heizung tauschen, Förderung beantragen", "effekt": {"cash": -9000, "familie": 2}, "folge": "Großer Betrag nach Abzug der Förderung; danach ist Ruhe im Heizungskeller."}

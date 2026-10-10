@@ -147,7 +147,8 @@ Arc-Folgen und 3 Auftaktmomente. 2–3 Optionen, **keine strikt dominante** (PLA
     "vorRuhestand": true,         // nur vor dem Rentenalter
     "nachRuhestand": true,        // nur ab dem Rentenalter (Ruhestandsthemen)
     "nurMieter": true,            // nur ohne Eigenheim (z. B. Eigenbedarfskündigung)
-    "mitEigenheim": true          // nur mit Eigenheim (z. B. Heizungsausfall zu Hause)
+    "mitEigenheim": true,         // nur mit Eigenheim; Kosten laufen zuerst über dessen Rücklage
+    "eigenheimMindestAlter": 20   // Eigenheim mindestens so viele Jahre alt (Baujahr)
   },
   "optionen": [
     {
